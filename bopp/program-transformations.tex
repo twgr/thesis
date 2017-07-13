@@ -1,0 +1,153 @@
+% !TEX root = bopp.tex
+
+In this section we give a more detailed and language specific description of our program transformations, code for which can be found at \href{http://www.github.com/probprog/bopp}{\url{http://www.github.com/probprog/bopp}}. %We will refer to the code in explaining the implementation of program transformations for BOPP.
+
+\subsection{Anglican}
+Anglican is a probabilistic programming language integrated into Clojure (a dialect of Lisp) and inherits most of the corresponding syntax. Anglican extends Clojure with the special forms \sample and \observe \citep{tolpin2015probabilistic}.  
+Each random draw in an Anglican program corresponds to a \sample  call, which can be thought of as a term in the prior. 
+Each \observe statement applies weighting to a program trace and thus constitutes a term in the likelihood.
+Compilation of an Anglican program, performed by the macro \lsi{query}, corresponds to transforming the code into a variant of continuation-passing style (CPS) code, which results in a function that can be executed using a particular inference algorithm.
+
+Anglican program code is represented by a nested list of expressions, symbols, non-literals for contructing data structures (e.g. \lsi{[...]} for vectors), and command dependent literals (e.g. \lsi{[...]} as a second argument of a \lsi{let} statement which is used for binding pairs).  In order to perform program transformations, we can recursively traverse this nested list which can be thought of as an abstract syntax tree of the program.
+
+Our program transformations also make use of the Anglican forms \lsi{store} and \lsi{retrieve}.  These allow storing any variable in the probabilistic program's execution trace in a state which is passed around during execution and from which we can retrieve these stored values.  The core use for this is to allow the outer query to return variables which are only locally scoped.
+
+To allow for the early termination that will be introduced in Section \ref{sec:bopp-supp/early-term}, it was necessary to add a mechanism for non-local returns to Anglican.  Clojure supports non-local returns only through Java exception handling, via the keywords {\bf\ttfamily\color{cyan} try}~{\bf\ttfamily\color{cyan}throw},~{\bf\ttfamily\color{cyan}catch} and {\bf\ttfamily\color{cyan}finally}.  Unfortunately, these are not currently supported by Anglican and their behaviour is far from ideal for our purposes.  In particular, for programs containing nested {\bf\ttfamily\color{cyan}try} statements, throwing to a particular {\bf\ttfamily\color{cyan}try} in the stack, as opposed to the most recently invoked, is cumbersome and error prone.
+%
+%Firstly, return values are stored within exceptions which is cumbersome and can cause issues in debugging.  Secondly, it is difficult to control the point of return.  For example, imagine we wish to return from the query itself and so wrap the original query in a {\bf\ttfamily\color{cyan}try-catch} block.  Na\"{i}vely throwing might now cause us to return to an unexpected point if the original query already contained a {\bf\ttfamily\color{cyan}try-catch} block.  Thus controlling the exact return point would require a careful and error-prone mechanism based on custom exception types and catches.
+
+We have instead, therefore, added to Anglican a non-local return mechanism based on the Common Lisp control form \lsi{catch/throw}.  This uses a \emph{catch tag} to link each \lsi{throw} to a particular \lsi{catch}.  For example
+\begin{lstlisting}[basicstyle=\footnotesize\ttfamily]
+(catch :tag
+  (when (> a 0)
+    (throw :tag a))
+  0)
+\end{lstlisting}
+is equivalent to \lsi{(max a 0)}.  More precisely, \lsi{throw} has syntax \lsi{(throw tag value)} and will cause the \lsi{catch} block with the corresponding \lsi{tag} to exit, returning \lsi{value}.   If a \lsi{throw} goes uncaught, i.e. it is not contained within a \lsi{catch} block with a matching tag, a custom Clojure exception is thrown.
+
+%To allow for the early termination discussed in Section \ref{sec:bopp-supp/early-term}, it was necessary to add one new primitive to Anglican, namely \lsi{return} with syntax \lsi{(return return-val)}.  At a high level, \lsi{return} causes the query to terminate, returning \lsi{return-val}.  This is done by, during runtime of the CPS compiled code, returning a Clojure record \lsi{->result} containing \lsi{return-val} instead of a valid program continuation, causing the query execution to terminate and return the required value.
+
+\subsection{Representations in the Main Paper}
+\label{sec:bopp-supp/main-paper-rep}
+
+In the main paper we presented the code transformations as static transformations as shown in Figure~\ref{fig:bopp_overview}.  Although for simple programs, such as the given example, these transformations can be easily expressed as static transformations, for more complicated programs it would be difficult to actually implement these as purely static generic transformations in a higher-order language.  Therefore, even though all the transformations dynamically execute as shown at runtime, in truth, the generated source code for the prior and acquisition transformations varies from what is shown and has been presented this way in the interest of exposition.  Our true transformations exploit \lsi{store}, \lsi{retrieve}, \lsi{catch} and \lsi{throw} to generate programs that dynamically execute in the same way at run time as the static examples shown, but whose actual source code varies significantly.
+
+\subsection{Prior Transformation}
+\label{sec:bopp-supp/prior-transformations}
+The prior transformation recursively traverses the program tree and applies two local transformations.  
+Firstly it replaces all \observe statements by \lsi{nil}.  
+As \observe statements return \lsi{nil}, this trivially preserves the generative model of the program, but the probability of the execution changes. 
+Secondly, it inspects the binding variables of \lsi{let} forms in order to modify the binding expressions for the optimization variables, as specified by the second input of \defopt, asserting that these are directly bound to a \sample statement of the form \texttt{(\sample dist)}.
+The transformation then replaces this expression by one that stores the result of this sample in Anglican's \lsi{store} before returning it.
+Specifically, if the binding variable in question is \lsi{phi-k}, then the original binding expression \lsi{(sample dist)} is transformed into
+% \begin{figure}
+    \begin{lstlisting}[basicstyle=\footnotesize\ttfamily]
+(let [value (sample dist)]
+  ;; Store the sampled value in Anglican's store
+  (store OPTIM-ARGS-KEY
+         'phi-k
+         value)
+  value)
+    \end{lstlisting}
+%     \caption{}
+%     \label{fig:prior-1}
+% \end{figure}
+
+After all these local transformation have been made, we wrap the resulting query block in a \lsi{do} form and append an expression extracting the optimization variables using Anglican's \lsi{retrieve}.  This makes the optimization variables the output of the query.  Denoting the list of optimization variable symbols from \defopt as \lsi{optim-args} and the query body after applying all the above location transformations as \dots, the prior query becomes
+% \begin{figure}
+    \begin{lstlisting}[basicstyle=\footnotesize\ttfamily]
+(query query-args
+  (do
+    ...
+    (map (fn [x] (retrieve OPTIM-ARGS-KEY x))
+       optim-args)))
+    \end{lstlisting}
+%     \caption{}
+%     \label{fig:prior-3}
+% \end{figure}
+Note that the difference in syntax from Figure~\ref{fig:bopp_overview} is because \lsi{defquery} is in truth a syntactic sugar allowing users to bind \lsi{query} to a variable.  As previously stated, \lsi{query} is macro that compiles an Anglican program to its CPS transformation.  An important subtlety here is that the order of the returned samples is dictated by \lsi{optim-args} and is thus independent of the order in which the variables were actually sampled, ensuring consistent inputs for the BO package.
+
+We additionally add a check (not shown) to ensure that all the optimization variables have been added to the store, and thus sampled during the execution, before returning.  This ensures that our assumption that each optimization variable is assigned for each execution trace is satisfied.
+
+\subsection{Acquisition Transformation}
+\label{sec:bopp-supp/acq-transformations}
+The acquisition transformation is the same as the prior transformation except we append the acquisition function, \lsi{ACQ-F}, to the inputs and then \observe its application to the optimization variables before returning.
+The acquisition query is thus
+% \begin{figure}
+    \begin{lstlisting}[basicstyle=\footnotesize\ttfamily]
+(query [query-args ACQ-F]
+  (do
+    ...
+    (let [theta (map (fn [x] (retrieve OPTIM-ARGS-KEY x))
+                      optim-args)]
+      (observe (factor) (ACQ-F theta))
+      theta)))
+    \end{lstlisting}
+%     \caption{}
+%     \label{fig:acq-1}
+% \end{figure}
+
+\subsection{Early Termination}
+\label{sec:bopp-supp/early-term}
+To ensure that \lsi{q-prior} and \lsi{q-acq} are cheap to evaluate and that the latter does not include unnecessary terms which complicate the optimization, we wish to avoid executing code that is not required for generating the optimization variables.
+Ideally we would like to directly remove all such redundant code during the transformations.
+However, doing so in a generic way applicable to all possible programs in a higher order language represents a significant challenge.
+Therefore, we instead transform to programs with additional early termination statements, triggered when all the optimization variables have been sampled.  
+Provided one is careful to define the optimization variables as early as possible in the program (in most applications, e.g. hyperparameter optimization, they naturally occur at the start of the program), this is typically sufficient to ensure that the minimum possible code is run in practise.
+
+To carry out this early termination, we first wrap the query in a \lsi{catch} block with a uniquely generated tag.  We then augment the transformation of an optimization variable's binding described in Section~\ref{sec:bopp-supp/prior-transformations} to check if all optimization variables are already stored, and invoke a \lsi{throw} statement with the corresponding tag if so.  Specifically we replace relevant binding expressions \lsi{(sample dist)} with
+% \begin{figure}
+    \begin{lstlisting}[basicstyle=\footnotesize\ttfamily]
+(let [value (sample dist)]
+  ;; Store the sampled value in Anglican's store
+  (store OPTIM-ARGS-KEY
+         'phi-k
+         value)
+  ;; Terminate early if all optimization variables are sampled
+  (if (= (set (keys (retrieve OPTIM-ARGS-KEY)))
+         (set optim-args))
+    (throw BOPP-CATCH-TAG prologue-code)
+    value))
+    \end{lstlisting}
+%     \caption{}
+%     \label{fig:early-termination}
+% \end{figure}
+where \lsi{prologue-code} refers to one of the following expressions depending on whether it is used for a prior or an acquisition transformation
+% \begin{figure}
+    \begin{lstlisting}[basicstyle=\footnotesize\ttfamily]
+;; Prior query prologue-code
+(map (fn [x] (retrieve OPTIM-ARGS-KEY x))
+             optim-args)
+
+;; Acquisition query prologue-code
+(do
+  (let [theta (map (fn [x] (retrieve OPTIM-ARGS-KEY x))
+                    optim-args)]
+  (observe (factor) (ACQ-F theta))
+  theta))
+    \end{lstlisting}
+%     \caption{}
+%     \label{fig:early-termination-2}
+% \end{figure}
+
+We note that valid programs for both \lsi{q-prior} and \lsi{q-acq} should always terminate via one of these early stopping criteria and therefore never actually reach the appending statements in the \lsi{query} blocks shown in Sections \ref{sec:bopp-supp/prior-transformations} and \ref{sec:bopp-supp/acq-transformations}.  As such, these are, in practise, only for exposition and error catching.
+
+\subsection{Marginal/MMAP Transformation}
+The marginal transformation inspects all \lsi{let} binding pairs and if a binding variable \lsi{phi-k} is one of the optimization variables, the binding expression \lsi{(sample dist)} is transformed to the following
+% \begin{figure}
+    \begin{lstlisting}[basicstyle=\footnotesize\ttfamily]
+(do (observe dist phi-k-hat)
+    phi-k-hat)
+    \end{lstlisting}
+%     \caption{}
+%     \label{fig:marg-1}
+% \end{figure}
+corresponding to the \lsi{observe<-} form used in the main paper.
+
+\subsection{Error Handling}
+During program transformation stage, we provide three error-handling mechanisms to enforce the restrictions on the probabilistic programs described in Section~\ref{sec:problem}.
+\begin{enumerate}
+    \item We inspect \lsi{let} binding pairs and throw an error if an optimization variable is bound to anything other than a \sample statement.
+    \item We add code that throws a runtime error if any optimization variable is assigned more than once or not at all.
+    \item We recursively traverse the code and throw a compilation error if \sample statements of different base measures are assigned to any optimization variable.  At present, we also throw an error if the base measure assigned to an optimization variable is unknown, e.g. because the distribution object is from a user defined \lsi{defdist} where the user does not provide the required measure type meta-information.
+\end{enumerate}

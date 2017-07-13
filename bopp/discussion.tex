@@ -1,0 +1,8 @@
+% !TEX root =  bopp.tex
+
+We have introduced a new method for carrying out MMAP estimation of probabilistic program variables using Bayesian optimization, representing the first unified framework for optimization and inference of probabilistic programs.  By using a series of code transformations, our method allows an arbitrary program to be optimized with respect to a defined subset of its variables, whilst marginalizing out the rest.  To carry out the required optimization, we introduce a new GP-based BO package that exploits the availability of the target source code to provide a number of novel features, such as automatic domain scaling and constraint satisfaction.  
+
+The concepts we introduce lead directly to a number of extensions of interest, including but not restricted to smart initialization of inference algorithms, adaptive proposals, and nested optimization.  Further work might consider maximum marginal likelihood estimation and risk minimization.  Though only requiring minor algorithmic changes, these cases require distinct theoretical considerations.
+%Another interesting possible extension would be to to apply Bayesian quadrature \cite{osborne2012active} to probabilistic programs.
+
+%Although our implementation is currently restricted to optimize numerical variables of fixed dimensionality, it is possible to extend to a more general case using appropriate kernels, such as the arc kernels introduced by \cite{swersky2014raiders}, which cater to scenarios where certain variables may only exist conditioned on the values of other variables.

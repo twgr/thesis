@@ -1,0 +1,41 @@
+% !TEX root =  bopp.tex
+
+The target function for our BO scheme is $\log p(Y,\theta)$, noting $\argmax f\left(\theta\right) = \argmax \log f\left(\theta\right)$ for any $f : \vartheta \rightarrow \real^+$.  The log is taken because GPs have unbounded support, while $p\left(Y,\theta\right)$ is always positive, and because we expect variations over many orders of magnitude.  PPS with importance sampling based inference engines, e.g. sequential Monte Carlo \citep{wood2014new} or the particle cascade \citep{paige2014asynchronous}, can return noisy estimates of this target given the transformed program \qmarg.   
+
+%By coupling \qmarg~with an existing inference engine that returns a marginal likelihood estimate, i.e.  we can form a function for evaluating (noisy) estimates of $p(Y,\theta)$ at a given $\theta$.  This provides the required target function for a BO scheme and its optimization will provide the required MMAP estimate as defined by~\eqref{eq:MMAP}.
+
+%Given this transformation, we can convert any probabilistic program, and therefore any graphical model, to an optimization problem for the marginal probability with respect to any subset of the sampled variables, marginalizing out the rest.  We can evaluate the resulting target function at a given $\theta$ using any existing inference engine that returns a (noisy) estimate of the log ML $\hw$, such as sequential Monte Carlo (default behaviour used in all experiments), the particle cascade \citep{paige2014asynchronous} or importance sampling, and use GP based BO to actively sample the queried $\theta$.
+
+Our BO scheme uses a GP prior and a Gaussian likelihood.  Though the rationale for the latter is predominantly computational, giving an analytic posterior, there are also theoretical results suggesting that this choice is appropriate \citep{berard2014lognormal}. We use as a default covariance function a combination of a Mat\'{e}rn-3/2 and Mat\'{e}rn-5/2 kernel.  Specifically, let $D = \lVert \theta \rVert_0$ be the dimensionality of $\theta$ and define
+\begin{subequations}
+	\begin{align}
+	\label{eq:d_def}
+	d_{3/2}(\theta,\theta') &= \sqrt{\sum_{i=1}^{D} \frac{\theta_i-\theta_i'}{\rho_i}} \displaybreak[0] \\
+	d_{5/2}(\theta,\theta') &= \sqrt{\sum_{i=1}^{D} \frac{\theta_i-\theta_i'}{\varrho_i}}
+	\end{align}
+\end{subequations}
+where $i$ indexes a dimension of $\theta$ and $\rho_i$ and $\varrho_i$ are dimension specific length scale hyperparameters. Our prior covariance function is now given by
+\begin{align}
+\label{eq:kprior}
+\begin{split}
+k_{\text{prior}}\left(\theta,\theta'\right) = & \sigma_{3/2}^2 \left(1+\sqrt{3}d_{3/2}\left(\theta,\theta'\right)\right)\exp\left(-\sqrt{3}d_{3/2}\left(\theta,\theta'\right)\right) +\\&\sigma_{5/2}^2 \left(1+\sqrt{5}d_{5/2}\left(\theta,\theta'\right)+\frac{5}{3}(d_{5/2}\left(\theta,\theta'\right))^2\right)\exp\left(-\sqrt{5}d_{5/2}\left(\theta,\theta'\right)\right) 
+\end{split}
+\end{align}
+where $\sigma_{3/2}$ and $\sigma_{5/2}$ represent signal standard deviations for the two respective kernels.  The full set of GP hyperparameters is defined by $\alpha = \{\sigma_n,\sigma_{3/2},\sigma_{5/2},\rho_{i=1:D},\varrho_{i=1:D}\}$.  A key feature of this kernel is that it is only once differentiable and therefore makes relatively weak assumptions about the smoothness of $f$.  The ability to include branching in a probabilistic program means that, in some cases, an even less smooth kernel than~\eqref{eq:kprior} might be preferable.  However, there is clear a trade-off between generality of the associated reproducing kernel Hilbert space and modelling power.
+
+As noted by \citep{snoek2012practical}, the performance of BO using a single GP posterior is heavily influenced by the choice of these hyperparameters.  We therefore exploit the automated domain scaling introduced in Section~\ref{sec:domain} to define a problem independent hyperprior $p(\alpha)$ and perform inference to give a mixture of GPs posterior.  Details on this hyperprior are given in Appendix~\ref{sec:app:hyperprior}.
+
+Inference over $\alpha$ is performed using Hamiltonian Monte Carlo (HMC) \citep{duane1987hybrid}, giving an unweighted mixture of GPs.  Each term in this mixture has an analytic distribution fully specified by its mean function $\mu_m^i \colon \vartheta \rightarrow \real$ and covariance function $k_m^i \colon \vartheta \times \vartheta \rightarrow \real$, where $m$ indexes the BO iteration and $i$ the hyperparameter sample.  HMC was chosen because of the availability of analytic derivatives of the GP log marginal likelihoods.  As we found that the performance of HMC was often poor unless a good initialization point was used, BOPP runs a small number of independent chains and allocates part of the computational budget to their initialization using a L-BFGS optimizer \citep{broyden1970convergence}. 
+
+The inferred posterior is first used to estimate which of the previously evaluated $\hth_j$ is the most optimal, by taking the point with highest expected value
+%\footnote{One could trivially expand the algorithm beyond MMAP by instead using the approriate linear combination of the mean and marginal standard deviation, for example maximizing a lower confidence bound.}
+, $\hat{u}^*_m = \max_{j\in1\dots m} \sum_{i=1}^{N} \mu_{m}^i (\hth_j)$.  This completes the definition of the output sequence returned by the \doopt macro.  Note that as the posterior updates globally with each new observation, the relative estimated optimality of previously evaluated points changes at each iteration.
+% and $\hat{u}^*_a > \hat{u}^*_b$ is possible for $a<b$, even though with the extra information gather by iteration $b$ we believe $\hth_b^*$ is more optimal that $\hth_a^*$.
+Secondly it is used to define the acquisition function $\zeta$, for which we take the expected improvement \citep{snoek2012practical}, defining $\sigma_m^i\left(\theta\right) = \sqrt{k_m^i\left(\theta,\theta\right)}$ and $\gamma_m^i\left(\theta\right) = \frac{\mu_m^i \left(\theta\right)-\hat{u}_m^*}{\sigma_m^i\left(\theta\right)}$,
+\begin{align}
+\label{eq:exp-imp}
+\zeta \left(\theta\right) = \sum_{i=1}^{N} \left(\mu_m^i\left(\theta\right)-\hat{u}_m^*\right)\Phi \left(\gamma_m^i\left(\theta\right)\right)+\sigma_m^i\left(\theta\right)\phi\left(\gamma_m^i\left(\theta\right)\right)
+\end{align}
+where $\phi$ and $\Phi$ represent the pdf and cdf of a unit normal distribution respectively.   We note that more powerful, but more involved, acquisition functions, e.g. \citep{hernandez2014predictive}, could be used instead.
+
+

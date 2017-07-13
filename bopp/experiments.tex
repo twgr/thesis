@@ -1,0 +1,53 @@
+% !TEX root =  bopp.tex
+
+%We evaluate our BOPP framework in two case studies that represent different use cases for Bayesian optimization. In both problem settings Bayesian optimization serves to minimize the number of evaluations needed for a computationally expensive operation. The first problem is hyperparameter optimization for probabilistic programs. Here the expensive step is marginalization over the non-optimized random variables in a program, which is performed using one of the generic inference methods provided by Anglican's inference back end. In the second case study we consider programs in which an expensive forward simulation is used to perform approximate Bayesian computation. Here the use of probabilistic programming allows determination of parameters that are marginally optimal with respect to some distribution of simulation inputs.
+
+\begin{figure*}[t]
+	%	\includegraphics[width=1.35in,trim={0 0 0 0},clip]{figures/simple-bimodal/simple-bimodal-160229-03-5.png}
+	%	\includegraphics[width=1.35in]{figures/simple-bimodal/simple-bimodal-160229-03-10.png}
+	%	\includegraphics[width=1.35in]{figures/simple-bimodal/simple-bimodal-160229-03-20.png}
+	%	\includegraphics[width=1.35in]{figures/simple-bimodal/simple-bimodal-160229-03-50.png}
+	%\includegraphics[width=1.65in]{"figures/simple-bimodal/simple-bimodal-160229-03-100"}
+	\includegraphics[width=0.99\textwidth]{unbounded_opt}
+	\caption{Convergence on an unconstrained bimodal problem with $p \left(\theta\right)={\rm Normal}(0, 0.5)$ and $p \left(Y|\theta\right)={\rm Normal}(5-\left|\theta\right|,0.5)$ giving significant prior misspecification. The top plots show a regressed GP, with the solid line corresponding to the mean and the shading shows $\pm$ 2 standard deviations.  The bottom plots show the corresponding acquisition functions. \label{fig:domainAdpat}}
+\end{figure*}
+
+We first demonstrate the ability of BOPP to carry out unbounded optimization using a 1D problem with a significant prior-posterior mismatch as shown in Figure \ref{fig:domainAdpat}.  It shows BOPP adapting to the target and effectively establishing a maxima in the presence of multiple modes.   After 20 evaluations the acquisitions begin to explore the right mode, after 50 both modes have been fully uncovered.
+
+\begin{figure*}[t]
+	\centering
+	\includegraphics[width=1\textwidth]{combined_opt_plots}
+	%	\includegraphics[width=1.35in]{figures/bayes-opt-comp/branin.pdf}
+	%	\includegraphics[width=1.35in]{figures/bayes-opt-comp/hartmann.pdf}
+	%	\includegraphics[width=1.35in]{figures/bayes-opt-comp/svm.pdf}
+	%	\includegraphics[width=1.35in]{figures/bayes-opt-comp/lda.pdf}
+	\caption{Comparison of BOPP  used as an optimizer to prominent BO packages on common benchmark problems.  
+		%Branin and Hartmann 6D represent are continuous optimizations, whilst SVM on-grid and LDA on-grid are discrete.  
+		The dashed lines shows the final mean error of SMAC (red), Spearmint (green) and TPE (black) as quoted by \cite{eggensperger2013towards}. % which also provides further details on the other packages and the benchmark problems.  
+		The dark blue line shows the mean error for BOPP averaged over 100 runs, whilst the median and 25/75\% percentiles are shown in cyan. Results for Spearmint on Branin and SMAC on SVM on-grid are omitted because both BOPP and the respective algorithms averaged zero error to the provided number of significant figures in \cite{eggensperger2013towards}.
+		%, meaning it not possible to check where BOPP performed better or worse then the alternative in these two cases.
+		\label{fig:bayes-opt}}
+\end{figure*}
+
+\subsection{Classic Optimization Benchmarks}
+
+Next we compare BOPP to the prominent BO packages SMAC \cite{hutter2011sequential}, Spearmint \cite{snoek2012practical} and TPE \cite{bergstra2011algorithms} on a number of classical benchmarks as shown in Figure \ref{fig:bayes-opt}.  These results demonstrate that BOPP provides substantial advantages over these systems when used simply as an optimizer on both continuous and discrete optimization problems.  In particular, it offers a large advantage over SMAC and TPE on the continuous problems (Branin and Hartmann), due to using a more powerful surrogate, and over Spearmint on the others due to not needing to make approximations to deal with discrete problems.
+
+\subsection{Marginal Maximum a Posteriori Estimation Problems}
+
+We now demonstrate application of BOPP on a number of MMAP problems.  Comparisons here are more difficult due to the dearth of existing alternatives for PPS.  In particular, simply running inference on the original query does not return estimates for $p\left(Y,\theta\right)$.  We consider the possible alternative of using our conditional code transformation to design a particle marginal Metropolis Hastings (PMMH, \cite{andrieu2010particle}) sampler which operates in a similar fashion to BOPP except that new $\theta$ are chosen using a MH step instead of actively sampling with BO.
+%\footnote{To carry out MMAP one could further apply an annealing to the PMMH.  We omit this here as the behaviour of such as system would be indistinguishable from the presented results, due to the small number of iterations and very large variations of $p\left(\theta\right)$ for changes in $\theta$.}
+For these MH steps we consider both LMH \citep{wingate2011lightweight} with proposals from the prior and the random-walk MH (RMH) variant introduced in Section \ref{sec:optacqfunc}.
+
+\subsubsection{Hyperparameter Optimization for Gaussian Mixture Model}
+
+\input{mvn-mixture.tex}
+
+\subsubsection{Extended Kalman Filter for the Pickover Chaotic Attractor}
+\label{sec:AppKalman}
+
+\input{chaos.tex}
+
+\subsubsection{Hidden Markov Model with Unknown Number of States}
+
+\input{hmm.tex}
