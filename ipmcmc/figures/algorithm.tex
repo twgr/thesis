@@ -1,0 +1,74 @@
+\tikzstyle{smc}=[circle,
+                                    thick,
+                                    minimum size=1.2cm,
+                                    draw=blue!80,
+                                    fill=blue!40]
+\tikzstyle{csmc}=[circle,
+                                    thick,
+                                    minimum size=1.2cm,
+                                    draw=red!80,
+                                    fill=red!20]
+
+\tikzstyle{background}=[rectangle,
+                                                fill=gray!10,
+                                                inner sep=0.2cm,
+                                                rounded corners=5mm]
+
+\begin{tikzpicture}[>=latex,text height=1.5ex,text depth=0.25ex]
+  \matrix[row sep=0.5cm,column sep=0.5cm] {
+    %&
+        \node (j) []{$m$};           &
+        \node (j1) []{$\mathbf{1}$}; &
+        \node (j2) []{$\mathbf{2}$}; &
+        \node (j3) []{$\mathbf{3}$}; &
+        \node (j4) []{$\mathbf{4}$}; &
+        \node (j5) []{$\mathbf{5}$}; &
+        \\
+        &
+        \node (d1) []{$\vdots$}; &
+        \node (d2) []{$\vdots$}; &
+        \node (d3) []{$\vdots$}; &
+        \node (d4) []{$\vdots$}; &
+        \node (d5) []{$\vdots$}; &
+        \\
+        \node (r-1) []{$r-1$};      &
+        \node (r-1_1) [smc]{};      &
+        \node (r-1_2) [smc]{};      &
+        \node (r-1_3) [csmc]{};     &
+        \node (r-1_4) [smc]{};      &
+        \node (r-1_5) [csmc]{};     &
+        \\
+        \node (r) []{$r$};          &
+        \node (r_1) [smc]{};        &
+        \node (r_2) [csmc]{};       &
+        \node (r_3) [smc]{};        &
+        \node (r_4) [smc]{};        &
+        \node (r_5) [csmc]{};       &
+        \\
+        \node (r+1) []{$r+1$};      &
+        \node (r+1_1) [smc]{};      &
+        \node (r+1_2) [csmc]{};     &
+        \node (r+1_3) [smc]{};      &
+        \node (r+1_4) [smc]{};      &
+        \node (r+1_5) [csmc]{};     &
+        \\
+        &
+        \node (d21) []{$\vdots$}; &
+        \node (d22) []{$\vdots$}; &
+        \node (d23) []{$\vdots$}; &
+        \node (d24) []{$\vdots$}; &
+        \node (d25) []{$\vdots$}; &
+        \\
+    };
+
+    \path[->]
+        %(A) edge[thick] (x)	% 
+
+        ;
+    \begin{pgfonlayer}{background}
+        \node [background,
+                    fit=(r-1_1) (r-1_5)] {};
+        \node [background,
+                    fit=(r+1_1) (r+1_5)] {};
+    \end{pgfonlayer}
+\end{tikzpicture}

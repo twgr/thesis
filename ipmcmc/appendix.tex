@@ -1,0 +1,97 @@
+% !TEX root = ../main.tex
+
+%\section{Notation}
+%We will consider a target $\pi_T(x_{1:T}) = Z_{\pi_T}^{-1}\gamma_T(x_{1:T})$ that can be split up in to a sequence of unnormalised distributions $\gamma_t(x_{1:t}), ~t=1,\ldots,T$. For this we run an \smc algorithm that generates samples $\xb_m^i = (x_m^{i,1},\ldots,x_m^{i,T}) \in \setX^T$ and ancestry paths $\ab_m^i = (a_m^{i,1},\ldots,a_m^{i,T-1})\in \{1,\ldots,N\}^{\otimes T-1} \eqdef [N]^{\otimes T-1}$. Running the \smc algorithm induces a distribution denoted by $q_{\text{SMC}}\left( \xb_m^i, \ab_m^i \right)$ over all generated random variables for $m=1,\ldots,M$ and $i=1,\ldots,N$. For simplicity we only consider the basic sequential Monte Carlo algorithm where we resample multinomially at each step, propagate from $q_t(x_t|x_{1:t-1})$ and weight according to
+%\begin{align}
+%W_t(x_{1:t}) = \frac{\gamma_t(x_{1:t})}{\gamma_{t-1}(x_{1:t-1}) q_t(x_t|x_{1:t-1})}.\nonumber
+%\end{align}
+%Note that this formulation is slightly more general than the one in the main manuscript. For a more thorough description of the \smc sampler we refer the reader to \eg \citet{doucet2001sequential,doucet2009tutorial}.
+
+% ======================================================================
+%
+%         Distributed Multiple Conditional Sequential Monte Carlo          
+%  
+% ======================================================================
+
+\section{Proof of Theorem~\ref{thm:one}}
+\label{sec:proof}
+The proof follows similar ideas as \citet{andrieuDH2010}. We prove that the interacting particle Markov chain Monte Carlo sampler is in fact a standard partially collapsed Gibbs sampler \citep{van2008partially} on an extended space ${\Upsilon \eqdef \setX^{\otimes MTN} \times [N]^{\otimes M(T-1)N} \times [M]^{\otimes P} \times [N]^{\otimes P}}$.
+\vspace{10pt}
+%\[
+%{\Upsilon \eqdef \setX^{\otimes MTN} \times [N]^{\otimes M(T-1)N} \times [M]^{\otimes P} \times [N]^{\otimes P}}.
+%\]
+
+\begin{proof}
+	Assume the setup of Section~\ref{sec:method}. %For convenience, we repeat the target distribution $\tilde\pi(\cdot)$, \ie \eqref{eq:targetdistribution}, on $\Upsilon$ here 
+	%\begin{align}
+	%\label{app:targetdistribution}
+	%&\tilde \pi(\xib_{1:M}, c_{1:P}, b_{1:P}) = \nonumber \\
+	%& \frac{1}{N^{PT} \binom{M}{P}} \prod_{\substack{m=1\\m\notin c_{1:P}}}^M q_{\text{SMC}}\left(\xib_m\right) \times \prod_{j = 1}^P \pi_T\left(\xb_{c_j}^{b_j}\right) \iden_{c_j \notin c_{1:j-1}} \nonumber \\
+	%&\prod_{j = 1}^P q_{\text{CSMC}}\left(\xib_{c_j} \backslash \{\xb_{c_j}^{b_j}, \bb_{c_j}\} \mid \xb_{c_j}^{b_j}, \bb_{c_j}, c_j, b_j \right).
+	%\end{align}
+	%\begin{align}
+	%\label{eq:supptargetdist}
+	%\tilde \pi(\xb_{1:M}^{1:N}, \ab_{1:M}^{1:N}, C_{1:P}, B_{1:P}) &= \frac{1}{N^{PT} \binom{M}{P}} \prod_{\substack{m=1\\m\notin C_{1:P}}}^M q_{\text{SMC}}\left(\xb_m^{1:N},\ab_m^{1:N}\right)  \times \prod_{j = 1}^P \pi_T\left(\xb_{C_j}^{B_j}\right) \mathbbm{1}_{C_j \notin C_{1:j-1}}  \nonumber\\
+	%&\times \prod_{j = 1}^P q_{\text{CSMC}}\left(\xb_{C_j}^{1:N},\ab_{C_j}^{1:N} \backslash \{\xb_{C_j}^{B_j}, \bb_{C_j}^{B_j}\} \mid \xb_{C_j}^{B_j}, \bb_{C_j}^{B_j}, C_j, B_j \right),
+	%\end{align}
+	%with $q_{\text{SMC}}(\cdot), ~q_{\text{CSMC}}(\cdot)$ given by the following expressions
+	%\begin{align}
+	%q_{\text{SMC}}(\xb_m^{1:N},\ab_m^{1:N}) &= \prod_{i=1}^N q_1(x_1^i) \prod_{t=2}^T \frac{W_{t-1}^{a_{t-1,m}^i}}{\sum_\ell W_{t-1,m}^\ell} q_t(x_{t,m}^i|x_{1:t-1,m}^{a_{t-1,m}^i}),\\
+	%q_{\text{CSMC}}\left(\xb_m^{1:N},\ab_m^{1:N} \backslash \{\xb_m^k, \bb_m^k\} \mid \xb_m^k, \bb_m^k, m, k \right) &= \prod_{\substack{i=1\\i\neq b_{1,m}}}^N q_1(x_{1,m}^i) \prod_{t=2}^T \prod_{\substack{i=1\\i\neq b_{t,m}}}^N\frac{W_{t-1,m}^{a_{t-1,m}^i}}{\sum_\ell W_{t-1,m}^\ell} q_t(x_{t,m}^i|x_{1:t-1,m}^{a_{t-1,m}^i}),
+	%\end{align}
+	%where $\bb_m^k = (b_{1,m},\ldots,b_{T,m})$ with the conditional trajectory indices defined recursively as follows $b_{T,m} = k$ and $b_{t,m} = a_{t,m}^{b_{t+1,m}}$.
+	With $\tilde\pi(\cdot)$ with as per \eqref{eq:targetdistribution}, we will show that the Gibbs sampler on the extended space, $\Upsilon$, defined as follows	
+	\begin{subequations}
+		\label{eq:gibbs}
+		\begin{align}
+		\xib_{1:M} \backslash\{\xb_{c_{1:P}}^{b_{1:P}}, \bb_{c_{1:P}} \} ~&\sim \tilde \pi(~\cdot~|\xb_{c_{1:P}}^{b_{1:P}}, \bb_{c_{1:P}},c_{1:P}, b_{1:P})\label{eq:particles},\\
+		c_j &\sim \tilde \pi(~\cdot~|\xib_{1:M}, c_{1:P\backslash j}), ~~j=1,\ldots,P,\label{eq:worker}\\
+		b_j &\sim \tilde \pi(~\cdot~|\xib_{1:M}, c_{1:P}), ~~j=1,\ldots,P,\label{eq:index}
+		\end{align}
+	\end{subequations}
+	is equivalent to the \ipmcmc method in Algorithm~\ref{alg:ipmc}.
+	%where $\tilde \pi( \cdot )$ is given by \eqref{eq:supptargetdist}.
+	
+	First, the initial step \eqref{eq:particles} corresponds to sampling from
+	\begin{align*}
+	\tilde\pi(\xib_{1:M} &\backslash\{\xb_{c_{1:P}}^{b_{1:P}}, \bb_{c_{1:P}} \} | \xb_{c_{1:P}}^{b_{1:P}}, \bb_{c_{1:P}},c_{1:P}, b_{1:P}) = \\ 
+	& \prod_{\substack{m=1\\m\notin c_{1:P}}}^M q_{\text{SMC}}\left(\xib_m\right) \prod_{j = 1}^P q_{\text{CSMC}}\left(\xib_{c_j} \backslash \{\xb_{c_j}^{b_j}, \bb_{c_j}\} \mid \xb_{c_j}^{b_j}, \bb_{c_j}, c_j, b_j \right).
+	\end{align*}
+	This, excluding the conditional trajectories, just corresponds to steps 3--4 in Algorithm~\ref{alg:ipmc}, \ie running $P$ \csmc and $M-P$ \smc algorithms independently.
+	
+	We continue with a reformulation of \eqref{eq:targetdistribution} which will be useful to prove correctness for the other two steps
+	\begin{align}
+	\label{eq:reformtargetdist}
+	\tilde \pi & (\xib_{1:M},  c_{1:P}, b_{1:P}) \nonumber\\ &=\frac{1}{\binom{M}{P}} \prod_{m=1}^M q_{\text{SMC}}\left(\xib_m\right) \cdot
+	\prod_{j = 1}^P \left[
+	\iden_{c_j \notin c_{1:j-1}} \nw_{T,c_j}^{b_j}
+	\pi_T\left(\xb_{c_j}^{b_j}\right) \frac{q_{\text{CSMC}}\left(\xib_{c_j} \backslash \{\xb_{c_j}^{b_j}, \bb_{c_j}\} \mid \xb_{c_j}^{b_j}, \bb_{c_j}, c_j, b_j \right)}{N^{T} 
+		\nw_{T,c_j}^{b_j}
+		%\frac{w_{T,c_j}^{b_j}}{\sum_{i=1}^N w_{T,c_j}^i} 
+		q_{\text{SMC}}\left(\xib_{c_j}\right)}\right] \nonumber\\
+	&= \frac{1}{\binom{M}{P}} \prod_{m=1}^M q_{\text{SMC}}\left(\xib_m\right) \cdot \prod_{j = 1}^P \frac{\hat Z_{c_j}}{Z}\iden_{c_j \notin c_{1:j-1}} 
+	\nw_{T,c_j}^{b_j}
+	%\frac{w_{T,c_j}^{b_j}}{\sum_{i=1}^N w_{T,c_j}^i}
+	.
+	\end{align}
+	
+	Furthermore, we note that by marginalising (collapsing) the above reformulation, \ie \eqref{eq:reformtargetdist}, over $b_{1:P}$ we get
+	\begin{align*}
+	\tilde\pi(\xib_{1:M}, c_{1:P}) 
+	%&= \sum_{b_{1:P}}\tilde\pi(\xib_{1:M}, c_{1:P}, b_{1:P}) \nonumber \\
+	&= \frac{1}{\binom{M}{P}} \prod_{m=1}^M q_{\text{SMC}}\left(\xib_m\right) \prod_{j = 1}^P \frac{\hat Z_{c_j}}{Z}\iden_{c_j \notin c_{1:j-1}} .\nonumber
+	\end{align*}
+	From this it is easy to see that $\tilde\pi(c_j | \xib_{1:M}, c_{1:P\backslash j}) = \hat\nz_{c_j}^j$, which 
+	%\begin{align*}
+	%\tilde\pi(c_j | \xib_{1:M}, c_{1:P\backslash j}) = \hat\nz_{\pi_T,c_j}^j
+	%\tilde\pi(c_j | \xib_{1:M}, c_{1:P\backslash j}) = \frac{\hat Z_{\pi_T,c_j} \iden_{c_j \notin c_{1:P\backslash j}}}{\sum_{m=1}^M \hat Z_{\pi_T,m} \iden_{m \notin c_{1:P\backslash j}}}
+	%\end{align*}
+	corresponds to sampling the conditional node indices, \ie step 6 in Algorithm~\ref{alg:ipmc}. Finally, from \eqref{eq:reformtargetdist} we can see that simulating $b_{1:P}$ can be done independently as follows
+	\begin{align*}
+	&\tilde\pi(b_{1:P} | \xib_{1:M}, c_{1:P}) = \frac{\tilde\pi(b_{1:P} ,\xib_{1:M}, c_{1:P})}{\tilde\pi(\xib_{1:M}, c_{1:P})} =  \prod_{j = 1}^P 
+	\nw_{T,c_j}^{b_j}
+	%\frac{w_{T,c_j}^{b_j}}{\sum_{i=1}^N w_{T,c_j}^i}
+	.
+	\end{align*}
+	This corresponds to step 7 in the \ipmcmc sampler, Algorithm~\ref{alg:ipmc}. So the procedure defined by \eqref{eq:gibbs} is a partially collapsed Gibbs sampler, derived from \eqref{eq:targetdistribution}, and we have shown that it is exactly equal to the \ipmcmc sampler described in Algorithm~\ref{alg:ipmc}.
+\end{proof}

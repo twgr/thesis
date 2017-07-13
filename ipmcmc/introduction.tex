@@ -1,0 +1,33 @@
+% !TEX root = ../main.tex
+
+% Intro, contribution statement and related work
+\section{Introduction}
+\label{sec:ipmcmc:intro}
+%In this paper we propose the interacting particle Markov chain Monte Carlo (\ipmcmc), a particle Markov chain Monte Carlo (\pmcmc) method that is suitable to execution on distributed and multi-core computing architectures and present empirical results suggesting significant improved mixing rates relative to both non-interacting \pg nodes and a single \pg node with an identical computational budget. 
+
+In this section we introduce \emph{interacting particle Markov chain Monte Carlo} (\ipmcmc), a \pmcmc method based on an interacting pool of standard and conditional sequential Monte Carlo samplers. Like related methods, \ipmcmc is a Markov chain Monte Carlo sampler on an extended space. We present empirical results that show significant improvements in mixing rates relative to both non-interacting \pmcmc samplers, and a single \pmcmc sampler with an equivalent memory and computational budget. 
+An additional advantage of the \ipmcmc method is that it is suitable for distributed and multi-core architectures.  
+
+%In this paper we present a Markov chain Monte Carlo (\mcmc) method that employs a pool of particle Markov chain Monte Carlo (\pmcmc) and sequential Monte Carlo (\smc) samplers. 
+\mcmc methods are a fundamental tool for generating samples from a posterior density in Bayesian data analysis (see \eg, \citet{robert2013monte}). Particle Markov chain Monte Carlo (\pmcmc) methods, introduced by \citet{andrieuDH2010}, make use of sequential Monte Carlo (\smc) algorithms \citep{gordon1993novel,doucet2001sequential} to construct efficient proposals for the \mcmc sampler. 
+
+One particularly widely used \pmcmc algorithm is particle Gibbs (\pg). The \pg algorithm modifies the \smc step in the \pmcmc algorithm to sample the latent variables conditioned on an existing particle trajectory, resulting in what is called a conditional sequential Monte Carlo (\csmc) step. The \pg method was first introduced as an efficient Gibbs sampler for latent variable models with static parameters \citep{andrieuDH2010}. Since then, the \pg algorithm and the extension by \citet{lindstenJS2014} have found numerous applications in \eg Bayesian non-parametrics \citep{ValeraFSPC2015,tripuraneni2015}, probabilistic programming \citep{wood2014new,vandemeent_aistats_2015} and graphical models \citep{everitt2012,naessethLS2014,naessethLS2015nested}.  
+
+A drawback of PG is that it can be particularly adversely affected by \emph{path degeneracy} in the CSMC step.  Conditioning on an existing trajectory means that whenever resampling of the trajectories results in a common ancestor, this ancestor must correspond to this trajectory.  Consequently, the mixing of the Markov chain for the early steps in the state sequence can become very slow when the particle set typically coalesces to a single ancestor during the CSMC sweep.
+
+In this paper we propose the interacting particle Markov chain Monte Carlo (\ipmcmc) sampler. In \ipmcmc we run a pool of \csmc and unconditional \smc algorithms as parallel processes that we refer to as nodes. After each run of this pool, we apply successive Gibbs updates to the indexes of the \csmc nodes, such that the indices of the \csmc nodes changes. Hence, the nodes from which retained particles are sampled can change from one MCMC iteration to the next. This lets us trade off exploration (\smc) and exploitation (\csmc) to achieve improved mixing of the Markov chains. Crucially, the pool provides numerous candidate indices at each Gibbs update, giving a significantly higher probability that an entirely new retained particle will be ``switched in'' than in non-interacting alternatives.
+
+This interaction requires only minimal communication; each node must report an estimate of the marginal likelihood and receive a new role (\smc or \csmc) for the next sweep. This means that \ipmcmc is embarrassingly parallel and can be run in a distributed manner on multiple computers.
+
+%We introduce the interacting particle Markov chain Monte Carlo (\ipmcmc) method, a new type of 
+%high-dimensional \tom{The phrase high-dimensional seems a little out of place here to me.  I understand what you are saying but it is maybe a bit premature to make the point}
+%Monte Carlo integration method enabling efficient 
+
+We prove that \ipmcmc is a partially collapsed Gibbs sampler on the extended space containing the particle sets for all nodes. In the special case where \ipmcmc uses only \emph{one} \csmc node, it can in fact be seen as a non-trivial and unstudied instance of the $\alpha$-\smc-based \citep{whiteley2016} \pmcmc method introduced by \citet{huggins2015}. However, with \ipmcmc we extend this further to allow for an arbitrary number of \csmc and standard \smc algorithms with interaction. Our experimental evaluation shows that \ipmcmc outperforms both independent \pg samplers as well as a single \pg sampler with the same number of particles run longer to give a matching computational budget.
+
+An implementation of iPMCMC is provided in the probabilistic programming system \emph{Anglican}\footnote{\angurl} \citep{wood2014new}, whilst illustrative MATLAB code, similar to that used for the experiments, is also provided\footnote{\myurl}.
+
+%Our key contribution is the \ipmcmc method, %with a highly efficient off-the-shelf \brooks{what do you mean by ``off the shelf''?} \mcmc method, the interacting particle Markov chain Monte Carlo (\ipmcmc), that also can make systematic use of distributed or multi-core computing architectures. 
+
+%\tom{Should we maybe add the longer run chains to results to that we can make this point clearly?}
+%\fredrik{Is the last sentence ok?}

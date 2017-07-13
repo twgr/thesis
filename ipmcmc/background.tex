@@ -1,0 +1,118 @@
+% !TEX root = ../main.tex
+
+\section{Background}
+\label{sec:ipmcmc:background}
+We start by briefly reviewing sequential Monte Carlo \citep{gordon1993novel,doucet2001sequential} and the particle Gibbs algorithm \citep{andrieuDH2010}. Let us consider a non-Markovian latent variable model of the following form
+\begin{subequations}
+	\label{eq:ssm}
+	\begin{alignat}{2}
+	x_t | x_{1:t-1} &\sim f_t(x_t | x_{1:t-1}), \\
+	y_t | x_{1:t} &\sim g_t(y_t|x_{1:t}),
+	\end{alignat}
+\end{subequations}
+where $x_t \in \setX$ is the latent variable and $y_t \in \setY$ the observation at time step $t$, respectively,
+with transition densities $f_t$ and observation densities $g_t$; $x_1$ is drawn from some initial distribution $\mu(\cdot)$. The method we propose is not restricted to the above model, it can in fact be applied to an arbitrary sequence of targets.
+
+%We focus on the non-Markovian latent variable model because it has been shown to be useful within \eg probabilistic programming \citep{wood2014new}.%However, we restrict the exposition to the latent variable model for clarity and to see the potential usefulness of it to \eg probabilistic programming \citep{wood2014new}. \tom{I am not sure I agree with this statement - PP should actually allow the most general possible use of iPMCMC.  I think we would be better making the point that its ability to operate on arbitrary models make it a suitable candidate for PP inference engines.  By the final draft I would expect us to have it running and publically availible in Anglican}
+
+We are interested in calculating expectations with respect to the posterior distribution $p(x_{1:T}|y_{1:T})$ on latent variables $x_{1:T} \eqdef (x_1,\ldots,x_T)$ conditioned on observations $y_{1:T} \eqdef (y_1,\ldots,y_T)$, which is proportional to the joint distribution $p(x_{1:T}, y_{1:T})$,
+\begin{align}
+\label{eq:jointdistribution}
+p(x_{1:T} | y_{1:T}) \propto  \mu(x_1) \prod_{t=2}^T f_t(x_t | x_{1:t-1}) \prod_{t=1}^T g_t(y_t|x_{1:t}).\nonumber
+\end{align}
+In general, computing the posterior $p(x_{1:T}|y_{1:T})$ is intractable and we have to resort to approximations. We will in this paper focus on, and extend, the family of particle Markov chain Monte Carlo algorithms originally proposed by \citet{andrieuDH2010}. The key idea in \pmcmc is to use \smc to construct efficient proposals of the latent variables $x_{1:T}$ for an \mcmc sampler.
+
+%
+%   SMC
+%
+
+\begin{algorithm}[tb]
+	\caption{Sequential Monte Carlo \hfill {\small (all for $i=1,\ldots,N$)}}
+	\label{alg:smc}
+	\begin{spacing}{1.2}
+	\begin{algorithmic}[1]
+		\STATE {\bfseries Input:} data $y_{1:T}$, number of particles $N$, proposals $q_t$
+		\STATE $x_1^i \sim q_1(x_1)$
+		\STATE $w_1^i = \frac{g_1(y_1|x_1^i) \mu(x_1^i)}{q_1(x_1^i)}$
+		\FOR{$t = 2$ {\bfseries to} $T$}
+		\STATE $a_{t-1}^i \sim \Discrete\left(\left\{\nw_{t-1}^{\ell}\right\}_{\ell=1}^N\right)$% \tom{We can maybe more general that categorical here?}
+		\STATE $x_t^i \sim q_t(x_t | x_{1:t-1}^{a_{t-1}^i})$ 
+		\STATE Set $x_{1:t}^i = (x_{1:t-1}^{a_{t-1}^i},x_t^i)$
+		\STATE $w_t^i = \frac{g_t(y_t|x_{1:t}^i) f_t(x_t^i | x_{1:t-1}^{a_{t-1}^i})}{q_t(x_t^i|x_{1:t-1}^{a_{t-1}^i})}$
+		\ENDFOR
+	\end{algorithmic}
+\end{spacing}
+\end{algorithm}
+
+\subsection{Sequential Monte Carlo}
+\label{sec:ipmcmc:background:smc}
+The \smc method is a widely used technique for approximating a sequence of target distributions: in our case $p(x_{1:t}|y_{1:t}) = p(y_{1:t})^{-1} p(x_{1:t},y_{1:t}), ~t=1,\ldots,T$. 
+At each time step $t$ we 
+%assume we have access to 
+generate a \emph{particle system}
+$\{(x_{1:t}^i,w_{t}^i)\}_{i=1}^N$ which provides a weighted approximation  to $p(x_{1:t}|y_{1:t})$. Given such a weighted particle system at time $t-1$, this 
+%The particle system is then
+is propagated forward in time to $t$ by first drawing an ancestor variable $a_{t-1}^i$ for each particle from its corresponding distribution:
+\begin{align}
+\Prb(a_{t-1}^i = \ell) &= \nw_{t-1}^\ell.
+&
+\ell&=1,\ldots,N,
+\end{align}
+where $\nw_{t-1}^\ell = w_{t-1}^\ell / \sum_i w_{t-1}^i$. This is commonly known as the resampling step in the literature. We introduce the ancestor variables $\{a_{t-1}^i\}_{i=1}^N$ explicitly to simplify the exposition of the theoretical justification given in Section \ref{sec:theory}.
+
+We continue by simulating from some given proposal density $x_t^i \sim q_t(x_t | x_{1:t-1}^{a_{t-1}^i})$ and re-weight the system of particles as follows:
+\begin{align}
+\label{eq:smcweights}
+w_t^i = \frac{g_t(y_t|x_{1:t}^i) f_t(x_t^i | x_{1:t-1}^{a_{t-1}^i})}{q_t(x_t^i|x_{1:t-1}^{a_{t-1}^i})},
+\end{align}
+where $x_{1:t}^i = (x_{1:t-1}^{a_{t-1}^i},x_t^i)$. This results in a new particle system $\{(x_{1:t}^i,w_t^i)\}_{i=1}^N$ that approximates $p(x_{1:t}|y_{1:t})$. A summary is given in Algorithm~\ref{alg:smc}.
+
+%Let $q_{\text{SMC}}(\xb^{1:N},\ab^{1:N})$ denote the joint probability distribution over $\xb^{1:N}=x_{1:T}^{1:N}, \ab^{1:N} = a_{1:t-1}^{1:N}$ induced by running Algorithm~\ref{alg:smc}. We can write the complete distribution, which will be useful for the correctness proof, as follows
+%\begin{align}
+%q_{\text{SMC}}(\xb^{1:N},\ab^{1:N}) = \prod_{i=1}^N q_1(x_1^i) \prod_{t=2}^T \frac{W_{t-1}^{a_{t-1}^i}}{\sum_\ell W_{t-1}^\ell} q_t(x_t^i|x_{1:t-1}^{a_{t-1}^i}).
+%\end{align}
+
+% 
+%   PG
+% 
+\subsection{Particle Gibbs}
+\label{sec:ipmcmc:background:pg}
+The \pg algorithm \citep{andrieuDH2010} is a Gibbs sampler on the extended space composed of all random variables generated at one iteration, which still retains the original target distribution as a marginal. Though \pg allows for inference over both latent variables and static parameters, we will in this paper focus on sampling of the former.  The core idea of \pg is to iteratively run \emph{conditional} sequential Monte Carlo (\csmc) sweeps as shown in Algorithm~\ref{alg:csmc}, whereby each conditional trajectory is sampled from the surviving trajectories of the previous sweep.  This \emph{retained particle} index, $b$, is sampled with probability proportional to the final particle weights $\bar{w}^i_T$. 
+
+
+\begin{algorithm}[tb]
+	\caption{Conditional sequential Monte Carlo}
+	\label{alg:csmc}
+	\begin{spacing}{1.2}
+	\begin{algorithmic}[1]
+		\STATE {\bfseries Input:} data $y_{1:T}$, number of particles $N$, proposals $q_t$, conditional trajectory $x_{1:T}'$
+		\STATE $x_1^i \sim q_1(x_1), ~i=1,\ldots,N-1$ and set $x_1^N = x_1'$
+		\STATE $w_1^i = \frac{g_1(y_1|x_1^i) \mu(x_1^i)}{q_1(x_1^i)}, ~i=1,\ldots,N$
+		\FOR{$t = 2$ {\bfseries to} $T$}
+		\STATE $a_{t-1}^i \sim \Discrete\left(\left\{\nw_{t-1}^\ell\right\}_{\ell=1}^N\right), ~i=1,\ldots,N-1$
+		\STATE $x_t^i \sim q_t(x_t | x_{1:t-1}^{a_{t-1}^i}), ~i=1,\ldots,N-1$
+		\STATE Set $a_{t-1}^N = N$ and $x_t^N = x_t'$
+		\STATE Set $x_{1:t}^i = (x_{1:t-1}^{a_{t-1}^i},x_t^i), ~i=1,\ldots,N$
+		\STATE $w_t^i = \frac{g_t(y_t|x_{1:t}^i) f_t(x_t^i | x_{1:t-1}^{a_{t-1}^i})}{q_t(x_t^i|x_{1:t-1}^{a_{t-1}^i})}, ~i=1,\ldots,N$
+		\ENDFOR
+	\end{algorithmic}
+\end{spacing}
+\end{algorithm}
+
+%In the same way as above for the standard \smc algorithm we can define a joint probability distribution induced by running Algorithm~\ref{alg:csmc} %$q_{\text{CSMC}}(\xb^{1:N},\ab^{1:N}\backslash\{\xb^N,\bb^N\} | \xb^N,\bb^N)$, induced by running Algorithm~\ref{alg:csmc}, where $\xb^N, \bb^N$ is the retained (conditioning) particle. 
+%\begin{align}
+%&q_{\text{CSMC}}\left(\xb^{1:N},\ab^{1:N} \backslash \{\xb^N, \bb^N\} \mid \xb^N, \bb^N, k \right) = \nonumber \\
+%&\prod_{\substack{i=1\\i\neq b_{1}}}^N \left[ q_1(x_{1}^i) \right] \prod_{t=2}^T \prod_{\substack{i=1\\i\neq b_{t}}}^N \left[\frac{W_{t-1}^{a_{t-1}^i}}{\sum_\ell W_{t-1}^\ell} q_t(x_{t}^i|x_{1:t-1}^{a_{t-1}^i})\right],
+%\end{align}
+%where $\xb^N, \bb^N$ is the retained (conditioning) particle.
+%\brooks{doesn't make sense --- if the retained particle is $N$, why is it $\xb_m^k, \bb_m^k$ in the above equation? shouldn't $\xb_m^{1:N},\ab_m^{1:N} \backslash \{\xb_m^k, \bb_m^k\}$ actually be $\xb_m^{1:N-1},\ab_m^{1:N-1}$?}
+
+
+%
+%   Limitations
+%
+%\subsection{Parallelisation and Limitations}
+%\label{sec:limitations}
+%Our main goal is to increase the efficiency of particle \mcmc, particle Gibbs especially, by coupling independent \smc methods with \csmc algorithms, perhaps running on different workers or threads. The method we propose, interacting particle Markov chain Monte Carlo (\ipmc), makes efficient use of multi-core and distributed computing architectures to increase accuracy of the Monte Carlo sampler.
+
+%The basic \pg typically suffers from the \emph{path degeneracy} effect of \smc samplers, \ie sample impoverishment due to frequent resampling, which leads to bad mixing of the Markov chain. Since we force one trajectory, the conditional part, to survive to the end it means that for early time steps we will almost always pick the corresponding sample from last iteration. To counteract this we might need a very high number of particles to get good mixing for all latent variables $x_{1:T}$, which can be infeasible due to e.g.~limited available memory. The \ipmc can alleviate this issue by a non-standard coupling of several conditional and unconditional (standard) \smc algorithms. The algorithm lets us, from time to time, completely switch out a \csmc particle system with a completely independent \smc one, resulting in improved mixing of the Markov chain.

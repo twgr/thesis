@@ -1,0 +1,70 @@
+% !TEX root = ../main.tex
+
+%%%%% SELECT YOUR DRAFT OPTIONS
+% Three options going on here; use in any combination.  But remember to turn the first two off before
+% generating a PDF to send to the printer!
+% This highlights (in blue) corrections marked with (for words) \mccorrect{blah} or (for whole
+% paragraphs) \begin{mccorrection} . . . \end{mccorrection}.  This can be useful for sending a PDF of
+% your corrected thesis to your examiners for review.  Turn it off, and the blue disappears.
+\correctionstrue
+
+%%%%% BIBLIOGRAPHY SETUP
+\usepackage{natbib}
+\bibliographystyle{plainnat}
+% This makes the bibliography left-aligned (not 'justified') and slightly smaller font.
+\renewcommand*{\bibfont}{\small}
+
+%%%%% THESIS / TITLE PAGE INFORMATION
+% Everybody needs to complete the following:
+\title{Automating Inference, Learning, and Design}
+\author{Tom Rainforth}
+\college{Wolfson College}
+
+% Your full degree name.  (But remember that DPhils aren't "in" anything.  They're just DPhils.)
+\degree{Doctor of Philosophy}
+% Term and year of submission, or date if your board requires (eg most masters)
+\degreedate{Trinity 2017}
+
+\usepackage{packages/abbreviations}
+
+\usepackage{microtype}
+
+% use Times
+\usepackage{times}
+% For figures
+\usepackage{graphicx} % more modern
+%\usepackage{epsfig} % less modern
+%\usepackage{subfigure} 
+\usepackage{subcaption} 
+\graphicspath{{./ipmcmc/figures/}{./misc/figures/}}
+\usepackage{tikz}
+\usetikzlibrary{fit}					% fitting shapes to coordinates
+\usetikzlibrary{backgrounds}	% drawing the background after the foreground
+\usepackage{setspace}
+
+%\usepackage{svg}
+
+% For algorithms
+\usepackage{packages/algorithm,packages/algorithmic}
+
+% For math
+%\usepackage{amsthm}
+\usepackage{dsfont}
+\usepackage{amssymb,amsmath}
+\usepackage{packages/naesseth}
+\usepackage{bbm}
+
+%\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+\usepackage{hyperref}
+
+\usepackage{bibentry}
+\nobibliography*
+
+\usepackage{packages/jmlr2e}
+
+\newcommand\nw{\bar w} % Normalised weights
+\newcommand\nz{\zeta} % Normalised conditional sampling weights
+
+\newcommand{\angurl}{\scriptsize \url{http://www.robots.ox.ac.uk/~fwood/anglican}}
+\newcommand{\myurl}{\scriptsize \url{https://bitbucket.org/twgr/ipmcmc}}
