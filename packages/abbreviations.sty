@@ -58,3 +58,100 @@
 \newcommand\htwo{H2\@\xspace}	
 
 \DeclareRobustCommand*\matlab{\mbox{Matlab}\xspace}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+			%                iPMCMC              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand\nw{\bar w} % Normalised weights
+\newcommand\nz{\zeta} % Normalised conditional sampling weights
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+			%                BOPP               %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\lsi}[1]{\lstinline$#1$}
+
+\newcommand{\sample}{\lstinline$sample$\xspace}
+\newcommand{\observe}{\lstinline$observe$\xspace}
+\newcommand{\observes}{\lstinline$observe<-$\xspace}
+\newcommand{\predict}{\lstinline$predict$\xspace}
+\newcommand{\simulatec}{\lstinline$simulate$\xspace}
+\newcommand{\abcl}{\lstinline$abc-likelihood$\xspace}
+\newcommand{\factor}{\lstinline$factor$\xspace}
+
+\newcommand{\defdist}{\lstinline$defdist$\xspace}
+\newcommand{\defquery}{\lstinline$defquery$\xspace}
+\newcommand{\query}{\lstinline$query$\xspace}
+\newcommand{\defopt}{\lstinline$defopt$\xspace}
+\newcommand{\doquery}{\lstinline$doquery$\xspace}
+\newcommand{\doopt}{\lstinline$doopt$\xspace}
+\newcommand{\normal}{\lstinline$normal$\xspace}
+\newcommand{\betaa}{\lstinline$beta$\xspace}
+\newcommand{\gammaa}{\lstinline$gamma$\xspace}
+
+
+\newcolumntype{A}{>{\centering\arraybackslash}m{1cm}}
+\newcolumntype{B}{>{\centering\arraybackslash}m{1.5cm}}
+\newcolumntype{D}{>{\centering\arraybackslash}m{2cm}}
+
+%\renewcommand*\Call[2]{\textproc{#1}(#2)}
+%
+%\algnewcommand{\IIf}[1]{\unskip \algorithmicif\ #1\ \algorithmicthen}
+%\algnewcommand{\ElseIIf}{\unskip\ \algorithmicelse}
+%\algnewcommand{\EndIIf}{\unskip\ \algorithmicend\ \algorithmicif}
+
+\newcommand{\mX}{\mathcal{X}}
+\newcommand{\mD}{\mathcal{D}}
+\newcommand{\nx}{_{\mathrm{next}}}
+\newcommand{\real}{\mathbb{R}}
+\newcommand{\xpos}{\tilde{\mathbf{x}}}
+\newcommand{\xb}{\mathbf{x}}
+\newcommand{\yb}{\mathbf{y}}
+\newcommand{\zb}{\mathbf{z}}
+\newcommand{\hb}{\mathbf{h}}
+\newcommand{\hx}{h\left(\xb,\zb\right)}
+
+\newcommand{\hu}{\hat{u}}
+\newcommand{\hz}{\hat{Z}}
+\newcommand{\hw}{\hat{w}}
+\newcommand{\hth}{\hat{\theta}}
+\newcommand{\ho}{\hat{\Omega}}
+
+\newcommand{\tilz}{\tilde{Z}}
+\newcommand{\tilw}{\tilde{w}}
+\newcommand{\tilth}{\tilde{\theta}}
+\newcommand{\tilo}{\tilde{\Omega}}
+
+\newcommand{\jsm}{j^*_m}
+
+\newcommand{\bc}{\left(\cdot\right)}
+\newcommand{\bcc}{\left(\cdot\right)}
+\newcommand{\mM}{\mathcal{M}}
+\newcommand{\tx}{\texttt{x}}
+\newcommand{\ty}{\texttt{y}}
+\newcommand{\tz}{\texttt{z}}
+\newcommand{\tb}{\texttt{b}}
+\newcommand{\ft}{f\left(\theta\right)}
+\newcommand{\tth}{\tilde{\theta}}
+\newcommand{\mut}{\mu_m\left(\theta ; \alpha\right)}
+\newcommand{\kt}{k_{m}\left(\theta,\theta'\right)}
+\newcommand{\sut}{\sigma_m\left(\theta ; \alpha\right)}
+\newcommand{\gut}{\gamma_{m}\left(\theta\right)}
+
+\newcommand{\RN}[1]{%
+	\textup{\uppercase\expandafter{\romannumeral#1}}%
+}
+\renewcommand{\v}[1]{\ensuremath{\boldsymbol{#1}}}
+
+\DeclareMathOperator{\Normal}{Normal}
+\DeclareMathOperator{\Dirichlet}{Dirichlet}
+\DeclareMathOperator{\Gammaa}{Gamma}
+\DeclareMathOperator{\simulate}{simulate}
+\DeclareMathOperator{\dist}{dist}
+\DeclareMathOperator{\std}{std}
+
+
+\newcommand{\qmarg}{\texttt{q-marg}}
+\newcommand{\qprior}{\texttt{q-prior}}
+\newcommand{\qacq}{\texttt{q-acq}}

@@ -25,8 +25,6 @@
 % Term and year of submission, or date if your board requires (eg most masters)
 \degreedate{Trinity 2017}
 
-\usepackage{packages/abbreviations}
-
 \usepackage{microtype}
 
 % use Times
@@ -36,7 +34,7 @@
 %\usepackage{epsfig} % less modern
 %\usepackage{subfigure} 
 \usepackage{subcaption} 
-\graphicspath{{./ipmcmc/figures/}{./misc/figures/}}
+\graphicspath{{./ipmcmc/figures/}{./misc/figures/}{./bopp/figures/}}
 \usepackage{tikz}
 \usetikzlibrary{fit}					% fitting shapes to coordinates
 \usetikzlibrary{backgrounds}	% drawing the background after the foreground
@@ -45,13 +43,12 @@
 %\usepackage{svg}
 
 % For algorithms
-\usepackage{packages/algorithm,packages/algorithmic}
+
 
 % For math
 %\usepackage{amsthm}
 \usepackage{dsfont}
 \usepackage{amssymb,amsmath}
-\usepackage{packages/naesseth}
 \usepackage{bbm}
 
 %\newcommand{\theHalgorithm}{\arabic{algorithm}}
@@ -61,10 +58,72 @@
 \usepackage{bibentry}
 \nobibliography*
 
-\usepackage{packages/jmlr2e}
 
-\newcommand\nw{\bar w} % Normalised weights
-\newcommand\nz{\zeta} % Normalised conditional sampling weights
+% % BOPP
+
+%\usepackage{enumitem}
+%\setlist[itemize]{leftmargin=*}
+%\usepackage{paralist}
+\usepackage{footmisc}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{xspace}
+\usepackage{amsbsy}
+\usepackage{siunitx}
+%\usepackage{algorithmicx}
+%\usepackage{algpseudocode}
+\usepackage{mathtools}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{adjustbox}
+\usepackage{microtype}
+
 
 \newcommand{\angurl}{\scriptsize \url{http://www.robots.ox.ac.uk/~fwood/anglican}}
 \newcommand{\myurl}{\scriptsize \url{https://bitbucket.org/twgr/ipmcmc}}
+
+\definecolor{darkgreen}{rgb}{0.25,.5,0}
+\definecolor{blue}{rgb}{0,0.33,0.66}
+\definecolor{red}{rgb}{0.66,0.0,0.0}
+\definecolor{purple}{rgb}{0.33,0,0.66}
+\definecolor{cyan}{rgb}{0.0,0.5,0.5}
+\definecolor{orange}{rgb}{0.5,0.25,0.0}
+\definecolor{gray}{rgb}{0.4,0.4,0.4}
+\lstset{ 
+	language=Lisp, 
+	basicstyle=\small\ttfamily,
+	keywordstyle={}, 
+	alsoletter={/},
+	alsoletter={:},
+	alsoletter={*},
+	alsoletter={<-},
+	commentstyle=\em \color{gray}, 
+	frame=lines,
+	%float=tbph,
+	% captionpos=b,
+	showstringspaces=false, 
+	keywordstyle=[1]\bf\ttfamily\color{blue},
+	keywords=[1]{BO,theta-best,bo-acquire,sample-initial-points,sample,observe,observe*,observe<-,predict,store,retrieve,return,catch,throw},
+	keywordstyle=[2]\bf\ttfamily\color{red},
+	keywords=[2]{defn,if,let,letfn,loop,looppredict,recur},
+	keywordstyle=[3]\bf\ttfamily\color{cyan},
+	keywords=[3]{absorb,assoc,argmax,count,cons,conj,dirichlet-discrete,do,exponential,first,flip,fn,gamma,beta,get,keys,lazy-seq,map,mvn-niw,nth,mat/add,mat/div,normal,print,produce,reduce,repeat,repeatedly,rest,set,shape,take,uniform-continuous,vec,distribution,factor,simulate,abc-likelihood,when,max},
+	keywordstyle=[4]\bf\ttfamily\color{purple},
+	keywords=[4]{defopt,defquery,doopt,doquery,query,defdist},
+	keywordstyle=[5]\ttfamily\color{orange},
+	keywords=[5]{:nu,:alpha,:id},
+	mathescape=true,
+	stringstyle={},
+} 
+\lstnewenvironment{code}[2]{\lstset{caption=#1,label=#2}}{}
+
+
+% % % % % % % % % % % % % % % % % % %
+
+
+\usepackage{packages/naesseth}
+\usepackage{packages/algorithm,packages/algorithmic}
+\usepackage{packages/abbreviations}
+\usepackage{packages/jmlr2e}

@@ -1,4 +1,4 @@
-% !TEX root =  bopp.tex
+% !TEX root =  ../main.tex
 
 Probabilistic programming systems (PPS) allow probabilistic models to be represented in the form of a generative model and statements for conditioning on data \citep{carpenter2015stan,goodman_uai_2008,goodman_book_2014,mansinghka2014venture,minka_software_2010,wood2014new}.  
 %Informally, one can think of the generative model as the definition of a prior, the conditioning statements as the definition of a likelihood and the output of the program as samples from a posterior distribution. 
@@ -26,7 +26,7 @@ To demonstrate the functionality provided by BOPP, we consider an example applic
 
 \flushbottom
 
-\begin{figure*}[p]
+\begin{figure*}[t]
 	%\includegraphics[width=\textwidth]{"figures/house-heating/deterministic/house-heating-deterministic-with-convergence"}
 	\centering
 	\begin{subfigure}[t]{0.47\textwidth}
@@ -66,8 +66,8 @@ To demonstrate the functionality provided by BOPP, we consider an example applic
 	}
 \end{figure*}
 
-\begin{figure}[p]
-	\begin{lstlisting}[basicstyle=\ttfamily]
+\begin{figure}[tb]
+	\begin{lstlisting}[basicstyle=\ttfamily\small]
 (defopt house-heating [alphas target-temperatures] [powers]
  (let [solar-intensity (sample weather-prior)
        powers (sample (dirichlet alphas))

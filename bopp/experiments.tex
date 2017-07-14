@@ -1,4 +1,4 @@
-% !TEX root =  bopp.tex
+% !TEX root =  ../main.tex
 
 %We evaluate our BOPP framework in two case studies that represent different use cases for Bayesian optimization. In both problem settings Bayesian optimization serves to minimize the number of evaluations needed for a computationally expensive operation. The first problem is hyperparameter optimization for probabilistic programs. Here the expensive step is marginalization over the non-optimized random variables in a program, which is performed using one of the generic inference methods provided by Anglican's inference back end. In the second case study we consider programs in which an expensive forward simulation is used to perform approximate Bayesian computation. Here the use of probabilistic programming allows determination of parameters that are marginally optimal with respect to some distribution of simulation inputs.
 
@@ -41,13 +41,13 @@ For these MH steps we consider both LMH \citep{wingate2011lightweight} with prop
 
 \subsubsection{Hyperparameter Optimization for Gaussian Mixture Model}
 
-\input{mvn-mixture.tex}
+\input{bopp/mvn-mixture.tex}
 
 \subsubsection{Extended Kalman Filter for the Pickover Chaotic Attractor}
 \label{sec:AppKalman}
 
-\input{chaos.tex}
+\input{bopp/chaos.tex}
 
 \subsubsection{Hidden Markov Model with Unknown Number of States}
 
-\input{hmm.tex}
+\input{bopp/hmm.tex}

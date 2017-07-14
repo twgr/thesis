@@ -1,303 +1,62 @@
-\documentclass[]{article}
-\PassOptionsToPackage{numbers,compress}{natbib}
-\usepackage{jmlr2e}
-\usepackage{url}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{amsbsy}
-\usepackage{siunitx}
-\usepackage{algorithm}
-\usepackage{algorithmicx}
-\usepackage{algpseudocode}
-\usepackage{mathtools}
-\usepackage{array}
-\usepackage{setspace}
-%\usepackage{caption}
-\usepackage{subcaption}
-\usepackage{booktabs}
-\usepackage{adjustbox}
-\usepackage{microtype}
+% !TEX root = ../main.tex
 
-\usepackage{times}
-\usepackage{footmisc}
-\usepackage{listings}
-\usepackage{color}
-\usepackage{xcolor}
-\usepackage{textcomp}
-\usepackage{xspace}
+\begin{savequote}[8cm]
+	Everyone by now presumably knows about the danger of premature optimization. 
+	I think we should be just as worried about premature design - 
+	designing too early what a program should do.
+	\qauthor{--- Paul Graham}
+\end{savequote}
 
-\usepackage{fancyhdr}
+\chapter{Bayesian Optimization for Probabilistic Programs}
+\label{chp:bopp}
 
-
-\usepackage{bibentry}
-\nobibliography*
-
-\usepackage{paralist}
-
-\usepackage{natbib}
-%\bibliographystyle{abbrvnat-simple}
-%\setlength{\bibsep}{2.0pt}
-%
-%\setlength{\floatsep}{5pt plus 2pt minus 2pt}
-%\setlength{\textfloatsep}{5pt plus 2pt minus 2pt}
-%\setlength{\intextsep}{5pt plus 2pt minus 2pt}
-
-\usepackage{enumitem}
-\setlist[itemize]{leftmargin=*}
-
-\usepackage{hyperref}
-
-%\graphicspath{{./figures/}}
-
-\definecolor{darkgreen}{rgb}{0.25,.5,0}
-\definecolor{blue}{rgb}{0,0.33,0.66}
-\definecolor{red}{rgb}{0.66,0.0,0.0}
-\definecolor{purple}{rgb}{0.33,0,0.66}
-\definecolor{cyan}{rgb}{0.0,0.5,0.5}
-\definecolor{orange}{rgb}{0.5,0.25,0.0}
-\definecolor{gray}{rgb}{0.4,0.4,0.4}
-\lstset{ 
-	language=Lisp, 
-	basicstyle=\small\ttfamily,
-	keywordstyle={}, 
-	alsoletter={/},
-	alsoletter={:},
-	alsoletter={*},
-	alsoletter={<-},
-	commentstyle=\em \color{gray}, 
-	frame=lines,
-	%float=tbph,
-	% captionpos=b,
-	showstringspaces=false, 
-	keywordstyle=[1]\bf\ttfamily\color{blue},
-	keywords=[1]{BO,theta-best,bo-acquire,sample-initial-points,sample,observe,observe*,observe<-,predict,store,retrieve,return,catch,throw},
-	keywordstyle=[2]\bf\ttfamily\color{red},
-	keywords=[2]{defn,if,let,letfn,loop,looppredict,recur},
-	keywordstyle=[3]\bf\ttfamily\color{cyan},
-	keywords=[3]{absorb,assoc,argmax,count,cons,conj,dirichlet-discrete,do,exponential,first,flip,fn,gamma,beta,get,keys,lazy-seq,map,mvn-niw,nth,mat/add,mat/div,normal,print,produce,reduce,repeat,repeatedly,rest,set,shape,take,uniform-continuous,vec,distribution,factor,simulate,abc-likelihood,when,max},
-	keywordstyle=[4]\bf\ttfamily\color{purple},
-	keywords=[4]{defopt,defquery,doopt,doquery,query,defdist},
-	keywordstyle=[5]\ttfamily\color{orange},
-	keywords=[5]{:nu,:alpha,:id},
-	mathescape=true,
-	stringstyle={},
-} 
-\lstnewenvironment{code}[2]{\lstset{caption=#1,label=#2}}{}
-
-\newcommand{\lsi}[1]{\lstinline$#1$}
-
-\newcommand{\sample}{\lstinline$sample$\xspace}
-\newcommand{\observe}{\lstinline$observe$\xspace}
-\newcommand{\observes}{\lstinline$observe<-$\xspace}
-\newcommand{\predict}{\lstinline$predict$\xspace}
-\newcommand{\simulatec}{\lstinline$simulate$\xspace}
-\newcommand{\abcl}{\lstinline$abc-likelihood$\xspace}
-\newcommand{\factor}{\lstinline$factor$\xspace}
-
-\newcommand{\defdist}{\lstinline$defdist$\xspace}
-\newcommand{\defquery}{\lstinline$defquery$\xspace}
-\newcommand{\query}{\lstinline$query$\xspace}
-\newcommand{\defopt}{\lstinline$defopt$\xspace}
-\newcommand{\doquery}{\lstinline$doquery$\xspace}
-\newcommand{\doopt}{\lstinline$doopt$\xspace}
-\newcommand{\normal}{\lstinline$normal$\xspace}
-\newcommand{\betaa}{\lstinline$beta$\xspace}
-\newcommand{\gammaa}{\lstinline$gamma$\xspace}
-
-%\newcommand{\observe}{\texttt{\small\bf\color{darkgreen} observe}\xspace}
-%\newcommand{\predict}{\texttt{\small\bf\color{darkgreen} predict}\xspace}
-%\newcommand{\sample}{\texttt{\small\bf\color{darkgreen} sample}\xspace}
-%\newcommand{\defquery}{\texttt{\small\bf\color{darkgreen} defquery}\xspace}
-%\newcommand{\normal}{\texttt{\small\bf\color{blue} normal}\xspace}
-%\newcommand{\boaq}{\texttt{\small\bf\color{blue} bo-acquire}\xspace}
-%\newcommand{\sampleinitpoints}{\texttt{\small\bf\color{blue} sample-initial-points}\xspace}
-
-%\newcommand{\defopt}{\texttt{\small\bf\color{darkgreen} defopt}\xspace}
-%\newcommand{\doopt}{\texttt{\small\bf\color{darkgreen} doopt}\xspace}
-%\newcommand{\doquery}{\texttt{\small\bf\color{darkgreen} doquery}\xspace}
-%\newcommand{\defdist}{\texttt{\small\bf\color{darkgreen} defdist}\xspace}
-
-%\usepackage{wrapfig,lipsum,booktabs}
-
-%\usepackage{hyperref}
-
-
-\newcolumntype{A}{>{\centering\arraybackslash}m{1cm}}
-
-\newcolumntype{B}{>{\centering\arraybackslash}m{1.5cm}}
-
-\newcolumntype{D}{>{\centering\arraybackslash}m{2cm}}
-
-\renewcommand*\Call[2]{\textproc{#1}(#2)}
-
-\algnewcommand{\IIf}[1]{\unskip \algorithmicif\ #1\ \algorithmicthen}
-\algnewcommand{\ElseIIf}{\unskip\ \algorithmicelse}
-\algnewcommand{\EndIIf}{\unskip\ \algorithmicend\ \algorithmicif}
-
-\newcommand{\mX}{\mathcal{X}}
-\newcommand{\mD}{\mathcal{D}}
-\newcommand{\nx}{_{\mathrm{next}}}
-\newcommand{\real}{\mathbb{R}}
-\newcommand{\xpos}{\tilde{\mathbf{x}}}
-\newcommand{\xb}{\mathbf{x}}
-\newcommand{\yb}{\mathbf{y}}
-\newcommand{\zb}{\mathbf{z}}
-\newcommand{\hb}{\mathbf{h}}
-\newcommand{\hx}{h\left(\xb,\zb\right)}
-
-\newcommand{\hu}{\hat{u}}
-\newcommand{\hz}{\hat{Z}}
-\newcommand{\hw}{\hat{w}}
-\newcommand{\hth}{\hat{\theta}}
-\newcommand{\ho}{\hat{\Omega}}
-
-\newcommand{\tilz}{\tilde{Z}}
-\newcommand{\tilw}{\tilde{w}}
-\newcommand{\tilth}{\tilde{\theta}}
-\newcommand{\tilo}{\tilde{\Omega}}
-
-\newcommand{\jsm}{j^*_m}
-
-\newcommand{\bc}{\left(\cdot\right)}
-\newcommand{\bcc}{\left(\cdot\right)}
-\newcommand{\mM}{\mathcal{M}}
-\newcommand{\tx}{\texttt{x}}
-\newcommand{\ty}{\texttt{y}}
-\newcommand{\tz}{\texttt{z}}
-\newcommand{\tb}{\texttt{b}}
-\newcommand{\ft}{f\left(\theta\right)}
-\newcommand{\tth}{\tilde{\theta}}
-\newcommand{\mut}{\mu_m\left(\theta ; \alpha\right)}
-\newcommand{\kt}{k_{m}\left(\theta,\theta'\right)}
-\newcommand{\sut}{\sigma_m\left(\theta ; \alpha\right)}
-\newcommand{\gut}{\gamma_{m}\left(\theta\right)}
-
-\newcommand{\RN}[1]{%
-	\textup{\uppercase\expandafter{\romannumeral#1}}%
-}
-\renewcommand{\v}[1]{\ensuremath{\boldsymbol{#1}}}
-
-\DeclareMathOperator*{\argmax}{arg\,\!max}
-\DeclareMathOperator{\Normal}{Normal}
-\DeclareMathOperator{\Dirichlet}{Dirichlet}
-\DeclareMathOperator{\Gammaa}{Gamma}
-\DeclareMathOperator{\simulate}{simulate}
-\DeclareMathOperator{\dist}{dist}
-\DeclareMathOperator{\std}{std}
-
-
-\newcommand{\qmarg}{\texttt{q-marg}}
-\newcommand{\qprior}{\texttt{q-prior}}
-\newcommand{\qacq}{\texttt{q-acq}}
-
-
-\ShortHeadings{Bayesian Optimization for Probabilistic Programs}{Rainforth, Le, van de Meent, Osborne and Wood}
-\firstpageno{1}
-
-\title{Bayesian Optimization for Probabilistic Programs$^*$}
-
-\author{\name Tom Rainforth \email twgr@robots.ox.ac.uk \\
-	\addr Department of Engineering Science, University of Oxford
-	\AND
-	\name Tuan Anh Le \email tuananh@robots.ox.ac.uk \\
-	\addr Department of Engineering Science, University of Oxford
-	\AND
-	\name Jan-Willem van de Meent \email j.vandemeent@northeastern.edu \\
-	\addr College of Computer and Information Science, Northeastern University
-	\AND
-	\name Michael A Osborne \email mosb@robots.ox.ac.uk \\
-	\addr Department of Engineering Science, University of Oxford
-	\AND
-	\name Frank Wood \email fwood@robots.ox.ac.uk \\
-	\addr Department of Engineering Science, University of Oxford \\
-}
-
-\fancypagestyle{empty}{%
-	\fancyhf{}% Clear header/footer
-	\fancyhead[L]{}% Your journal/note
-	\renewcommand{\headrulewidth}{0pt}
-	\renewcommand{\footrulewidth}{0pt}
-	\fancyfoot[L]{\footnotesize \vspace{-25pt} \rule{\textwidth}{0.4pt} \indent{} \indent{} *Please cite this version: \\ \vspace{5pt} \hspace{20pt} \begin{minipage}{0.9\textwidth}\bibentry{rainforth2016bayesian}\end{minipage}}% Your logo/image
-}
-
-\begin{document}
-%
-%\input{coverArXiv.tex}
-%\newpage
-
-\maketitle
-\vspace{-30pt}
-
-\newcommand\blfootnote[1]{%
-	\begingroup
-	\renewcommand\thefootnote{}\footnote{#1}%
-	\addtocounter{footnote}{-1}%
-	\endgroup
-}
-
-\begin{abstract}
-\input{abstract}
-%\blfootnote{\hspace{-20pt}*Please cite this version: \\ \bibentry{rainforth2016bayesian}}
-\end{abstract}
-
-\thispagestyle{empty}
-
+\input{bopp/abstract}
 
 \section{Introduction} 
 \label{sec:IntroductionBOPP}
 
-\input{introduction}
+\input{bopp/introduction}
 
 \section{Background}
 
-\input{probprog}
+\input{bopp/probprog}
 
-\input{bayesOpt}
+\input{bopp/bayesOpt}
 
 
 \section{Problem Formulation}
 \label{sec:problem}
 
-\input{problem-formulation.tex}
+\input{bopp/problem-formulation.tex}
 
 \section{Bayesian Program Optimization}
 \label{sec:bopp}
 
-\input{optimization}
+\input{bopp/optimization}
 
 \section{Experiments}
 
-\input{experiments.tex}
+\input{bopp/experiments.tex}
 
 \section{Discussion and Future Work}
 \label{sec:disc}
 
-\input{discussion}
+\input{bopp/discussion}
 
 \newpage
 
-\appendix
 
 \section{Program Transformations in Detail}
 \label{sec:program-transformations}
-\input{program-transformations}
+\input{bopp/program-transformations}
 
 
 \section{Problem Independent Gaussian Process Hyperprior}
 \label{sec:app:hyperprior}
 
-\input{gp.tex}
+\input{bopp/gp.tex}
 
 \section{Full Details for House Heating Experiment}
 \label{sec:app:heating}
 
-\input{house-heating.tex}
-
-\newpage
-
-\section*{Acknowledgements}
-Tom Rainforth is supported by a BP industrial grant. Tuan Anh Le is supported by a Google studentship, project code DF6700.  Frank Wood is supported under DARPA PPAML through the U.S. AFRL under Cooperative Agreement FA8750-14-2-0006, Sub Award number 61160290-111668.
-
-\bibliography{refsBOPP}{}
-
-\end{document}
+\input{bopp/house-heating.tex}

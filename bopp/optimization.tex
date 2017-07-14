@@ -1,8 +1,7 @@
-% !TEX root =  bopp.tex
+% !TEX root =  ../main.tex
 
 In addition to the syntax introduced in the previous section, there are five main components to BOPP:
 \begin{itemize}
-	\setlength\itemsep{0.1em}
 	\item[-] A program transformation, \texttt{q}$\rightarrow$\qmarg, allowing estimation of the evidence $p(Y,\theta)$ at a fixed $\theta$.
 	\item[-] A high-performance, GP based, BO implementation for actively sampling $\theta$.
 	\item[-] A program transformation, \texttt{q}$\rightarrow$\qprior,  used for automatic and adaptive domain scaling, such that a problem-independent hyperprior can be placed over the GP hyperparameters.
@@ -37,7 +36,7 @@ Figure \ref{fig:bopp_overview} provides a high level overview of the algorithm i
 
 \subsection{Program Transformation to Generate the Target}
 \label{sec:transform}
-\input{transform}
+\input{bopp/transform}
 
 %\subsection{Marginal Maximum A Posteriori Estimation}
 %\input{optquery}
@@ -45,9 +44,9 @@ Figure \ref{fig:bopp_overview} provides a high level overview of the algorithm i
 \subsection{Bayesian Optimization of the Marginal}
 \label{sec:BOPP}
 
-\input{bopp-for-ml}
+\input{bopp/bopp-for-ml}
 \label{sec:bopp-for-ml}
 
-\input{domainscaling}
+\input{bopp/domainscaling}
 
-\input{optacqfunc}
+\input{bopp/optacqfunc}
