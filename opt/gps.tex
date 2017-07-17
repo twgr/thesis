@@ -1,9 +1,9 @@
 % !TEX root = ../main.tex
 
-\section{Gaussian Processes}
+\subsection{Gaussian Processes}
 \label{sec:opt:GPs}
 
-Informally one can think of a Gaussian Process (GP) \citep{rasmussen2006gaussian} as being a nonparametric distribution over functions which is fully specified by a mean function $\mu \colon \vartheta \rightarrow \real$ and covariance function $k \colon \vartheta \times \vartheta \rightarrow \real$, the latter of which must be a bounded $\left(\text{i.e. }k\left(\theta,\theta'\right)<\infty, \; \forall \theta,\theta' \in \vartheta\right)$ and reproducing kernel.  We can describe a function $f$ as being distributed according to a GP:
+Informally one can think of a GP \citep{rasmussen2006gaussian} as being a nonparametric distribution over functions which is fully specified by a mean function $\mu \colon \vartheta \rightarrow \real$ and covariance function $k \colon \vartheta \times \vartheta \rightarrow \real$, the latter of which must be a bounded $\left(\text{i.e. }k\left(\theta,\theta'\right)<\infty, \; \forall \theta,\theta' \in \vartheta\right)$ and reproducing kernel.  We can describe a function $f$ as being distributed according to a GP:
 \begin{align}
 \label{eq:GP}
 f \left(\theta\right) \sim GP \left(\mu\left(\theta\right), k\left(\theta,\theta'\right)\right)

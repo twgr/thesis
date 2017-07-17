@@ -2,13 +2,19 @@
 
 \section{Bayesian Optimization}
 \label{sec:opt:BO}
-Consider an arbitrary black-box target function $f \colon \vartheta \rightarrow \real$ that can be evaluated for an arbitrary point $\theta \in \vartheta$ to produce, potentially noisy, outputs $\hat{w} \in \real$.  BO \citep{jones1998efficient,osborne2009gaussian} aims to find the global maximum
-\begin{align}
-\label{eq:bo-funcMax}
-\theta^* = \argmax_{\theta \in \vartheta} f\left(\theta\right).
-\end{align}
+Bayesian optimization (BO, \cite{jones1998efficient,osborne2009gaussian,brochu2010tutorial,shahriari2016taking})  is a 
+global optimization scheme that requires only that the target
+function can be evaluated (noisily) at any given point.  It is derivative-free,
+naturally incorporates noisy evaluations, and is typically highly efficient 
+in the number of function evaluations.  It is therefore highly suited to
+problems where the target function corresponds to the output of a simulator,
+estimation scheme, algorithm performance evaluation, or other cases where
+the target is not known in closed form.  It has been successfully applied to 
+a number of applications \todo{ADD} and remains a fast growing area of
+active research.
+
 The key idea of BO is to place a prior on $f$ that expresses belief about the space of functions within which $f$ might live.  When the function is evaluated, the resultant information is incorporated by conditioning upon the observed data to give a posterior over functions.  
 This allows estimation of the expected value and uncertainty in $f\left(\theta\right)$ for all $\theta \in \vartheta$.  
-From this, an acquisition function $\zeta : \vartheta \rightarrow \real$ is defined, which assigns an expected utility to evaluating $f$ at particular $\theta$, based on the trade-off between exploration and exploitation in finding the maximum.  When direct evaluation of $f$ is expensive, the acquisition function constitutes a cheaper to evaluate substitute, which is optimized to ascertain the next point at which the target function should be evaluated in a sequential fashion.  By interleaving optimization of the acquisition function, evaluating $f$ at the suggested point, and updating the surrogate, BO forms a global optimization algorithm that is typically very efficient in the required number of function evaluations, whilst naturally dealing with noise in the outputs.  Although alternatives such as random forests \citep{bergstra2011algorithms,hutter2011sequential} or neural networks \citep{snoek2015scalable} exist, the most common prior used for $f$ is a GP \citep{rasmussen2006gaussian}.  
-%A brief introduction to GPs is provided in the supplementary material (SM).  
-For further information on BO we refer the reader to the recent review by Shahriari et al \cite{shahriari2016taking}.
+From this, an acquisition function $\zeta : \vartheta \rightarrow \real$ is defined, which assigns an expected utility to evaluating $f$ at particular $\theta$, based on the trade-off between exploration and exploitation in finding the maximum.  When direct evaluation of $f$ is expensive, the acquisition function constitutes a cheaper to evaluate substitute, which is optimized to ascertain the next point at which the target function should be evaluated in a sequential fashion.  By interleaving optimization of the acquisition function, evaluating $f$ at the suggested point, and updating the surrogate, BO forms a global optimization algorithm that is typically very efficient in the required number of function evaluations, whilst naturally dealing with noise in the outputs.  Although alternatives such as random forests \citep{bergstra2011algorithms,hutter2011sequential} or neural networks \citep{snoek2015scalable} exist, the most common prior used for $f$ is a Gaussian process (GP) \citep{rasmussen2006gaussian}.
+We therefore now digress to introduce GPs before returning to introduce
+BO in more depth.
