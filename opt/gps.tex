@@ -1,0 +1,29 @@
+% !TEX root = ../main.tex
+
+\section{Gaussian Processes}
+\label{sec:opt:GPs}
+
+Informally one can think of a Gaussian Process (GP) \citep{rasmussen2006gaussian} as being a nonparametric distribution over functions which is fully specified by a mean function $\mu \colon \vartheta \rightarrow \real$ and covariance function $k \colon \vartheta \times \vartheta \rightarrow \real$, the latter of which must be a bounded $\left(\text{i.e. }k\left(\theta,\theta'\right)<\infty, \; \forall \theta,\theta' \in \vartheta\right)$ and reproducing kernel.  We can describe a function $f$ as being distributed according to a GP:
+\begin{align}
+\label{eq:GP}
+f \left(\theta\right) \sim GP \left(\mu\left(\theta\right), k\left(\theta,\theta'\right)\right)
+\end{align}
+which by definition means that the functional evaluations realized at any finite number of sample points is distributed according to a multivariate Gaussian. Note that the inputs to $\mu$ and $k$ need not be numeric and as such a GP can be defined over anything for which kernel can be defined.
+
+An important property of a GP is that it is conjugate with a Gaussian likelihood.  Consider pairs of input-output data points $\{\hth_j,\hat{w}_j\}_{j=1:m}$, $\hat{W} = \{\hat{w}_j\}_{j=1:m}$, $\hat{\Theta} = \{\hth_j\}_{j=1:m}$ and the separable likelihood function
+\begin{align}
+\label{eq:GP-lik}
+p(\hat{W}| \hat{\Theta}, f) = \prod_{j=1}^{m}p(\hat{w}_j | f(\hth_j)) = \prod_{j=1}^{m}\frac{1}{\sigma_{n}\sqrt{2\pi}} \exp \left(-\frac{\left(\hat{w}_j-f(\hth_j)\right)^2}{2\sigma_n^2}\right)
+\end{align}
+where $\sigma_n$ is an observation noise. Using a GP prior $f\left(\theta\right)\sim GP(\mu_{\text{prior}}\left(\theta\right),k_{\text{prior}}\left(\theta,\theta\right))$ leads to an analytic GP posterior 
+\begin{align}
+\label{eq:gpPosterior}
+\mu_{post} \left(\theta\right) & = \mu_{\text{prior}}\left(\theta\right) + k_{\text{prior}}\left(\theta,\hat{\Theta} \right) \left[k_{\text{prior}}\left(\hat{\Theta} ,\hat{\Theta}  \right) + \sigma_n^2 I\right]^{-1} \left(\hat{W} -\mu_{\text{prior}}\left(\hat{\Theta} \right)\right) \\
+k_{post} \left(\theta,\theta'\right) & = k_{\text{prior}} \left(\theta,\theta'\right) - k_{\text{prior}}\left(\theta,\hat{\Theta} \right) \left[k_{\text{prior}}\left(\hat{\Theta},\hat{\Theta} \right) + \sigma_n^2 I\right]^{-1} k_{\text{prior}}\left(\hat{\Theta} ,\theta'\right)
+\end{align}
+and Gaussian predictive distribution
+\begin{align}
+\label{eq:gpPred}
+w | \theta, \hat{W}, \hat{\Theta} \sim \mathcal{N} \left(\mu_{post}\left(\theta\right), k_{post} \left(\theta,\theta\right) + \sigma_n^2 I\right)
+\end{align}
+where we have used the shorthand $k_{\text{prior}}(\hat{\Theta},\hat{\Theta}) = \left[\begin{smallmatrix} k_{\text{prior}}(\hth_1,\hth_1) & k_{\text{prior}}(\hth_1,\hth_2) & \dots\\ k_{\text{prior}}(\hth_2,\hth_1) & k_{\text{prior}}(\hth_2,\hth_2) & \dots \\ \dots & \dots & \dots\end{smallmatrix}\right]$ and similarly for $\mu_{\text{prior}}$, $\mu_{\text{post}}$ and $k_{\text{post}}$.
