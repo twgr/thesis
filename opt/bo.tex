@@ -2,7 +2,7 @@
 
 \section{Bayesian Optimization}
 \label{sec:opt:BO}
-Bayesian optimization (BO, \cite{jones1998efficient,osborne2009gaussian,brochu2010tutorial,shahriari2016taking})  is a 
+Bayesian optimization (BO, \cite{movckus1975bayesian,jones1998efficient,osborne2009gaussian,brochu2010tutorial,shahriari2016taking})  is a 
 global optimization scheme that requires only that the target
 function can be evaluated (noisily) at any given point.  It is derivative-free,
 naturally incorporates noisy evaluations, and is typically highly efficient 
@@ -261,26 +261,106 @@ At the end of the day, the aim of BO is to find the location of the optimum.  Th
 evaluating a new point is, therefore, in the information it provides about the location of the
 true maximum $\theta^*$ and the assistance it provides in guiding future evaluations.  Though 
 the latter of these is difficult to actively incorporate, the former is something that can be
-target in a principled manner.  
+target in a principled manner by considering the distribution on the location of the maximum
+$p(\theta^* | \Theta, V)$ where $\Theta$ and $V$ are the previously evaluated input and output
+points as per Section~\ref{sec:opt:GPs}.
 
 The simplest way this can be done is using Thompson sampling\cite{thompson1933likelihood}, 
 where instead of optimizing an acquisition function directly, one looks to sample the next
-point to evaluate in proportion to the probability that it is the location of the true
-maximum~\cite{shahriari2014entropy,kandasamy2017asynchronous}.
+point to evaluate from $p(\theta^* | \Theta, V)$~\citep{shahriari2014entropy,kandasamy2017asynchronous}.  
+In the GP setting, this is equivalent to sampling a particular function realisation $f$ and then taking 
+$\theta_{\text{next}}$
+as the optimum of this particular realisation.  This can prove surprisingly expensive, as sampling
+a joint realisation of a GP at $M$ points is an $O(M^3)$ operation.  
 
+A more complicated, but theoretically more powerful approach, is to try and directly optimize
+for the point that will, in expectation, most reduce the uncertainty about the location of the maximum.
+These so called entropy search (ES) methods 
+\citep{villemonteix2009informational,hennig2012entropy,hernandez2014predictive} use as an
+acquisition function the expected gain in Shannon information about the location of the optimum,
+or equivalently the reduction in entropy of the location of the maximum. Namely they take
+\begin{align}
+\label{eq:opt:ent-search}
+\zeta (\theta) = H\left[p(\theta^* | \Theta, V, \theta)\right]-
+\E_{p(v| \Theta,V, \theta)} \left[H\left[p(\theta^* | \Theta, V, \theta, v)\right]\right]
+\end{align}
+where $H[p(x)]=-\int p(x)\log p(x)dx$ is the differential entropy of its argument
+and $p(v| \Theta,V, \theta)$ is the predictive distribution of the GP such that
+$v\sim\mathcal{N}\left(\mu(\theta),\sigma(\theta)^2+\sigma_n^2\right)$ as
+explained in Section~\ref{sec:opt:GPs:function}.
+Entropy search methods are closely linked to the idea of Bayesian experimental design, in which an equivalent
+target has been used for some time~\cite{chaloner1995bayesian}.  We return to Bayesian experimental
+design in detail in Chapter INSERT.
 
+Unfortunately,~\eqref{eq:opt:ent-search} is not analytically tractable and so entropy
+search methods must rely on methods for approximately solving~\eqref{eq:opt:ent-search}.  
+This can be particularly difficult as~\eqref{eq:opt:ent-search} represents a nested estimation
+problem that cannot be solved simply by, for example, Monte Carlo~\citep{rainforth2016pitfalls}.
+An important advancement in this regard was the development of an estimation scheme
+by~\cite{hernandez2014predictive} that uses a combination of analytic approximations
+and Monte Carlo sampling.  Despite these approximations, the resulting predictive ES algorithm
+provides excellent empirical performance in terms of the number of function 
+evaluations and remains arguably the state-of-the-art acquisition function for BO.
 
 \subsubsection{Other Acquisition Functions}
 \label{sec:opt:BO:acq:other}
 
-All the acquisition functions discussed so far are myopic and only optimize for one step lookahead.  Osborne, Garnett and Roberts \cite{osborne2009gaussian, garnett2010bayesian} introduce strategies for multi-step lookahead where future possible function evaluations are marginalized over and the expected loss at some future point is used as the acquisition function.  This is naturally a significantly more computationally expensive algorithm, though it can be useful in cases where evaluation of the target function is sufficiently expensive to merit the extra cost.
+Many more acquisition strategies have been developed than we have space 
+to cover here.  However, some of other strategies of particular note include
+\begin{itemize}
+	\item \cite{contal2014gaussian} construct an acquisition function from a combination
+	of the GP mean and an approximation of the mutual information between the
+	function and the noisy evaluations at the chosen input points.  This leads to impressive
+	theoretical and empirical results.
+	\item \cite{osborne2009gaussian,gonzalez2016glasses} develop
+	non-myopic methods that incorporate the effect of future hypothetical evaluations on
+	the relative optimality of evaluating a point at the current iteration.  Such lookahead methods
+	can improve performance, but at the expensive of substantially increased computational cost.
+	\item \cite{wang2016optimization} introduce a strategy explicitly estimating then using
+	the value of function maximum $f(\theta^*)$ and establish links connections between their
+	approach, UCB, and PI.
+	\item \cite{swersky2013multi,shah2016pareto,hernandez2016predictive,feliot2017bayesian}
+	introduce various acquisition functions for dealing with multi-objective problems where we
+	wish to optimize many functions simultaneously.  For example, they may try to approximate
+	the so-called Pareto front, constituting of the set of non-dominated solutions.
+\end{itemize}
 
 \subsection{GP Hyperparameters}
 \label{sec:opt:BO:hyp}
 
-Generally the performance of a GP will be strongly dependent on the choice of hyperparameters $\alpha$.  Rather than optimizing for $\alpha$ it is natural, when tractable, to take a fully Bayesian view and marginalize the acquisition function over $\alpha$ \cite{osborne2009gaussian, snoek2012practical} to give an integrated acquisition function:
+Generally the performance of BO will be strongly dependent on the choice of GP
+ hyperparameters $\alpha$.  Rather than optimizing for $\alpha$ it is natural, 
+ when tractable, to take a fully Bayesian view and marginalize
+ over $\alpha$ \cite{osborne2009gaussian, snoek2012practical}, leading to
+ mixture of GPs posterior.  This was shown
+ by~\cite{snoek2012practical} to substantially improve the performance of BO.
+ An easy way to do this for simple acquisition functions is to consider an
+ integrated acquisition function corresponding to the expectation of the acquisition
+ function over the GP hyperparamters~\citep{snoek2012practical}
 \begin{align}
-\label{eq:intAcq}
-\hat{a}\left(\xb  ; \mM\right) = \int_{\mathcal{A}} a\left(\xb  ; \mM, \alpha\right) p\left(\alpha | \mathcal{D}_{1 : t}, \mathcal{M}\right) d\alpha = \int_{\mathcal{A}} a\left(\xb  ; \mM, \alpha\right) \frac{p\left(\mathcal{D}_{1 : t} | \mathcal{M}, \alpha\right) p\left(\alpha | \mM\right)}{p\left(\mathcal{D}_{1 : t} | \mathcal{M}\right)} d\alpha
+\label{eq:opt:intAcq}
+\bar{\zeta}\left(\theta \right) &= \E_{p\left(\alpha | \Theta, V\right)}
+\left[  \zeta\left(\theta  ; \alpha\right)  \right] \\
+&= \frac{1}{p\left(V | \Theta \right)} \E_{p\left(\alpha \right)}
+\left[  \zeta\left(\theta  ; \alpha\right)  p\left(V | \Theta, \alpha\right)\right]
 \end{align}
-where $ p\left(\alpha | \mM\right)$ is a prior over hyperparameters and the marginal likelihood over hyperparameters $p\left(\mathcal{D}_{1 : t} | \mathcal{M}\right)$ is a constant that can be omitted noting that the aim is to maximize $\hat{a}\left(\xb  ; \mM\right)$.  Typically the integration for \eqref{eq:intAcq} will be approximated using Monte Carlo estimates, for which efficient samples can be found efficiently using slice sampling as shown by Murray and Adams \cite{murray2010slice}.
+where $p(\alpha)$ is a prior over the hyperparmaeters, $p\left(V | \Theta \right)$ is
+a constant that can be ignored as it does not effect the position of the optimum, and
+$p\left(V | \Theta, \alpha\right)$ is GP marginal likelihood as given in~\eqref{eq:opt:GP-ML}.
+The expectation can be approximated using Monte Carlo inference, with slice sampling
+\citep{neal2003slice,murray2010slice} and Hamiltonian Monte Carlo \citep{duane1987hybrid,hensman2015mcmc}
+being common choices.
+
+\subsection{Extensions and Practicalities}
+\label{sec:opt:BO:exten}
+
+\subsubsection{Constraints}
+\label{sec:opt:BO:exten:constraints}
+
+Bayesian optimization approaches have mostly assumed that the target function
+is constrained by a bounding box, i.e. that each input is independently constrained.
+In practice, this is assumption is rarely fulfilled exactly, though for technically unbounded 
+problems then it is not uncommon
+for the user to be able to specify a box conveying the region where it is reasonable to
+assume to the true optimum falls within the box.  To go beyond this assumption, it is
+necessary to design strategies that can deal with constraints.
