@@ -26,7 +26,13 @@ for low-dimensional smooth functions.  They also naturally produce uncertainty e
 that are typically more accurate that those produced by alternatives \todo{Citation?} which often
 have to resort to post-processing or heuristics to estimate uncertainty.
 It also leads to simple and tractable acquisition functions.  Similarly, their ability to incorporate
-noisy observations is be very convenient.  When prior information is known about the function, the
+noisy observations is often helpful, though because GP inference is only analytic for Gaussian
+likelihoods, it is often impractical to incorporate non-Gaussian noise.  This problem can be
+particularly manifest when the observations are bounded, such as when the target is a probability
+and thus always positive.  A common way of dealing with this is to optimize a mapping of the
+original function, for example optimizing the log probability in MAP problem~\cite{osborne2010bayesian}.
+
+When prior information is known about the function, the
 flexibility in choosing the covariance kernel can also be very helpful, for example allowing known
 smoothness to be incorporated.  However, this can also be a curse as an inappropriate choice of
 kernel can severely happen the performance.  In particular, it will typically be necessary to
@@ -36,16 +42,16 @@ matrix inversion.  This typically restricts BO using GPs to using at most hundre
 unless appropriate approximations are made~\citep{snelson2006sparse,hensman2013gaussian}.
 Another drawback can be poor scaling in the dimensionality of the inputs - most common kernels
 rely on local modelling which can break down in high dimensions because points are typically
-far away from one another \citep{bengio2006curse}.
+far away from one another \citep{bengio2006curse}.  
 
 \begin{figure}[t]
 	\centering
-	\begin{tabular}{m{0.65\textwidth} m{0.15\textwidth}}
-	\includegraphics[width=0.6\textwidth]{10_with_acq_opt} & 10 Iterations
+	\begin{tabular}{m{0.15\textwidth} m{0.65\textwidth}}
+	10 Iterations & \includegraphics[width=0.6\textwidth]{10_with_acq_opt}
 	\\
-	\includegraphics[width=0.6\textwidth]{11_with_acq_opt} & 11 Iterations
+	 11 Iterations & \includegraphics[width=0.6\textwidth]{11_with_acq_opt}
 	\\
-	\includegraphics[width=0.6\textwidth]{20_with_acq_opt} & 20 iterations
+	20 iterations & \includegraphics[width=0.6\textwidth]{20_with_acq_opt}
 	\end{tabular}
 	\caption{Illustration of using Bayesian optimization method to optimize the
 		toy one dimensional problem given in~\eqref{eq:opt:toy}.  Red dots show
@@ -53,11 +59,11 @@ far away from one another \citep{bengio2006curse}.
 		the solid blue line is the GP mean, the shaded region is the GP mean $\pm 2$
 		standard deviations, the green line is the acquisition function, and
 		the dotted purple line is the location of the maximum of the acquisition
-		function. \label{fig:opt:bayes-opt}}
+		function. See main text for further description.\label{fig:opt:bayes-opt}}
 \end{figure}
 
-Figure~\ref{fig:opt:bayes-opt} provides a overview of the BO approach for optimizing the 
-following simple one dimensional problem
+Figure~\ref{fig:opt:bayes-opt} shows BO being used to optimize the 
+following simple one dimensional function
 \begin{align}
 \label{eq:opt:toy}
 f(\theta) = \frac{\theta}{15}-\frac{\theta^2}{50}-\frac{\sin \theta}{\theta}, \quad -5\le \theta \le 5
