@@ -135,3 +135,152 @@ the computational complexity for optimizing the acquisition function is theoreti
 practice the two are typically comparable for the modest number of iterations BO is
 generally run for.
 
+Going back to Figure~\ref{fig:opt:bayes-opt}, we see that BO works by interleaving
+regressing a GP to the evaluations, optimizing the acquisition function to find the next
+point to evaluate, evaluating the target function at that point, and the updating the GP
+regression again.  After 20 iterations for our simple problem, the GP regression around
+the optimum has become very accurate, while it is less accurate elsewhere.  This
+highlights the sample efficiency of BO as it shows how computational resources are
+focussed on where they are required.
+
+\subsection{Acquisition Functions}
+\label{sec:opt:BO:acq}
+
+As we previously explained, the GP posterior provides convenient analytic representations
+for the expected value and uncertainty in the function in the form of the GP posterior mean 
+$\mu (\theta)$ and marginal standard deviation $\sigma (\theta)$ respectively.  We now
+introduce a number of common acquisition functions, many, but not all, of which will use
+these representations directly.
+
+The choice of acquisition function can be critical to the performance of Bayesian optimization
+and its choice forms a basis for a significant proportion of the Bayesian optimization
+literature~\cite{shahriari2016taking}.  In particular, some acquisition functions have
+pathologies, for example a tendency to insufficiently explore, which can severely impede the
+performance of BO.  This has lead to the development of some very powerful, but computationally
+intensive and algorithmically complicated, acquisition strategies (e.g.~\cite{hernandez2014predictive}), 
+such that there is often a speed / simplicity vs per iteration performance trade-off in their selection.
+
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=0.95\textwidth]{prob_imp_brochu}
+	\caption{Explanation figure for probability of improvement, taken from~\cite{brochu2010tutorial}.
+		The best point so far (i.e. evaluated point with the highest GP mean) occurs at $\mathbf{x}^+$,
+		with corresponding GP mean $\mu(\mathbf{x}^+)$ (for some reason $f(\mathbf{x}^+)$ is shown
+		instead).  The probability of improvement at any point corresponds to the marginal probability that the 
+		the true function value at that point is larger than $\mu(\mathbf{x}^+)$.  An example of which is 
+		shown at the point $\mathbf{x}_3$, corresponding to the green shaded region, which is clearly
+		substantially larger than at two other hypothetical points $\mathbf{x}_1$ and $\mathbf{x}_2$.
+		Note also that the expected improvement of $\mathbf{x}_3$ corresponds to the expectation 
+		of $\mathbf{x}_3-\mathbf{x}^+$ under the distribution of the green shaded region, while the 
+		point $\mu(\mathbf{x}_3)+\sigma(\mathbf{x}_3)$ corresponds to the UCB acquisition function
+		with $\kappa=1$.
+		REPLACE WITH OWN FIGURE\label{fig:opt:prob-imp}}
+\end{figure}
+
+\subsubsection{Probability of Improvement}
+\label{sec:opt:BO:acq:prob}
+
+One of the conceptually simplest acquisition functions is the probability of improvement (PI, \cite{kushner1964new}), namely
+the probability that the function value at a point is higher than the current estimated optimum.  A
+characterization of this is shown in Figure~\ref{fig:opt:prob-imp}.  As shown by, for example,
+\cite{brochu2010tutorial}, the probability of improvement has a simple analytic form because the
+marginal distributions for function evaluations are Gaussian.  Specifically, let
+\begin{align}
+\label{eq:opt:muplus}
+\mu^+ = \max_{j\in \{1,\dots,m\}} \mu\left(\theta_j\right)
+\end{align}
+denote the point with the highest expected value and define
+\begin{align}
+\label{eq:opt:gamDef}
+\gamma\left(\theta\right) = \frac{\mu \left(\theta\right)-\mu^+-\xi}{\sigma\left(\theta\right)},
+\end{align}
+where $\xi \ge 0$ is a user set parameter ($\xi=0$ in Figure~\ref{fig:opt:prob-imp}).
+The probability of improvement is then defined as the probability of improving the 
+objective function by at least an amount $\xi$
+\begin{align}
+\label{eq:opt:PI}
+\mathrm{PI}\left(\theta\right) = p \left(f\left(\theta\right)\ge \mu^+ +\xi\right) = \Phi \left(\gamma\left(\theta\right)\right)
+\end{align}
+where $\Phi \left(\cdot\right)$ represents the unit normal cumulative distribution function.  
+Note that $\xi=0$ corresponds to pure exploitation and $\xi \rightarrow \infty$ 
+corresponds to pure exploration.  Typically for PI, one will employ a cooling schedule 
+for $\xi$ to incorporate the intuitive idea that one should first explore and then 
+exploit.  However, as shown by for example \cite{jones2001taxonomy}, 
+the performance of the PI acquisition function is sensitive to the choice of 
+$\xi$ and therefore the cooling strategy requires careful tuning.  Doing this in effectively in
+a general purpose way is very challenging, meaning that PI
+is rarely used in practice.
+
+\subsubsection{Expected Improvement}
+\label{sec:opt:BO:acq:expt}
+
+A method less sensitive to tuning is the expected improvement~\citep{movckus1975bayesian}.  
+It is conceptually similar to PI, but incorporates the idea that large improvements are more beneficial
+to small improvements. It therefore better represents the importance of exploration and
+is less prone to over-exploitation.
+It can also be calculated analytically for a GP (see e.g. \cite{brochu2010tutorial}) leading to
+the following definition
+\begin{align}
+\label{eq:opt:EI}
+\begin{split}
+\mathrm{EI} \left(\theta\right) = & \int_{\mu^+ +\xi}^{\infty} p\left(f\left(\theta\right)|\mu\left(\theta\right),\sigma\left(\theta\right)\right) \left(f\left(\theta\right)-\mu^+-\xi\right) df\left(\theta\right) \\
+= & \begin{cases}
+\left(\mu\left(\theta\right)-\mu^+-\xi\right)\Phi \left(\gamma\left(\theta\right)\right)+\sigma\left(\theta\right)\phi\left(\gamma\left(\theta\right)\right), & \sigma \left(\theta\right) > 0 \\
+0, & \sigma \left(\theta\right) = 0
+\end{cases}
+\end{split}
+\end{align}
+were $\phi \left(\cdot\right)$ represents the probability density function of the unit normal distribution.  
+The parameter $\xi$ plays a similar role as for the PI, but in this case $\xi=0$ no longer corresponds 
+to pure exploitation.  \cite{lizotte2008practical} suggests that cooling schedules on $\xi$ are 
+not helpful for EI and that $\xi = 0.01 \mathbb{E} \left[\sigma \left(\theta\right)\right]$ where 
+$\mathbb{E} \left[\sigma \left(\theta\right)\right]$ is signal standard deviation works well in almost all cases.
+Simply setting $\xi=0$ is also a common choice, but it can be prone to doing insufficient exploration.
+Convergence rates for EI have been demonstrated by~\cite{bull2011convergence}.
+
+\subsubsection{Upper Confidence Bounding}
+\label{sec:opt:BO:acq:ucb}
+
+Another possible acquisition strategy is to maximize the upper confidence bound (UCB) for
+the function value~\citep{lai1985asymptotically,srinivas2009gaussian}, namely
+\begin{align}
+\label{eq:UCB}
+\mathrm{UCB}\left(\theta\right) = \mu \left(\theta\right) + \kappa \sigma \left(\theta\right)
+\end{align}
+where $\kappa \ge 0$ is again a parameter that will control the exploration / exploitation trade off.
+This bound represents point at which the probability the function is less than this value is $\Phi (\kappa)$.
+A particularly nice feature of the UCB acquisition function is that given certain constraints on 
+$\mX$ and $k$, $\kappa$ can be chosen in a manner such that acquisition has bounded 
+cumulative regret with high probability, this is known as GP-UCB \citep{srinivas2009gaussian}. 
+However, the need to (often adaptively) set $\kappa$ can be a noticeable drawback.
+
+\subsubsection{Information-Based Policies}
+\label{sec:opt:BO:acq:inf}
+
+At the end of the day, the aim of BO is to find the location of the optimum.  The true utility of
+evaluating a new point is, therefore, in the information it provides about the location of the
+true maximum $\theta^*$ and the assistance it provides in guiding future evaluations.  Though 
+the latter of these is difficult to actively incorporate, the former is something that can be
+target in a principled manner.  
+
+The simplest way this can be done is using Thompson sampling\cite{thompson1933likelihood}, 
+where instead of optimizing an acquisition function directly, one looks to sample the next
+point to evaluate in proportion to the probability that it is the location of the true
+maximum~\cite{shahriari2014entropy,kandasamy2017asynchronous}.
+
+
+
+\subsubsection{Other Acquisition Functions}
+\label{sec:opt:BO:acq:other}
+
+All the acquisition functions discussed so far are myopic and only optimize for one step lookahead.  Osborne, Garnett and Roberts \cite{osborne2009gaussian, garnett2010bayesian} introduce strategies for multi-step lookahead where future possible function evaluations are marginalized over and the expected loss at some future point is used as the acquisition function.  This is naturally a significantly more computationally expensive algorithm, though it can be useful in cases where evaluation of the target function is sufficiently expensive to merit the extra cost.
+
+\subsection{GP Hyperparameters}
+\label{sec:opt:BO:hyp}
+
+Generally the performance of a GP will be strongly dependent on the choice of hyperparameters $\alpha$.  Rather than optimizing for $\alpha$ it is natural, when tractable, to take a fully Bayesian view and marginalize the acquisition function over $\alpha$ \cite{osborne2009gaussian, snoek2012practical} to give an integrated acquisition function:
+\begin{align}
+\label{eq:intAcq}
+\hat{a}\left(\xb  ; \mM\right) = \int_{\mathcal{A}} a\left(\xb  ; \mM, \alpha\right) p\left(\alpha | \mathcal{D}_{1 : t}, \mathcal{M}\right) d\alpha = \int_{\mathcal{A}} a\left(\xb  ; \mM, \alpha\right) \frac{p\left(\mathcal{D}_{1 : t} | \mathcal{M}, \alpha\right) p\left(\alpha | \mM\right)}{p\left(\mathcal{D}_{1 : t} | \mathcal{M}\right)} d\alpha
+\end{align}
+where $ p\left(\alpha | \mM\right)$ is a prior over hyperparameters and the marginal likelihood over hyperparameters $p\left(\mathcal{D}_{1 : t} | \mathcal{M}\right)$ is a constant that can be omitted noting that the aim is to maximize $\hat{a}\left(\xb  ; \mM\right)$.  Typically the integration for \eqref{eq:intAcq} will be approximated using Monte Carlo estimates, for which efficient samples can be found efficiently using slice sampling as shown by Murray and Adams \cite{murray2010slice}.
