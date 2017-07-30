@@ -32,6 +32,24 @@ particularly manifest when the observations are bounded, such as when the target
 and thus always positive.  A common way of dealing with this is to optimize a mapping of the
 original function, for example optimizing the log probability in MAP problem~\cite{osborne2010bayesian}.
 
+\begin{figure}[p]
+	\centering
+	\begin{tabular}{m{0.15\textwidth} m{0.65\textwidth}}
+		10 Iterations & \includegraphics[width=0.6\textwidth]{10_with_acq_opt}
+		\\
+		11 Iterations & \includegraphics[width=0.6\textwidth]{11_with_acq_opt}
+		\\
+		20 iterations & \includegraphics[width=0.6\textwidth]{20_with_acq_opt}
+	\end{tabular}
+	\caption{Illustration of using Bayesian optimization method to optimize the
+		toy one dimensional problem given in~\eqref{eq:opt:toy}.  Red dots show
+		the function evaluations,  the dotted red line shows the true function, 
+		the solid blue line is the GP mean, the shaded region is the GP mean $\pm 2$
+		standard deviations, the green line is the acquisition function, and
+		the dotted purple line is the location of the maximum of the acquisition
+		function. See main text for further description.\label{fig:opt:bayes-opt}}
+\end{figure}
+
 When prior information is known about the function, the
 flexibility in choosing the covariance kernel can also be very helpful, for example allowing known
 smoothness to be incorporated.  However, this can also be a curse as an inappropriate choice of
@@ -44,28 +62,76 @@ Another drawback can be poor scaling in the dimensionality of the inputs - most 
 rely on local modelling which can break down in high dimensions because points are typically
 far away from one another \citep{bengio2006curse}.  
 
-\begin{figure}[t]
-	\centering
-	\begin{tabular}{m{0.15\textwidth} m{0.65\textwidth}}
-	10 Iterations & \includegraphics[width=0.6\textwidth]{10_with_acq_opt}
-	\\
-	 11 Iterations & \includegraphics[width=0.6\textwidth]{11_with_acq_opt}
-	\\
-	20 iterations & \includegraphics[width=0.6\textwidth]{20_with_acq_opt}
-	\end{tabular}
-	\caption{Illustration of using Bayesian optimization method to optimize the
-		toy one dimensional problem given in~\eqref{eq:opt:toy}.  Red dots show
-		the function evaluations,  the dotted red line shows the true function, 
-		the solid blue line is the GP mean, the shaded region is the GP mean $\pm 2$
-		standard deviations, the green line is the acquisition function, and
-		the dotted purple line is the location of the maximum of the acquisition
-		function. See main text for further description.\label{fig:opt:bayes-opt}}
-\end{figure}
-
 Figure~\ref{fig:opt:bayes-opt} shows BO being used to optimize the 
 following simple one dimensional function
 \begin{align}
 \label{eq:opt:toy}
 f(\theta) = \frac{\theta}{15}-\frac{\theta^2}{50}-\frac{\sin \theta}{\theta}, \quad -5\le \theta \le 5
 \end{align}
-with noisy observations $v\sim\mathcal{N}(f(\theta),0.01^2)$.
+with noisy observations $v\sim\mathcal{N}(f(\theta),0.01^2)$.  As we
+explained before, BO employs only point-wise function
+evaluations and so the optimization problem boils down to deciding 
+\begin{enumerate}
+	\item What input point should be evaluated at each iteration?
+	\item Which point of those evaluated is most optimal?
+\end{enumerate}
+Both of these are done using a GP regressed to the existing evaluations,
+which therefore forms the first step of each BO iteration.  As shown in
+Figure~\ref{fig:opt:bayes-opt}, this gives an estimated value and uncertainty for the function
+at every point in the form of the GP posterior mean $\mu_{\text{post}}(\theta)$ and 
+marginal standard deviation $\sigma_{\text{post}}(\theta) = \sqrt{k_{\text{post}}(\theta,\theta)}$
+where $\mu_{\text{post}}$ and $k_{\text{post}}$ are as per~\eqref{eq:opt:GP-posterior}.  We will
+drop the $_{\text{post}}$ subscript in the rest of this chapter to avoid clutter.
+The second decision is now straight forward - our
+estimate for the most optimal point of those evaluated is simply the point with
+the highest mean.  
+
+To solve the first decision - where to evaluate next - we specify a so-called 
+\emph{acquisition function}  $\zeta : \vartheta \rightarrow \real$
+that encodes the relative utility of evaluating a new point.  The optimum of this
+acquisition function is then the optimal point to evaluate at the next iteration.
+At a high level, the utility
+of a point is based on a trade off between \emph{exploration},
+namely the desire to evaluate points where our uncertainty is high to reduce the
+uncertainty in those regions, and \emph{exploitation}, namely the desire to evaluate points
+where the expected function value is high so that we get a good characterization
+of the function in promising regions.  One could alternative think about this as wanting to refine 
+the estimates of promising local optima and sample in places that are likely to contain a
+missing mode.
+We will return to discuss specific acquisition
+functions in depth in the next section and for now we simply note that the most
+desirable points to evaluate will be those that provide both exploration and exploitation.
+For example, consider the expected improvement acquisition function (see INSERT REF)
+after 10 iterations shown in green in Figure~\ref{fig:opt:bayes-opt}.  This is reasonably
+large in the two regions of highest uncertainty, but it is highest in the region near the 
+true global optima where both
+the expected value and uncertainty are high.  After 11 iterations on the other hand,
+the uncertainty in this region has dropped dramatically and the point with the
+highest uncertainty now has the largest value of acquisition function.  Note that
+the scales for the acquisition function are different for the different iterations and
+that the acquisition function typically decreases as more points are observed.
+
+At first it might seem strange to replace our original optimization problem with
+another in the form of optimizing the acquisition function to choose the point
+to evaluate next.  This new optimization problem is itself a global
+optimization of a typically highly multi-modal function and we need to carry it out
+at each iteration of the BO algorithm.  Indeed if the target function $f$ is cheap to
+evaluate, taking such an approach would be rather foolish.
+The key difference though
+is that surrogate optimization problem can be solved without the need to evaluate
+the original target function.  Therefore, if $f$ is expensive to evaluate, this additional
+computation can be justified if it keeps the number of required evaluations of $f$ to
+a minimum.  There are also a number of other features that mean the problem of
+optimizing the acquisition function is typically much easier than the original target --
+it can be evaluated exactly, derivatives are often available, and provided an appropriate kernel
+is used then it is guaranteed to be smooth.  It is also not typically necessary to ensure
+that the acquisition function is optimized exactly, as evaluating a point that is
+sub-optimal under the acquisition function simply means that a point expected to be less
+helpful is evaluated at the next iteration.  This can be useful when the time for a BO
+iteration is comparable to a function evaluation as the amount of computational effort
+undertaken by the BO can be tuned to the problem at hand.  It is also worth noting that
+the computational complexity for optimizing the acquisition function is theoretically less
+(in terms of BO iterations) than the GP training ($O(N^2)$ instead of $O(N^3)$), though in
+practice the two are typically comparable for the modest number of iterations BO is
+generally run for.
+

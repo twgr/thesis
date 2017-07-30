@@ -101,10 +101,12 @@ We can now use standard results for Gaussians (see e.g.~\cite{petersen2008matrix
 the conditional distribution for $f^*$ given all the other variables
 \begin{align}
 \label{eq:opt:GP-posterior}
+\begin{split}
 f^* | \Theta, V, \Theta^* &\sim \mathcal{N}\left(\mu_{\text{post}} \left(\Theta^*\right), 
 k_{\text{post}} \left(\Theta^*,\Theta^*\right) \right) \quad \text{where} \\
 \mu_{\text{post}}  \left(\Theta^*\right) & = k_{\text{prior}}\left(\Theta^*,{\Theta} \right) \left[k_{\text{prior}}\left({\Theta} ,{\Theta}  \right) + \sigma_n^2 I\right]^{-1} V\\
 k_{\text{post}} \left(\Theta^*,\Theta^*\right) & = k_{\text{prior}} \left(\Theta^*,\Theta^*\right) - k_{\text{prior}}\left(\Theta^*,{\Theta} \right) \left[k_{\text{prior}}\left({\Theta},{\Theta} \right) + \sigma_n^2 I\right]^{-1} k_{\text{prior}}\left({\Theta} ,\Theta^*\right).
+\end{split}
 \end{align}
 Now as $\Theta^*$ are arbitrary points, this corresponds to our predictive distribution.
 Further, as the predictive distribution is still a GP, we can refer to our
