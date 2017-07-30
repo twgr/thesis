@@ -5,7 +5,7 @@
 
 From designing engineering components to managing portfolios and tuning control systems,
 optimization is used ubiquitously throughout engineering and the sciences.   Whereas inference
-dealt with cases were we desire to calculate an expectation or approximate a probability distribution
+dealt with cases where we desire to calculate an expectation or approximate a probability distribution
 given data, optimization considers cases where only a single output is desired.  For example, in
 a decision problem only a single action can be taken, meaning a single optimal action must be
 found.  It it is also often used in machine learning as a tractable alternative when full inference
@@ -28,7 +28,7 @@ We note that careful definition of $\vartheta$ can remove the need to
 define constraints explicitly, a fact which we exploit in Chapter~\ref{chp:bopp},
 while minimization problems can be dealt with by maximizing $-f\left(\theta\right)$.
 
-A large range of problems covered by~\eqref{eq:opt:funcMax}.  For example, 
+A large range of problems are covered by~\eqref{eq:opt:funcMax}.  For example, 
 there are arbitrary different types $\vartheta$ might correspond to from the set of real
 values to the setup of race car.  There is also a wide range of information that might
 be known about $f$ - we might have access to the exact function and all its derivatives,
@@ -62,7 +62,7 @@ for a given distribution, namely given data $Y$ they look to find
 \theta^* &= \argmax_{\theta \in \vartheta} p(Y|\theta).
 \end{align}
 Many classical statistical and machine learning techniques on based on 
-ML estimation~\cite{hastie01statisticallearning} as it is intuitively the most probable
+ML estimation~\citep{hastie01statisticallearning} as it is intuitively the most probable
 set of parameters given data and a model.  However, this can be prone to overfitting and
 so it is typically requires the inclusion of regularization terms.
 
@@ -72,7 +72,7 @@ MAP estimation extends ML estimation to also include a prior term
 \theta^* &= \argmax_{\theta \in \vartheta} p(Y|\theta) p(\theta).	
 \end{align}
 This provides regularization compared to ML estimation (indeed many priors and
-ML regularization methods are exactly equivalent~\cite{bishop2006pattern}),
+ML regularization methods are exactly equivalent~\citep{bishop2006pattern}),
 but still has a number of drawbacks compared to full inference when the latter is
 possible.  For example, the position of the MAP estimate is dependent of the
 parametrization of the problem: if some mapping to input variables is

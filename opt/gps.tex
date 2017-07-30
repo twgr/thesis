@@ -1,7 +1,15 @@
 % !TEX root = ../main.tex
 
-\subsection{Gaussian Processes}
+\section{Gaussian Processes}
 \label{sec:opt:GPs}
+
+Before introducing Bayesian optimization (BO), we first digress to introduce Gaussain
+processes (GPs) as they are an essential precursor to much of the BO literature.  
+As we will show in the next section, BO relies on modelling the target with a surrogate,
+which can the be used to estimate the expected value and uncertainty estimates for 
+the value of a function away from points that have been evaluated.  The most common
+surrogate taken in the BO literature in a GP and the one we will use later in Chapter~\ref{chp:bopp}, 
+hence their central importance to the BO method.
 
 Informally one can think of a GP \citep{rasmussen2006gaussian} as being a nonparametric 
 distribution\footnote{Technically speaking they are a stochastic process not a distribution.} over functions.
@@ -10,7 +18,7 @@ to (uncountably) infinite dimensions.  Practically, they are powerful tool for r
 and feature extraction~\cite{lawrence2004gaussian}.  We focus here on regression as it is generally
 the simplest usage and the most relevant to our needs.
 
-\subsubsection{Function-Space View}
+\subsection{Function-Space View}
 \label{sec:opt:GPs:function}
 
 A GP is fully specified by a mean function $\mu \colon \vartheta \rightarrow \real$ and covariance function 
@@ -127,7 +135,7 @@ marginal likelihood for our model is also analytic.  Specifically we have
 where $m$ is the number of points in $\Theta$.  This is important as it means it will be tractable to
 optimize or do inference over the GP hyperparameters.
 
-\subsubsection{Kernels and Hyperparameters}
+\subsection{Kernels and Hyperparameters}
 \label{sec:opt:gps:kernels}
 
 As we showed in the last section, GPs form powerful and expressive priors over functions.
@@ -215,7 +223,7 @@ noisy evaluations.
 As the hyperparameters are rarely known upfront, one must typically either optimize
 them, or perform inference over them to produce a mixture of GPs output.
 
-\subsubsection{Weight-Space View, Reproducing Kernel Hilbert Space, and Derivation of a Gaussian Process}
+\subsection{Weight-Space View, Reproducing Kernel Hilbert Space, and Derivation of a Gaussian Process}
 \label{sec:opt:gps:weight}
 
 One of the key advantages of GPs is that they can used effectively without needing
