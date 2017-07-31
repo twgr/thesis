@@ -79,7 +79,7 @@ We use a separable Gaussian likelihood function
 p({V}| {\Theta}, f) = \prod_{j=1}^{m}p({v}_j | f(\theta_j)) = \prod_{j=1}^{m}\frac{1}{\sigma_{n}\sqrt{2\pi}} \exp \left(-\frac{\left({v}_j-f(\theta_j)\right)^2}{2\sigma_n^2}\right)
 \end{align}
 where $\sigma_n$ is an observation noise. It is set to $0.001$ in our example.  Combining this with the GP prior
-we previous defined leads to GP process posterior and predictive distribution.
+we previously defined leads to GP process posterior and predictive distribution.
 To see this we can consider the joint distribution between the points we have
 considered so far, and a new set of points $\{{\Theta}^*,{V}^*\}$.
 Introducing the shorthand $k_{\text{prior}}({\Theta},{\Theta}^*) = \left[\begin{smallmatrix} k_{\text{prior}}(\theta_1,\theta_1^*) & k_{\text{prior}}(\theta_1,\theta_2^*) & \dots\\ k_{\text{prior}}(\theta_2,\theta_1^*) & k_{\text{prior}}(\theta_2,\theta_2^*) & \dots \\ \dots & \dots & \dots\end{smallmatrix}\right]$ then we have by the fact that
@@ -147,9 +147,9 @@ of the kernel as expressing the similarity between the evaluation of the functio
 points $\theta$ and $\theta'$.  When $k(\theta,\theta')$ is large, these evaluations are strongly
 correlated such that the evaluations will have similar values.  When it is small, there is little
 correlation between the points and so their evaluations will be roughly independent.  Note that
-it is possible for $k(\theta,\theta')<0$ provided $\theta\neq\theta'$, but as kernels are must
+it is possible for $k(\theta,\theta')<0$ provided $\theta\neq\theta'$, but as kernels must
 be positive definition functions as explained in the next section, $k\left(\Theta,\Theta\right)$ is
-always a positive definite matrix.  Though it is not necessary for the kernel to stationary (i.e.
+always a positive definite matrix.  Though it is not necessary for the kernel to be stationary (i.e.
 that it only depends on $\theta-\theta'$ rather than the absolute values), we will not
 consider non-stationary cases further here (see \cite{rasmussen2006gaussian} for further
 information).
@@ -168,8 +168,10 @@ substantially with changes to the kernel.  All of these kernels also behave
 substantially differently to the compound Mat\'{e}rn kernel we considered in the last section.
 The choice of kernel is therefore
 critical to the performance of GPs.  Though there is work, including some of
-our own, that examines methods for learning \cite{duvenaud2013structure,lloyd2014automatic,wilson2014fast,janz2016probstruct}
-for learning the kernel directly, this is typically too computationally intensive
+our own, that examines methods 
+for learning the kernel directly
+\cite{duvenaud2013structure,lloyd2014automatic,wilson2014fast,janz2016probstruct}, 
+this is typically too computationally intensive
 to carry out in practice.  One must therefore either use prior knowledge about the
 problem, or use an relatively general purpose to ensure that the nuances of the
 data are not overwhelmed.
@@ -183,7 +185,7 @@ k_{\mathrm{se}} \left(\theta,\theta'\right) = \sigma_f^2 \exp \left(-\frac{\left
 which is infinitely differentiable.  It is also sometimes known as
 the exponentiated quadratic kernel. Here $\sigma_f^2$ is the ``signal 
 standard deviation'' - a hyperparameter that
-effects the scaling of the output from the GP: the larger $\sigma$, the higher
+effects the scaling of the output from the GP: the larger $\sigma_f$, the higher
 the average standard deviation of the function.  $\rho$ is a hyperparameter
 that dictates the characteristic length scale of variation for the function - the
 higher $\rho$ is, the slower the correlation decreases as one moves away from the
@@ -200,7 +202,7 @@ k_{\nu}\left(\theta,\theta'\right) = \sigma_f \frac{2^{1-\nu}}{\Gamma\left(\nu\r
  \left(\frac{\sqrt{2\nu}}{\rho}\left\lVert\theta-\theta'\right\rVert\right)
 \end{align}
 where $K_{\nu}$ is the modified Bessel function of second kind order $\nu$
-and $\gamma(\cdot)$ is the gamma function,
+and $\Gamma(\cdot)$ is the gamma function,
 is $\lfloor\nu-1\rfloor$ times differentiable and
 therefore different values of $\nu$ can be used to express different levels
 of smoothness.  Typically $\nu$ is set to $n+1/2$ for some integer $n$, for
@@ -228,7 +230,7 @@ them, or perform inference over them to produce a mixture of GPs output.
 \subsection{Weight-Space View, Reproducing Kernel Hilbert Space, and Derivation of a Gaussian Process}
 \label{sec:opt:gps:weight}
 
-One of the key advantages of GPs is that they can used effectively without needing
+One of the key advantages of GPs is that they can be used effectively without needing
 to know the intricacies for why they work.  The derivations we introduced in the
 last section and in particular the calculations required to derive the GP posterior were
 spectacularly simple, albeit computationally intensive (the need for a matrix inversion
@@ -281,7 +283,7 @@ where the inequality can be trivially shown using Cauchy-Schwarz.  Now consider 
 \end{align}
 then $k\left(\theta,\theta'\right) < \infty, \; \forall \theta, \theta' \in \vartheta$ using the inequality from equation \eqref{eq:opt:covFunc} and our covariance will remain bounded with infinitely many basis functions.
 
-A key realisation is that distribution of $F$ only depends on $Z$ and $C$ through the inner product $\langle\Psi\left(\theta\right), \Psi\left(\theta'\right)\rangle_{\mathcal{H}}$ such that we need never compute the potential high dimensional feature mappings if we can find a way to implicitly compute the inner product, for example if $k$ has the reproducing property 
+A key realisation is that the distribution of $F$ only depends on $Z$ and $C$ through the inner product $\langle\Psi\left(\theta\right), \Psi\left(\theta'\right)\rangle_{\mathcal{H}}$ such that we need never compute the potential high dimensional feature mappings if we can find a way to implicitly compute the inner product, for example if $k$ has the reproducing property 
 \begin{align}
 \label{eq:opt:repKernel}
 \langle u \bc, k\left(\cdot,\theta\right)\rangle_{\mathcal{H}} = u\left(\theta\right), \quad \forall \theta \in \vartheta, \; \forall u\bc \in \mathcal{H}.
@@ -329,7 +331,7 @@ which is the common squared exponential kernel in one dimension.  Thus we have m
 More generally, the Moore-Aronszajin theorem \cite{aronszajn1950theory} states that
 \begin{theorem}
 	\label{the:opt:Moore-Aronszajin}
-	Any symmetric, positive definite kernel $k \colon \vartheta \times \vartheta \rightarrow \real$ as a unique RKHS for which $k$ is a reproducing kernel.
+	Any symmetric, positive definite kernel $k \colon \vartheta \times \vartheta \rightarrow \real$ has a unique RKHS for which $k$ is a reproducing kernel.
 \end{theorem}
 In other words, if we define a kernel function that is symmetric $k\left(\theta,\theta'\right) = k\left(\theta',\theta\right)$ and positive definite as per \eqref{eq:opt:posDef}, then at least one corresponding feature map $\Psi \colon \vartheta \rightarrow \mathcal{H}$ must exist.  Therefore a corresponding $Z \colon \vartheta \rightarrow \mathcal{H}$ and $C$ must also exist (for example we can trivially take $C$ as the identity matrix and $Z = \Psi$), and if we further ensure that $k$ is bounded $k\left(\theta,\theta'\right) < \infty, \; \forall \theta, \theta' \in \vartheta$, then finite realisations  $\left[f\left(\theta_1\right),\dots,f\left(\theta_t\right)\right]^T$ of equation \eqref{eq:opt:linModel} must be distributed to a finite multivariate Gaussian distribution with mean  $\left[\mu\left(\theta_1\right),\dots,\mu\left(\theta_t\right)\right]^T$ and covariance $k\left(\theta_i,\theta_j\right) \; \forall i,j \in {1,\dots,t}$.  We have therefore arrived at the following formal definition of a GP.
 
