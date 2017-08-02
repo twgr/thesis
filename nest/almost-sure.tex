@@ -1,0 +1,112 @@
+% !TEX root =  ../main.tex
+
+\subsection{Proof of Theorem~\ref{the:Consistent} - ``Almost almost sure'' convergence}
+\label{sec:app:consistent}
+
+\theConsistent*
+
+\begin{proof}
+	For all $N, M$, we have by the triangle inequality that
+	\[
+	\left|I_{N,M} - I\right| \leq V_{N,M} + U_N, \quad \text{where}
+	\]
+	\begin{eqnarray*}
+		V_{N,M} = \left|\frac{1}{N} \sum_{n=1}^N f(y_n, \gamma(y_n)) - I_{N,M} \right| 
+		\quad \text{and} \quad
+		U_N = \left|I - \frac{1}{N} \sum_{n=1}^N f(y_n, \gamma(y_n)) \right|.
+	\end{eqnarray*}
+	A second application of the triangle inequality then allows us to write
+	\begin{align} \label{eq:vnm}
+    V_{N,M} \leq \frac{1}{N} \sum_{n=1}^N (\epsilon_M)_n
+	\end{align}
+	where we recall that $(\epsilon_M)_n = |f(y_n, \gamma(y_n)) - f(y_n, \hat{\gamma}_n)|$.
+	Now, for all fixed $M$, each $(\epsilon_M)_n$ is i.i.d. Furthermore, since
+        $\E
+	\left[(\epsilon_M)_1\right] \to 0$ as $M \to \infty$ by our assumption and 
+	$(\epsilon_M)_n$ is nonnegative, there exists some $L \in \N$
+	such that $\E\left[\left|(\epsilon_M)_n \right|\right] < \infty$ for all $M \geq L$.
+	Consequently, the strong law of large numbers means that for all $M \geq L$,
+	\[ 
+	\frac{1}{N} \sum_{n=1}^N (\epsilon_M)_n \asto \E\left[(\epsilon_M)_1\right]
+	\] 
+	as $N \to \infty$. 
+        
+        Fix $\delta > 0$. By repeatedly applying Ergorov's theorem to each $M \geq L$,
+        we can find a sequence of events 
+        \[
+                B_{L}, B_{L+1}, B_{L+2}, \ldots
+        \]
+        such that for every $M \geq L$,
+        \[
+                \mathbb{P}(B_{M}) < \frac{\delta}{4} \cdot \frac{1}{2^{M-L}}
+        \]
+        and outside of $B_{M}$, the sequence $\frac{1}{N} \sum_{n=1}^N (\epsilon_M)_n$
+        converges uniformly to $\E\left[(\epsilon_M)_1\right]$. Pick a function 
+        $\tau^1_\delta : \N \to \N$ such that 
+	\[ 
+                \left|\frac{1}{M'} \sum_{n=1}^{M'} (\epsilon_M)_n(\omega) - \E\left[(\epsilon_M)_1\right]\right| < \frac{1}{M} 
+        \]
+        for all $M \geq L$, $M' \geq \tau^1_\delta(M)$, and $\omega \not\in B_M$. Such a $\tau^1_\delta$ exists
+        because of the uniform convergence guarantee that we just mentioned. Let 
+        \[
+                B_\delta = \bigcup_{M \geq L} B_M.
+        \]
+        Then, for all $M \geq M_0$, $M' \geq \tau^1_\delta(M)$, and $\omega \not\in B_\delta$, 
+	\[ 
+                \left|\frac{1}{M'} \sum_{n=1}^{M'} (\epsilon_M)_n(\omega) - \E\left[(\epsilon_M)_1\right]\right| < \frac{1}{M}.
+        \]
+        Consequently, for all such $M$, $M'$ and $\omega$,
+        \begin{equation} 
+                \label{eqn:almostsure:1}
+                V_{M',M}(\omega)
+                \leq
+                \frac{1}{M'} \sum_{n=1}^{M'} (\epsilon_M)_n(\omega) 
+                < 
+                \frac{1}{M} + \E\left[(\epsilon_M)_1\right].
+        \end{equation}
+        Furthermore, 
+        \begin{equation} 
+                \label{eqn:almostsure:2}
+                \mathbb{P}(B_\delta) =
+                \mathbb{P}\left(\bigcup_{M \geq L} B_M\right)
+                \leq 
+                \sum_{M \geq L} \mathbb{P}\left(B_M\right)
+                < \sum_{M \geq L} \frac{\delta}{4} \cdot \frac{1}{2^{M-L}}
+                = \frac{\delta}{2}.
+        \end{equation}
+
+
+	To complete the proof, we must remove the dependence of $U_N$ on $N$ as well. This is
+	straightforward once we observe that $U_N \asto 0$ as $N \to \infty$ by the strong law of 
+        large numbers. So, by Ergorov's theorem again, there exists an event $C_\delta$ such that
+        \begin{equation} 
+                \label{eqn:almostsure:3}
+                \mathbb{P}(C_\delta) < \frac{\delta}{2}
+        \end{equation}
+        and outside of $C_\delta$, the sequence $U_N$ converges uniformly to $0$. This uniform convergence,
+        in turn, ensures the existence of a function $\tau^2_\delta : \N \to \N$ such that
+        \begin{equation} 
+                \label{eqn:almostsure:4}
+                U_{M'}(\omega) < \frac{1}{M} 
+        \end{equation}
+        for all $M \in \N$, $M' \geq \tau^2_\delta(M)$, and $\omega \not\in C_\delta$.
+	
+        We can now define $\tau_\delta(M) = \max(\tau^1_\delta(M), \tau^2_\delta(M))$, and 
+        $A_\delta = B_\delta \cup C_\delta$. By inequalities in \eqref{eqn:almostsure:2}
+        and \eqref{eqn:almostsure:3},
+        \[ 
+                \mathbb{P}(A_\delta) \leq \mathbb{P}(B_\delta) + \mathbb{P}(C_\delta) < \delta.  
+        \] 
+        Also, by the inequalities in \eqref{eqn:almostsure:1} and \eqref{eqn:almostsure:4},
+	\[ 
+                \left|I - I_{\tau_\delta(M),M}(\omega)\right| 
+                \leq
+                V_{\tau_\delta(M),M}(\omega) 
+                +
+                U_{\tau_\delta(M)}(\omega) 
+                \leq 
+                \frac{1}{M} + \frac{1}{M} + \E\left[(\epsilon_M)_1\right]
+	\]
+        for all $M \geq L$ and $\omega \notin A_\delta$. Since $\E\left[(\epsilon_M)_1\right] \to 0$, we have here that 
+        $I_{\tau_\delta(M),M}(\omega) \to I$ as desired.
+\end{proof}

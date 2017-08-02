@@ -1,0 +1,31 @@
+% !TEX root =  main.tex
+
+\section{Conclusions}
+
+We have introduced a formal framework for nested Monte Carlo (NMC) estimation and shown that
+it can be used to yield a consistent estimator for problems that cannot be tackled
+with conventional MC alone.  We have demonstrated convergence rates and that NMC
+is, in general, biased. We have introduced a number of techniques for converting certain classes
+of NMC problems to conventional MC ones, allowing for improved convergence rates on these problems.
+We used one of these to derive a new estimator for Bayesian experimental design
+with a superior convergence rate to existing schemes.  For problems that do not satisfy these special
+cases, we have highlighted the importance of increasing the number of samples in both the inner
+and the outer estimators to ensure convergence.  Our results have implications for numerous
+applications, for example probabilistic programming, and serve both as an invitation for further inquiry 
+and a caveat against careless use.
+
+%We have shown that it is theoretically possible for a nested Monte Carlo scheme to yield a
+%consistent estimator, and have quantified the convergence error associated with doing so.
+%However, we have also revealed a number of pitfalls that can arise if nesting is applied
+%na\"{i}vely, such as the resulting estimator becoming necessarily biased, requiring additional
+%assumptions on $f$, being unlikely to converge unless the number of samples used in the inner
+%estimator is driven to infinity,
+%and is likely to converge at a significantly slower rate than un-nested Monte
+%Carlo. These results have implications for applications ranging from experimental design
+%to probabilistic programming, and serve both as an invitation for further inquiry and a
+%caveat against careless use.
+
+%We have shown that although consistent nested inference is still possible, it is inherently biased, requires Lipshitz continuity, and has a convergence rate that reduces exponentially in the nesting depth.  
+%These results have implications for many applications such as experimental design and probabilistic programming.
+%For the latter, it shows that when there is only a linear dependence on the nested query, the problem can be unravelled to a single inference, but that otherwise there are additional severe restrictions on the problems that can be solved and the performance that can be achieved.
+%When there is only a linear dependence of the outer integration on the nested expectation, the problem can be unravelled to a single inference, therefore, although nested queries in probabilistic programs do increase the scope of models which can be defined, these models have continuity restrictions and only permit MC inference at prohibitively slower convergence rates than ordinary inference.

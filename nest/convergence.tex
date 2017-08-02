@@ -1,0 +1,156 @@
+% !TEX root =  ../main.tex
+
+\section{Convergence of Nested Monte Carlo}
+\label{sec:convergence}
+
+\begin{wrapfigure}{r}{0.42\textwidth}
+	\vspace{-12pt}
+	\centering 
+	\resizebox{.4\textwidth}{!}{
+		\input{nest/figures/algorithm.tex}
+	}
+	\caption{Convergence representation \label{fig:conv-rep}}
+	\vspace{-10pt}
+\end{wrapfigure}
+
+Since we cannot always unravel the target estimation using one of the special cases in the previous section, we must resort to NMC (or another nested estimation scheme) in order to compute $I$ in general. 
+Our aim here is to show that
+approximating $I \approx I_{N,M}$ is in principle possible, at least when $f$ is
+well-behaved. In particular, we establish a convergence rate of 
+the mean squared error of $I_{N,M}$ and prove a form of almost sure convergence to
+$I$.  We further generalize our convergence rate to apply to the case of multiple
+levels of estimator nesting.
+
+%\subsection{Strong Consistency}
+
+Before providing a formal examination of the convergence of NMC, we first provide more
+intuition about how we might expect to construct a convergent NMC estimator.  Consider the
+diagram shown in Figure~\ref{fig:conv-rep}, and suppose that we want our error to be
+less than some arbitrary $\varepsilon$.  Assume that $f$ is sufficiently smooth 
+that we can choose $M$ large enough to make
+$\left|I-\E\left[f(y_n,(\hat{\gamma}_M)_n)\right]\right| < \varepsilon$
+(we will characterize the exact requirements for this later).  For this fixed
+$M$, we have a standard MC estimator on an extended space $y,z_1,\dots,z_M$ such that each
+sample constitutes one of the red boxes.  As we take $N\rightarrow \infty$, i.e. taking
+all the samples in the green, this estimator converges such that $I_{N,M}
+\to \E\left[f(y_n,(\hat{\gamma}_M)_n)\right]$ as $N \to \infty$ for fixed $M$.  As we can
+make $\varepsilon$ arbitrarily small, we can also achieve an arbitrarily small error.
+
+Convergence bounds for NMC have previously been shown by~\citet{hong2009estimating} in the 
+financial statistics literature.  Under the assumption that $\hat{\gamma}$ is Gaussian distributed
+(which is often reasonable due to the central limit theorem) and that $f$ is thrice differentiable
+other than at some finite number of points, they have shown that it is possible to achieve a
+converge rate of $O(1/N+1/M^2)$.  We now show that these assumptions can be relaxed to only requiring
+$f$ to be Lipschitz continuous, at the expense of weakening this bound to $O(1/N+1/M)$.
+\begin{restatable}{theorem}{theRate} \label{the:Rate}
+	If $f$ is Lipschitz continuous and $f(y_n, \gamma(y_n)), \phi(y_n, z_{n,m}) \in
+	L^2$, the mean squared error of $I_{N,M}$ converges to $0$ at rate $O\left(1/N +
+	1/M\right)$.
+\end{restatable}
+\begin{proof}
+See Appendix~\ref{sec:app:rate_single}
+\end{proof}
+Inspection of the convergence rate above shows that, given a total number of samples
+$T=MN$, our bound is tightest when $N\propto M$, with a
+corresponding rate $O(1/\sqrt{T})$ (see Appendix~\ref{sec:app:opt-conv}). 
+When the additional assumptions of~\citet{hong2009estimating}
+apply, this rate can be lowered to $O(1/T^{2/3})$ by setting $N \propto M^2$.  We note that
+the result of Theorem~\ref{the:Rate} was recently independently derived by~\citet{fort2016mcmc}.
+They also show that if $f$ is continuously differentiable in its second variable and this
+derivative is bounded and Lipschitz continuous, then the $O(1/N+1/M^2)$ bound is achieved.
+
+We now consider the question of what is the minimal requirement on $f$ to ensures some form of
+convergence? For a fixed single $y_1$, we
+have that $(\hat{\gamma}_M)_1=\frac{1}{M}\sum_{m=1}^{M} \phi(y_1,z_{1,m})\rightarrow\gamma(y_1)$ 
+almost surely as $M \rightarrow \infty$, because the left-hand side is a MC estimator. If $f$ is continuous
+around $y_1$, this also implies $f(y_1,(\hat{\gamma}_M)_1) \rightarrow
+f(y_1,\gamma(y_1))$.  Our candidate requirement is that this holds in
+expectation, i.e. that it holds when we incorporate the effect of the outer estimator.
+More precisely, we define $(\epsilon_M)_n = \left|f(y_n, (\hat{\gamma}_M)_n) -
+f(y_n,\gamma(y_n))\right|$ and require that $\E\left[(\epsilon_M)_1\right] \to 0$ as $M
+\to \infty$ (noting that $(\epsilon_M)_n$ are i.i.d. and so
+$\E\left[(\epsilon_M)_1\right] = \E\left[(\epsilon_M)_n\right], \forall n\in\N$). Informally, this ``expected continuity''
+requirement is weaker than uniform continuity because it does allow (potentially infinitely
+many) discontinuities in $f$.  More formally we have the following result.
+
+\begin{restatable}{theorem}{theConsistent} \label{the:Consistent}
+	For $n \in \N$, let 
+	\[
+	(\epsilon_M)_n = \left|f(y_n, (\hat{\gamma}_M)_n) - f(y_n, \gamma(y_n))\right|.
+	\]
+  Assume that $\E\left[(\epsilon_M)_1\right] \to 0$  as $M \to \infty$. Denote by $\Omega$
+  the sample space of our underlying probability space, so that $I_{\tau_\delta(M),M}$ can
+  be thought of as a map from $\Omega$ to $\mathbb{R}$. Then, for every $\delta > 0$,
+  there exists a measurable $A_\delta \subseteq \Omega$ with $\mathbb{P}(A_\delta) <
+  \delta$, and a function $\tau_\delta : \N \to \N$ such that, for all $\omega\not\in
+  A_\delta$,
+	\[ 
+		I_{\tau_\delta(M),M}(\omega) \to I\quad\mbox{as}\quad M \to \infty.
+	\]
+\end{restatable}
+\begin{proof}
+	See Appendix~\ref{sec:app:consistent}
+\end{proof}
+
+%\begin{theorem} \label{the:Consistent}
+%  For $n \in \N$, let 
+%  \[
+%          (\epsilon_M)_n = \left|f(y_n, (\hat{\gamma}_M)_n) - f(y_n, \gamma(y_n))\right|.
+%  \]
+%  If~~$\E\left[(\epsilon_M)_1\right] \to 0$  as $M \to \infty$, then
+%  there exists a $\tau : \N \to \N$ such that $I_{\tau(M),M} \asto I$ as $M \to \infty$.
+%\end{theorem}
+%%\begin{proof}
+%%  See Section~\ref{sec:app:conv-proof} in the Appendices. \todo{Add discussion
+%%  characterising some instances of when $\epsilon_M \to 0$}
+%%\end{proof}
+As this convergence is in $M$, it suggests (and is reinforced by the convergence rate) 
+that in order to achieve convergence for most $f$,
+we should increase not just the number of samples in the outer estimator 
+but also the number of samples in the inner estimator.
+Theorem~\ref{the:Rate} gives an intuitive reason for why this should be the case;
+it says that if $M$ is fixed, the bias on each inner term will remain non-zero even when
+$N$ tends to $\infty$.
+%
+%\subsection{Convergence Rate}
+%We now refine this by also establishing the convergence rate as below.
+%
+%
+
+We next consider the case of multiple levels of nesting.
+This case is particularly important for analysing probabilistic programming
+languages, which provide mechanisms for nesting probabilistic
+submodules to enable flexible compositionality.
+To formalise what we mean by arbitrary nesting, we first assume some fixed integral depth
+$D > 0$, and real-valued functions $f_0, \cdots, f_D$.
+We then define
+\begin{align*}
+  \gamma_D\left(y^{(0:D-1)}\right) &= \E \left[f_D\left(y^{(0:D)}\right) \middle| y^{(0:D-1)}\right] \quad \text{and} \\
+  \gamma_k(y^{(0:k-1)}) &= \E \left[f_k\left(y^{(0:k)}, \gamma_{k+1}\left(y^{(0:k)}\right)\right) \middle| y^{(0:k-1)}\right],
+\end{align*}
+for $0 \leq k < D$, where $y^{(k)} \sim p\left(y^{(k)}|y^{(0:k-1)}\right)$. 
+Note that our single nested case corresponds to the setting of $D=1$, $f_0 = f$, $f_1 = \phi$, $y^{(0)}=y$,
+$y^{(1)}=z$, $\gamma_0 = I$, and $\gamma_1 = \gamma$. Our goal is to
+estimate $\gamma_0 = \E \left[f_0\left(y^{(0)},
+\gamma_1\left(y^{(0)}\right)\right)\right]$. To do so we will use the following NMC scheme:
+\begin{align*}
+  I_D\left(y^{(0:D-1)}\right) &= \frac{1}{N_D} \sum_{n=1}^{N_D} f_D\left(y^{(0:D-1)}, y^{(D)}_n\right) \quad \text{and} \\
+  I_k\left(y^{(0:k-1)}\right) &= \frac{1}{N_k} \sum_{n=1}^{N_k} f_k\left(y^{(0:k-1)}, y^{(k)}_n, I_{k+1}\left(y^{(0:k-1)}, y^{(k)}_n\right)\right)
+\end{align*}
+for $0 \leq k < D$, where each $y^{(k)}_n \sim p\left(y^{(k)}|y^{(0:k-1)}\right)$ is drawn
+independently. The theorem below gives a rate of convergence of NMC in this case.
+\begin{restatable}{theorem}{theRepeat} \label{the:Repeat}
+  Assume that $f_0, \cdots, f_D$ are all Lipschitz continuous, and 
+  that 
+  \[
+          f_k\left(y^{(0:k)}, \gamma_{k+1}\left(y^{(0:k)}\right)\right), I_k\left(y^{(0:k-1)}\right) \in L^2 
+  \]
+  for $0 \leq k \leq D$. Then, the mean squared error $\E \left[\left(\gamma_0 - I_0\right)^2\right]$ 
+  converges to $0$ at rate $O\left(\sum_{k=0}^D
+  \frac{1}{N_k}\right)$.
+\end{restatable}
+\begin{proof}
+	See Appendix~\ref{sec:app:repeat}
+\end{proof}
+As this estimation scheme requires drawing $\left(T = \prod_{k=0}^{D} N_k\right)$-many samples, the
+result shows that the convergence speed rapidly diminishes with repeated nesting.

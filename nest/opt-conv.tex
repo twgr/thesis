@@ -1,0 +1,60 @@
+% !TEX root =  ../main.tex
+
+\section{Optimizing the Convergence Rates}
+\label{sec:app:opt-conv}
+
+We have shown that the mean squared error converges at a rate $O(1/N + 1/M)$ or
+$O(1/N + 1/M^2)$ depending on the smoothness assumptions that can be made about
+$f$.  Here we show that given a sample budget $T=MN$, then these bounds are
+optimized by setting $N \propto M$ and $N \propto M^2$ respectively and that this
+gives bounds of $O(1/\sqrt{T})$ and $O(1/T^{2/3})$ respectively.
+
+Consider setting $N = \tau(M)$ then $T = \tau(M) \cdot M$ and our bounds become $O(R)$, where
+\[
+  R = 1/\tau(M) + 1/M \quad \text{and} \quad R = 1/\tau(M) + 1/M^2.
+\]
+for the two cases respectively.
+
+In this first case supposing $\tau(M) = O(M)$ easily gives
+\[
+  T = M \tau(M)
+    = O\left(M^2\right)
+\]
+and as such 
+\begin{equation} \label{eq:rm}
+  R = O\left(\frac{1}{M}\right) = O\left(\frac{1}{\sqrt{T}}\right)
+\end{equation}
+as $M \to \infty$.  In contrast, consider the case that $\tau(M) \gg M$ as $M \to \infty$. We then have
+$\frac{1}{\sqrt{M}} \gg \frac{1}{\sqrt{\tau(M)}}$ as $M \to \infty$, so that
+\[
+  R = O\left(\frac{1}{M}\right) \gg \frac{1}{\sqrt{M}} \frac{1}{\sqrt{\tau(M)}} = \frac{1}{\sqrt{T}}.
+\]
+Comparing with \eqref{eq:rm}, we observe that, for the same total
+budget of samples $T$, this choice of $\tau$ provides a strictly weaker convergence
+guarantee than in the previous case. When $M \gg \tau(M)$ also then we have
+$\frac{1}{\sqrt{\tau(M)}} \gg \frac{1}{\sqrt{M}}$ as $M \to \infty$ and so
+\[
+R = O\left(\frac{1}{\tau(M)}\right) \gg \frac{1}{\sqrt{M}} \frac{1}{\sqrt{\tau(M)}} = \frac{1}{\sqrt{T}}
+\]
+which is again a weaker bound.  We thus see that the $O(1/N + 1/M)$ bound is optimized when
+$N \propto M$, giving a convergence rate of $O(1/\sqrt{T})$.
+
+In the second case suppose that $\tau(M) = O(M^2)$ as $M \to \infty$.  This now gives
+\[
+  T = M \tau(M)
+  = O\left(M^3\right)
+\]
+and therefore
+\[
+R = O\left(\frac{1}{M^2}\right) = O\left(\frac{1}{T^{2/3}}\right)
+\]
+as $M \to \infty$.  Now considering the cases $\tau(M) \gg M^2$ leads to $\frac{1}{M^{4/3}}  \gg \frac{1}{\tau(M)^{2/3}}$ and thus
+\[
+R = O\left(\frac{1}{M^2}\right) \gg \frac{1}{M^{2/3}} \frac{1}{\tau(M)^{2/3}} = \frac{1}{T^{2/3}}.
+\]
+Similarly, if $\tau(M) \ll M^2$ then $\frac{1}{\tau(M)^{1/3}}\gg \frac{1}{M^{2/3}}$ and thus
+\[
+R = O\left(\frac{1}{\tau(M)}\right) \gg \frac{1}{M^{2/3}} \frac{1}{\tau(M)^{2/3}} = \frac{1}{T^{2/3}}.
+\]
+Both of these cases lead to weaker bounds and so we see that the $O(1/N + 1/M^2)$ bound
+is tightest when $N \propto M^2$, giving a convergence rate of $O(1/T^{2/3})$.

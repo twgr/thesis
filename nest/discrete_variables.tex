@@ -1,0 +1,65 @@
+% !TEX root =  ../main.tex
+
+\subsection{Finite Possible Realisations of $y$}
+\label{sec:discrete}
+
+If $y$ must take one of finitely many values $y_1, \cdots, y_C$, then it is possible to
+use another approach to ensure the same convergence rate as standard MC.
+The key observation is to note that in this case we can convert the nested problem
+\eqref{eq:MC} into $C$ separate non-nested problems
+\begin{align}
+         I = \sum_{c=1}^C P(y = y_c) \, f(y_c, \gamma(y_c))
+\end{align}
+which can then be estimated using
+\begin{align}
+        I_N  &= \sum_{c=1}^C (\hat{P}_N)_c \, (\hat{f}_N)_c \quad \text{where}
+        \label{eq:IN} \\
+        \label{eq:PN}
+        P(y = y_c) &\approx (\hat{P}_N)_c = \frac{1}{N} \sum_{n=1}^N \mathbbm{1}(y_n = y_c)  \\
+        \label{eq:fn}
+        f(y_c, \gamma(y_c)) &\approx (\hat{f}_N)_c = f\left(y_c, \frac{1}{N} \sum_{n=1}^N \phi(y_c, z_{n,c})\right),
+\end{align}
+with $y_n \iid p(y)$ and $z_{n,c} \sim p(z|y_c)$ or $z_{n,c} \sim p(z)$  
+depending on whether our formulation uses
+\eqref{eq:gamma_1} or \eqref{eq:gamma_2}.  
+We can now show the following result, noting that as the same set of $y_n$'s is used for every
+$(\hat{P}_N)_c$, calculating $I_N$ requires $N$ samples of $y$, 
+$CN$ samples of $z$ (each
+drawn independently to the samples of $y$), $CN$ evaluations of $\phi$, and $C$ evaluations of $f$.
+\begin{restatable}{theorem}{thefiniteres}
+	\label{the:finite-res}
+  If $f$ is Lipschitz continuous, then the mean squared error of $I_N$ as an estimator for $I$ converges at rate $O(1/N)$.
+\end{restatable}
+\begin{proof}
+	See Appendix~\ref{sec:app:finite-res}.
+\end{proof}
+%
+%
+%If there are only finite possible values which $y$ can take on, there is another approach
+%we can take to ensure standard MC results apply.  Unlike the previous special cases, here
+%it will be necessary to carry out the estimation in a particular way for the standard
+%MC results to apply, with na\"{i}ve application of~\eqref{eq:nested-mc} reverting the 
+%problem to the more general NMC case discussed in the next section.  The key realisation
+%is to note that if there are only finite, say $T$, possible realisations of $y$, then we
+%can convert the single nested estimation problem into $T$ separate un-nested problems
+%\begin{align*}
+%I
+%& = \sum_{t=1}^{T} P(y=y_t) f(y_t, \gamma(y_t)).
+%\end{align*}
+%Here the calculation of $I$ is deterministic given $\left\{\gamma (y_t)\right\}_{t=1:T}$
+%and so, assuming appropriate continuity on $f$, we can bound the mean square
+%error as 
+%\begin{align*}
+%	\norm{I - I_{N,M}}_2^2 & \le K \sum_{t=1}^T \left\lVert\gamma (y_{t}) - \frac{1}{M}  \sum_{m=1}^{M}  \phi(y_{t},z_{{t},m})\right\rVert_2^2 \\
+%	& \le KT \max_{t\in1:T} \left\lVert\gamma (y_{t}) - \frac{1}{M}  \sum_{m=1}^{M}  \phi(y_{t},z_{t,m})\right\rVert_2^2
+%\end{align*}
+%where $K$ is an unknown constant associated with mapping the error through $f$ and the
+%multiplication by $P(y=y_{t})$.
+%Here our error is a constant times the largest error for the finite number of inner estimators, 
+%and so we can bound our error using the MC error from this estimator, which is $O(1/M)$,
+%noting that this is independent of $N$.
+%
+%We can also think about this approach as grouping the samples from each evaluation of the
+%inner estimator, exploiting the fact that we are only evaluating $T$ distinct inner estimations.
+%This is why na\"{i}ve application of~\eqref{eq:nested-mc} is not sufficient, as this involves
+%no sharing of the inner samples $z_{n,m}$.

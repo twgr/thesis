@@ -1,0 +1,46 @@
+% !TEX root =  ../main.tex
+
+\subsection{Proof for Theorem~\ref{the:prod} - Products of Expectations}
+\label{sec:app-prod}
+
+\theprod*
+
+\begin{proof}
+	Consider fixed sizes of nested sample sets, $\{M_\ell\}_{\ell = 1:L}$.
+	For each $y \in \mathcal{Y}$ and 
+        \[
+                x = \{\{z_{\ell,m}'\}_{m=1:M_{\ell}}\}_{\ell=1:L} \in \mathcal{X} 
+                = \mathcal{Z}_1^{M_{1}} \otimes \dots \otimes \mathcal{Z}_L^{M_L},
+        \]
+	define 
+	\[
+	\eta(y,x) = f\left(y,\prod_{\ell=1}^{L} \frac{1}{M_{\ell}} \sum_{m_{\ell}=1}^{M_{\ell}} \psi_{\ell}(y,z_{\ell,m}')\right).
+	\]
+	Now, $I_{N} = \frac{1}{N} \sum_{n=1}^{N} \eta(y_n,x_n)$ is a standard
+	MC estimator on the space $\mathcal{Y} \otimes \mathcal{X}$. Thus,
+	$I_{N} \asto \mathbb{E}[I_{N}]$ with convergence properties and rate as per standard MC.  
+	We finish the proof by showing that $\mathbb{E}[I_{N}]=I$ when $f$ is linear:
+	\begin{align*}
+	\displaybreak[0]
+	\mathbb{E}[I_{N}] &= \mathbb{E} \left[\frac{1}{N} \sum_{n=1}^N f\left(y_n,\prod_{\ell=1}^{L} \frac{1}{M_{\ell}}  \sum_{m=1}^{M_{\ell}} \psi_{\ell}(y_n,z_{n,\ell,m}') \right)\right] \\
+	\displaybreak[0]
+	&= \mathbb{E} \left[f\left(y_1,\prod_{\ell=1}^{L} \frac{1}{M_{\ell}}  \sum_{m=1}^{M_{\ell}} \psi_{\ell}(y_1,z_{1,\ell,m}') \right)\right] \\
+	\displaybreak[0]
+	&= \mathbb{E}\left[ \mathbb{E}\left[ f\left( y_1,\prod_{\ell=1}^{L} \frac{1}{M_{\ell}}  \sum_{m=1}^{M_{\ell}} \psi_{\ell}(y_1,z_{1,\ell,m}')\right) \middle| y_1 \right]\right],
+	\end{align*}
+	now using the linearity of $f$
+	\begin{align*}
+	\displaybreak[0]
+	\phantom{\mathbb{E}[I_{N}]} &= \mathbb{E}\left[ f\left( y_1,\mathbb{E}\left[ \prod_{\ell=1}^{L} \frac{1}{M_{\ell}}  \sum_{m=1}^{M_{\ell}} \psi_{\ell}(y_1,z_{1,\ell,m}') \middle| y_1 \right] \right) \right],
+	\end{align*}
+	and using the fact that terms for different $\ell$ are by construction independent
+	\begin{align*}
+	\displaybreak[0]
+	\phantom{\mathbb{E}[I_{N}]} 
+	&= \mathbb{E}\left[ f\left( y_1, \prod_{\ell=1}^L\mathbb{E}\left[\frac{1}{M_{\ell}}  \sum_{m=1}^{M_{\ell}} \psi_{\ell}(y_1,z_{1,\ell,m}') \middle| y_1 \right] \right) \right] \\
+	\displaybreak[0]
+	&= \mathbb{E}\left[ f\left( y_1, \prod_{\ell=1}^{L}\mathbb{E}\left[\psi_{\ell}(y_1,z'_{1,\ell,1}) \middle| y_1 \right]\right)\right] \\
+	&= I,
+	\end{align*}
+	as required.
+\end{proof}

@@ -1,0 +1,64 @@
+% !TEX root =  ../main.tex
+
+\subsection{Proof of Theorem~\ref{the:Rate} - Convergence Rate}
+\label{sec:app:rate_single}
+
+\theRate*
+
+\begin{proof}
+	Though the proof follows directly from Theorem~\ref{the:Repeat}, we also provide the following proof 
+	for this simplified case as a stepping stone to aid in understanding the more general proof.
+	
+	Using Minkowski's inequality, we can bound the mean squared error of $I_{N,M}$ by
+	\begin{align} \label{eq:mse-bound-app}\begin{split}
+	\E[(I-I_{N,M})^2] &= \norm{I - I_{N,M}}_2^2 \leq {U}^2 + {V}^2 + 2 U V \leq 2\left(U^2 + V^2\right)
+	\end{split}
+	\end{align}
+	\begin{eqnarray*}
+		\text{where} \quad U = \norm{I - \frac{1}{N} \sum_{n=1}^N f(y_n, \gamma(y_n))}_2
+		\quad \text{and} \quad
+		V = \norm{\frac{1}{N} \sum_{n=1}^N f(y_n, \gamma(y_n)) - I_{N,M}}_2.
+	\end{eqnarray*}
+	We see immediately that $U = O\left(1 / \sqrt{N}\right)$, since $\frac{1}{N} \sum_{n=1}^N
+	f(y_n, \gamma(y_n))$ is a MC estimator for $I$, noting our assumption that
+	$f(y_n, \gamma(y_n)) \in L^2$. For the second term,
+	\begin{eqnarray*}
+		V &=& \norm{\frac{1}{N} \sum_{n=1}^N f(y_n, (\hat{\gamma}_M)_n) - f(y_n, \gamma(y_n))}_2 \\
+		&\leq& \frac{1}{N} \sum_{n=1}^{N} \norm{f(y_n, (\hat{\gamma}_M)_n) - f(y_n,
+			\gamma(y_n))}_2
+		\leq \frac{1}{N} \sum_{n=1}^N K \norm{(\hat{\gamma}_M)_n - \gamma(y_n)}_2 \\
+	\end{eqnarray*}
+	where $K$ is a fixed constant, again by Minkowski and using the assumption that $f$ is
+	Lipschitz. We can rewrite
+	\[
+	\norm{(\hat{\gamma}_M)_n - \gamma(y_n)}_2^2
+	= \E \left[ \E \left[ ((\hat{\gamma}_M)_n - \gamma(y_n))^2 \middle| y_n \right]\right].
+	\]
+	by the tower property of conditional expectation, and note that
+	\begin{align*}
+	\E &\left[ ((\hat{\gamma}_M)_n - \gamma(y_n))^2 \middle| y_n \right]
+	= \var\left(\frac{1}{M} \sum_{m=1}^M \phi(y_n, z_{n,m}) \middle| y_n \right) 
+	= \frac{1}{M} \var\left(\phi(y_n, z_{n,1}) \middle| y_n \right)
+	%    &=& \E_{y_n \sim p(y)} \left[ O(1/M) \right] \\
+	%    &=& O(1/M),
+	\end{align*}
+	since each $z_{n,m}$ is i.i.d. and conditionally independent given $y_n$. As
+	such
+	\begin{align*}
+	\norm{(\hat{\gamma}_M)_n - \gamma(y_n)}_2^2
+	&= \frac{1}{M} \, \E \left[ \var \left(\phi(y_n, z_{n,1}) \middle| y_n \right)\right] 
+	= O(1/M),
+	\end{align*}
+	noting that $\E \left[ \var \left(\phi(y_n, z_{n,1}) \middle| y_n \right)\right]$ is a
+	finite constant by our assumption that $\phi(y_n, z_{n,m}) \in L^2$. Consequently,
+	\[
+	V \leq \frac{NK}{N} O\left(1/\sqrt{M}\right) = O\left(1/\sqrt{M}\right).
+	\]
+	Substituting these bounds for $U$ and $V$ in \eqref{eq:mse-bound-app} gives
+	\begin{align*}
+	\norm{I - I_{N,M}}_2^2
+	&\leq 2\left(O\left(1/\sqrt{N}\right)^2 + O\left(1/\sqrt{M}\right)^2\right) 
+	= O\left(1/N + 1/M\right)
+	\end{align*}
+	as desired.
+\end{proof}

@@ -1,0 +1,29 @@
+% !TEX root = ../main.tex
+
+\chapter{Nested Estimation}
+\label{chp:nest}
+
+We present a formalization of nested Monte Carlo (NMC) estimation, whereby
+terms in an outer estimator are themselves the output of separate, nested, Monte Carlo (MC) estimators.
+We demonstrate that NMC can provide consistent estimates of 
+nested expectations under mild conditions, 
+establish corresponding rates of convergence, 
+and provide empirical evidence that suggests these rates are observed in practice.
+We further establish a number of pitfalls that can arise from na\"{i}ve nesting of MC estimators
+and provide guidelines about how they can be avoided.
+Finally, we derive a new estimator for use in discrete Bayesian 
+experimental design problems, which has a better convergence rate than 
+existing methods.
+
+%\vspace{-10pt}
+
+\input{nest/intro}
+\input{nest/problem}
+\input{nest/linear_case}
+\input{nest/convergence}
+\input{nest/result}
+\input{nest/empirical}
+\input{nest/conc}
+
+\clearpage
+\input{nest/supp}

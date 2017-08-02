@@ -1,0 +1,97 @@
+% !TEX root =  supp.tex
+
+\section{Proof for Theorem 1 - Convergence Rate for Finite Realisations of $y$}
+
+Here we repeat Theorem 1 from the main paper and provide the full proof.
+
+\begin{theorem}
+	If $f$ is Lipschitz continuous, then the mean squared error of 
+	\[
+	I_N = \sum_{c=1}^C (\hat{P}_N)_c \, (\hat{f}_N)_c
+	\]
+	as an estimator for $I$ converges at rate $O(1/N)$.
+\end{theorem}
+
+\begin{proof}
+	Denote
+	\[
+	P_c = P(y = y_c)
+	\]
+	and
+	\[
+	f_c = f(y_c, \gamma(y_c)).
+	\]
+	Then, Minkowski's inequality allows us to bound the mean squared error as
+	\begin{eqnarray*}
+		\E\left[(I_N - I)^2\right] &=& \norm{I_N - I}_2^2 \\
+		&\leq& \left(\sum_{c=1}^C W_c \right)^2,
+	\end{eqnarray*}
+	where
+	\[
+	W_c := \norm{(\hat{P}_N)_c \, (\hat{f}_N)_c - P_c \, f_c}_2.
+	\]
+	Moreover, again by Minkowski, we have
+	\[
+	W_c \leq U_c + V_c
+	\]
+	where 
+	\[
+	U_c = \norm{(\hat{P}_N)_c \, (\hat{f}_N)_c - (\hat{P}_N)_c \, f_c}_2
+	\]
+	and
+	\[
+	V_c = \norm{(\hat{P}_N)_c \, f_c - P_c \, f_c}_2.
+	\]
+	Factoring out $(\hat{P}_N)_c$ in $U_c$ gives
+	\begin{eqnarray*}
+		U_c &=& \sqrt{\E\left[(\hat{P}_N)_c^2 \, \left((\hat{f}_N)_c - f_c\right)^2\right]} \\
+		&=& \sqrt{\E\left[(\hat{P}_N)_c^2\right]} \sqrt{\E\left[\left((\hat{f}_N)_c - f_c\right)^2\right]},
+	\end{eqnarray*}
+	since we assume we sample each $y_n$ and $z_n$ independently. Using Minkowski's
+	inequality, we may write the first right-hand term as
+	\begin{eqnarray*}
+		\sqrt{\E\left[(\hat{P}_N)_c^2\right]} &=& \norm{(\hat{P}_N)_c}_2 \\
+		&\leq& \frac{1}{N} \sum_{n=1}^N \norm{\mathbbm{1}(y_n = y_c)}_2 \\
+		&=& \frac{1}{N} \sum_{n=1}^N P_c = P_c.
+	\end{eqnarray*}
+	For the second term, note that by Lipschitz continuity, we have for some constant $K >
+	0$
+	\begin{eqnarray*}
+		\sqrt{\E\left[\left((\hat{f}_N)_c - f_c\right)^2\right]} &=&
+		\norm{(\hat{f}_N)_c - f_c}_2 \\
+		&\leq& K \, \norm{\frac{1}{N} \sum_{n=1}^N \phi(y_c, z_n) - \gamma(y_c)}_2 \\
+		&=& K \cdot O(1/\sqrt{N}) \\
+		&=& O(1/\sqrt{N}),
+	\end{eqnarray*}
+	since $\frac{1}{N} \sum_{n=1}^N \phi(y_c, z_n)$ is a Monte Carlo estimator for
+	$\gamma(y_c)$. Altogether then, we have that
+	\[
+	U_c = P_c \cdot O(1 / \sqrt{N}) = O(1 / \sqrt{N}).
+	\]
+	We can also factor out $f_c$ in $V_c$ to obtain
+	\[
+	V_c = |f_c| \cdot \norm{(\hat{P}_N)_c - P_c}_2 = |f_c| \cdot O(1/\sqrt{N}) = O(1/\sqrt{N}),
+	\]
+	since $(\hat{P}_N)_c$ is a Monte Carlo estimator for $P_c$.
+	
+	These asymptotic bounds for $U_c$ and $V_c$ then entail that our overall mean squared
+	error satisfies
+	\begin{eqnarray}
+	\E\left[(I_N - I)^2\right] &\leq& 2^{\lceil \log_2 C \rceil} \sum_{c=1}^C W_c^2 \label{eq:square-inequal-1} \\
+	&\leq& 2^{\lceil \log_2 C \rceil} \sum_{c=1}^C (U_c + V_c)^2 \notag \\
+	&\leq& 2^{\lceil \log_2 C \rceil + 1} \sum_{c=1}^C U_c^2 + V_c^2 \label{eq:square-inequal-2} \\
+	&=& 2^{\lceil \log_2 C \rceil + 1} \sum_{c=1}^C O(1/N) + O(1/N) \notag \\
+	&=& O(1/N), \notag
+	\end{eqnarray}
+	as desired. Note that in \eqref{eq:square-inequal-1} and
+	\eqref{eq:square-inequal-2} we have used the fact that
+	\[
+	\left(\sum_{\ell=1}^L A_\ell\right)^2 \leq 2^{\lceil \log_2 L \rceil} \sum_{\ell=1}^L A_\ell^2
+	\]
+  for all $A_1, \cdots, A_L \in \mathbb{R}$, which itself follows by an inductive argument
+  from the fact that
+	\[
+    (A+B)^2 \le 2(A^2+B^2)
+	\]	
+	for any $A, B \in \mathbb{R}$.
+\end{proof}

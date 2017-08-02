@@ -1,0 +1,138 @@
+% !TEX root =  ../main.tex
+
+\section{Special Cases}
+\label{sec:special_cases}
+
+We begin by discussing some special cases where it is possible to achieve a
+convergence rate of $O(1/N)$ in the mean square error (MSE) as per conventional
+MC estimation \citep{robert2004monte}.  
+Establishing these cases is important because it identifies what problems we can use existing results for,
+when we can achieve an improved convergence rate, and what precautions we must take to ensure this.
+The first case is that the top-level integrand $f$ in our estimation problem is linear. 
+Section~\ref{sec:linear_case} summarizes the well-known result in this case, which forms the basis for pseudo-marginal, 
+nested sequential MC \citep{andersson2015nested}, and ABC methods. The next is that $y$ has finite possible realisations.
+The result for this case is given in Section~\ref{sec:discrete}. Though intuitively straight-forward, it 
+requires significant care to prove. The third case in Section~\ref{sec:products} is concerned with the product of expectations.
+Our result for this case is, to the best of our knowledge, new and applies to many latent variable models and a number 
+of probabilistic program examples, e.g. when the probability of a program trace
+is weighted by marginal likelihood estimates from other programs.
+The last case is that the integrand $f$ is a polynomial (Section~\ref{sec:polynomial}). It 
+covers cases such as moment estimation and opens up interesting possibilities in using tractable 
+approximations to the integrand $f$.
+
+\subsection{Linear $f$}
+\label{sec:linear_case}
+
+Suppose that $f$ 
+is integrable and linear in its second argument, i.e. $f(y,\alpha v + \beta w) = 
+\alpha f(y,v)+ \beta f(y,w)$.
+%or equivalently $f(y,v) = g(y)v$ where
+%$g(y)$ can be calculated without an approximate integration.
+In this case, we can rearrange the problem to a single expectation:
+\begin{align*}
+I
+& = \mathbb{E}_{y \sim p(y)}\left[f(y,\gamma(y))\right] = \mathbb{E}_{y \sim p(y)}\left[f\left(y,\mathbb{E}_{z\sim p(z|y)}\left[\phi(y,z)\right]\right)\right]
+\\
+& = \mathbb{E}_{y \sim p(y)}\left[ \mathbb{E}_{z\sim p(z|y)}\left[f(y,\phi(y,z))\right]\right]
+ \approx\frac{1}{N} \sum_{n=1}^{N} f(y_n,\phi(y_n,z_n))
+\end{align*}
+where $(y_n, z_n) \sim p(y)p(z|y)$.
+Note that if $\gamma(y)$ is of the form of~\eqref{eq:gamma_2} instead of~\eqref{eq:gamma_1}, then $y$ and $z$ are drawn independently from their marginals instead of the joint.
+% or the use of nested queries \cite{goodman2008church,rainforth2016nips} in probabilistic
+% programming when the outer query does not depend on any nonlinear functional mapping of
+% the marginal probability from the inner query.  
+%In these scenarios, nesting provides a convenient means of expressing the problem, but is
+%not a fundamental component of its solution.
+
+%Another important case occurs when $\gamma(y)$ is independent of $y$. \todo{Isn't this
+%just saying $\gamma$ is constant?}  In this case, we can estimate $\tilde{\gamma} =
+%\gamma(y)$ and $(I(f) \,|\, \tilde{\gamma})$ separately, each converging at
+%$O(1/\sqrt{N})$, presuming that the same number of samples $N$ is used for both. Provided
+%that $f(y,v)$ is Lipschitz continuous in $v$, the root mean squared error of the
+%estimation for $I(f)$ will also have same convergence rate.
+%\footnote{The proof for this
+%follows the same lines as used to link the error in $\gamma$ to $f$ in
+%Theorem~\ref{the:Consistent}.} \todo{Do we want this footnote?}
+
+\input{nest/discrete_variables}
+
+\subsection{Products of Expectations}
+\label{sec:products}
+
+In this section we consider the scenario  where $\gamma (y)$ is equal to the product of 
+multiple expectations, rather than just a single expectation as per~\eqref{eq:gamma_1}.
+That is,
+\begin{equation}
+\label{eq:prod-mc}
+I = \mathbb{E}_{y\sim p(y)}\left[ f\left(y,\prod_{\ell=1}^{L}\mathbb{E}_{z_{\ell}\sim p(z_{\ell}|y)}\left[\psi_{\ell}(y,z_{\ell})\right]\right) \right].
+\end{equation}
+This product of expectations can be rearranged to a single expectation and so the estimation of $I$ 
+corresponds to the formulation laid out in Section~\ref{sec:prob-form}. To see this, consider the set of 
+random variables $\{z'_{\ell}\}_{\ell=1:L}$ such that each 
+$z'_{\ell}|y \sim p(z_\ell | y)$ and the $z'_{\ell}$ are independent of one another. 
+This can be achieved by, for example, taking $L$ independent samples from the joint $Z_{\ell} \iid p(z_{1:L} | y)$ 
+and using the $\ell^{\mathrm{th}}$ such draw for the $\ell^{\mathrm{th}}$ dimension of $z'$, i.e.
+setting $z'_{\ell}= \{Z_{\ell}\}_{\ell}$.
+For every $y \in \mathcal{Y}$ we now have
+%Consider the set of random variables $\{Z_{\ell}\}_{\ell=1:L}$  such that each $Z_{\ell} \sim p(z_\ell | y)$,
+%noting that by definition, the $Z_{\ell}$ are independent of one another.
+%Now define the set of variables  $\{z'_{\ell}\}_{\ell=1:L}$ such that $z'_{\ell}= \{Z_{\ell}\}_{\ell}$.
+%We can now see that each $z'_{\ell} | y \sim p(z_{\ell} | y)$, but unlike $z_{\ell}$, the $z'_{\ell}$ must be independent of one another and thus
+\begin{align*}
+ \prod_{\ell=1}^{L}&\mathbb{E}_{z_{\ell}\sim p(z_{\ell}|y)}[\psi_{\ell}(y,z_{\ell})] =  \prod_{\ell=1}^{L}\mathbb{E}_{z'_{\ell}\sim p(z'_{\ell}|y)}[\psi_{\ell}(y,z'_{\ell})]
+  = \mathbb{E}_{\{z'_{\ell}\}_{\ell=1:L} \sim p(\{z'_{\ell}\}_{\ell=1:L}|y)}\left[ \prod_{\ell=1}^{L} \psi_{\ell}(y,z'_{\ell}) \right]
+\end{align*}
+which is a single expectation on an extended space and implies that \eqref{eq:prod-mc} 
+fits the NMC formulation.
+Furthermore, we can now show that if $f$ is linear, the MSE of the NMC estimator~\eqref{eq:prod-mc}
+converges at the standard MC rate $O(1/N)$, provided that 
+the number of samples used in the inner estimators remains fixed.  
+%More formally we can state the following result.
+
+\begin{restatable}{theorem}{theprod}
+	\label{the:prod}
+	Consider the NMC estimator
+	\begin{align*}
+	I_{N} &= \frac{1}{N}\sum_{n=1}^N f\left(y_n,\prod_{\ell=1}^{L} \frac{1}{M_{\ell}} \sum_{m=1}^{M_{\ell}} \psi_{\ell}(y_n,z_{n,\ell,m}')\right)
+	%&= \frac{1}{N}\sum_{n=1}^N \prod_{\ell=1}^{L} \frac{1}{M_{\ell}} \sum_{m=1}^{M_{\ell}} f(y_n,\psi_{\ell}(y_n,z_{n,\ell,m}')) \\
+	\end{align*}
+	where each $y_n \in \mathcal{Y}$ and $z_{n,\ell,m}' \in \mathcal{Z}_{\ell}$ are independently drawn from 
+	$y_n \sim p(y)$ and $z_{n,\ell,m}' | y_n \sim p(z_{\ell} | y_n)$, respectively. If $f$ is linear, 
+        the estimator converges almost surely to $I$,
+	with a convergence rate of $O(1/N)$ in the mean square error for any fixed choice of $\{M_{\ell}\}_{\ell = 1:L}$.
+\end{restatable}
+\begin{proof}
+See Appendix~\ref{sec:app-prod}.
+\end{proof}
+
+As this result holds in the case $L=1$, an important consequence is that
+whenever $f$ is linear, the same convergence rate is achieved regardless of whether we
+reformulate the problem to a single expectation or not, provided that the number of samples
+used by the inner estimator remains fixed.  Conversely, as we will show in Section~\ref{sec:convergence},
+if $f$ is nonlinear, it will be necessary for the number of samples in \emph{both} the inner and the 
+outer estimators to increase in order to achieve the convergence of~\eqref{eq:nested-mc}. 
+
+\subsection{Polynomial $f$}
+\label{sec:polynomial}
+
+Perhaps surprisingly, when $f$ is of the form
+\begin{align}
+  f(y,\gamma(y)) &= \sum_{j=1}^{J} g_j(y) \, \gamma_j(y)^{\alpha_j} \quad \text{where}
+  \quad \alpha_j \in \mathbb{Z}_{\geq 0}, \; \forall j \in \{1,\dots,J\}
+\end{align}
+then it is also be possible to construct a standard MC estimator by building on the ideas
+introduced in Section~\ref{sec:products} and those introduced by \cite{goda2016computing}.
+The key idea is to note that
+\begin{align*}
+\left(\E \left[z\right]\right)^2 = \E \left[z\right]\E \left[z'\right] = \E \left[z z'\right]
+\end{align*}
+where $z$ and $z'$ are i.i.d.  Therefore, assuming appropriate integrability requirements,
+we can construct the following non-nested MC estimator:
+\begin{align}
+\E\left[\sum_{j=1}^{J} g_j(y) \, \gamma_j(y)^{\alpha_j}\right] &= 
+\sum_{j=1}^{J} \E\left[g_j(y) \, \E\left[\phi(y,z_{j}) | y\right]^{\alpha_j}\right]
+=\sum_{j=1}^{J} \E\left[g_j(y) \E\left[\prod_{\ell=1}^{\alpha_j} \phi(y,z_{j,\ell}) \middle|y\right]\right] \nonumber \\
+=\sum_{j=1}^{J} \E&\left[g_j(y)\prod_{\ell=1}^{\alpha_j} \phi(y,z_{j,\ell})\right]
+\approx \frac{1}{N} \sum_{n=1}^{N} \sum_{j=1}^{J} g(y_n)\prod_{\ell=1}^{\alpha_j} \phi(y_n,z_{j,\ell,n}).
+\end{align}
+Here each $z_{j,\ell,n} \sim p(z_j | y)$ is drawn i.i.d. from the corresponding conditional distribution.

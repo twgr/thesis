@@ -34,7 +34,7 @@
 %\usepackage{epsfig} % less modern
 %\usepackage{subfigure} 
 \usepackage{subcaption} 
-\graphicspath{{./ipmcmc/figures/}{./misc/figures/}{./bopp/figures/}{./opt/figures/}{./design/figures/}}
+\graphicspath{{./ipmcmc/figures/}{./misc/figures/}{./bopp/figures/}{./opt/figures/}{./design/figures/}{./nest/figures/}}
 \usepackage{tikz}
 \usetikzlibrary{fit}					% fitting shapes to coordinates
 \usetikzlibrary{backgrounds}	% drawing the background after the foreground
@@ -81,17 +81,20 @@
 \usepackage{microtype}
 \usepackage{todonotes}
 
+\usepackage{wrapfig}
+\usepackage{thmtools}
+\usepackage{thm-restate}
 
 \newcommand{\angurl}{\scriptsize \url{http://www.robots.ox.ac.uk/~fwood/anglican}}
 \newcommand{\myurl}{\scriptsize \url{https://bitbucket.org/twgr/ipmcmc}}
 
-\definecolor{darkgreen}{rgb}{0.25,.5,0}
-\definecolor{blue}{rgb}{0,0.33,0.66}
-\definecolor{red}{rgb}{0.66,0.0,0.0}
-\definecolor{purple}{rgb}{0.33,0,0.66}
-\definecolor{cyan}{rgb}{0.0,0.5,0.5}
-\definecolor{orange}{rgb}{0.5,0.25,0.0}
-\definecolor{gray}{rgb}{0.4,0.4,0.4}
+%\definecolor{darkgreen}{rgb}{0.25,.5,0}
+%\definecolor{blue}{rgb}{0,0.33,0.66}
+%\definecolor{red}{rgb}{0.66,0.0,0.0}
+%\definecolor{purple}{rgb}{0.33,0,0.66}
+%\definecolor{cyan}{rgb}{0.0,0.5,0.5}
+%\definecolor{orange}{rgb}{0.5,0.25,0.0}
+%\definecolor{gray}{rgb}{0.4,0.4,0.4}
 \lstset{ 
 	language=Lisp, 
 	basicstyle=\small\ttfamily,
@@ -128,3 +131,17 @@
 \usepackage{packages/algorithm,packages/algorithmic}
 \usepackage{packages/abbreviations}
 \usepackage{packages/jmlr2e}
+
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+%\newcommand{\E}{\mathbb{E}}
+\DeclareMathOperator{\MSE}{MSE}
+\newcommand{\asto}{\overset{a.s.}{\to}}
+\newcommand{\iid}{\overset{i.i.d.}{\sim}}
+\newcommand{\meanto}{\overset{L^1}{\to}}
+
+\newcommand{\hg}{\hat{\gamma}}
+\newcommand{\gy}{\gamma(y)}
+\newcommand{\gyn}{\gamma(y_n)}
+
+\DeclareMathOperator*{\var}{Var}
+\newcommand{\N}{\mathbb{N}}
