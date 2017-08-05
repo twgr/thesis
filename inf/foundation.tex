@@ -89,8 +89,10 @@ $\hat{u} \sim \textsc{Uniform}(0,q(\theta))$.  The sample is accepted if
 	\hat{u} \le C \gamma(\hat{\theta})
 \end{align}
 which occurs with an acceptance rate $CZ$ (note that $q(\theta)\ge C \gamma(\theta) \; \forall \theta$
-ensures that $C \le 1/Z$).
-An example of this is shown in Figure~INSERT.
+ensures that $C \le 1/Z$).  Note that this can be used to estimate the normalization
+constant, corresponding to the marginal likelihood for Bayesian models, by calculating
+the empirical estimate of the acceptance rate and dividing this by $C$.
+An graphical explanation for rejection sampling is shown in Figure~INSERT.
 
 \todo[inline]{Go back to the square-circle case to explain the curse of dimensionality.  Whole
 	section on curse of dimensionality?}
