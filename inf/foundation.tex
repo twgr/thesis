@@ -1,16 +1,106 @@
 % !TEX root = ../main.tex
 
-\section{Foundational Monte Carlo Inference Methods}
+\section{Foundational Monte Carlo Methods}
 \label{sec:inf:foundation}
 
 In this section we introduce the key inference methods that form
-the basis upon which most Monte Carlo inference schemes are based.
+the basis upon which most Monte Carlo inference schemes are based.  The
+key idea at the heart of all Monte Carlo inference methods is to use some form
+of proposal distribution that we can easily sample from and then make
+appropriate adjustments to achieve (typically approximate) samples from
+the posterior.  All methods will require only an unnormalized distribution
+\begin{align}
+\label{eq:inf:unnorm-target}
+\gamma(\theta) = \pi(\theta)Z
+\end{align}
+as a target where $Z = \int \gamma(\theta) d\theta$.  As such they will apply to
+any situation where we desire to sample from an unnormalized 
+(or in some cases normalized) distribution, for which
+the Bayesian inference setting is a particular case where
+$\gamma(\theta) = p(\mathcal{D}|\theta)p(\theta)$ and $Z = p(\mathcal{D})$.
+They will, in general, vary only on how samples are proposal
+and the subsequent adjustments that are made.  However, this will lead to a
+plethora of different approaches, varying substantially in their motivation,
+theoretical justification, algorithmic details, and the scenarios for which they
+are effective.
 
 \subsection{Rejection Sampling}
 \label{sec:inf:foundation:rejection}
+
+Rejection sampling~\citep{robert2004monte} is one of the simplest Monte Carlo 
+inference methods and one of the only ones to produce exact samples from 
+the target.  Before going into the method itself, we first consider an example to
+demonstrate the underlying intuition.  Imagine we want to generate samples 
+distributed uniformly over some arbitrary two dimensional shape.  One simple
+way of doing this would be to sample uniformly from a box enclosing the
+shape and then only taking the samples which fall with the shape.
+An example of such sampling by rejection is shown in Figure~\ref{fig:inf:rej-butt}.
+As all the samples within the space or distributed uniformly, they are also
+uniformly distributed on any subset of the space.  Therefore if we sample
+from a space incorporating the area we care about and then only take the samples
+that fall within the desired shape, we will generated samples uniformly over
+that shape. We can also use this method to estimate the area of the shape by using
+the fact that the probability of any one sample falls within the shape is equal to
+the ratio of the areas of the shape and the bounding box, namely
+\begin{align}
+A_{\text{shape}} &= A_{\text{box}}	P(\theta \in \text{shape}) \\
+&\approx \frac{A_{\mathrm{box}}}{N} \sum_{n=1}^{N} \ind (\hat{\theta}_n \in \text{shape})
+\quad \text{where} \quad \hat{\theta}_n \sim \textsc{Uniform}(\text{box})
+\end{align}
+where we have used a Monte Carlo estimate for $P(\theta \in \text{shape})$.
+Note that the value of $P(\theta \in \text{shape})$ will
+dictate the efficiency of our estimation as it represents the \emph{acceptance rate}
+or our samples.  In other words, we need to generate on average $1/P(\theta \in \text{shape})$
+samples from our proposal for each sample created in the target area.  As we
+will show later in Section INSERT, $P(\theta \in \text{shape})$ typically becomes very
+small as $\theta$ becomes high dimensional, so this approach will typically only
+be effective in low dimensions.
+
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=0.6\textwidth]{butterfly}
+	\caption{Example of sampling uniformly from an arbitrary shape by 
+		rejection.  Here samples are proposed uniformly from the $[-1,1]$
+		square.  Any sample falling within the black outline is accepted 
+		(blue), otherwise it is rejected (red).  \label{fig:inf:rej-butt}}
+\end{figure}
+
+The underlying idea for rejection sampling is that we can sample from any distribution
+by sampling uniformly from the hyper-volume under its unnormalized probability density function.
+Though this is effectively axiomatic by the definition of a probability density
+function with respect to the Lebesgue measure, we can get a non measure-theoretic
+intuition for this by considering augmenting a target distribution with a new variable $u$
+such that $p(u|\theta) = \textsc{Uniform}(0,\gamma(\theta))$.  Sampling 
+$\hat{\theta} \sim \pi(\theta)$ and then $\hat{v}\sim p(v|\theta)$ corresponds to
+sampling uniformly from hyper-volume under the probability density function, while we
+clearly have that the marginal distribution on $\theta$ is $\pi(\theta)$.
+
+Using this idea, we can sample from any unnormalized distribution by sampling from
+an appropriate bounding as per our intuitive example and then accepting only samples
+that fall within the hyper-volume of the probability density function. 
+More specifically, we define a proposal
+distribution $q(\theta)$ which completely envelopes a
+scaled version of the unnormalized target distribution $C\gamma(\theta)$ such that 
+$q(\theta)\ge C \gamma(\theta)$ for all values of $\theta$ and $C>0$.  We then sample a pair 
+$\{\hat{\theta},\hat{u}\}$ by first sampling $\hat{\theta} \sim q(\theta)$ and then
+$\hat{u} \sim \textsc{Uniform}(0,q(\theta))$.  The sample is accepted if
+\begin{align}
+	\label{eq:inf:rej-acc-criteria}
+	\hat{u} \le C \gamma(\hat{\theta})
+\end{align}
+which occurs with an acceptance rate $CZ$ (note that $q(\theta)\ge C \gamma(\theta) \; \forall \theta$
+ensures that $C \le 1/Z$).
+An example of this is shown in Figure~INSERT.
+
+\todo[inline]{Go back to the square-circle case to explain the curse of dimensionality.  Whole
+	section on curse of dimensionality?}
+\todo[inline]{Something about both the form of q and value of C being important.}
 
 \subsection{Importance Sampling}
 \label{sec:inf:foundation:importance}
 
 \subsection{Markov Chain Monte Carlo}
 \label{sec:inf:foundation:mcmc}
+
+\subsection{Gibbs Sampling}
+\label{sec:inf:foundation:gibbs}

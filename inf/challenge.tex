@@ -95,7 +95,13 @@ particular, it will generally not sufficient in order to be able to \emph{sample
 posterior.  As we will see later, the ability to sample will be at the core of most practical uses
 for the posterior as it allows use of Monte Carlo
  methods~\citep{metropolis1949monte,robert2004monte,rubinstein2016simulation}, which
- can in turn be used to carry out many of the outlined tasks.
+ can in turn be used to carry out many of the outlined tasks.  For example, they can be
+ used to estimate an expectation via Monte Carlo estimation
+\begin{align}
+	\label{eq:inf:mc-est}
+\E_{p(\theta|\mathcal{D})}\left[f(\theta)\right] \approx \frac{1}{N} \sum_{n=1}^{N}f(\hat{\theta}_n)
+\quad \text{where} \quad \hat{\theta}_n \sim p(\theta|\mathcal{D}).
+\end{align}
 
 To further demonstrate why knowing the normalization constant is insufficient
 for most Bayesian inference tasks, we consider the following a simple example
