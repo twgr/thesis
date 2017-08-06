@@ -1,71 +1,103 @@
 % !TEX root = ../main.tex
 
-\section{Monte Carlo}
+\section{Monte Carlo and the Law of Large Numbers}
 \label{sec:inf:mc}
 
 Monte Carlo~\citep{metropolis1949monte} is the characterization of a probability distribution 
 through random sampling. It is the foundation for a huge array of methods for numerical 
-integration, optimization, and scientific simulation.  It is a cornerstone of modern science
-and technology, forming the underlying principle for all stochastic computation.
+integration, optimization, and scientific simulation; forming the underlying principle 
+for all stochastic computation.
 \mc provides us with a means of dealing with complex models and problems in a
 statistically principled manner.  Without it, one would have to resort to deterministic
-approximation methods whenever dealing the target problems too complex to permit analytic
+approximation methods whenever the target problem is too complex to permit analytic
 solution.  As we will show, it is a highly composable framework that will allow to output
 of one system to be input directly to another.  For example, the \mc samples from a joint
 distribution will also have the correct marginal distribution over any of its individual components,
-which sampling from the marginal distribution then sampling from the conditional distribution
-given these samples will give samples distributed according to the joint.
+while sampling from the marginal distribution then sampling from the conditional distribution
+given these samples will give samples distributed according to the joint.  As \mc
+will be key to most methods for Bayesian inference that we will consider, we take the time
+in this section key related concepts.
 
-The key mathematical idea underpinning much of Monte Carlo is the law of large numbers (LLN).  
+A key mathematical idea underpinning many Monte Carlo methods is the law of large numbers (LLN).  
 Informally, the LLN states that the empirical average of independent and identically distributed
-(i.i.d.)  random variables converges to the true expected value of the underlying process and the number
+(i.i.d.)  random variables converges to the true expected value of the underlying process as the number
 of samples in the average increases.  This is perhaps most easily seen in the context of \mc estimation,
-also known as \mc integration.  \mc estimation involves the estimation of an expectation in the
-following manner
+also known as \mc integration.  Consider the case of calculating the expectation of some function
+$f(\theta)$ under the distribution $\theta\sim \pi(\theta)$ ($= p(\theta | \mathcal{D})$ for the Bayesian
+inference case), which we will denote 
+as\footnote{We will often implicitly use the notion of a density
+	$\pi(\theta)$ for both continuous and discrete random variables in the interest
+	convenience.  We will also at times be intentionally carefree about delineating between random
+	variables and the inputs to density functions.  More generally, we will avoid the use of measure
+	theory notation throughout this thesis when possible.  These notational decisions have been made
+	primarily in the interest of accessibility as most of the ideas introduced do not require a deep
+	understanding of measure theory to understand.  Nonetheless, we note that a measure theoretic
+	approach to probability is essential for a more rigorous introduction.  We refer
+	the interested reader to~\cite{durrett2010probability} for and introduction to measure-theoretic
+	probability theory and~\cite{robert2004monte} for a correspondingly more rigorous introduction
+	to \mc methods.}
+\begin{align}
+I:=\E_{\pi(\theta)} \left[f(\theta)\right]=\int f(\theta) \pi(\theta) d\theta.
+\end{align}
+This can be estimated using the following \mc estimator $I_N$
 \begin{align}
 	\label{eq:inf:mc-est}
-	I = \E_{p(\theta|\mathcal{D})}\left[f(\theta)\right] = \int f(\theta)p(\theta | \mathcal{D}) d\theta
-	\approx I_N := \frac{1}{N} \sum_{n=1}^{N}f(\hat{\theta}_n)
-	\quad \text{where} \quad \hat{\theta}_n \sim p(\theta|\mathcal{D}).
+	I \approx I_N := \frac{1}{N} \sum_{n=1}^{N}f(\hat{\theta}_n)
+	\quad \text{where} \quad \hat{\theta}_n \sim \pi(\theta)
 \end{align}
-Though not actually necessary (see Section~\ref{sec:inf:foundation:mcmc}), a common assumption
-in the derivation of a number of \mc estimation schemes is that each $\hth_n$ is drawn
-independently.  In this case the high level idea for the law of large numbers can be shown by
-considering the error for the \mc estimator in terms of its \emph{mean squared error} as follows
+Though not necessary in general for the convergence of \mc estimation schemes
+(see for example Section~\ref{sec:inf:foundation:mcmc}), an assumption made for the LLN
+and in the proofs for a number of a common \mc estimators is that each $\hth_n$ is drawn
+independently.  Using this assumption, the high level idea for the law of large numbers can be shown by
+considering the error for the \mc estimator in terms of its \emph{mean squared error} as 
+follows\footnote{Note here that we use the notation of expectation typically used within the statistics literature,
+whereby it corresponds to the expectation over all randomness contained in the system.}
 \begin{align}
 \E &\left[(I_N-I)^2\right] = \E\left[\left(\frac{1}{N}\sum_{n=1}^{N}f(\hth_n) - I\right)^2\right] \nonumber \\
 &= \frac{1}{N^2}\sum_{n=1}^{N} \E\left[ \left(f(\hth_n)-I\right)^2\right] + 
 \frac{1}{N(N-1)}\sum_{n=1}^{N}\sum_{m=1,m\neq n}^{N} \E\left[ (f(\hth_n)-I)(f(\hth_m)-I)\right] \nonumber \\
 &= \frac{1}{N^2}\sum_{n=1}^{N} \E\left[ \left(f(\hth_1)-I\right)^2\right] + 
-\frac{1}{N(N-1)}\sum_{n=1}^{N}\sum_{m=1,m\neq n}^{N} \cancelto{0}{\E\left[(f(\hth_1)-I)\right]} \cancelto{0}{\E\left[ (f(\hth_1)-I)\right]} \nonumber \\
+\frac{1}{N(N-1)}\sum_{n=1}^{N}\sum_{m=1,m\neq n}^{N} \cancelto{0}{\left(\E\left[(f(\hth_1)-I)\right]\right)^2} \nonumber \\
 &= \frac{\sigma_{\theta}^2}{N}  \quad \text{where} \quad \sigma_{\theta}^2 := \E\left[ \left(f(\hth_1)-I\right)^2\right]
-= \var \left[f(\theta)\right]
-%\E &\left[(I_N-I)^2\right] = \E \left[I_N^2\right] - 2 I \E \left[I_N\right] + I^2 \\
-%&= \E\left[\left(\frac{1}{N}\sum_{n=1}^{N}f(\hth_n) \right)^2\right] 
-%-2I \E\left[\left(\frac{1}{N}\sum_{n=1}^{N}f(\hth_n) \right)^2\right] + I^2 \\
-%&= \frac{1}{N^2}\sum_{n=1}^{N} \E\left[ f(\hth_n)^2\right] + 
-%\frac{1}{N(N-1)}\sum_{n=1}^{N}\sum_{m=1,m\neq n}^{N} \E\left[ f(\hth_n)f(\hth_n)\right] 
-%-2I \frac{1}{N}\sum_{n=1}^{N} \E\left[f(\hth_n)\right]  + I^2 \\
-%&= \frac{1}{N^2}\sum_{n=1}^{N} \E\left[ f(\hth_n)^2\right] + 
-%\frac{1}{N(N-1)}\sum_{n=1}^{N}\sum_{m=1,m\neq n}^{N} \E\left[ f(\hth_n)\right] \E\left[f(\hth_n)\right] 
-%-2I \frac{1}{N}\sum_{n=1}^{N} \E\left[f(\hth_n)\right]  + I^2 \\
+= \var \left[f(\theta)\right].
 \end{align}
-where we have used the notation of expectation typically used within the statistics literature,
-whereby it corresponds to the expectation over all randomness contained in the system.
 Here the second line follows from the first simply by expanding the square and using linearity
 to move the sum outside of the expectation.\footnote{Note that this presumes that $N$ is independent
 	of the samples.  This is usually the case, but care is necessary in some situations.}
 The first term in the third line follows from the equivalent term in the second line by noting that
 each $\theta_n$ has the same distribution -- we could have used any particular value of $n$ here.
-The second term in the third line follows from the second by the assumption that the samples are drawn
-independently, while $\E\left[ (f(\hth_1)-I)\right]=0$ follows from the definition of $I$
-and the definition that $\hth_1$ is distributed according to $p(\theta | \mathcal{D})$.  The last line
-is simply noting that $\E\left[ (f(\hth_1)-I)\right]=0$ is a constant which is independent of the
-sampling process.  Our final result has a simple and intuitive form -- the mean squared error for
+The second term in the third line uses the same idea and then
+ follows from the second line by the assumption that the samples are drawn
+independently, while $\E\left[(f(\hth_1)-I)\right]=0$ follows from the definition of $I$
+and that $\hth_1$ is distributed according to $\pi(\theta)$.  The last line
+simply notes that $\E\left[ \left(f(\hth_1)-I\right)^2\right]$ is a constant.
+  Our final result has a simple and intuitive form -- the mean squared error for
 our estimator using $N$ samples, is $1/N$ times the mean squared error of an estimator that only uses
-a single sample, which is itself equal to the variance of of $f(\theta)$.
+a single sample, which is itself equal to the variance of $f(\theta)$.  As $N\rightarrow\infty$, we thus
+have that our expected error goes to $0$.
 
-\todo[inline]{Swith to $\pi$ notation for whole section rather than stick with the posterior}
+To introduce the concept the LLN more precisely, we now consider some more formal notations
+of convergence of random variables.  We start by introducing the notion of $L^2$ convergence.
+This is the type of convergence we have informally just alluded to when considering the LLN
+and effectively states that the expected $L^2$ error of the estimate converges to zero.  More generally,
+we can define $L^r$ convergence as follows.
+\begin{definition}
+A sequence $I_N$ convergences in its $L^r$ norm to $I$ if the $r^{\text{th}}$ absolute moments
+$\E \left[\lVert I_N\rVert_r\right]$ and $\E \left[\lVert I\rVert_r\right]$ exist 
+(where $\lVert \cdot \rVert_r$ represents the $L^r$ norm) and
+\begin{align}
+\lim\limits_{N\rightarrow\infty} \E \left[\Vert I_N-I\rVert_r\right]=0.
+\end{align}
+\end{definition}
+A key point to note is that $\Vert I_N-I\rVert_r\ge0$ by definition of the $L^r$ norm and so
+rather than this simply being a statement of unbiasedness, it says that the expected
+\emph{magnitude} of our error tends to zero as $N\rightarrow\infty$.  For most practical
+purposes, this notion of convergence will be sufficient as a guarantee that an estimator will
+return the correct answer if provided with sufficient samples and the less Theoretically
+inclined reader may wish to skip ahead to the next section.  However, there will be times
+(particularly in Chapter~\ref{chp:nest}) when mathematical rigour will require
+alternative notations of convergence we which now lay out briefly.
 
-To introduce the concept the LLN more formally, we now consider some more formal notations
-of convergence of random variables.
+
+\todo[inline]{Get something about unbiasedness into the section, preferably before the
+	heavy theory starts.}
