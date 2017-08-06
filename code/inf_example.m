@@ -25,7 +25,7 @@ plot(thetas,liks,'LineWidth',line_width);
 plot(thetas,posts,'LineWidth',line_width);
 plot(thetas,0.5*cumsum(posts)*(thetas(2)-thetas(1)),'LineWidth',line_width);
 xlabel('$\theta$','Interpreter',interpreter);
-ylabel('Probability','Interpreter',interpreter);
+%ylabel('Probability','Interpreter',interpreter);
 legend({'$p(\theta)$','$p(y=5|\theta)$','$p(\theta|y=5)$','$\frac{1}{2} P(\Theta<\theta|y=5)$'},'Interpreter',interpreter);
 xlim(axlim);
 ylim(aylim);
