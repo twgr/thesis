@@ -50,7 +50,7 @@ A_{\text{shape}} &= A_{\text{box}}	P(\theta \in \text{shape}) \\
 where we have used a Monte Carlo estimate for $P(\theta \in \text{shape})$.
 Note that the value of $P(\theta \in \text{shape})$ will
 dictate the efficiency of our estimation as it represents the \emph{acceptance rate}
-or our samples.  In other words, we need to generate on average $1/P(\theta \in \text{shape})$
+of our samples.  In other words, we need to generate on average $1/P(\theta \in \text{shape})$
 samples from our proposal for each sample created in the target area.  As we
 will show later in Section INSERT, $P(\theta \in \text{shape})$ typically becomes very
 small as $\theta$ becomes high dimensional, so this approach will typically only
@@ -71,9 +71,29 @@ Though this is effectively axiomatic by the definition of a probability density
 function with respect to the Lebesgue measure, we can get a non measure-theoretic
 intuition for this by considering augmenting a target distribution with a new variable $u$
 such that $p(u|\theta) = \textsc{Uniform}(0,\gamma(\theta))$.  Sampling 
-$\hat{\theta} \sim \pi(\theta)$ and then $\hat{v}\sim p(v|\theta)$ corresponds to
+$\hat{\theta} \sim \pi(\theta)$ and then $\hat{u}\sim p(u|\theta)$ corresponds to
 sampling uniformly from hyper-volume under the probability density function, while we
 clearly have that the marginal distribution on $\theta$ is $\pi(\theta)$.
+
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=0.7\textwidth]{reject_samp}
+	\caption{Demonstration of rejection sampling for problem shown in~\eqref{eq:inf:example}.  
+		We first sample $\hat{\theta}\sim q(\theta)$, correspond to the sampling for the distribution
+		shown in blue,
+		and then sample $\hat{u}\sim \textsc{Uniform}(0,q(\theta))$, corresponding to
+		sampling a point uniformly along the black lines for the two shown example values of 
+		$\hat{\theta}$.  The point is accepted 
+		if $\hat{u} \le C p(\theta | y=5)$ (i.e. if it below the yellow curve) and is 
+		otherwise rejected, where we have taken
+		$C=0.52$ to ensure $C p(\theta | y=5)\le q(\theta)$ for all theta.
+		Here the example sample pair $\{\hat{\theta}_1,\hat{u}_1\}$ is accepted, while
+		$\{\hat{\theta}_2,\hat{u}_2\}$ is rejected.  The
+		resulting accepted sample pairs will be uniformly sampled from the region under
+		the unnormalized target distribution given by the yellow curve and therefore
+		the accepted $\hat{\theta}$ will correspond to exact samples from the target.
+		 \label{fig:inf:rej-samp}}
+\end{figure}
 
 Using this idea, we can sample from any unnormalized distribution by sampling from
 an appropriate bounding as per our intuitive example and then accepting only samples
@@ -92,14 +112,34 @@ which occurs with an acceptance rate $CZ$ (note that $q(\theta)\ge C \gamma(\the
 ensures that $C \le 1/Z$).  Note that this can be used to estimate the normalization
 constant, corresponding to the marginal likelihood for Bayesian models, by calculating
 the empirical estimate of the acceptance rate and dividing this by $C$.
-An graphical explanation for rejection sampling is shown in Figure~INSERT.
+A graphical demonstration of the rejection sampling process is shown in 
+Figure~\ref{fig:inf:rej-samp}.
 
-\todo[inline]{Go back to the square-circle case to explain the curse of dimensionality.  Whole
-	section on curse of dimensionality?}
-\todo[inline]{Something about both the form of q and value of C being important.}
+Rejection sampling can be a highly effective sampling or inference method in low dimensions.
+In particular, the fact that it generates exact samples from the target distribution can be very
+useful.  For example, this characteristic is used to construct efficient samplers for many 
+common distributions such as in the ziggurat algorithm~\citep{marsaglia2000ziggurat} often
+used for generating Gaussian random variables.  However, its efficiency is critically dependent
+on the value of $C$ because it is directly proportional to the acceptance rate.  By proxy, it
+is also critically dependent on the proposal $q(\theta)$ as this dictates the minimum possible
+value of $C$, namely $C_{\min} = \min_{\theta} q(\theta) Z / \pi(\theta)$.  Note that if 
+$q(\theta) = \pi(\theta) \; \forall \theta$ then the acceptance rate will be $1$, while the
+more different they are (in terms of $\min_{\theta} q(\theta) / \pi(\theta)$), the lower the
+best possible acceptance rate becomes.  In low dimensions, adaptive rejection 
+sampling~\citep{gilks1992adaptive} often forms an effective method for adaptively 
+learning an effective proposal and corresponding value for $C$, leading to good acceptance
+rates.  However, the approach will be very prone to the \emph{curse of dimensionality} as
+we discuss in Section~\ref{sec:inf:foundation:curse}, meaning performance cannot be
+maintained for higher dimensional problems.
 
 \subsection{Importance Sampling}
 \label{sec:inf:foundation:importance}
+
+\subsection{The Curse of Dimensionality}
+\label{sec:inf:foundation:curse}
+
+\todo[inline]{Go back to the square-circle case to explain the curse of dimensionality.  Whole
+	section on curse of dimensionality?}
 
 \subsection{Markov Chain Monte Carlo}
 \label{sec:inf:foundation:mcmc}
