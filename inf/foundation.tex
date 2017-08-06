@@ -1,6 +1,6 @@
 % !TEX root = ../main.tex
 
-\section{Foundational Monte Carlo Methods}
+\section{Foundational Monte Carlo Inference Methods}
 \label{sec:inf:foundation}
 
 In this section we introduce the key inference methods that form
@@ -134,6 +134,11 @@ maintained for higher dimensional problems.
 
 \subsection{Importance Sampling}
 \label{sec:inf:foundation:importance}
+
+Importance sampling is another common sampling method that forms the key building block
+for many more advance inference schemes.  It is closely related to rejection sampling in that
+it samples candidate $\hat{\theta}$ from a proposal $q(\theta)$, but instead of going
+through an accept/reject step, it assigns an \emph{importance weight} to each sample.
 
 \subsection{The Curse of Dimensionality}
 \label{sec:inf:foundation:curse}

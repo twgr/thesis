@@ -1,0 +1,71 @@
+% !TEX root = ../main.tex
+
+\section{Monte Carlo}
+\label{sec:inf:mc}
+
+Monte Carlo~\citep{metropolis1949monte} is the characterization of a probability distribution 
+through random sampling. It is the foundation for a huge array of methods for numerical 
+integration, optimization, and scientific simulation.  It is a cornerstone of modern science
+and technology, forming the underlying principle for all stochastic computation.
+\mc provides us with a means of dealing with complex models and problems in a
+statistically principled manner.  Without it, one would have to resort to deterministic
+approximation methods whenever dealing the target problems too complex to permit analytic
+solution.  As we will show, it is a highly composable framework that will allow to output
+of one system to be input directly to another.  For example, the \mc samples from a joint
+distribution will also have the correct marginal distribution over any of its individual components,
+which sampling from the marginal distribution then sampling from the conditional distribution
+given these samples will give samples distributed according to the joint.
+
+The key mathematical idea underpinning much of Monte Carlo is the law of large numbers (LLN).  
+Informally, the LLN states that the empirical average of independent and identically distributed
+(i.i.d.)  random variables converges to the true expected value of the underlying process and the number
+of samples in the average increases.  This is perhaps most easily seen in the context of \mc estimation,
+also known as \mc integration.  \mc estimation involves the estimation of an expectation in the
+following manner
+\begin{align}
+	\label{eq:inf:mc-est}
+	I = \E_{p(\theta|\mathcal{D})}\left[f(\theta)\right] = \int f(\theta)p(\theta | \mathcal{D}) d\theta
+	\approx I_N := \frac{1}{N} \sum_{n=1}^{N}f(\hat{\theta}_n)
+	\quad \text{where} \quad \hat{\theta}_n \sim p(\theta|\mathcal{D}).
+\end{align}
+Though not actually necessary (see Section~\ref{sec:inf:foundation:mcmc}), a common assumption
+in the derivation of a number of \mc estimation schemes is that each $\hth_n$ is drawn
+independently.  In this case the high level idea for the law of large numbers can be shown by
+considering the error for the \mc estimator in terms of its \emph{mean squared error} as follows
+\begin{align}
+\E &\left[(I_N-I)^2\right] = \E\left[\left(\frac{1}{N}\sum_{n=1}^{N}f(\hth_n) - I\right)^2\right] \nonumber \\
+&= \frac{1}{N^2}\sum_{n=1}^{N} \E\left[ \left(f(\hth_n)-I\right)^2\right] + 
+\frac{1}{N(N-1)}\sum_{n=1}^{N}\sum_{m=1,m\neq n}^{N} \E\left[ (f(\hth_n)-I)(f(\hth_m)-I)\right] \nonumber \\
+&= \frac{1}{N^2}\sum_{n=1}^{N} \E\left[ \left(f(\hth_1)-I\right)^2\right] + 
+\frac{1}{N(N-1)}\sum_{n=1}^{N}\sum_{m=1,m\neq n}^{N} \cancelto{0}{\E\left[(f(\hth_1)-I)\right]} \cancelto{0}{\E\left[ (f(\hth_1)-I)\right]} \nonumber \\
+&= \frac{\sigma_{\theta}^2}{N}  \quad \text{where} \quad \sigma_{\theta}^2 := \E\left[ \left(f(\hth_1)-I\right)^2\right]
+= \var \left[f(\theta)\right]
+%\E &\left[(I_N-I)^2\right] = \E \left[I_N^2\right] - 2 I \E \left[I_N\right] + I^2 \\
+%&= \E\left[\left(\frac{1}{N}\sum_{n=1}^{N}f(\hth_n) \right)^2\right] 
+%-2I \E\left[\left(\frac{1}{N}\sum_{n=1}^{N}f(\hth_n) \right)^2\right] + I^2 \\
+%&= \frac{1}{N^2}\sum_{n=1}^{N} \E\left[ f(\hth_n)^2\right] + 
+%\frac{1}{N(N-1)}\sum_{n=1}^{N}\sum_{m=1,m\neq n}^{N} \E\left[ f(\hth_n)f(\hth_n)\right] 
+%-2I \frac{1}{N}\sum_{n=1}^{N} \E\left[f(\hth_n)\right]  + I^2 \\
+%&= \frac{1}{N^2}\sum_{n=1}^{N} \E\left[ f(\hth_n)^2\right] + 
+%\frac{1}{N(N-1)}\sum_{n=1}^{N}\sum_{m=1,m\neq n}^{N} \E\left[ f(\hth_n)\right] \E\left[f(\hth_n)\right] 
+%-2I \frac{1}{N}\sum_{n=1}^{N} \E\left[f(\hth_n)\right]  + I^2 \\
+\end{align}
+where we have used the notation of expectation typically used within the statistics literature,
+whereby it corresponds to the expectation over all randomness contained in the system.
+Here the second line follows from the first simply by expanding the square and using linearity
+to move the sum outside of the expectation.\footnote{Note that this presumes that $N$ is independent
+	of the samples.  This is usually the case, but care is necessary in some situations.}
+The first term in the third line follows from the equivalent term in the second line by noting that
+each $\theta_n$ has the same distribution -- we could have used any particular value of $n$ here.
+The second term in the third line follows from the second by the assumption that the samples are drawn
+independently, while $\E\left[ (f(\hth_1)-I)\right]=0$ follows from the definition of $I$
+and the definition that $\hth_1$ is distributed according to $p(\theta | \mathcal{D})$.  The last line
+is simply noting that $\E\left[ (f(\hth_1)-I)\right]=0$ is a constant which is independent of the
+sampling process.  Our final result has a simple and intuitive form -- the mean squared error for
+our estimator using $N$ samples, is $1/N$ times the mean squared error of an estimator that only uses
+a single sample, which is itself equal to the variance of of $f(\theta)$.
+
+\todo[inline]{Swith to $\pi$ notation for whole section rather than stick with the posterior}
+
+To introduce the concept the LLN more formally, we now consider some more formal notations
+of convergence of random variables.

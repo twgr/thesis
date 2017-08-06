@@ -95,13 +95,7 @@ particular, it will generally not sufficient in order to be able to \emph{sample
 posterior.  As we will see later, the ability to sample will be at the core of most practical uses
 for the posterior as it allows use of Monte Carlo
  methods~\citep{metropolis1949monte,robert2004monte,rubinstein2016simulation}, which
- can in turn be used to carry out many of the outlined tasks.  For example, they can be
- used to estimate an expectation via Monte Carlo estimation
-\begin{align}
-	\label{eq:inf:mc-est}
-\E_{p(\theta|\mathcal{D})}\left[f(\theta)\right] \approx \frac{1}{N} \sum_{n=1}^{N}f(\hat{\theta}_n)
-\quad \text{where} \quad \hat{\theta}_n \sim p(\theta|\mathcal{D}).
-\end{align}
+ can in turn be used to carry out many of the outlined tasks.
 
 To further demonstrate why knowing the normalization constant is insufficient
 for most Bayesian inference tasks, we consider the following a simple example
@@ -140,7 +134,7 @@ to directly sampling from this distribution without doing further calculations. 
 we also know the inverse of the cumulative density function of the posterior
 \begin{align}
 \label{eq:inf:cum-example}
-P(\Theta<\theta | y=5) = \int_{\theta'=0}^{\theta'=\theta}  p(\theta' | y=5) d\theta',
+P(\Theta<\theta | y=5) = \int_{\Theta=0}^{\Theta=\theta}  p(\theta=\Theta | y=5) d\Theta,
 \end{align}
 then we can sample from the posterior by sampling $\hat{u} \sim \textsc{Uniform}(0,1)$ and
 then taking as our sample $\hat{\theta} = P^{-1}(\hat{u})$ such that 
@@ -154,7 +148,7 @@ dimensions this will be impractical.
 
 There are a number of indirect methods we could use instead to sample from the posterior
 such as rejection sampling, importance sampling, and MCMC.  However, as we will show
-in the next section, these all only require that we can evaluate an unnormalized version of
+in the Section~\ref{sec:inf:foundation}, these all only require that we can evaluate an unnormalized version of
 target distribution, such that they side-step the need to calculate the marginal 
 likelihood.\footnote{It should be noted though that for adaptive sampling schemes,
 	then the normalization constant
