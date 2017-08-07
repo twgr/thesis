@@ -1,6 +1,6 @@
 % !TEX root = ../main.tex
 
-\section{Monte Carlo and the Law of Large Numbers}
+\section{Monte Carlo}
 \label{sec:inf:mc}
 
 Monte Carlo~\citep{metropolis1949monte} is the characterization of a probability distribution 
@@ -82,6 +82,9 @@ exactly as we have assumed in~\eqref{eq:inf:mc-est}, with the bias resulting fro
 the approximation.  The convergence of such methods relies on the bias 
 diminishing to $0$ as $N\rightarrow\infty$, such that they remain unbiased in the limit.
 
+\subsection{The Law of Large Numbers}
+\label{sec:inf:mc:law}
+
 A key mathematical idea underpinning the convergence of many Monte Carlo methods is the 
 law of large numbers (LLN).  Informally, the LLN states that the empirical average of 
 independent and identically distributed (i.i.d.)  random variables converges to 
@@ -116,9 +119,22 @@ our estimator using $N$ samples, is $1/N$ times the mean squared error of an est
 a single sample, which is itself equal to the variance of $f(\theta)$.  As $N\rightarrow\infty$, we thus
 have that our expected error goes to $0$.
 
+\subsection{Convergence of Random Variables}
+\label{sec:inf:mc:conv}
+
 To introduce the concept the LLN more precisely, we now consider some more formal notations
-of convergence of random variables.  We start by introducing the notion of $L^2$-convergence
-as this is the type of convergence we have just alluded to in our informal proof.
+of convergence of random variables.  There will be times (in particular in Chapter~\ref{chp:nest})
+when mathematical rigour will require us to distinguish between these alternative notations of convergence.
+However, for most practical purposes, any one of these notions of convergence will be sufficient 
+to informally guarantee that an estimator will return the correct answer if provided 
+with sufficient samples.  Therefore those less interested in theoretical details may wish to
+skip Sections~\ref{sec:inf:mc:conv:prob} and~\ref{sec:inf:mc:conv:as} on first reading.
+
+\subsubsection{Convergence in Expectation}
+\label{sec:inf:mc:conv:L2}
+
+We start by introducing the notion of $L^2$-convergence
+as this is the type of convergence we have just alluded to in our informal proof of the LLN.
 At a high level, $L^2$-convergence effectively means that the expected $L^2$ error 
 of the estimate converges to zero.  It is a particular case of the more general class of
 $L^r$-convergence, which we define formally as follows.
@@ -132,9 +148,17 @@ $\E \left[\lVert I_N\rVert_r\right]$ and $\E \left[\lVert I\rVert_r\right]$ exis
 \end{definition}
 A key point to note is that $\Vert I_N-I\rVert_r\ge0 \; \forall I_N, I$ by definition of the $L^r$-norm and so
 rather than this simply being a statement of unbiasedness, $L^r$-convergence says that the expected
-\emph{magnitude} of the error tends to zero as $N\rightarrow\infty$.  For most practical
-purposes, this notion of convergence will be sufficient as a guarantee that an estimator will
-return the correct answer if provided with sufficient samples.  The less theoretically
-inclined reader may thus wish to skip ahead to the next section.  However, there will be times
-when mathematical rigour will require alternative notations of convergence
-(in particular Chapter~\ref{chp:nest}), so we now briefly lay these out.
+\emph{magnitude} of the error tends to zero as $N\rightarrow\infty$.  
+%
+%\subsubsection{Convergence in Distribution}
+%\label{sec:inf:mc:conv:dist}
+%
+%Convergence in distribution is a weaker form of convergence than is implied by all the
+%other forms of convergence that we will discuss.
+
+\subsubsection{Convergence in Probability}
+\label{sec:inf:mc:conv:prob}
+
+\subsubsection{Almost Sure Convergence}
+\label{sec:inf:mc:conv:as}
+
