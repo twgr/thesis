@@ -18,11 +18,16 @@ given these samples will give samples distributed according to the joint.  As \m
 will be key to most methods for Bayesian inference that we will consider, we take the time
 in this section key related concepts.
 
-A key mathematical idea underpinning many Monte Carlo methods is the law of large numbers (LLN).  
-Informally, the LLN states that the empirical average of independent and identically distributed
-(i.i.d.)  random variables converges to the true expected value of the underlying process as the number
-of samples in the average increases.  This is perhaps most easily seen in the context of \mc estimation,
-also known as \mc integration.  Consider the case of calculating the expectation of some function
+The most common usage of \mc in this work will be the \mc estimation of expectations, 
+sometimes known as \mc integration.  
+The critical importance of \mc estimation stems from the fact that most of the example
+target tasks laid out in~\ref{sec:inf:challenge:post} can be formulated as expectations.
+Even when our intention is simply to generate samples from a target distribution, we can
+usually think of this as being an implicit expectation of an, as-yet unknown, target function.
+Here our implicit aims is to minimize the bias and variance of whatever process the samples are eventually
+used for, even if that process is simply visual inspection.  
+
+Consider the problem of calculating the expectation of some function
 $f(\theta)$ under the distribution $\theta\sim \pi(\theta)$ ($= p(\theta | \mathcal{D})$ for the Bayesian
 inference case), which we will denote 
 as\footnote{We will often implicitly use the notion of a density
@@ -31,25 +36,60 @@ as\footnote{We will often implicitly use the notion of a density
 	variables and the inputs to density functions.  More generally, we will avoid the use of measure
 	theory notation throughout this thesis when possible.  These notational decisions have been made
 	primarily in the interest of accessibility as most of the ideas introduced do not require a deep
-	understanding of measure theory to understand.  Nonetheless, we note that a measure theoretic
+	knowledge of measure theory to understand.  Nonetheless, we note that a measure theoretic
 	approach to probability is essential for a more rigorous introduction.  We refer
-	the interested reader to~\cite{durrett2010probability} for and introduction to measure-theoretic
+	the interested reader to~\cite{durrett2010probability} for an introduction to measure-theoretic
 	probability theory and~\cite{robert2004monte} for a correspondingly more rigorous introduction
 	to \mc methods.}
 \begin{align}
 I:=\E_{\pi(\theta)} \left[f(\theta)\right]=\int f(\theta) \pi(\theta) d\theta.
 \end{align}
-This can be estimated using the following \mc estimator $I_N$
+This can be approximated using the following \mc estimate $I_N$ where
 \begin{align}
 	\label{eq:inf:mc-est}
 	I \approx I_N := \frac{1}{N} \sum_{n=1}^{N}f(\hat{\theta}_n)
-	\quad \text{where} \quad \hat{\theta}_n \sim \pi(\theta)
+	\quad \text{where} \quad \hat{\theta}_n \sim \pi(\theta).
 \end{align}
-Though not necessary in general for the convergence of \mc estimation schemes
-(see for example Section~\ref{sec:inf:foundation:mcmc}), an assumption made for the LLN
-and in the proofs for a number of a common \mc estimators is that each $\hth_n$ is drawn
-independently.  Using this assumption, the high level idea for the law of large numbers can be shown by
-considering the error for the \mc estimator in terms of its \emph{mean squared error} as 
+The first result we note is that~\eqref{eq:inf:mc-est} is an \emph{unbiased} estimate for $I$.  This can
+be easily shown by noting that
+\begin{align}
+\label{eq:inf:unbiased}
+\E \left[I_N\right] = \E \left[\frac{1}{N} \sum_{n=1}^{N}f(\hat{\theta}_n)\right]
+= \frac{1}{N} \sum_{n=1}^{N} \E \left[f(\hat{\theta}_n)\right]
+= \frac{1}{N} \sum_{n=1}^{N} \E \left[f(\hat{\theta}_1)\right]
+= I
+\end{align}
+where we have first moved the sum outside of expectation using
+linearity,\footnote{Note that this presumes that $N$ is independent
+	of the samples.  This is usually the case, but care is necessary in some situations.}
+then the fact that each $\hat{\theta}_n$ is identically distributed to note that
+each $\E \left[f(\hat{\theta}_n)\right]= \E \left[f(\hat{\theta}_1)\right]$, and finally
+that $\E \left[f(\hat{\theta}_1)\right] = I$ by the definition of $I$ and the distribution
+on $\hth_1$.  This is an important result as it means that \mc does not introduce
+any systematic error, i.e. bias, into the approximation: in expectation it does not
+pathologically overestimate or underestimate the target.  This is not to say though that it is
+equally likely to overestimate or underestimate as it may, for example, typically underestimate
+by a small amount and then rarely overestimate by a large amount.  Instead, it means that if we
+were to repeat the estimation an infinite number of times and average the results, we would
+get the true value of $I$.  This now hints at another important question -- do we also get
+recover the true value of $I$ when we conduct one infinitely large estimation, namely if we
+take $N\rightarrow\infty$?  This is known as \emph{consistency} of a statistical estimator,
+which we will now consider next.  Before moving
+on, we make the important note that many common \mc inference methods, for example MCMC as
+discussed in Section~\ref{sec:inf:foundation:mcmc}), are in fact biased.  
+This is because it is often not possible to $\hth_n \sim \pi(\theta)$
+exactly as we have assumed in~\eqref{eq:inf:mc-est}, with the bias resulting from
+the approximation.  The convergence of such methods relies on the bias 
+diminishing to $0$ as $N\rightarrow\infty$, such that they remain unbiased in the limit.
+
+A key mathematical idea underpinning the convergence of many Monte Carlo methods is the 
+law of large numbers (LLN).  Informally, the LLN states that the empirical average of 
+independent and identically distributed (i.i.d.)  random variables converges to 
+the true expected value of the underlying process as the number of samples in the
+average increases.  We can there use it to prove the consistency of Monte Carlo estimators
+were the samples are drawn independently from the same distribution, as is the case
+in for example rejection sampling and importance sampling.  The high level idea for the LLN can be shown by
+considering the  \emph{mean squared error} of a \mc estimator as 
 follows\footnote{Note here that we use the notation of expectation typically used within the statistics literature,
 whereby it corresponds to the expectation over all randomness contained in the system.}
 \begin{align}
@@ -62,42 +102,39 @@ whereby it corresponds to the expectation over all randomness contained in the s
 = \var \left[f(\theta)\right].
 \end{align}
 Here the second line follows from the first simply by expanding the square and using linearity
-to move the sum outside of the expectation.\footnote{Note that this presumes that $N$ is independent
-	of the samples.  This is usually the case, but care is necessary in some situations.}
-The first term in the third line follows from the equivalent term in the second line by noting that
-each $\theta_n$ has the same distribution -- we could have used any particular value of $n$ here.
-The second term in the third line uses the same idea and then
- follows from the second line by the assumption that the samples are drawn
-independently, while $\E\left[(f(\hth_1)-I)\right]=0$ follows from the definition of $I$
-and that $\hth_1$ is distributed according to $\pi(\theta)$.  The last line
-simply notes that $\E\left[ \left(f(\hth_1)-I\right)^2\right]$ is a constant.
+to move the sum outside of the expectation as in the unbiasedness derivation.
+The first term in the third line follows from the equivalent term in the second line by again noting that
+each $\hth_n$ has the same distribution.  The second term in the third line
+follows from the assumption that the samples are drawn independently such that
+\[
+\E\left[ (f(\hth_n)-I)(f(\hth_m)-I)\right] = \E\left[ (f(\hth_n)-I)\right] \E\left[(f(\hth_m)-I)\right],
+\]
+The last line simply notes that $\E\left[ \left(f(\hth_1)-I\right)^2\right]$ is a constant,
+namely the variance of $f(\theta)$.
   Our final result has a simple and intuitive form -- the mean squared error for
 our estimator using $N$ samples, is $1/N$ times the mean squared error of an estimator that only uses
 a single sample, which is itself equal to the variance of $f(\theta)$.  As $N\rightarrow\infty$, we thus
 have that our expected error goes to $0$.
 
 To introduce the concept the LLN more precisely, we now consider some more formal notations
-of convergence of random variables.  We start by introducing the notion of $L^2$ convergence.
-This is the type of convergence we have informally just alluded to when considering the LLN
-and effectively states that the expected $L^2$ error of the estimate converges to zero.  More generally,
-we can define $L^r$ convergence as follows.
+of convergence of random variables.  We start by introducing the notion of $L^2$-convergence
+as this is the type of convergence we have just alluded to in our informal proof.
+At a high level, $L^2$-convergence effectively means that the expected $L^2$ error 
+of the estimate converges to zero.  It is a particular case of the more general class of
+$L^r$-convergence, which we define formally as follows.
 \begin{definition}
-A sequence $I_N$ convergences in its $L^r$ norm to $I$ if the $r^{\text{th}}$ absolute moments
+A sequence $I_N$ convergences in its $L^r$-norm to $I$ if the $r^{\text{th}}$ absolute moments
 $\E \left[\lVert I_N\rVert_r\right]$ and $\E \left[\lVert I\rVert_r\right]$ exist 
-(where $\lVert \cdot \rVert_r$ represents the $L^r$ norm) and
+(where $\lVert \cdot \rVert_r$ represents the $L^r$-norm) and
 \begin{align}
 \lim\limits_{N\rightarrow\infty} \E \left[\Vert I_N-I\rVert_r\right]=0.
 \end{align}
 \end{definition}
-A key point to note is that $\Vert I_N-I\rVert_r\ge0$ by definition of the $L^r$ norm and so
-rather than this simply being a statement of unbiasedness, it says that the expected
-\emph{magnitude} of our error tends to zero as $N\rightarrow\infty$.  For most practical
+A key point to note is that $\Vert I_N-I\rVert_r\ge0 \; \forall I_N, I$ by definition of the $L^r$-norm and so
+rather than this simply being a statement of unbiasedness, $L^r$-convergence says that the expected
+\emph{magnitude} of the error tends to zero as $N\rightarrow\infty$.  For most practical
 purposes, this notion of convergence will be sufficient as a guarantee that an estimator will
-return the correct answer if provided with sufficient samples and the less Theoretically
-inclined reader may wish to skip ahead to the next section.  However, there will be times
-(particularly in Chapter~\ref{chp:nest}) when mathematical rigour will require
-alternative notations of convergence we which now lay out briefly.
-
-
-\todo[inline]{Get something about unbiasedness into the section, preferably before the
-	heavy theory starts.}
+return the correct answer if provided with sufficient samples.  The less theoretically
+inclined reader may thus wish to skip ahead to the next section.  However, there will be times
+when mathematical rigour will require alternative notations of convergence
+(in particular Chapter~\ref{chp:nest}), so we now briefly lay these out.
