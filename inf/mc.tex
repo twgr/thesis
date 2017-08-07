@@ -111,7 +111,7 @@ The first term in the third line follows from the equivalent term in the second 
 each $\hth_n$ has the same distribution.  The second term in the third line
 follows from the assumption that the samples are drawn independently such that
 \[
-\E\left[ (f(\hth_n)-I)(f(\hth_m)-I)\right] = \E\left[ (f(\hth_n)-I)\right] \E\left[(f(\hth_m)-I)\right],
+\E\left[ (f(\hth_n)-I)(f(\hth_m)-I)\right] = \E\left[ (f(\hth_n)-I)\right] \E\left[(f(\hth_m)-I)\right].
 \]
 The last line simply notes that $\E\left[ \left(f(\hth_1)-I\right)^2\right]$ is a constant,
 namely the variance of $f(\theta)$.
@@ -184,9 +184,9 @@ As $\varepsilon$ can be made arbitrarily small, this ensures that $X_N$ becomes 
 close to $X$ in the limit of large $N$.  Estimators are \emph{consistent} if they converge
 in probability.
 Convergence in probability is, in general, a weaker form of convergence that $L^p$ convergence
-as $L^p$ convergence for any $p\ge1$ implies convergence in probability~\cite{williams1991probability}.
+as $L^p$ convergence for any $p\ge1$ implies convergence in probability~\citep{williams1991probability}.
 
-In~\eqref{eq:inf:LLN-informal} we demonstrated of the $L^2$ convergence of the Monte Carlo
+In~\eqref{eq:inf:LLN-informal} we demonstrated the $L^2$ convergence of the Monte Carlo
 estimator as we have that 
 \[
 \lim\limits_{N\rightarrow\infty} \norm{I_N-I}_2=\lim\limits_{N\rightarrow\infty} \frac{\sigma_\theta}{\sqrt{N}} = 0.
@@ -205,10 +205,8 @@ in probability:
 \end{theorem}
 \begin{proof}
 By~\eqref{eq:inf:unbiased} we have that $\E [I_N]=I$ and by~\eqref{eq:inf:LLN-informal} we have that 
-\[
-\norm{I_N-I}_2^2 = \frac{\sigma_{\theta}^2}{N}
-\]
-where $\sigma_{\theta}^2$ is an unknown finite constant by the assumption that $I\in L^2$.
+$\norm{I_N-I}_2^2 = \frac{\sigma_{\theta}^2}{N}$
+where $\sigma_{\theta}^2$ is an unknown, but finite, constant by the assumption that $I\in L^2$.
 Chebyshev's inequality states that if $\E [I_N] = I$, then for any $k>0$
 \[
 P(\left|I_N-I\right|\ge\varepsilon)\le\frac{\var(I_N)}{\varepsilon^2}.
@@ -226,3 +224,18 @@ as required.
 \subsubsection{Almost Sure Convergence}
 \label{sec:inf:mc:conv:as}
 
+Almost sure convergence is a similar, but stronger, form of convergence than convergence in
+probability.  At a high level the difference between
+convergence in probability and almost sure converge is a difference in the tail behaviour:
+convergence in probability suggests the rate at which an event happens tends to zero; almost
+sure convergence means that there is some point in time after which the event never happens
+again.  More formally we have the following definition
+\begin{definition}[Almost sure convergence]
+A sequence $X_N$ converges almost surely to $X$ if
+\begin{align}
+	P\left(\lim\limits_{N\rightarrow\infty} X_N=X\right)=1.
+\end{align}
+\end{definition}
+Almost sure convergence implies convergence in probability, but not vice-versa -- the rate
+at which events occur might tend to zero without there ever being a point at which the
+event never occurs again.  It does not imply, nor is it implied by, $L^p$ convergence.
