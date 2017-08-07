@@ -42,6 +42,7 @@ as\footnote{We will often implicitly use the notion of a density
 	probability theory and~\cite{robert2004monte} for a correspondingly more rigorous introduction
 	to \mc methods.}
 \begin{align}
+	\label{eq:inf:expt}
 I:=\E_{\pi(\theta)} \left[f(\theta)\right]=\int f(\theta) \pi(\theta) d\theta.
 \end{align}
 This can be approximated using the following \mc estimate $I_N$ where
@@ -102,7 +103,7 @@ whereby it corresponds to the expectation over all randomness contained in the s
 &= \frac{1}{N^2}\sum_{n=1}^{N} \E\left[ \left(f(\hth_1)-I\right)^2\right] + 
 \frac{1}{N(N-1)}\sum_{n=1}^{N}\sum_{m=1,m\neq n}^{N} \cancelto{0}{\left(\E\left[(f(\hth_1)-I)\right]\right)^2} \nonumber \\
 &= \frac{\sigma_{\theta}^2}{N}  \quad \text{where} \quad \sigma_{\theta}^2 := \E\left[ \left(f(\hth_1)-I\right)^2\right]
-= \var \left[f(\theta)\right].
+= \var \left[f(\theta)\right].\label{eq:inf:LLN-informal}
 \end{align}
 Here the second line follows from the first simply by expanding the square and using linearity
 to move the sum outside of the expectation as in the unbiasedness derivation.
@@ -130,25 +131,36 @@ to informally guarantee that an estimator will return the correct answer if prov
 with sufficient samples.  Therefore those less interested in theoretical details may wish to
 skip Sections~\ref{sec:inf:mc:conv:prob} and~\ref{sec:inf:mc:conv:as} on first reading.
 
-\subsubsection{Convergence in Expectation}
-\label{sec:inf:mc:conv:L2}
+\subsubsection{$L^p$-Convergence}
+\label{sec:inf:mc:conv:Lr}
 
-We start by introducing the notion of $L^2$-convergence
+We start by introducing the notion of $L^p$-convergence, also known as convergence in expectation,
 as this is the type of convergence we have just alluded to in our informal proof of the LLN.
-At a high level, $L^2$-convergence effectively means that the expected $L^2$ error 
-of the estimate converges to zero.  It is a particular case of the more general class of
-$L^r$-convergence, which we define formally as follows.
-\begin{definition}
-A sequence $I_N$ convergences in its $L^r$-norm to $I$ if the $r^{\text{th}}$ absolute moments
-$\E \left[\lVert I_N\rVert_r\right]$ and $\E \left[\lVert I\rVert_r\right]$ exist 
-(where $\lVert \cdot \rVert_r$ represents the $L^r$-norm) and
+At a high level, $L^p$-convergence means that the expected value of the related error metric
+tends to zero as $N\rightarrow \infty$.  More precisely, we first define the $L^p$-norm for
+a random variable $X$ as
 \begin{align}
-\lim\limits_{N\rightarrow\infty} \E \left[\Vert I_N-I\rVert_r\right]=0.
+\label{eq:inf:Lp-norm}
+\norm{X}_p = \left(\E \left[\left|X\right|^{p}\right]\right)^{\frac{1}{p}}
+\end{align}
+where $\left|\cdot\right|$ denotes the absolute value.  For example, we can write the
+mean squared error used in~\eqref{eq:inf:LLN-informal} as the squared $L^2$-norm:
+$\E \left[(I_N-I)^2\right] = \norm{I_N-I}_2^2$.  We further define the notion of $L^p$-space
+as being the space of random variables for which $\norm{X}_p < \infty$.  We can now
+formally define $L^p$-convergence as follow.
+\begin{definition}[$L^p$-convergence]
+A sequence $X_N$ converges in its $L^p$-norm to $X$ if $X\in L^p$, each $X_N \in L^p$, and
+\begin{align}
+\lim\limits_{N\rightarrow\infty} \norm{X_N-X}_p=0. \label{eq:inf:Lp-conv-formal}
 \end{align}
 \end{definition}
-A key point to note is that $\Vert I_N-I\rVert_r\ge0 \; \forall I_N, I$ by definition of the $L^r$-norm and so
-rather than this simply being a statement of unbiasedness, $L^r$-convergence says that the expected
-\emph{magnitude} of the error tends to zero as $N\rightarrow\infty$.  
+A key point to note is that $\Vert X_N-X\rVert_p\ge0 \; \forall X_N, X$ by definition of the $L^p$-norm and so
+rather than this simply being a statement of asymptotic unbiasedness, $L^p$-convergence says that the expected
+\emph{magnitude} of the error tends to zero as $N\rightarrow\infty$.
+Different values of $p$ correspond to different metrics for the error, with larger values of
+$p$ constituting stronger converge guarantees, such that $L^{p_1}$-convergence implies
+$L^{p_2}$-convergence whenever $p_1>p_2$.
+
 %
 %\subsubsection{Convergence in Distribution}
 %\label{sec:inf:mc:conv:dist}
@@ -158,6 +170,58 @@ rather than this simply being a statement of unbiasedness, $L^r$-convergence say
 
 \subsubsection{Convergence in Probability}
 \label{sec:inf:mc:conv:prob}
+
+At a high level, convergence in probability between two random variables (or between a random variable and
+a constant) means that they become arbitrary close to one another with high probability.  More
+formally we have the following definition.
+\begin{definition}[Convergence in probability]
+A sequence $X_N$ converges in probability to $X$ if, for every $\varepsilon>0$,
+\begin{align}
+\lim\limits_{N\rightarrow\infty} P(\left|X_N-X\right|\ge\varepsilon)=0.
+\end{align}
+\end{definition}
+As $\varepsilon$ can be made arbitrarily small, this ensures that $X_N$ becomes arbitrarily
+close to $X$ in the limit of large $N$.  Estimators are \emph{consistent} if they converge
+in probability.
+Convergence in probability is, in general, a weaker form of convergence that $L^p$ convergence
+as $L^p$ convergence for any $p\ge1$ implies convergence in probability~\cite{williams1991probability}.
+
+In~\eqref{eq:inf:LLN-informal} we demonstrated of the $L^2$ convergence of the Monte Carlo
+estimator as we have that 
+\[
+\lim\limits_{N\rightarrow\infty} \norm{I_N-I}_2=\lim\limits_{N\rightarrow\infty} \frac{\sigma_\theta}{\sqrt{N}} = 0.
+\]
+By the above result we therefore also have the Monte Carlo estimator convergences in
+probability to the expectation and thus that it is consistent.  This is known as the
+\emph{weak law of large numbers}.  We can also prove this more explicitly as follows
+\begin{theorem}[Weak law of large numbers]
+If $I$ and $I_N$ are defined as per~\eqref{eq:inf:expt} and~\eqref{eq:inf:mc-est} respectively,
+$I\in L^2$, each $I_N \in L^2$,
+ and each $\hth_n$ in~\eqref{eq:inf:mc-est} is drawn independently, then $I_N$ converges to $I$
+in probability:
+\begin{align}
+	\lim\limits_{N\rightarrow\infty} P(\left|I_N-I\right|\ge \varepsilon)=0 \quad \forall \varepsilon>0.
+\end{align}
+\end{theorem}
+\begin{proof}
+By~\eqref{eq:inf:unbiased} we have that $\E [I_N]=I$ and by~\eqref{eq:inf:LLN-informal} we have that 
+\[
+\norm{I_N-I}_2^2 = \frac{\sigma_{\theta}^2}{N}
+\]
+where $\sigma_{\theta}^2$ is an unknown finite constant by the assumption that $I\in L^2$.
+Chebyshev's inequality states that if $\E [I_N] = I$, then for any $k>0$
+\[
+P(\left|I_N-I\right|\ge\varepsilon)\le\frac{\var(I_N)}{\varepsilon^2}.
+\]
+By further noting that as $I_N$ is unbiased, we have that $\var(I_N) = \norm{I_N-I}_2^2$
+and therefore
+\[
+\lim\limits_{N\rightarrow\infty} P(\left|I_N-I\right|\ge\varepsilon)
+\le\lim\limits_{N\rightarrow\infty} \frac{\sigma_{\theta}^2}{\varepsilon^2 N}
+=0 \quad \forall \varepsilon>0
+\]
+as required.
+\end{proof}
 
 \subsubsection{Almost Sure Convergence}
 \label{sec:inf:mc:conv:as}
