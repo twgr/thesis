@@ -149,7 +149,7 @@ $\E \left[(I_N-I)^2\right] = \norm{I_N-I}_2^2$.  We further define the notion of
 as being the space of random variables for which $\norm{X}_p < \infty$.  We can now
 formally define $L^p$-convergence as follow.
 \begin{definition}[$L^p$-convergence]
-A sequence $X_N$ converges in its $L^p$-norm to $X$ if $X\in L^p$, each $X_N \in L^p$, and
+A sequence $X_N$ converges in its $L^p$-norm to $X$ where $p\ge1$ if $X\in L^p$, each $X_N \in L^p$, and
 \begin{align}
 \lim\limits_{N\rightarrow\infty} \norm{X_N-X}_p=0. \label{eq:inf:Lp-conv-formal}
 \end{align}
@@ -159,7 +159,8 @@ rather than this simply being a statement of asymptotic unbiasedness, $L^p$-conv
 \emph{magnitude} of the error tends to zero as $N\rightarrow\infty$.
 Different values of $p$ correspond to different metrics for the error, with larger values of
 $p$ constituting stronger converge guarantees, such that $L^{p_1}$-convergence implies
-$L^{p_2}$-convergence whenever $p_1>p_2$.
+$L^{p_2}$-convergence whenever $p_1>p_2$.  Similarly, if a a random variable satisfies
+$X \in L^{p_1}$, then it follows that $X \in L^{p_2}$.
 
 %
 %\subsubsection{Convergence in Distribution}
@@ -195,8 +196,9 @@ By the above result we therefore also have the Monte Carlo estimator convergence
 probability to the expectation and thus that it is consistent.  This is known as the
 \emph{weak law of large numbers}.  We can also prove this more explicitly as follows
 \begin{theorem}[Weak law of large numbers]
+	\label{the:inf:weak-law}
 If $I$ and $I_N$ are defined as per~\eqref{eq:inf:expt} and~\eqref{eq:inf:mc-est} respectively,
-$I\in L^2$, each $I_N \in L^2$,
+$I\in L^1$, each $I_N \in L^1$,
  and each $\hth_n$ in~\eqref{eq:inf:mc-est} is drawn independently, then $I_N$ converges to $I$
 in probability:
 \begin{align}
@@ -204,6 +206,10 @@ in probability:
 \end{align}
 \end{theorem}
 \begin{proof}
+In the interest of exposition, we prove the result in the case where the stronger 
+assumptions that $I\in L^2$ and each $I_N \in L^2$ hold.  In practise this is not needed as
+the theorem can be proved by other means, see for example Theorem 2.2.7 of~\cite{durrett2010probability}.
+
 By~\eqref{eq:inf:unbiased} we have that $\E [I_N]=I$ and by~\eqref{eq:inf:LLN-informal} we have that 
 $\norm{I_N-I}_2^2 = \frac{\sigma_{\theta}^2}{N}$
 where $\sigma_{\theta}^2$ is an unknown, but finite, constant by the assumption that $I\in L^2$.
@@ -220,6 +226,20 @@ and therefore
 \]
 as required.
 \end{proof}
+As an interesting aside, we can prove that convergence in probability follows from
+$L^p$ convergence more generally in a similar fashion.  This can be done
+by using the more general form of Chebyshev's inequality given in, for example,
+Theorem 1.6.4 and Lemma 2.2.2 of~\cite{durrett2010probability} to show that
+\begin{align}
+\label{eq:inf:prob-from-lp}
+\begin{split}
+\lim\limits_{N\rightarrow\infty} P(\left|I_N-I\right|\ge\varepsilon)
+&\le \lim\limits_{N\rightarrow\infty} \frac{\E \left[\left|I_N-I\right|^{p}\right]}{\varepsilon^p} = 
+\left(\frac{1}{\varepsilon}\lim\limits_{N\rightarrow\infty} \norm{I_N-I}_p\right)^p.
+\end{split}
+\end{align}
+If $I_N \Lp I$ then $\lim\limits_{N\rightarrow\infty} \norm{I_N-I}_p = 0$ by definition
+and we have convergence in probability as required.
 
 \subsubsection{Almost Sure Convergence}
 \label{sec:inf:mc:conv:as}
@@ -239,3 +259,13 @@ A sequence $X_N$ converges almost surely to $X$ if
 Almost sure convergence implies convergence in probability, but not vice-versa -- the rate
 at which events occur might tend to zero without there ever being a point at which the
 event never occurs again.  It does not imply, nor is it implied by, $L^p$ convergence.
+The \emph{strong law of large numbers} is the dual for the weak law of large numbers as
+follows.
+\begin{theorem}[Strong law of large numbers]
+	Assuming the setup of Theorem~\ref{the:inf:weak-law} then $I_N$ converges to $I$ almost surely
+	\begin{align}
+	P\left(\lim\limits_{N\rightarrow\infty} I_N=I\right)=1.
+	\end{align}
+\end{theorem}
+The proof is somewhat more complicated that weak law and so is not provided here, but can
+be found in, for example, Theorem 2.4.1 of~\cite{durrett2010probability}.
