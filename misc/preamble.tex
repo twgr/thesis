@@ -48,7 +48,7 @@
 
 
 % For math
-%\usepackage{amsthm}
+\usepackage{amsthm}
 \usepackage{dsfont}
 \usepackage{amssymb,amsmath}
 \usepackage{bbm}
@@ -125,6 +125,15 @@
 } 
 \lstnewenvironment{code}[2]{\lstset{caption=#1,label=#2}}{}
 
+\newtheorem{example}{Example} 
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma} 
+%\newtheorem{proposition}[proposition]{Proposition} 
+\newtheorem{remark}{Remark}
+%\newtheorem{corollary}[corollary]{Corollary}
+\newtheorem{definition}{Definition}[chapter]
+%\newtheorem{conjecture}[conjecture]{Conjecture}
+%\newtheorem{axiom}[axiom]{Axiom}
 
 % % % % % % % % % % % % % % % % % % %
 
@@ -132,4 +141,3 @@
 \usepackage{packages/naesseth}
 \usepackage{packages/algorithm,packages/algorithmic}
 \usepackage{packages/abbreviations}
-\usepackage{packages/jmlr2e}

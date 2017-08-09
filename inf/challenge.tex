@@ -150,7 +150,6 @@ There are a number of indirect methods we could use instead to sample from the p
 such as rejection sampling, importance sampling, and MCMC.  However, as we will show
 in the Section~\ref{sec:inf:foundation}, these all only require that we can evaluate an unnormalized version of
 target distribution, such that they side-step the need to calculate the marginal 
-likelihood.\footnote{It should be noted though that for adaptive sampling schemes,
-	then the normalization constant
-	can still be useful information for such methods for the reasons outlined in 
-	Section~\ref{sec:inf:challenge:norm}.}
+likelihood.  Nonetheless, knowledge of the marginal likelihood can still be helpful in
+a number of scenarios (e.g. in adapting our inference algorithm) for the reasons outlined in 
+Section~\ref{sec:inf:challenge:norm}.

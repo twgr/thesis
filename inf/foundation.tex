@@ -139,6 +139,87 @@ Importance sampling is another common sampling method that forms the key buildin
 for many more advance inference schemes.  It is closely related to rejection sampling in that
 it samples candidate $\hat{\theta}$ from a proposal $q(\theta)$, but instead of going
 through an accept/reject step, it assigns an \emph{importance weight} to each sample.
+These importance weights act like correction factors to account for the fact that we sampled
+from $q(\theta)$ rather than our target $\pi(\theta)$.
+
+To demonstrate the key idea, consider the problem of calculating an expectation as
+per~\eqref{eq:inf:expt}.  If we cannot sample exactly from $\pi(\theta)$ then we cannot
+apply~\eqref{eq:inf:mc-est} directly.  However, we can rearrange the form our expectation
+to generate a different \mc estimator which we can evaluate directly as follows
+\begin{align}
+	I:=\E_{\pi(\theta)} \left[f(\theta)\right] &=\int f(\theta) \pi(\theta) d\theta 
+	= \int f(\theta) \frac{\pi(\theta)}{q(\theta)} q(\theta) d\theta \nonumber \\
+	&\approx \frac{1}{N} \sum_{n=1}^{N} \frac{\pi(\hth_n)}{q(\hth_n)} f(\hat{\theta}_n)
+	\quad \text{where} \quad \hat{\theta}_n \sim q(\theta) 	\label{eq:inf:importance}
+\end{align}
+where $\frac{\pi(\hth_n)}{q(\hth_n)} =: w_n$ is known as an importance weight.
+The key trick we have applied is to multiply the integrand by $\frac{q(\theta)}{q(\theta)}$, which
+equals $1$
+for all points where $q(\theta) \neq 0$.  Thus if $q(\theta) \neq 0$ for all $\theta$ for which
+$\pi(\theta) \neq 0$ (to avoid infinite importance weights), this has no effect on the 
+expectation.  However, we can informally view the new
+formulation as being the expectation of $f(\theta) \frac{\pi(\theta)}{q(\theta)}$ under the
+distribution $q(\theta)$.  We can now construct a \mc estimator for this new formulation, 
+by choosing $q(\theta)$ to be a distribution we can sample from.
+
+Importance sampling has a number of desirable properties as an inference method.
+In particular, it is both unbiased and consistent.  The former can be shown trivially
+as follows
+\begin{align}
+\E \left[\frac{1}{N} \sum_{n=1}^{N} \frac{\pi(\hth_n)}{q(\hth_n)} f(\hat{\theta}_n)\right] &=
+\frac{1}{N} \sum_{n=1}^{N} \E _{q(\theta_n)}\left[\frac{\pi(\hth_n)}{q(\hth_n)} f(\hat{\theta}_n)\right] \nonumber \\
+&=\E _{q(\theta_1)}\left[\frac{\pi(\hth_1)}{q(\hth_1)} f(\hat{\theta}_n)\right] =
+\E _{\pi(\theta)}\left[f(\theta)\right]
+\end{align}
+where we have effectively stepped backwards through~\eqref{eq:inf:importance}.
+Given this unbiasedness result, $L^2$ convergence, and thus convergence in probability,
+can be shown in the same manner as~\eqref{eq:inf:LLN-informal} by replacing
+each $f(\hth_n)$ with $\frac{\pi(\hth_n)}{q(\hth_n)} f(\hat{\theta}_n)$, leading to the
+same result except that $\sigma_{\theta}$ is now
+\begin{align}
+\label{eq:inf:sigma-imp}
+\sigma_{\theta}^2 = \E_{q(\theta)} \left[\left(\frac{\pi(\hth_n)}{q(\hth_n)} f(\hat{\theta}_n)-I\right)^2\right]
+= \var_{q(\theta)} \left[\frac{\pi(\theta)}{q(\theta)} f(\theta)\right].
+\end{align}
+Almost sure convergence of importance sampling can be similarly shown using
+the strong law of large numbers.
+
+The form of~\eqref{eq:inf:sigma-imp} provides substantial insight into how
+best to set the proposal: we have shown that the mean squared error of an
+importance sampler is directly proportional to $\var \left[f(\theta)\pi(\theta)/q(\theta)\right]$,
+thus the lower this term is, the better the expected performance of our
+estimator.  One obvious question is what is the optimal proposal $q^*(\theta)$?
+It turns out that $q^*(\theta) = \frac{\pi(\theta)\left|f(\theta)\right|}
+{\int \pi(\theta)\left|f(\theta)\right|d\theta}$
+\citep{rubinstein2016simulation}, which can be
+ shown as follows where we will make use of Jensen's inequality
+\begin{align}
+\var_{q^*(\theta)} &\left[\frac{\pi(\theta)}{q^*(\theta)} f(\theta)\right] =
+\E_{q^*(\theta)} \left[\left(\frac{\pi(\theta)}{q^*(\theta)} f(\theta)\right)^2\right]
+-\left(\E_{q^*(\theta)} \left[\frac{\pi(\theta)}{q^*(\theta)} f(\theta)\right]\right)^2
+\nonumber \\
+ &= \int \frac{\pi(\theta)^2 f(\theta)^2}{q^*(\theta)} d\theta
+ -I^2 
+ = \left(\int \pi(\theta) \left|f(\theta)\right| d\theta\right)^2
+ -I^2 \label{eq:inf:opt-q-line2}\\
+ &\le \int \left(\frac{\pi(\theta) \left|f(\theta)\right|}{q(\theta)}\right)^2 q(\theta) d\theta
+ -I^2 =\var_{q(\theta)} \left[\frac{\pi(\theta)}{q(\theta)} f(\theta)\right] \label{eq:inf:opt-q}.
+\end{align}
+Here we have shown that the variance for $q^*(\theta)$ is less than or equal to the variance
+using an arbitrary $q(\theta)$.  It must therefore be the optimal proposal.
+A further point of note is that if $f(\theta)\ge0 \; \forall \theta$, 
+then~\eqref{eq:inf:opt-q-line2} will equal zero giving a zero variance estimator:
+each importance weight will be equal to the  $I/f(\theta)$ and thus $I$
+can be calculated by evaluating a single point.
+
+More generally, good proposals will be similar to 
+$\frac{\pi(\theta)\left|f(\theta)\right|}
+{\int \pi(\theta)\left|f(\theta)\right|d\theta}$ $\dots$
+
+\todo[inline]{Unknown f}
+\todo[inline]{Example figure?}
+\todo[inline]{Link back to requirements on the proposal}
+\todo[inline]{Self normalized importance sampling}
 
 \subsection{The Curse of Dimensionality}
 \label{sec:inf:foundation:curse}
