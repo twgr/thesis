@@ -18,15 +18,17 @@ The \csmc nodes are given an identifier $c_j \in \{1,\ldots,M\}, ~j=1,\ldots,P$ 
 	\label{alg:ipmc}
 	\begin{spacing}{1.2}
 	\begin{algorithmic}[1]
-		\STATE {\bfseries Input:} number of nodes $M$, conditional nodes $P$ and \mcmc steps $R$, initial $\xb_{1:P}'[0]$
-		\FOR{$r = 1$ {\bfseries to} $R$}
-		\STATE Workers $1:M \backslash c_{1:P}$ run Algorithm~\ref{alg:smc} (\smc)
-		\STATE Workers $c_{1:P}$ run Algorithm~\ref{alg:csmc} (\csmc), conditional on $\xb_{1:P}'[r-1]$ respectively.
-		\FOR{$j = 1$ {\bfseries to} $P$}
-		\STATE Select a new conditional node by simulating $c_j$ according to \eqref{eq:simConditional}. %with probability 
-		\STATE Set new \mcmc sample $\xb_j'[r] = \xb_{c_j}^{b_j}$ by simulating $b_j$ according to~\eqref{eq:simTrajectory}
-		\ENDFOR
-		\ENDFOR
+		\renewcommand{\algorithmicrequire}{\textbf{Inputs:}}
+		\renewcommand{\algorithmicensure}{\textbf{Outputs:}}				 
+		\Require number of nodes $M$, conditional nodes $P$ and \mcmc steps $R$, initial $\xb_{1:P}'[0]$
+		\For{$r = 1$ {\bfseries to} $R$}
+		\State Workers $1:M \backslash c_{1:P}$ run Algorithm~\ref{alg:smc} (\smc)
+		\State Workers $c_{1:P}$ run Algorithm~\ref{alg:csmc} (\csmc), conditional on $\xb_{1:P}'[r-1]$ respectively.
+		\For{$j = 1$ {\bfseries to} $P$}
+		\State Select a new conditional node by simulating $c_j$ according to \eqref{eq:simConditional}. %with probability 
+		\State Set new \mcmc sample $\xb_j'[r] = \xb_{c_j}^{b_j}$ by simulating $b_j$ according to~\eqref{eq:simTrajectory}
+		\EndFor
+		\EndFor
 	\end{algorithmic}
 \end{spacing}
 \end{algorithm}

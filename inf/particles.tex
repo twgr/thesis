@@ -34,15 +34,17 @@ In general, computing the posterior $p(x_{1:T}|y_{1:T})$ is intractable and we h
 	\label{alg:smc}
 	\begin{spacing}{1.2}
 		\begin{algorithmic}[1]
-			\STATE {\bfseries Input:} data $y_{1:T}$, number of particles $N$, proposals $q_t$
-			\STATE $x_1^i \sim q_1(x_1)$
-			\STATE $w_1^i = \frac{g_1(y_1|x_1^i) \mu(x_1^i)}{q_1(x_1^i)}$
-			\FOR{$t = 2$ {\bfseries to} $T$}
-			\STATE $a_{t-1}^i \sim \Discrete\left(\left\{\nw_{t-1}^{\ell}\right\}_{\ell=1}^N\right)$% \tom{We can maybe more general that categorical here?}
-			\STATE $x_t^i \sim q_t(x_t | x_{1:t-1}^{a_{t-1}^i})$ 
-			\STATE Set $x_{1:t}^i = (x_{1:t-1}^{a_{t-1}^i},x_t^i)$
-			\STATE $w_t^i = \frac{g_t(y_t|x_{1:t}^i) f_t(x_t^i | x_{1:t-1}^{a_{t-1}^i})}{q_t(x_t^i|x_{1:t-1}^{a_{t-1}^i})}$
-			\ENDFOR
+			\renewcommand{\algorithmicrequire}{\textbf{Inputs:}}
+			\renewcommand{\algorithmicensure}{\textbf{Outputs:}}				 
+			\Require  data $y_{1:T}$, number of particles $N$, proposals $q_t$
+			\State $x_1^i \sim q_1(x_1)$
+			\State $w_1^i = \frac{g_1(y_1|x_1^i) \mu(x_1^i)}{q_1(x_1^i)}$
+			\For{$t = 2$ {\bfseries to} $T$}
+			\State $a_{t-1}^i \sim \Discrete\left(\left\{\nw_{t-1}^{\ell}\right\}_{\ell=1}^N\right)$% \tom{We can maybe more general that categorical here?}
+			\State $x_t^i \sim q_t(x_t | x_{1:t-1}^{a_{t-1}^i})$ 
+			\State Set $x_{1:t}^i = (x_{1:t-1}^{a_{t-1}^i},x_t^i)$
+			\State $w_t^i = \frac{g_t(y_t|x_{1:t}^i) f_t(x_t^i | x_{1:t-1}^{a_{t-1}^i})}{q_t(x_t^i|x_{1:t-1}^{a_{t-1}^i})}$
+			\EndFor
 		\end{algorithmic}
 	\end{spacing}
 \end{algorithm}
@@ -88,16 +90,18 @@ The \pg algorithm \citep{andrieuDH2010} is a Gibbs sampler on the extended space
 	\label{alg:csmc}
 	\begin{spacing}{1.2}
 		\begin{algorithmic}[1]
-			\STATE {\bfseries Input:} data $y_{1:T}$, number of particles $N$, proposals $q_t$, conditional trajectory $x_{1:T}'$
-			\STATE $x_1^i \sim q_1(x_1), ~i=1,\ldots,N-1$ and set $x_1^N = x_1'$
-			\STATE $w_1^i = \frac{g_1(y_1|x_1^i) \mu(x_1^i)}{q_1(x_1^i)}, ~i=1,\ldots,N$
-			\FOR{$t = 2$ {\bfseries to} $T$}
-			\STATE $a_{t-1}^i \sim \Discrete\left(\left\{\nw_{t-1}^\ell\right\}_{\ell=1}^N\right), ~i=1,\ldots,N-1$
-			\STATE $x_t^i \sim q_t(x_t | x_{1:t-1}^{a_{t-1}^i}), ~i=1,\ldots,N-1$
-			\STATE Set $a_{t-1}^N = N$ and $x_t^N = x_t'$
-			\STATE Set $x_{1:t}^i = (x_{1:t-1}^{a_{t-1}^i},x_t^i), ~i=1,\ldots,N$
-			\STATE $w_t^i = \frac{g_t(y_t|x_{1:t}^i) f_t(x_t^i | x_{1:t-1}^{a_{t-1}^i})}{q_t(x_t^i|x_{1:t-1}^{a_{t-1}^i})}, ~i=1,\ldots,N$
-			\ENDFOR
+			\renewcommand{\algorithmicrequire}{\textbf{Inputs:}}
+			\renewcommand{\algorithmicensure}{\textbf{Outputs:}}				 
+			\Require data $y_{1:T}$, number of particles $N$, proposals $q_t$, conditional trajectory $x_{1:T}'$
+			\State $x_1^i \sim q_1(x_1), ~i=1,\ldots,N-1$ and set $x_1^N = x_1'$
+			\State $w_1^i = \frac{g_1(y_1|x_1^i) \mu(x_1^i)}{q_1(x_1^i)}, ~i=1,\ldots,N$
+			\For{$t = 2$ {\bfseries to} $T$}
+			\State $a_{t-1}^i \sim \Discrete\left(\left\{\nw_{t-1}^\ell\right\}_{\ell=1}^N\right), ~i=1,\ldots,N-1$
+			\State $x_t^i \sim q_t(x_t | x_{1:t-1}^{a_{t-1}^i}), ~i=1,\ldots,N-1$
+			\State Set $a_{t-1}^N = N$ and $x_t^N = x_t'$
+			\State Set $x_{1:t}^i = (x_{1:t-1}^{a_{t-1}^i},x_t^i), ~i=1,\ldots,N$
+			\State $w_t^i = \frac{g_t(y_t|x_{1:t}^i) f_t(x_t^i | x_{1:t-1}^{a_{t-1}^i})}{q_t(x_t^i|x_{1:t-1}^{a_{t-1}^i})}, ~i=1,\ldots,N$
+			\EndFor
 		\end{algorithmic}
 	\end{spacing}
 \end{algorithm}
