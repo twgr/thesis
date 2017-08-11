@@ -160,7 +160,29 @@ $\pi(\theta) \neq 0$ (to avoid infinite importance weights), this has no effect 
 expectation.  However, we can informally view the new
 formulation as being the expectation of $f(\theta) \frac{\pi(\theta)}{q(\theta)}$ under the
 distribution $q(\theta)$.  We can now construct a \mc estimator for this new formulation, 
-by choosing $q(\theta)$ to be a distribution we can sample from.
+by choosing $q(\theta)$ to be a distribution we can sample from.  A graphical
+demonstration of importance sampling is given in Figure~\ref{fig:inf:importance} in the
+more general setting where we do not have access to the $\pi(\theta)$ exactly, but only
+an unnormalized version $\gamma(\theta)=\pi(\theta)Z$.  As we will show in detail in
+Section~\ref{sec:inf:foundation:importance:self-norm}, we can still use importance sampling
+in this case by \emph{self-normalizing} the weights.
+
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=0.7\textwidth]{importance}
+	\caption{Demonstration of importance sampling for problem shown in~\eqref{eq:inf:example}
+		where we are trying to estimate $\E [\pi(\theta)f(\theta)]$: the expectation of the function $f(\theta) := \theta^2/25$
+		under the posterior $\pi(\theta):=p(\theta|y=5)$ defined as per~\eqref{eq:inf:example-post}.
+		We assume the setting where $\pi(\theta)$ is only known up to a normalization constant
+		(see Section~\ref{sec:inf:foundation:importance:self-norm}), namely we only have access
+		to $\gamma(\theta) := p(\theta)p(y=5 | \theta)$ as shown in yellow.  Our procedure is to draw
+		samples independently $\hth_n \sim q(\theta)$ and then evaluate their weight 
+		$w_n = w(\hth_n) = \gamma(\hth_n)/q(\hth_n)$.  This produces a set of weighted samples
+		which can then be used to estimate to estimate the expectation using~\eqref{eq:inf:snis}
+		(one can also use~\eqref{eq:inf:importance} if the normalized $\pi(\theta)$ is used instead of
+		$\gamma(\theta)$).
+		\label{fig:inf:importance}}
+\end{figure}
 
 Importance sampling has a number of desirable properties as an inference method.
 In particular, it is both unbiased and consistent.  The former can be shown trivially
@@ -207,7 +229,8 @@ It turns out that $q^*(\theta) = \frac{\pi(\theta)\left|f(\theta)\right|}
 \end{align}
 Here we have shown that the variance for $q^*(\theta)$ is less than or equal to the variance
 using an arbitrary $q(\theta)$.  It must therefore be the optimal proposal.
-A further point of note is that if $f(\theta)\ge0 \; \forall \theta$, 
+A further point of note is that if $f(\theta)\ge0 \; \forall \theta$ (or 
+$f(\theta)\le0 \; \forall \theta$), 
 then~\eqref{eq:inf:opt-q-line2} will equal zero giving a zero variance estimator:
 each importance weight will be equal to the  $I/f(\theta)$ and thus $I$
 can be calculated by evaluating a single point.  
@@ -248,8 +271,6 @@ The highlights the pitfalls of having insufficiently heavy tails on our proposal
 Overcoming these will typically require careful setup of the proposal on a case-by-case basis,
 for example, choosing a distribution type for the proposal that is known to have heavier tails 
 than $\pi(\theta)$.
-
-\todo[inline]{Example figure?}
 
 \subsubsection{Self-Normalized Importance Sampling}
 \label{sec:inf:foundation:importance:self-norm}
@@ -303,7 +324,16 @@ becomes dominated as $N\rightarrow\infty$.
 Strangely, even when the normalization constant
 is known, the self-normalized importance sampler can still be lower variance~\citep{owen2013mc}.
 Therefore, with the bias becoming dominated, it can actually be preferable to use
-SNIS even when the normalized target is known.
+SNIS even when the normalized target is known.  Note also that the optimal proposal in
+the SNIS case varies slightly from the $q^*(\theta)$ derived earlier in the Section
+and is instead~\citep{hesterberg1988advances}
+\begin{align}
+q^*_{\mathrm{SNIS}} (\theta) = \frac{\pi(\theta)\left|f(\theta)-I\right|}
+{\int \pi(\theta)\left|f(\theta)-I\right|d\theta}.
+\end{align}
+As a consequence, there is a minimum variance on the SNIS estimator, unlike in the
+pre-normalized case where $q^*(\theta)$ was a zero variance estimator  was possible
+if $f(\theta)\ge0 \; \forall \theta$.
 
 \subsubsection{Unknown $f$}
 \label{sec:inf:foundation:importance:unk-f}
@@ -341,23 +371,51 @@ sampler with the standard properties such as unbiasedness and consistency.\footn
 	Chapter~\ref{chp:nest}.} 
 
 Again a natural question in this ``unknown $f$'' setting is what is the optimal proposal $q^*(\theta)$?
-This is a somewhat more challenging and subjective question that when $f$ is known as the
+This is a somewhat more challenging and subjective question than when $f$ is known as the
 optimality will depend on what the samples are eventually used for.  In particular, even if we do
 not known $f$ precisely, it may be the case that we believe some $f$ are more likely than others or we
 may know that $f$ lives within some space of possible functions, for example functions that have
-a countable number of discontinuities.  One simple, but insightful approach, is to consider the 
+a countable number of discontinuities.  
+
+One simple, but insightful approach, is to consider the 
 \emph{minimax} optimal proposal, i.e. the proposal that has the minimum variance it $f$ is the
-most adversarial possible function for that proposal.  Imagine that we have $N$ independently drawn weighted samples
+most adversarial possible function for that proposal, under the assumption that the function
+values are independent for different points, i.e. that knowing $f(\theta)$ provides no information
+about $f(\theta+\varepsilon)$.  Assume further that we are in the pre-normalized case so that
+our estimator is unbiased.
+Now imagine that we have $N$ independently drawn weighted samples
 $\{\hth_n,w_n\}_{n=1:N}$, which thus have $N$ corresponding evaluations $f_n := f(\hth_n)$.
-The variance of our estimator is now
+By the unbiasedness of the estimator, we have that 
+\begin{align}
+\norm{I_N-I}_2^2 &= \E \left[\left(\sum_{n=1}^{N} w_n f_n\right)^2\right].
+\end{align}
+We further presume that $\sum_{n=1}^{N}w_n = 1$ and $\sum_{n=1}^{N} \|f_n\| = 1$ to
+preclude the ability to provide an improved solution simply by scaling the problem.
+Under these restrictions, we see that the worst case set of $f_n$ is when $f_{n^*}=1$
+and $f_n = 0, \; \forall n\neq n^*$ where $n^*$ is the index of the largest weight.
+The set of weights that minimizes the variance under the worst case $\{f_n\}_{n=1}^{N}$
+is then for all the weighs to be equal, as this minimizes $w_{n^*} f_{n^*}$.  Consequently,
+we see that the minimax proposal under our assumptions is $q(\theta)=\pi(\theta)$.
+This result is perhaps not surprising as it effectively states that the best sample representation 
+of $\pi(\theta)$ for an unknown future use is to sample from that distribution directly.
 
-OHagan
+Nonetheless, this point of view is not without criticism in the 
+literature~\citep{o1987monte,ghahramani2003bayesian,briol2015probabilistic}.  Most of 
+this criticism revolves around the valid point that in practice the value of $f(\theta)$ 
+does convey information about $f(\theta+\varepsilon)$ and so the correlation between 
+samples such be taken into account when making an estimation.  Though the thrust of
+this argument is mostly directed towards changing the Monte Carlo method, and in particular
+importance sampling, at a more fundamental level, the same arguments would still suggest
+that it is can be beneficial to use a proposal that is more diffuse than the target, thereby
+reducing the correlation between the produced samples.
 
-\todo[inline]{Effective sample size stuff}
+\subsubsection{Effective Sample Size}
+\label{sec:inf:foundation:ess}
 
+\todo[inline]{Write Me}
 
 \subsubsection{Resampling}
-\label{eq:inf:foundation:resampling}
+\label{sec:inf:foundation:resampling}
 
 A useful feature of SNIS is that it can be used to produce unweighted samples
 by \emph{sampling with replacement} from the set of produced samples in proportion
