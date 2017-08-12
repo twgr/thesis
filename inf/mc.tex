@@ -142,7 +142,8 @@ when mathematical rigour will require us to distinguish between these alternativ
 However, for most practical purposes, any one of these notions of convergence will be sufficient 
 to informally guarantee that an estimator will return the correct answer if provided 
 with sufficient samples.  Therefore those less interested in theoretical details may wish to
-skip Sections~\ref{sec:inf:mc:conv:prob} and~\ref{sec:inf:mc:conv:as} on first reading.
+skip Sections~\ref{sec:inf:mc:conv:prob},~\ref{sec:inf:mc:conv:as} and~\ref{sec:inf:mc:conv:dist}
+on first reading.
 
 \subsubsection{$L^p$-Convergence}
 \label{sec:inf:mc:conv:Lr}
@@ -162,7 +163,8 @@ $\E \left[(I_N-I)^2\right] = \norm{I_N-I}_2^2$.  We further define the notion of
 as being the space of random variables for which $\norm{X}_p < \infty$.  We can now
 formally define $L^p$-convergence as follow.
 \begin{definition}[$L^p$-convergence]
-A sequence $X_N$ converges in its $L^p$-norm to $X$ where $p\ge1$ if $X\in L^p$, each $X_N \in L^p$, and
+A sequence of random variables $X_N$ converges in its $L^p$-norm to 
+$X$ where $p\ge1$ if $X\in L^p$, each $X_N \in L^p$, and
 \begin{align}
 \lim\limits_{N\rightarrow\infty} \norm{X_N-X}_p=0. \label{eq:inf:Lp-conv-formal}
 \end{align}
@@ -189,7 +191,7 @@ At a high level, convergence in probability between two random variables (or bet
 a constant) means that they become arbitrary close to one another with high probability.  More
 formally we have the following definition.
 \begin{definition}[Convergence in probability]
-A sequence $X_N$ converges in probability to $X$ if, for every $\varepsilon>0$,
+A sequence of random variables $X_N$ converges in probability to $X$ if, for every $\varepsilon>0$,
 \begin{align}
 \lim\limits_{N\rightarrow\infty} P(\left|X_N-X\right|\ge\varepsilon)=0.
 \end{align}
@@ -264,7 +266,7 @@ convergence in probability suggests the rate at which an event happens tends to 
 sure convergence means that there is some point in time after which the event never happens
 again.  More formally we have the following definition
 \begin{definition}[Almost sure convergence]
-A sequence $X_N$ converges almost surely to $X$ if
+A sequence of random variables $X_N$ converges almost surely to $X$ if
 \begin{align}
 	P\left(\lim\limits_{N\rightarrow\infty} X_N=X\right)=1.
 \end{align}
@@ -283,6 +285,28 @@ follows.
 The proof is somewhat more complicated that weak law and so is not provided here, but can
 be found in, for example, Theorem 2.4.1 of~\cite{durrett2010probability}.
 
+\subsubsection{Convergence in Distribution}
+\label{sec:inf:mc:conv:dist}
+
+At a  high level, convergence in distribution states that the a sequence of variables become
+an increasingly closely distributed to a target distribution.  Whereas our previous notions of
+convergence ensure that our sequence of random variables converge to a particular value, 
+convergence in distribution only implies that our sequence of random variables tends towards
+having a particular distribution.  For example, a variable might converge in distribution to
+having a unit normal distribution, whereas a different variable might converge in probability
+to zero. More formally, we can define convergence in distribution as follows.
+\begin{definition}[Convergence in distribution]
+	A sequence of random variables $X_N$ converges in distribution $X$  if
+	\begin{align}
+		\lim\limits_{N\rightarrow\infty} P(X_N \le x) = P(X \le x)
+	\end{align}
+	for every $x$ at which $P(X\le x)$ is continuous, where $P(X_N \le x) $ and $P(X \le x)$
+	are the cumulative distribution functions for $X_N$ and $X$ respectively.
+\end{definition}
+ Because it only requires that a variable has a particular distribution, rather then an
+ exact value, convergence in distribution is a weaker form of convergence than those previously
+ discussed and is implied by any of the other forms of convergence.  
+
 \subsection{The Central Limit Theorem}
 \label{sec:inf:mc:clt}
 
@@ -295,4 +319,77 @@ require that the variables are i.i.d., meaning we can use it do demonstrate conv
 where samples are correlated, such as occurs when doing MCMC inference as shown in
 Section~\ref{sec:inf:foundation:mcmc}.
 
-In the i.i.d. case, the CLT is as follows...
+In the i.i.d. case, the CLT is as follows.
+\begin{theorem}[Central Limit Theorem]
+	\label{the:inf:clt}
+Assume $X_1,\dots,X_N$ is a sequence of i.i.d. random variables with 
+$\E [X_i] = I$ and $\E[X_i^2]=\sigma<\infty$ for all  $i \in \{1,\dots,N\}$. Let 
+$I_N := \frac{1}{N} \sum_{n=1}^{N} X_n$ be the
+sample average of this sequence.  Then $\sqrt{N}\left(I_N-I\right)/\sigma$ converges
+in distribution to the unit normal:
+\begin{align}
+\lim\limits_{N\rightarrow\infty} P\left(\frac{\sqrt{N}\left(I_N-I\right)}{\sigma} \le z\right)
+=\Phi(z)= \int_{-\infty}^{z} \frac{1}{2\pi} \exp(-\frac{\zeta^2}{2}) d\zeta \quad \forall z\in\real
+\end{align}
+where $\Phi(z)$ is the cumulative distribution function for the unit normal.
+Furthermore, if $\sigma_N^2 = \frac{1}{N-1} \sum_{n=1}^{N} \left(X_N-I_N\right)^2$ is
+the empirical estimate of the variance of $X_N$ (including Bessel's correction), then
+$\sqrt{N}\left(I_N-I\right)/\sigma_N$ also converges
+in distribution to the unit normal.
+\end{theorem}
+\begin{proof}
+	See, for example,~\cite{durrett2010probability}.
+\end{proof}
+The second result here is especially key as it will allow us to calculate consistent confidence intervals
+on our estimates without needing to know $\sigma$ as we can instead use our empirical estimate
+\begin{align}
+	\label{eq:inf:emprical-var}
+	\sigma_N^2 = \frac{1}{N-1} \sum_{n=1}^{N} \left(X_N-I_N\right)^2 \quad \mathrm{where} 
+	\quad I_N = \frac{1}{N}\sum_{n=1}^{N}X_N.
+\end{align}
+The form of~\eqref{eq:inf:emprical-var} might at first look at bit strange - why is the normalizing
+term $1/(N-1)$ instead of $1/N$?  Although replacing $1/(N-1)$ term with $1/N$ would still lead
+to a consistent estimator, this estimator turns out to be biased whereas~\eqref{eq:inf:emprical-var}
+if in fact unbiased.  The bias correction $N/(N-1)$ is known as Bessel's correction, while the proof
+that~\eqref{eq:inf:emprical-var} is unbiased follows from straightforward algebraic manipulations.
+As a consequence, $\sigma_N^2 \asto \sigma$ by the strong LLN, from which the second result
+in Theorem~\ref{the:inf:clt} follows from the first by Slutsky's theorem (see ~\cite{durrett2010probability}).
+
+Imagine we want to construct a confidence interval on our estimate $I_N$ such that there is
+a probability $0<\alpha<1$ that $I$ is in the range $[I_N-\varepsilon,I_N+\varepsilon]$.  Using
+the CLT we can do this as follows
+\begin{align}
+	\label{eq:inf:conf-int}
+	\alpha := P(I_N-\varepsilon &\le I \le I_N+\varepsilon ) = P(-\varepsilon \le I_N-I \le \varepsilon) \nonumber\\
+	&= P\left(-\frac{\sqrt{N}\varepsilon}{\sigma_N}\le \frac{\sqrt{N}\left(I_N-I\right)}{\sigma_N}
+				\le\frac{\sqrt{N}\varepsilon}{\sigma_N}\right) \nonumber\\
+	&\approx \Phi\left(\frac{\sqrt{N}\varepsilon}{\sigma_N}\right)-
+					\Phi\left(-\frac{\sqrt{N}\varepsilon}{\sigma_N}\right) = 2\Phi\left(\frac{\sqrt{N}\varepsilon}{\sigma_N}\right)-1
+\end{align}
+where as before $\Phi(\cdot)$ is the cumulative distribution function for the unit
+normal. Now rearranging for $\epsilon$ we have that
+\begin{align}
+	\varepsilon = \frac{\sigma_N\Phi^{-1}\left(\frac{\alpha+1}{2}\right)}{\sqrt{N}}
+\end{align}
+and therefore the confidence interval on $I_N$ that
+\begin{align}
+P\left(I_N-\frac{\sigma_N\Phi^{-1}\left(\frac{\alpha+1}{2}\right)}{\sqrt{N}} 
+	\le I \le I_N+\frac{\sigma_N\Phi^{-1}\left(\frac{\alpha+1}{2}\right)}{\sqrt{N}} \right)  = \alpha.
+\end{align}
+Thus for example if we set $\alpha=0.99$ then $\Phi^{-1}\left(\frac{\alpha+1}{2}\right)\approx 2.576$
+and our confidence interval $99\%$ confidence interval for $I$ is
+ $I_N \pm \frac{2.576 \sigma_N}{\sqrt{N}}$.  We reiterate that these confidence intervals are exact
+ in the limit $N\to\infty$, but approximate for finite $N$.  As one is often far from the asymptotic
+ regime, care is often, therefore, required in interpreting them.  Nonetheless, the ability to
+ estimate realistic uncertainties for sufficiently large $N$ is an extremely powerful result.
+ 
+Through most of this section we have assumed that our random variables are i.i.d..
+In fact, neither the assumption of identically distributed nor that of independence is actually
+necessary for the CLT to hold.  One can instead use the concept of \emph{strong mixing}, namely
+that variables sufficiently far apart in the sequence are independent, to generalize beyond the i.i.d.
+setting.  This is critical for proving the convergence of the numerous \mc inference schemes, such
+as all MCMC methods, that
+do not produce independent samples but instead rely on the samples converging in distribution
+to the target.  It is beyond the scope of this thesis to go into these more general forms of the CLT
+in depth, so we simply note their critical importance and refer the reader to~\cite{durrett2010probability}
+for a comprehensive introduction.
