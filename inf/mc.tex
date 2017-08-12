@@ -120,6 +120,19 @@ our estimator using $N$ samples, is $1/N$ times the mean squared error of an est
 a single sample, which is itself equal to the variance of $f(\theta)$.  As $N\rightarrow\infty$, we thus
 have that our expected error goes to $0$.
 
+A key upshot of this result is that the difference between our empirical estimate and the true value
+$I_N-I$ should be of order $O(1/\sqrt{N})$.  In some way this is rather slow; deterministic numerical
+integration schemes of have much fast convergence theoretical convergence rates.  For example,
+Simpson's rule has a a convergence rate of $O(1/n^4)$ for one dimensional functions.  However, this
+requires smoothness assumptions on $f$ and, more critically, the convergence rate diminishes rapidly
+in higher dimensions.  As such, \mc is often an inferior way of estimate integrals for smooth functions
+in low dimensions.  However, \mc scales substantially more gracefully to higher dimensions than
+alternatives.  Looking at~\eqref{eq:inf:LLN-informal}, we see that the dimensionality of the problem
+only effects the \mc convergence rate through changes in the constant factor $\sigma_{\theta}$.  Though
+this will often increase with dimensionality, it will generally do so substantially less aggressively
+then typical exponential decrease in converge rate of deterministic numerical integration schemes
+with dimension.  \mc therefore tends to dominate for moderate to high dimensional problems.
+
 \subsection{Convergence of Random Variables}
 \label{sec:inf:mc:conv}
 
@@ -270,4 +283,16 @@ follows.
 The proof is somewhat more complicated that weak law and so is not provided here, but can
 be found in, for example, Theorem 2.4.1 of~\cite{durrett2010probability}.
 
-\todo[inline]{Central limit theorem so can talk about confidence intervals of estimates}
+\subsection{The Central Limit Theorem}
+\label{sec:inf:mc:clt}
+
+The central limit theorem (CLT) is a core result in the study of \mc methods.  In its simplest form,
+it states that the sum of $N$ i.i.d. random variables tends towards a Gaussian in the limit $N\to\infty$.
+While the LLN demonstrated the convergence of the average of i.i.d. random variables towards
+the true mean, the CLT provides a means of constructing consistent confidence intervals of our estimate
+$I_N$ by exploiting its asymptotic normality.  Furthermore, the are variants of the CLT that do not
+require that the variables are i.i.d., meaning we can use it do demonstrate convergence in scenarios
+where samples are correlated, such as occurs when doing MCMC inference as shown in
+Section~\ref{sec:inf:foundation:mcmc}.
+
+In the i.i.d. case, the CLT is as follows...
