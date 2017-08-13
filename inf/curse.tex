@@ -1,0 +1,127 @@
+% !TEX root = ../main.tex
+
+In this section we digress from introducing specific inference methods themselves
+to talk about a common problem faced by most inference methods, the
+\emph{curse of dimensionality}.  At a high-level the curse of dimensionality is a tendency
+of modelling and numerical procedures to get harder as the dimensionality increases, 
+often at an exponential rate.  If not managed properly, it can cripple the performance of
+inference methods and it is main reason the two procedures discussed so far, rejection
+sampling and importance sampling, are in practice only used for very low dimensional problems.
+At its core, it stems from an increase of the size (in an informal size) of a problem as the
+dimensionality increases.  This is easiest to see for discrete problems.   Imagine we are calculating
+an expectation over a discrete distribution of dimension $D$ where each dimension has $K$
+possible values.  The cost of enumerating all the possible combinations scales as $K^D$ and thus
+increases exponentially with $D$; even for modest values for $K$ and $D$ this will 
+be prohibitively large.
+
+The curse of dimensionality extends far beyond problems of enumeration.  It will be felt to
+some degree or another by almost all approaches for inference and modelling more generally,
+but its effect will be most pronounced for methods that try to explicitly model the target
+space.  As a geometrical demonstration of this, consider the effect of dimensionality on 
+the sampling by rejection approach introduced at the start of Section~\ref{sec:inf:foundation:rejection} where to
+sample uniformly from within some shape we sample uniformly from
+some bounding shape or box containing the target shape and then take only the samples
+that fall within the target.  For simplicity we will presume that the target shape is a hypersphere and that
+the bounding shape is the smallest hypercube that encloses that hypersphere.  Our acceptance rate,
+and thus the efficiency of the algorithm, will be equal to the ratio of the two Lebesgue 
+measures, i.e. the ratio of the two hyper-volumes.  
+For an even number of dimensions
+the hyper-volume of the $D$-dimensional hypersphere with radius $r$ is $V_{s} = \frac{\pi^{D/2}r^D}{(D/2)!}$
+and the hyper-volume of the enclosing hypercube is $V_c = (2r)^D$, giving a ratio of
+$\frac{V_s}{V_c} = \frac{\pi^{D/2}}{(D/2)! 2^D} = \left(\frac{\sqrt{\pi}}{2}\right)^D\frac{1}{(D/2)!}$.
+The first of these terms decreases exponentially and second
+super-exponentionally with $D$ (noting that $(D/2)!>(D/6)^{(D/2)}$) and thus quickly becomes
+very small.  For example, $D=10, 20$, and $100$ respectively gives ratios of approximately
+$2.5 \times 10^{-3}$, $2.5 \times 10^{-8}$, and $1.9\times 10^{-70}$.  
+Consequently, our acceptance rate will diminish
+super-exponentially with the number of dimensions and our approach will quickly become
+infeasible in higher dimensions.
+
+An immediate possible criticism of this analysis would be to suggest that approximation of the
+target shape provided by our bounding shape is simply increasingly poor as the dimensionality 
+increases and that we should choose 
+a better approximation.  Although this is true, the key realisation is that achieving a good approximation
+is increasingly difficult in high dimensions, typically exponentially so.
+To demonstrate this, imagine we instead use an arbitrary bounding shape defined in polar
+co-ordinates such that the error on the radius at the any given point is at most $\varepsilon$
+(i.e. the radius of our bounding shape is between $r$ and $r+\varepsilon$ at all points).
+The hyper-volume in which our approximation might live for an even number of dimensions
+is given by
+\begin{align}
+\label{eq:inf:vol-edge}
+V_{\varepsilon} = \frac{\pi^{D/2}(r+\epsilon)^D}{(D/2)!}-\frac{\pi^{D/2}r^D}{(D/2)!}
+= V_s \left((1+\varepsilon)^D-1\right).
+\end{align}
+Consequently, we have that the ratio $\frac{V_{\varepsilon}}{V_s}$ increases exponentially with $D$
+and that for sufficiently large $D$ and a fixed $\varepsilon$ the amount of space in our tolerance
+region will become substantially larger than the target hyper-volume, leading to very low acceptance
+rates.
+
+Flipping this on its head, we can ask the question how does $\varepsilon$ need to vary
+to ensure that $V_{\varepsilon}/V_s$ remains constant?  A quick manipulation shows
+that $\varepsilon = \left(\frac{V_{\varepsilon}}{V_s}+1\right)^{1/D}-1$ and therefore that
+$\frac{\log \left(\frac{V_{\varepsilon}}{V_s}+1\right)}{D} \ge \log(1+\varepsilon) \approx \varepsilon$
+for small values of $\varepsilon$.  Thus we only need to decrease $\varepsilon$ roughly
+in proportion to $\frac{1}{D}$ to achieve a fixed ratio.  Initially this would not seem
+so bad.  For example, if $D=1000$ we
+roughly need $\varepsilon \le 6.9 \times 10^{-4}$ to get $V_{\varepsilon}/V_s \le 1$.
+However, this misses the
+key difficulty caused by~\eqref{eq:inf:vol-edge}: the higher $D$ is, the more difficult it is
+to accurately model the target shape and keep $\varepsilon$ small.  
+It follows from~\eqref{eq:inf:vol-edge} that as $D$ increases, the more the hyper-volume
+of the sphere is concentrated at the surface.  This generalized to non-spherical targets and
+means that accurate modelling the surface of our target is essential in high dimensions.
+Unfortunately, the this task becomes rapidly more difficult with increasing dimensionality.  
+
+Consider, for example,
+regressing the surface of the target by using a number of inducing points spread over the
+surface.  As the dimensionality increases, these become increasingly far apart from one
+another and so the more points we need to accurately model the surface.  For example, the
+probability of two points uniformly distributed on the surface of a sphere being within
+some target distance of one another decreases exponentially
+with the dimensionality of the sphere.  This can be seen by noting that a necessary condition
+for two points to be within $d$ of each other the discrepancy of each individual dimension 
+must be less than $d$.  In other words, if we denote the overall distance as $\delta$ and 
+the distance in each dimension as $\delta_i$ then we have 
+\[
+P(\delta \le d)\le P(\delta_1 \le d)  P(\delta_2 \le d)  \dots  P(\delta_D \le d) 
+\]
+and so $P(\delta \le d)$ must decrease exponentially with $D$.  
+If the correlation between points is proportional to their euclidean distance, then
+we will subsequently need an exponentially large number of points in the dimension
+to model the surface to a given accuracy.  Consequently, we see that not only are we
+increasingly punished for any discrepancies between our approximation and the target
+as the dimensionality increases, it rapidly becomes harder to avoid these discrepancies
+in the first place.
+
+One can informally think of the proposals we have introduced thus-far as being
+approximations to the target distribution: complications with tail behaviour aside, it will
+generally be the case that the better the proposal approximates the target, the better the
+inference will perform.  This typically leads to catastrophically bad performance for
+importance sampling and rejection sampling in high dimensions, for which this approximation
+breaks down for the reasons we have just outlined.  To give a simple example, imagine that
+our target is an isotropic unit Gaussian and we use an independent student-t distribution
+with $\nu=2$ in each dimension as the proposal.  We have that the weights are as follows
+\begin{align}
+w(\theta) = \frac{\pi(\theta)}{q(\theta)} &= \prod_{i=1}^{D} \frac{\exp(-\theta_d^2/2)/\sqrt{2\pi}}
+{\frac{\Gamma(1.5)}{\sqrt{2\pi}}\left(1+\theta_d^2/2\right)^{-3/2} } =\prod_{i=1}^{D} \frac{2 \exp(-\theta_d^2/2) \left(1+\theta_d^2/2\right)^{3/2}}{\sqrt{\pi}}.
+\end{align}
+It follows that the variance of the weights under the proposal increases exponentially
+with $D$ as follows
+\begin{align}
+\var_{q(\theta)} \left[w(\theta)\right] &= \int w^2(\theta)q(\theta)d\theta -
+\left(\int w(\theta)q(\theta)d\theta\right)^2 \nonumber\\
+&=-1+ \prod_{i=1}^{D} \int_{-\infty}^{\infty} w^2(\theta_d)q(\theta_d)d\theta_d \nonumber\\
+&=-1+\prod_{i=1}^{D} \int_{-\infty}^{\infty} \frac{\sqrt{2}\exp(-\theta_d^2)\left(1+\theta^2_d/2\right)^{(3/2)}}
+{\pi}d\theta_d \nonumber \\
+&\approx 1.1455^D-1
+\end{align}
+where we have used the fact that the integral actually has a closed form solution
+using modified Bessel functions.  We thus see that our effective sample size
+will drop exponentially quickly with $D$ and that our inference will break down if
+the dimensionality is too high.
+
+\begin{itemize}
+	\item Occupying a small area of the space (manifolds) / impossibility if it does not (sparsity)
+	\item How we can overcome it
+\end{itemize}

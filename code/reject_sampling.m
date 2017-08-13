@@ -5,7 +5,7 @@ prior = @(t) t.^2.*exp(-t)/2;
 thetas = linspace(0,20,1e6);
 y = 5;
 pris = prior(thetas);
-lik = @(t,y) gamma(1.5)./(sqrt(2*pi)*(1+(y-t).^2/2));
+lik = @(t,y) gamma(1.5)./(sqrt(2*pi)*(1+(y-t).^2/2).^1.5);
 liks = lik(thetas,y);
 pf = @(t,y) (t^2.*exp(-t))./((t - y).^2 + 2);
 I = sum(diff(thetas).*pris(2:end).*liks(2:end));
@@ -20,16 +20,16 @@ axlim = [0,15];
 aylim = [0,0.16];
 interpreter = 'latex';
 
-C = 0.52;
+C = 0.39;
 shape = 3;
 scale = 1.75;
 qs = gampdf(thetas,shape,scale);
-point1=3;
+point1=4;
 point2=6.5;
 txtoff = 0.2;
 vtxtoff = -0.015;
 sc_point1 = 0.8;
-sc_point2 = 1.5;
+sc_point2 = 2;
 
 figure('units','normalized','outerposition',[0 0 1 1]);
 plot(thetas,C*posts,'LineWidth',line_width,'Color',[0.929000000000000   0.694000000000000   0.125000000000000]);

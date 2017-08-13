@@ -5,7 +5,7 @@ prior = @(t) t.^2.*exp(-t)/2;
 thetas = linspace(0,20,1e6);
 y = 5;
 pris = prior(thetas);
-lik = @(t,y) gamma(1.5)./(sqrt(2*pi)*(1+(y-t).^2/2));
+lik = @(t,y) gamma(1.5)./(sqrt(2*pi)*(1+(y-t).^2/2).^1.5);
 liks = lik(thetas,y);
 pf = @(t,y) (t^2.*exp(-t))./((t - y).^2 + 2);
 I = sum(diff(thetas).*pris(2:end).*liks(2:end));
@@ -30,7 +30,7 @@ wSc = 1;
 ws = wSc*joints./qs;
 
 %f = @(t) 0.5*abs(sin(t)./t);
-f = @(t) t.^2/25;
+f = @(t) t.^2/50;
 fs = f(thetas);
 
 figure('units','normalized','outerposition',[0 0 1 1]);

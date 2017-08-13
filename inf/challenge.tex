@@ -105,9 +105,9 @@ for most Bayesian inference tasks, we consider the following a simple example
 p(\theta) &= \textsc{Gamma}\left(\theta; 3, 1\right) = \frac{\theta^2 \exp(-\theta)}{2},
  \quad \theta\in\left(0,\infty\right), \\
 p(y=5|\theta) &= \textsc{Student-t}\left(5-\theta;2\right) = 
-\frac{\Gamma (1.5)}{\sqrt{2\pi}}\left(1+\frac{\left(y-\theta\right)^2}{2}\right)^{-1}, \\
-p(\theta |y=5) &\approx \frac{\theta^2
-	 \exp(-\theta)}{0.36629891\left(2+(5-\theta)^2\right)} \label{eq:inf:example-post}.
+\frac{\Gamma (1.5)}{\sqrt{2\pi}}\left(1+\frac{\left(y-\theta\right)^2}{2}\right)^{-3/2}, \\
+p(\theta |y=5) &\approx 5.348556 \; \theta^2
+	 \exp(-\theta)\left(2+(5-\theta)^2\right)^{-3/2}\label{eq:inf:example-post}.
 \end{align}
 \end{subequations}
 Here we have that the prior on $\theta$ is distributed according to a gamma

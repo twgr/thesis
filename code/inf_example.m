@@ -1,11 +1,15 @@
 clear all
 close all
 
+post_form = @(t) t.^2.*exp(-t).*(2+(5-t).^2).^(-1.5);
+ts = linspace(0,50,1e6);
+const_print = 1./sum(diff(ts).*post_form(ts(2:end)))
+
 prior = @(t) t.^2.*exp(-t)/2;
 thetas = linspace(0,20,1e6);
 y = 5;
 pris = prior(thetas);
-lik = @(t,y) gamma(1.5)./(sqrt(2*pi)*(1+(y-t).^2/2));
+lik = @(t,y) gamma(1.5)./(sqrt(2*pi)*(1+(y-t).^2/2).^1.5);
 liks = lik(thetas,y);
 pf = @(t,y) (t^2.*exp(-t))./((t - y).^2 + 2);
 I = sum(diff(thetas).*pris(2:end).*liks(2:end));
