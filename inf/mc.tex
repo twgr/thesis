@@ -352,7 +352,10 @@ term $1/(N-1)$ instead of $1/N$?  Although replacing $1/(N-1)$ term with $1/N$ w
 to a consistent estimator, this estimator turns out to be biased whereas~\eqref{eq:inf:emprical-var}
 if in fact unbiased.  The bias correction $N/(N-1)$ is known as Bessel's correction, while the proof
 that~\eqref{eq:inf:emprical-var} is unbiased follows from straightforward algebraic manipulations.
-As a consequence, $\sigma_N^2 \asto \sigma$ by the strong LLN, from which the second result
+Note though that the estimate of the standard deviation, $\sigma_N$, is still biased by Jensen's
+inequality.
+As a consequence of the unbiasedness, $\sigma_N^2 \asto \sigma^2$ by the strong LLN, 
+from which the second result
 in Theorem~\ref{the:inf:clt} follows from the first by Slutsky's theorem (see ~\cite{durrett2010probability}).
 
 Imagine we want to construct a confidence interval on our estimate $I_N$ such that there is
@@ -387,9 +390,11 @@ Through most of this section we have assumed that our random variables are i.i.d
 In fact, neither the assumption of identically distributed nor that of independence is actually
 necessary for the CLT to hold.  One can instead use the concept of \emph{strong mixing}, namely
 that variables sufficiently far apart in the sequence are independent, to generalize beyond the i.i.d.
-setting.  This is critical for proving the convergence of the numerous \mc inference schemes, such
-as all MCMC methods, that
+setting~\citep{jones2004markov}.  This is critical for the numerous \mc inference schemes, 
+such as MCMC methods, that
 do not produce independent samples but instead rely on the samples converging in distribution
-to the target.  It is beyond the scope of this thesis to go into these more general forms of the CLT
+to the target.  In most MCMC settings, one can also prove a CLT using reversibility of
+the Markov chain~\citep{kipnis1986central}.
+It is beyond the scope of this thesis to go into these more general forms of the CLT
 in depth, so we simply note their critical importance and refer the reader to~\cite{durrett2010probability}
 for a comprehensive introduction.

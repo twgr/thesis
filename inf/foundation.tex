@@ -378,26 +378,26 @@ may know that $f$ lives within some space of possible functions, for example fun
 a countable number of discontinuities.  
 
 One simple, but insightful approach, is to consider the 
-\emph{minimax} optimal proposal, i.e. the proposal that has the minimum variance it $f$ is the
-most adversarial possible function for that proposal, under the assumption that the function
-values are independent for different points, i.e. that knowing $f(\theta)$ provides no information
-about $f(\theta+\varepsilon)$.  Assume further that we are in the pre-normalized case so that
-our estimator is unbiased.
-Now imagine that we have $N$ independently drawn weighted samples
-$\{\hth_n,w_n\}_{n=1:N}$, which thus have $N$ corresponding evaluations $f_n := f(\hth_n)$.
-By the unbiasedness of the estimator, we have that 
-\begin{align}
-\norm{I_N-I}_2^2 &= \E \left[\left(\sum_{n=1}^{N} w_n f_n\right)^2\right].
-\end{align}
-We further presume that $\sum_{n=1}^{N}w_n = 1$ and $\sum_{n=1}^{N} \|f_n\| = 1$ to
+\emph{minimax} optimal proposal, i.e. the proposal that has the minimum error if $f$ is the
+most adversarial possible function for that proposal.
+Imagine that we have $N$ weighted samples
+$\{\hth_n,w_n\}_{n=1:N}$, with $N$ corresponding evaluations $f_n := f(\hth_n)$.
+We use these to calculate an estimate $I_N$ for the target $I$.
+Now assume that each $w_n\ge0$, $\sum_{n=1}^{N}w_n = 1$, and $\sum_{n=1}^{N} |f_n-I| = N$ to
 preclude the ability to provide an improved solution simply by scaling the problem.
-Under these restrictions, we see that the worst case set of $f_n$ is when $f_{n^*}=1$
-and $f_n = 0, \; \forall n\neq n^*$ where $n^*$ is the index of the largest weight.
-The set of weights that minimizes the variance under the worst case $\{f_n\}_{n=1}^{N}$
-is then for all the weighs to be equal, as this minimizes $w_{n^*} f_{n^*}$.  Consequently,
+The error for the estimator is given by
+\begin{align}
+\left|I_N-I\right| = \left|\sum_{n=1}^{N} w_n f_n - I\right| = \left|\sum_{n=1}^{N} w_n (f_n - I)\right|.
+\end{align}
+For any given set of weights, the most adversarial set of function evaluations is
+to have all our error at the largest weight, i.e. $|f_{n^*}-I| = N$ and $|f_{n}-I| = 0, \; n\neq n^*$
+where $n^*$ is the index of the largest weight.  For this set of adversarial $f_n$, the
+lowest error is achieved when each of the weights are equal.  Consequently,
 we see that the minimax proposal under our assumptions is $q(\theta)=\pi(\theta)$.
 This result is perhaps not surprising as it effectively states that the best sample representation 
 of $\pi(\theta)$ for an unknown future use is to sample from that distribution directly.
+As shown in the next section, this proposal will also minimize the variance of the estimator
+under the assumption that the $f_n$ are independent.
 
 Nonetheless, this point of view is not without criticism in the 
 literature~\citep{o1987monte,ghahramani2003bayesian,briol2015probabilistic}.  Most of 
@@ -412,14 +412,63 @@ reducing the correlation between the produced samples.
 \subsubsection{Effective Sample Size}
 \label{sec:inf:foundation:ess}
 
-\todo[inline]{Write Me}
+In this section we consider an important diagnostic for the performance of importance
+sampling based schemes, the \emph{effective sample size} (ESS).  In
+Section~\ref{sec:inf:mc:clt} we showed how an uncertainty estimate for a \mc
+estimator can be derived.  However, this does cannot be used when $f$ is unknown
+and even if $f$ is known, it does necessarily convey much information about how effective
+our proposal is compared to how effective it could be.  The ESS instead informally provides an
+estimated measure of the amount of information stored in our weighted sample set.
+The more information stored in the samples, the better our approximation of the posterior, and,
+at a high level, the more evenly balanced our weights, the more information they encode.
+Therefore, the ESS is a measure of how many unweighted samples would be required to
+convey the same information about the posterior as the weighted sample set.
+
+The weighted average of $N_e$ independent evaluations $\{f_n\}_{n=1}^N$, each 
+with individual variance $\sigma^2$,
+has variance $\sigma^2 / N_e$ as we showed in~\eqref{eq:inf:LLN-informal}.  Therefore,
+we can calculate the ESS of a set of weighted samples by comparing the variance of our 
+weighted estimated to the variance of an estimate using a
+set of unweighted evaluations  More specifically, the ESS will be the number of unweighted evaluations
+$N_e$ that gives an equivalent variance to our weighted estimate as follows where we
+will make use of the assumption that the $f_n$ are independent
+\begin{align}
+\frac{\sigma^2}{N_e} &= \var \left[\frac{\sum_{n=1}^{N} w_n f_n}{\sum_{n=1}^{N} w_n} \middle| 
+														\{w_n\}_{n=1}^N\right] \nonumber \\
+&= \sum_{n=1}^{N} \left(\frac{\sum_{n=1}^{N} w_n}{\sum_{n=1}^{N} w_n} \right)^2 \var [f_n] \nonumber \\
+&= \frac{\sigma^2\sum_{n=1}^{N} w_n^2}{\left(\sum_{n=1}^{N} w_n\right)^2}.
+\end{align}
+Now rearranging for $N_e$ we get
+\begin{align}
+\label{eq:inf:ess}
+N_e = \frac{\left(\sum_{n=1}^{N} w_n\right)^2}{\sum_{n=1}^{N} w_n^2}
+\end{align}
+which completes our definition for the effective sample size.  Note that $N_e$ transpires
+to be independent of $f$, so we can still use the ESS as a diagnostic when $f$ is unknown.
+It is straight forward to show using Jensen's inequality we have that $N_e\le N$ with equality
+holding if and only if all the weights are equal.  On the other hand, if all but one of the weights
+is zero, then $N_e=1$.  These two extremes respectively occur when the proposal
+is equal to the target, $q(\theta)=\pi(\theta)$, and when the proposal provides a very poor
+representation of the target.  The ESS is often therefore used for \emph{proposal adaptation},
+as a larger value of the ESS generally indicates a better proposal.
+
+However, the ESS is far from a perfect measure of sample quality.  For example, if the proposal
+perfectly matches one of the modes of the target but completely misses another larger mode, the
+ESS will usually be very high, even though the samples provide a very poor representation of the
+target.  It is not uncommon in practice to see the ESS drop drastically as more samples are added,
+due to the addition of a new dominating sample, typically indicating a region of significant target probability
+mass that had previously been missed.  Nonetheless, the ESS is still a very useful performance
+metric and is usually a reliable indicator for whether our importance sampling is struggling.  
+In particular, though the possibility of missing modes means that it is possible for the ESS to be 
+high even when the approximation of the posterior is poor, if the ESS is low then the approximation 
+of the posterior will always be poor and any subsequent estimates will, in general, be high variance.
 
 \subsubsection{Resampling}
 \label{sec:inf:foundation:resampling}
 
 A useful feature of SNIS is that it can be used to produce unweighted samples
 by \emph{sampling with replacement} from the set of produced samples in proportion
-to the particle weights.  This procedure is typically known as resampling, because we
+to the sample weights.  This procedure is typically known as resampling, because we
 are resampling samples from the empirical distribution of our original samples.
 It allows us to generate unweighted samples with importance sampling which are
 approximately distributed according to $\pi(\theta)$, with this approximation becoming
@@ -439,7 +488,7 @@ samples $\left\{\tilde{\theta}_n\right\}_{n=1}^N$ using
 a_n \sim \textsc{Discrete}\left(\left\{\bar{w}_n\right\}_{n=1}^N\right)
 \end{align}
 where $\left\{a_n\right\}_{n=1}^N$ are known as ancestor indices as they indicate which sample
-from the original sample set each particle originated from.  Note that the $a_n$ need
+from the original sample set each sample originated from.  Note that the $a_n$ need
 not be drawn independently and typically are not;~\eqref{eq:inf:resampling} instead conveys
 the required marginal distribution for each $a_n$.  
 
@@ -450,7 +499,7 @@ resampling as producing the approximation
 \label{eq:inf:resampling-post}
 \tilde{\pi}(\theta) := \sum_{n=1}^{N} \frac{k_n}{N} \delta_{\hth_n} (\theta)
 \end{align}
-where $k_n$ is the number times the sample $\hth_n$ appears in the resampled particle
+where $k_n$ is the number times the sample $\hth_n$ appears in the resampled sample
 set $\left\{\tilde{\theta}_n\right\}_{n=1}^N$.  Provided that $\E[k_n | \{w_n\}_{n=1}^N] = Nk_n$,
 then it directly follows that $\tilde{\pi}(\theta)$ is an unbiased estimate of $\hat{\pi}(\theta)$.
 Consequently the $L^2$ convergence, and thus consistency, of SNIS with resampling follows
@@ -537,7 +586,7 @@ residual resampling can be shown to dominate multinomial resampling~\citep{douc2
 To give insight into how these methods reduce the variance of eventual estimation, consider
 a case where all the weights are equal.  Because the ancestor variables are drawn independently
 for multinomial resampling, many of the of the original samples will not be present in the resampled
-set.  More precisely, the probability of any particular particle being present is given by
+set.  More precisely, the probability of any particular sample being present is given by
 \[
 P(\hth_n \in \{\tilde{\theta}\}_{n=1}^N) = 1-\left(\frac{N-1}{N}\right)^{N} 
 \overset{N\to\infty}{\longrightarrow} 1-\frac{1}{e} \approx 0.6321.
@@ -546,7 +595,7 @@ Thus substantial information is lost in the resampling.
 On the other hand, if we use any of the variance reduction techniques, each of the original samples
 will appear exactly once in the resampled set so no information is lost in this scenario.  In the
 other extreme, when all the weight is on a single sample, all the resampling schemes will behave the
-same (returning only the particle with non-zero weight).  In most practical scenarios we will be
+same (returning only the sample with non-zero weight).  In most practical scenarios we will be
 somewhere between these two extremes, but the high level intuition that multinomial resampling
 throws away more information than the other approaches will remain the same.
 
@@ -567,7 +616,7 @@ throws away more information than the other approaches will remain the same.
 		Dirichlet distribution with parameter $\alpha$, 
 		$\{\bar{w}_n\}_{n=1}^N \sim \textsc{Dirichlet}(\alpha)$, such that the
 		high $\alpha$ is, the more even the weights are on average.  The effective
-		sample size (ESS) as defined in INSERT is then calculated before an after the
+		sample size (ESS) as defined in~\eqref{eq:inf:ess} is then calculated before an after the
 		resampling is carried out, and the ratio of the ESS after to the ESS before
 		reported.  Plots show the mean across $1000$ independent trials, with the
 		error bars corresponding the to the interquartile range.
@@ -593,6 +642,8 @@ stored in the samples and so this simply happens by chance.
 
 \subsection{Markov Chain Monte Carlo}
 \label{sec:inf:foundation:mcmc}
+
+Birkhoff Ergodic Theorem
 
 \subsection{Gibbs Sampling}
 \label{sec:inf:foundation:gibbs}
