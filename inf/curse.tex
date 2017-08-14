@@ -2,8 +2,9 @@
 
 In this section we digress from introducing specific inference methods themselves
 to talk about a common problem faced by most inference methods, the
-\emph{curse of dimensionality}.  At a high-level the curse of dimensionality is a tendency
-of modelling and numerical procedures to get harder as the dimensionality increases, 
+\emph{curse of dimensionality}~\citep{bellman1961adaptive}.  At a high-level the curse of 
+dimensionality is a tendency
+of modelling and numerical procedures to get substantially harder as the dimensionality increases, 
 often at an exponential rate.  If not managed properly, it can cripple the performance of
 inference methods and it is main reason the two procedures discussed so far, rejection
 sampling and importance sampling, are in practice only used for very low dimensional problems.
@@ -116,12 +117,27 @@ with $D$ as follows
 {\pi}d\theta_d \nonumber \\
 &\approx 1.1455^D-1
 \end{align}
-where we have used the fact that the integral actually has a closed form solution
-using modified Bessel functions.  We thus see that our effective sample size
+where we have used the fact that the integral has a closed form solution.
+We thus see that our effective sample size
 will drop exponentially quickly with $D$ and that our inference will break down if
 the dimensionality is too high.
 
-\begin{itemize}
-	\item Occupying a small area of the space (manifolds) / impossibility if it does not (sparsity)
-	\item How we can overcome it
-\end{itemize}
+It is now natural to ask whether we can overcome the curse of dimensionality.  Thankfully, the
+answer in many scenarios is that we can.  It many high dimensional scenarios then our target
+distribution will typically only have significant mass in a small proportion of the total area, often
+concentrated around a lower dimensional manifold of the larger space.  This means that if
+we use inference methods that in some way exploit the structure of the target distribution and only
+search the small subset of the space with significant mass, then effective inference can still be
+performed.  When this is not the case, practical inference will typically be futile in high dimensions
+and so many inference algorithms are geared towards exploit a particular type of structure.
+As we will show in the next section, the effectiveness of MCMC methods is mostly based on 
+exploiting single modality in the target by making local moves that cause the algorithm to have
+hill-climbing style behaviour away from the mode and then sticking close to the mode once it
+is found.  Sequential \mc methods on the other hand rely on using the structure of the target
+more explicitly by using a series of stepping-stone distributions and adaptively allocating
+resources (see Chapter INSERT).  Variational and message passing methods make assumptions
+or approximations about the structure of the model to break the inference problem down
+into a number of small problems that can then be combined into an overall estimate.
+Arguably the key to all advanced inference methods is how well they can exploit structure
+in higher dimensions, while the relative performance of difference methods tends to come down
+to how suited the target is to their particular form of structure exploitation.
