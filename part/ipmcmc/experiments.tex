@@ -1,7 +1,7 @@
-% !TEX root = ../main.tex
+% !TEX root = ../../main.tex
 
 % Numerical experiments section
-\section{Experiments}
+\subsection{Experiments}
 \label{sec:experiments}
 
 To demonstrate the %validity and
@@ -16,7 +16,7 @@ APG interleaves PG steps with PIMH steps
 in an attempt to overcome the issues caused by path degeneracy in PG.  We refer to the trivially distributed versions of these algorithms as multi-start PG, PIMH and APG respectively (mPG, mPIMH and mAPG). 
 We use Rao-Blackwellization, as described in \ref{sec:allparticles}, to average over all the generated particles for all methods, weighting the independent Markov chains equally for mPG, mPIMH and mAPG. We note that mPG is a special case of iPMCMC for which $P=M$.  For simplicity, multinomial resampling was used in the experiments, with the prior transition distribution of the latent variables taken for the proposal.  $M=32$ nodes and $N=100$ particles were used unless otherwise stated.  Initialization of the retained particles for iPMCMC and mPG was done by using standard SMC sweeps.
 
-\subsection{Linear Gaussian State Space Model}
+\subsubsection{Linear Gaussian State Space Model}
 \label{sec:LGSS}
 We first consider a linear Gaussian state space model (LGSSM) with 3 dimensional latent states $x_{1:T}$, 20 dimensional observations $y_{1:T}$ and dynamics given by %\cn{It seems you use deterministic initial conditions for $x_0$, reformulate the model so you have a prior $\mu(x_1)$ instead? (also follows notation above)}
 \begin{subequations}
@@ -81,7 +81,7 @@ Figure \ref{fig:meanConv} shows convergence in the estimate of the latent variab
 		\label{fig:ESS}}
 \end{figure*}
 
-\subsection{Nonlinear State Space Model}
+\subsubsection{Nonlinear State Space Model}
 \label{sec:nlss}
 
 We next consider the one dimensional nonlinear state space model (NLSSM) considered by, among others, \citet{gordon1993novel,andrieuDH2010}

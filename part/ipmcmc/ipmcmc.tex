@@ -1,4 +1,4 @@
-% !TEX root = ../main.tex
+% !TEX root = ../../main.tex
 
 \begin{savequote}[8cm]
 	An approximate answer to the right problem is worth a good deal more than 
@@ -7,14 +7,13 @@
 \end{savequote}
 
 
-\chapter{Interacting Particle Markov Chain Monte Carlo}
+\section{Interacting Particle Markov Chain Monte Carlo}
 \label{sec:ipmcmc}
 
 In this section we introduce \emph{interacting particle Markov chain Monte Carlo} (\ipmcmc), a \pmcmc method based on an interacting pool of standard and conditional sequential Monte Carlo samplers. Like related methods, \ipmcmc is a Markov chain Monte Carlo sampler on an extended space. We present empirical results that show significant improvements in mixing rates relative to both non-interacting \pmcmc samplers, and a single \pmcmc sampler with an equivalent memory and computational budget. 
 An additional advantage of the \ipmcmc method is that it is suitable for distributed and multi-core architectures.  
 
-\input{ipmcmc/introduction.tex}
-\input{ipmcmc/background.tex}
-\input{ipmcmc/method.tex}
-\input{ipmcmc/experiments.tex}
-\input{ipmcmc/discussion.tex}
+\input{part/ipmcmc/introduction.tex}
+\input{part/ipmcmc/method.tex}
+\input{part/ipmcmc/experiments.tex}
+\input{part/ipmcmc/discussion.tex}

@@ -7,7 +7,7 @@
 	\qauthor{--- Paul Graham}
 \end{savequote}
 
-\chapter{Bayesian Optimization for Probabilistic Programs}
+\chapter{Automating Learning -- Bayesian Optimization for Probabilistic Programs}
 \label{chp:bopp}
 
 \input{bopp/abstract}
@@ -16,13 +16,6 @@
 \label{sec:IntroductionBOPP}
 
 \input{bopp/introduction}
-
-\section{Background}
-
-\input{bopp/probprog}
-
-\input{bopp/bayesOpt}
-
 
 \section{Problem Formulation}
 \label{sec:problem}
@@ -34,29 +27,29 @@
 
 \input{bopp/optimization}
 
+\subsection{Problem Independent Gaussian Process Hyperprior}
+\label{sec:app:hyperprior}
+
+\input{bopp/gp.tex}
+
 \section{Experiments}
 
 \input{bopp/experiments.tex}
+
+
+\subsection{Full Details for House Heating Experiment}
+\label{sec:app:heating}
+
+\input{bopp/house-heating.tex}
 
 \section{Discussion and Future Work}
 \label{sec:disc}
 
 \input{bopp/discussion}
 
-\newpage
-
-
 \section{Program Transformations in Detail}
 \label{sec:program-transformations}
 \input{bopp/program-transformations}
 
-
-\section{Problem Independent Gaussian Process Hyperprior}
-\label{sec:app:hyperprior}
-
-\input{bopp/gp.tex}
-
-\section{Full Details for House Heating Experiment}
-\label{sec:app:heating}
-
-\input{bopp/house-heating.tex}
+\section{Particle Methods for Model Learning}
+\label{sec:part:learning}

@@ -1,9 +1,7 @@
 % !TEX root = ../main.tex
 
-\section{Particle Based Methods}
-\label{sec:inf:smc}
-
-\todo[inline]{Maybe should move this out of the pedological section and into the ipmcmc section}
+\section{Sequential Monte Carlo}
+\label{sec:inf:smc:smc}
 
 We start by briefly reviewing sequential Monte Carlo \citep{gordon1993novel,doucet2001sequential} and the particle Gibbs algorithm \citep{andrieuDH2010}. Let us consider a non-Markovian latent variable model of the following form
 \begin{subequations}
@@ -49,8 +47,6 @@ In general, computing the posterior $p(x_{1:T}|y_{1:T})$ is intractable and we h
 	\end{spacing}
 \end{algorithm}
 
-\subsection{Sequential Monte Carlo}
-\label{sec:inf:smc:smc}
 The \smc method is a widely used technique for approximating a sequence of target distributions: in our case $p(x_{1:t}|y_{1:t}) = p(y_{1:t})^{-1} p(x_{1:t},y_{1:t}), ~t=1,\ldots,T$. 
 At each time step $t$ we 
 %assume we have access to 
@@ -80,7 +76,7 @@ where $x_{1:t}^i = (x_{1:t-1}^{a_{t-1}^i},x_t^i)$. This results in a new particl
 % 
 %   PG
 % 
-\subsection{Particle Gibbs}
+\section{Particle Markov Chain Monte Carlo Methods}
 \label{sec:inf:smc:pg}
 The \pg algorithm \citep{andrieuDH2010} is a Gibbs sampler on the extended space composed of all random variables generated at one iteration, which still retains the original target distribution as a marginal. Though \pg allows for inference over both latent variables and static parameters, we will in this paper focus on sampling of the former.  The core idea of \pg is to iteratively run \emph{conditional} sequential Monte Carlo (\csmc) sweeps as shown in Algorithm~\ref{alg:csmc}, whereby each conditional trajectory is sampled from the surviving trajectories of the previous sweep.  This \emph{retained particle} index, $b$, is sampled with probability proportional to the final particle weights $\bar{w}^i_T$. 
 
