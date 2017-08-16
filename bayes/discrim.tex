@@ -113,7 +113,7 @@ example of the differences between logistic regression (a discriminative classif
 (a generative classifier).  We will consider the binary classification case for simplicity.  Logistic regression is a linear
 classification where the class label $y \in \{0,1\}$ is predicted from the input features $x \in \real^D$ using
 \begin{align}
-\label{eq:intro:logistic}
+\label{eq:bayes:logistic}
 p(y|x,a,b) = \frac{1}{1+\exp(-y(a+b^Tx))}
 \end{align}
 where $a \in \real^D$ and $b \in \real^D$ are the parameters of the model.  The model is trained by finding the values
@@ -123,7 +123,7 @@ is to find the \emph{most likely} parameters $a^*$ and $b^*$ by minimizing the n
 \begin{align}
 \{a^*,b^*\} &= \argmin_{a\in \real^D,b\in \real^D} -\log \left(\prod_{n=1}^{N} p(y_n|x_n,a,b)\right).
 \end{align}
-Once found, $a^*$ and $b^*$ can be used with~\eqref{eq:intro:logistic} to make predictions at
+Once found, $a^*$ and $b^*$ can be used with~\eqref{eq:bayes:logistic} to make predictions at
 any possible $x$.  Logistic regression is a discriminative approach as we have directly calculated
 a characterization for the predictive distribution, bypassing any direct reasoning about the joint
 probability of the inputs and the outputs.

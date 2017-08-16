@@ -11,19 +11,19 @@ combined using Bayes' rule to give a \emph{posterior}, $p(\theta | \mathcal{D})$
 represents our updated belief about $\theta$ once the information from the data has been
 incorporated
 \begin{align}
-	\label{eq:bayes}
+	\label{eq:bayes:bayes}
 	p(\theta | \mathcal{D}) = \frac{p(\mathcal{D} | \theta)p(\theta)}{\int p(\mathcal{D} | \theta)p(\theta) d\theta} 
 	= \frac{p(\mathcal{D} | \theta)p(\theta)}{p(\mathcal{D})}.
 \end{align}
 Here the denominator, $p(\mathcal{D})$, is a normalization constant know as the \emph{marginal
 	likelihood} and is necessary to ensure $p(\theta | \mathcal{D})$ is a valid probability distribution
-(or probability density for continuous problems).  The high level interpretation of~\eqref{eq:bayes} is
+(or probability density for continuous problems).  The high level interpretation of~\eqref{eq:bayes:bayes} is
 thus that the posterior is proportional the to the prior times the likelihood.  
 
 A key feature of Bayes' rule is that it can be used in a self-similar fashion where the posterior from
 one task becomes the prior when the model is updated with more data, i.e.
 \begin{align}
-	\label{eq:intro:repeat-bayes}
+	\label{eq:bayes:repeat-bayes}
 p(\theta | \mathcal{D}_1, \mathcal{D}_2) = 
 \frac{p(\mathcal{D}_2 | \theta, \mathcal{D}_1)p(\theta | \mathcal{D}_1)}{p(\mathcal{D}_2 | \mathcal{D}_1)}
 \frac{p(\mathcal{D}_2 | \theta, \mathcal{D}_1)p(\mathcal{D}_1 | \theta) p(\theta)}

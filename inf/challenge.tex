@@ -3,9 +3,9 @@
 \section{The Challenge of Bayesian Inference}
 \label{sec:inf:challenge}
 
-In the previous chapter we introduced the concept of Bayesian modelling and showed how we
+In Chapter~\ref{chp:bayes} we introduced the concept of Bayesian modeling and showed how we
 can combine prior information $p(\theta)$ and a likelihood model $p(\mathcal{D}|\theta)$ using Bayes' rule 
-(i.e.~\eqref{eq:bayes}), to produce a posterior $p(\theta|\mathcal{D})$ on variables $\theta$ that
+(i.e.~\eqref{eq:bayes:bayes}), to produce a posterior $p(\theta|\mathcal{D})$ on variables $\theta$ that
 characterizes both our prior information and information from the data $\mathcal{D}$.  We now consider the
 problem of how to calculate (or more typically approximate) this posterior, a process 
 known as Bayesian \emph{inference}.
@@ -28,7 +28,7 @@ about the difficulties presented by Bayesian inference.
 Calculating the normalization constant in Bayesian inference is essentially a problem of
 integration.  Our target, $p(\mathcal{D})$, is the expectation of the likelihood under the prior,
 hence the name \emph{marginal likelihood}.  When $p(\mathcal{D})$ is known, the posterior can be evaluated
-exactly at any possible input point using~\eqref{eq:bayes} directly.  When it is unknown, we lack
+exactly at any possible input point using~\eqref{eq:bayes:bayes} directly.  When it is unknown, we lack
 a scaling in the evaluation of any point and so we have no concept of how relatively 
 significant that point is relative to the distribution as a whole.  For example, for a discrete
 problem then if we know the normalizing constant, we can evaluate the exact probability of any
