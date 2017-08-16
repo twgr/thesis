@@ -1,0 +1,73 @@
+% !TEX root = ../main.tex
+
+In some machine learning applications, huge quantities of data are available that dwarf the information
+that can be provided from human expertise.  It such situations, the main challenge is in processing
+and extracting all the desired information from the data to form as useful characterization,
+typically
+one which provides accurate predictions.  Such problems are typically suited to a \emph{discriminative} 
+machine learning approaches~\citep{breiman2001statistical}, such as neural
+networks~\citep{rumelhart1986learning,bishop1995neural}, 
+support vector machines~\citep{cortes1995support,scholkopf2002learning}, and decision tree 
+ensembles~\citep{breiman2001random,rainforth2015canonical}.  Discriminative machine learning approaches
+focus on directly learning a predictive model: given training data $\mathcal{D} = \left\{x_n,y_n\right\}_{n=1}^N$
+they learn a parametrized mapping $f_{\theta}$ from the inputs $x \in \mathcal{X}$ to the 
+outputs $y\in\mathcal{Y}$ that can 
+be used directly to make predictions 
+for new inputs $\tilde{x} \notin \left\{x_n\right\}_{n=1}^N$.  \emph{Training}
+uses the data $\mathcal{D}$ to estimate optimal values of the parameters $\theta^*$. \emph{Prediction}
+at a new input $\tilde{x}$ involves applying the mapping with the optimal parameters
+$\tilde{y} = f_{\theta^*}(\tilde{x})$.  Perhaps the simplest example of this is linear regression: one finds
+the hyperplane that best represents the data and then uses this hyperplane to interpolate or extrapolate
+to predict the output at previously unseen points.  
+As a more advanced example, in a neural network one uses training to learn the
+weights of the network, after which prediction can be done by running the network forwards.  If sufficient
+data is provided, discriminant approaches can be spectacularly successful in term of predictive
+performance.  Methods are typically highly flexible and can capture intricate structure in the data that
+would be hard or even impossible to establish manually.  Many approaches can also be run with little
+or no input on behalf of the user, delivering state-of-the-art performance when used
+``out-of-the-box'' with default parameters~\citep{rainforth2015canonical}.
+
+However, this black-box nature is also often their downfall.  Discriminative methods typically make
+such weak assumptions about the underlying process that is difficult to impart prior knowledge
+or domain specific expertise.  This can be disastrous if insufficient data is available as the data
+alone is unlikely to possess the required information to make adequate predictions.  Even when
+substantial data is available, there may be significant prior information available that needs to be
+exploited for effective performance.  For example, in time series modelling the sequential nature
+of the data is critically important information~\citep{liu1998sequential}.  In vision tasks the 
+knowledge that scenes are generated from objects can be invaluable~\citep{kulkarni2015picture}.
+Many problems also increase in complexity as more data is added -- ``big data'' problems are often
+actually a collection or hierarchy of many smaller problems, such that the complexity of the
+parametrization increases are more data is added.  Consider, for example, modelling interactions in
+a social network.  Adding a new user into the model increases the amount of data, but also
+requires the model to grow and accommodate the new user~\citep{ravasz2003hierarchical}.  In
+this situation it is essential to
+use an approach that respects the structure of the model, while the amount of data available
+for each individual user is often quite small, such that it will essential to use prior information
+by transferring insights gathered from some users to others.
+
+Not only does the black-box nature of many discriminative methods restrict the level of
+human input that can be imparted on the system, it often restricts the amount of insight
+and information that can be extracted from the system.  The parameters in most discriminative
+algorithms do not have physical meaning that can be queried by a user, making their operation
+difficult to interpret and hampering the process of improving the system through manual
+revision of the algorithm.  Furthermore, this typically makes them inappropriate for more
+statistics orientated tasks, where it is the parameters themselves which are of interest, rather
+than the ability for the system itself to make predictions.  For example, the parameters may
+have real world physical interpretations we wish to learn about.
+
+Most discriminative methods are also poor at providing realistic uncertainty estimates.
+Because they are typically trained in a manner that optimizes the parameters to minimize
+some loss criterion (e.g. the predictive error), they do not in general encode any uncertainty
+in either their parameters or the subsequent predictions.  Though many methods can
+produce uncertainty estimates either as a by-product or a from a post-processing step,
+these are typically mostly heuristic based, rather than stemming naturally from a statistically
+principled estimate of the target uncertainty distribution.   The lack of reliable uncertainty
+estimates can lead to overconfidence and can make discriminative methods inappropriate in
+many scenarios.  This can also reduce the composability of discriminative methods within
+larger systems as it restricts the amount of information output by the system.
+Not representing uncertainty in the parameters can also restrict the power of the resultant
+models, compared with systems that can average over different possible parameter values.
+
+These shortfalls mean that many tasks instead call for a generative 
+
+\todo[inline]{Up to here}

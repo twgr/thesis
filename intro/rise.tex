@@ -14,93 +14,56 @@ to automate and improve a wide array of computational tasks, but because it allo
 systems capable of going beyond the boundaries of human understanding and prediction, reasoning
 about and making predictions for tasks we cannot solve directly ourselves.
 
-In some machine learning applications, huge quantities of data are available that dwarf the information
-that can be provided from human expertise.  It such situations, the main challenge is in processing
-and extracting all the desired information from the data to form as useful characterization,
-typically
-one which provides accurate predictions.  Such problems are typically suited to a \emph{discriminative} 
-machine learning approaches~\citep{breiman2001statistical}, such as neural
- networks~\citep{rumelhart1986learning,bishop1995neural}, 
-support vector machines~\citep{cortes1995support,scholkopf2002learning}, and decision tree 
-ensembles~\citep{breiman2001random,rainforth2015canonical}.  Discriminative machine learning approaches
-focus on directly learning a predictive model: given training data $\mathcal{D} = \left\{x_n,y_n\right\}_{n=1}^N$
-they learn a parametrized mapping $f_{\theta}$ from the inputs $x \in \mathcal{X}$ to the 
-outputs $y\in\mathcal{Y}$ that can 
-be used directly to make predictions 
-for new inputs $\tilde{x} \notin \left\{x_n\right\}_{n=1}^N$.  \emph{Training}
-uses the data $\mathcal{D}$ to estimate optimal values of the parameters $\theta^*$. \emph{Prediction}
-at a new input $\tilde{x}$ involves applying the mapping with the optimal parameters
-$\tilde{y} = f_{\theta^*}(\tilde{x})$.  Perhaps the simplest example of this is linear regression: one finds
-the hyperplane that best represents the data and then uses this hyperplane to interpolate or extrapolate
-to predict the output at previously unseen points.  
-As a more advanced example, in a neural network one uses training to learn the
-weights of the network, after which prediction can be done by running the network forwards.  If sufficient
-data is provided, discriminant approaches can be spectacularly successful in term of predictive
-performance.  Methods are typically highly flexible and can capture intricate structure in the data that
-would be hard or even impossible to establish manually.  Many approaches can also be run with little
-or no input on behalf of the user, delivering state-of-the-art performance when used
-``out-of-the-box'' with default parameters~\citep{rainforth2015canonical}.
-
-However, this black-box nature is also often their downfall.  Discriminative methods typically make
-such weak assumptions about the underlying process that is difficult to impart prior knowledge
-or domain specific expertise.  This can be disastrous if insufficient data is available as the data
-alone is unlikely to possess the required information to make adequate predictions.  Even when
-substantial data is available, there may be significant prior information available that needs to be
-exploited for effective performance.  For example, in time series modelling the sequential nature
-of the data is critically important information~\citep{liu1998sequential}.  In vision tasks the 
-knowledge that scenes are generated from objects can be invaluable~\citep{kulkarni2015picture}.
-Many problems also increase in complexity as more data is added -- ``big data'' problems are often
-actually a collection or hierarchy of many smaller problems, such that the complexity of the
-parametrization increases are more data is added.  Consider, for example, modelling interactions in
-a social network.  Adding a new user into the model increases the amount of data, but also
-requires the model to grow and accommodate the new user~\citep{ravasz2003hierarchical}.  In
-this situation it is essential to
-use an approach that respects the structure of the model, while the amount of data available
-for each individual user is often quite small, such that it will essential to use prior information
-by transferring insights gathered from some users to others.
-
-Not only does the black-box nature of many discriminative methods restrict the level of
-human input that can be imparted on the system, it often restricts the amount of insight
-and information that can be extracted from the system.  The parameters in most discriminative
-algorithms do not have physical meaning that can be queried by a user, making their operation
-difficult to interpret and hampering the process of improving the system through manual
-revision of the algorithm.  Furthermore, this typically makes them inappropriate for more
-statistics orientated tasks, where it is the parameters themselves which are of interest, rather
-than the ability for the system itself to make predictions.  For example, their are many tasks
-where the parameters are of real world interest and we are interested not only in prediction,
-but learning about the parameters themselves.
-
-Most discriminative methods are also poor at providing realistic uncertainty estimates.
-Because they are typically trained in a manner that optimizes the parameters to minimize
-some loss criterion (e.g. the predictive error), they do not in general encode any uncertainty
-in either their parameters or the subsequent predictions.  Though many methods can
-produce uncertainty estimates either as a by-product or a from a post-processing step,
-these are typically mostly heuristic based, rather than stemming naturally from a statistically
-principled estimate of the target uncertainty distribution.   The lack of reliable uncertainty
-estimates can lead to overconfidence and can make discriminative methods inappropriate in
-many scenarios.  This can also reduce the composability of discriminative methods within
-larger systems as it restricts the amount of information output by the system.
-Not representing uncertainty in the parameters can also restrict the power of the resultant
-models, compared with systems that can average over different possible parameter values.
-
-\todo[inline]{Up to here}
-
-human insight
-
-These shortfalls mean that many tasks instead call for a generative 
-
-In many applications it is essential to use a principled \emph{probabilistic} 
+In many machine learning applications it is essential to use a principled \emph{probabilistic} 
 approach \cite{ghahramani2015probabilistic}, incorporating uncertainty and utilizing all the information at hand, 
-particularly when data is scarce.  The Bayesian paradigm provides an excellent basis upon which to do this; an area 
+particularly when data is scarce.  The \emph{Bayesian paradigm} provides an excellent basis upon which to do this; an area 
 specialist constructs a probabilistic model for data generation, conditions this on the actual observations received, 
-and, using Bayes' rule, receives an updated model incorporating this information.  Unfortunately, the historical 
-co-evolution of models and inference methods, computational restrictions, or the high level of required expertise 
-of certain techniques, all too often lead to unsatisfactory modelling assumptions and inappropriate use of off-the-shelf solutions.
+and, using Bayes' rule, receives an updated model incorporating this information.  This
+allows both information from existing expertise and from data to be combined in a statistically
+rigorous fashion.
 
-%, categorized by the rise of modern internet giants such as Google and Facebook, brings about a need for machine learning techniques to process the huge amounts of data that have recently become available.  However, there are also a plethora of machine learning problems that fall outside this ``big data'' regime --- after all, the effective size of a dataset is always relevant to the complexity of the problem at hand.  As such, there will always be need for more principled techniques that take a \emph{probabilistic} approach, incorporating uncertainty and utilizing all the information at hand.  To give an extreme example, consider the problem of selecting locations to drill for oil where each data point can cost millions of pounds to acquire and thus need to be data-efficient is paramount.
+Unfortunately, there are two key stumbling blocks that often make it difficult for this idealized
+viewpoint to be realised in practice.  Firstly, a process known as \emph{Bayesian inference} is
+required to solve the specified problems.  Bayesian inference is typically a challenging task, closely 
+related to integration, which is often computationally intensive to solve.  Furthermore, it often
+requires significant statistical expertise to implement effectively, creating a substantial barrier to
+entry.  
+
+Secondly, it can be challenging to specify models that are true to the assumptions the user
+wishes to make and the prior information available.  It can again require statistical expertise to abstract
+application specific knowledge to a valid statistical model.  Furthermore, assumptions are often made in the interest
+of the tractability of inference, rather than fidelity of the model.  Perhaps because of this, there is often
+a reliance on off-the-shelf solutions, even when these models are somewhat inappropriate for the task
+at hand.
 
 %Similar scenarios of limited data are prevalent through all areas of research; medical trials, materials testing, drug discovery, design of robotic movement and engineering design, to name but a few.  Indeed, the prevalence of such problems is so large, that the problem in solving them is arguably more one of expertise than appropriate techniques.  Bayesian approaches offer a powerful means to mathematically formalize these problems, but the required expertise to effectively solve the resulting inference can be prohibitive, or at least problematic and time consuming, particularly for those from less mathematical backgrounds.
 
-Probabilistic programming systems (PPS) \cite{carpenter2015stan,wood2014new} form a means of overcoming this dichotomy between the Bayesian ideal and common practice.  Their core philosophy is to decouple model specification and inference, the former corresponding to the user-specified program code, composing of a generative model and statements for conditioning on data, and the latter to an inference engine capable of operating on arbitrary programs.  This abstraction barrier allow users with domain specific knowledge to write models naturally, as if they were writing a simulator, without worrying about the inference, which becomes the job of the developer. %Informally one can think of PPS as the operating as inverse probability engines, outputting the conditional probability distribution or posterior.
+Probabilistic programming systems (PPS) \cite{carpenter2015stan,wood2014new} are an attempt to
+overcome this dichotomy between the Bayesian ideal and common practice.  Their core philosophy 
+is to decouple model specification and inference, the former corresponding to the user-specified 
+program code, composing of a generative model and statements for conditioning on data, and the 
+latter to an inference engine capable of operating on arbitrary programs.  This abstraction barrier 
+allow users with domain specific knowledge to write models naturally, as if they were writing a 
+simulator, without worrying about the inference, which becomes the job of the developer. Informally 
+one can think of PPS as operating as inverse probability engines, outputting the conditional 
+probability distribution implied by the generative model coupled with the observed data.
+Removing the need for users to worry about the required inference significantly reduces the 
+burden of developing new models, and makes effective statistical methods accessible to 
+non-experts.  From a developer's perspective, the abstraction can also aid in the design 
+and testing of new inference algorithms.  Furthermore, the availability of the target source 
+code, with known semantics, opens up many opportunities for new methods that would
+not otherwise be possible.
 
-%Removing the need for users to worry about the required inference significantly reduces the burden of developing new models, and makes effective statistical methods accessible to non-experts.  From a developer's perspective, the abstraction can also aid in the design and testing of new inference algorithms.  Furthermore, the availability of the target source code, with known semantics, opens up many opportunities for new methods that would not otherwise be possible.
+The core theme of this thesis is in improving and extending probabilistic programs.  However,
+doing this will require us to make advancements in a number of different research areas such
+as particle Markov chain Monte Carlo methods~\citep{andrieu2010particle,rainforth2016interacting},
+Bayesian optimization~\citep{movckus1975bayesian,rainforth2016bayesian}, and \mc
+fundamentals~\cite{metropolis1949monte,rainforth2016pitfalls}.  Our aim is to both improve
+the performance of PPS by improving the underlying inference engines, increasing
+efficiency and the range of models for which inference can be tractably provided for, and to increase
+the scope of problems which can be covered by PPS more generally.  In particular, we
+will extend PPS beyond the standard Bayesian inference setting to more general frameworks
+such as marginal maximum a posteriori estimation and nested estimation.  This opens up a number
+of fascinating opportunities, such as the prospect of constructing systems for automating the
+design of adaptive experiments and for carrying out principled, probabilistic, engineering simulations
+that explicitly incorporate the uncertainty in the task at hand.
