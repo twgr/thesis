@@ -1,0 +1,58 @@
+% !TEX root = ../main.tex
+
+At its core, the Bayesian paradigm is simple, intuitive, and compelling: for any task involving
+learning from data we start with some prior knowledge and then update that knowledge to
+incorporate information from the data.  Imagine we are trying to reason about some variables
+or parameters $\theta$.  We can encode our initial belief as relative probabilities for different
+possible instances of $\theta$, this is known as a \emph{prior} $p(\theta)$.  Given observed data
+$\mathcal{D}$, we can characterize how likely different values of $\theta$ are to have given rise
+to that data using a \emph{likelihood function} $p(\mathcal{D}|\theta)$.  These can then be
+combined using Bayes' rule to give a \emph{posterior}, $p(\theta | \mathcal{D})$ that 
+represents our updated belief about $\theta$ once the information from the data has been
+incorporated
+\begin{align}
+	\label{eq:bayes}
+	p(\theta | \mathcal{D}) = \frac{p(\mathcal{D} | \theta)p(\theta)}{\int p(\mathcal{D} | \theta)p(\theta) d\theta} 
+	= \frac{p(\mathcal{D} | \theta)p(\theta)}{p(\mathcal{D})}.
+\end{align}
+Here the denominator, $p(\mathcal{D})$, is a normalization constant know as the \emph{marginal
+	likelihood} and is necessary to ensure $p(\theta | \mathcal{D})$ is a valid probability distribution
+(or probability density for continuous problems).  The high level interpretation of~\eqref{eq:bayes} is
+thus that the posterior is proportional the to the prior times the likelihood.  
+
+A key feature of Bayes' rule is that it can be used in a self-similar fashion where the posterior from
+one task becomes the prior when the model is updated with more data, i.e.
+\begin{align}
+	\label{eq:intro:repeat-bayes}
+p(\theta | \mathcal{D}_1, \mathcal{D}_2) = 
+\frac{p(\mathcal{D}_2 | \theta, \mathcal{D}_1)p(\theta | \mathcal{D}_1)}{p(\mathcal{D}_2 | \mathcal{D}_1)}
+\frac{p(\mathcal{D}_2 | \theta, \mathcal{D}_1)p(\mathcal{D}_1 | \theta) p(\theta)}
+{p(\mathcal{D}_2 | \mathcal{D}_1) p(\mathcal{D}_1)} 
+\end{align}
+This means their is something quintessentially human about the Bayesian paradigm: we learn
+from our experiences by updating our beliefs after making observations.  Our model of the world
+is constantly evolving over time and is the cumulation of experiences over a lifetime.  
+If we make an observation that goes against our prior experience, we do not suddenly make
+drastic changes to our underlying belief, but if we see multiple corroborating observations our
+view will change.
+This also sometimes leads to less savory elements of human behavior -- once we have developed
+a strong prior belief about something, we can take substantial convincing to change our mind, even
+if that prior belief is high illogical.
+
+There is similarly something distinctively Bayesian to the scientific process itself.  In science we construct models
+to explain observed phenomena and then run experiments to validate how well our model matches
+real observations.  We then update and improve our model accordingly in a never ending process of
+increasing understanding for the world around us.  We can never hope to truly understand the workings
+of the universe  -- after all it is, at least for practical purposes, fundamentally random~\citep{rainforth2013random} 
+-- and so we can hope only to construct increasingly accurate and pertinent models.
+
+\todo[inline]{To give a more concrete example of Bayesian inference ....}
+
+For such a fundamental theorem, Bayes' rule has a remarkably simple derivation, following almost
+directly from axioms of probability theory.  Though not technically axiomatic, one can summarize
+the basic laws of probability using the sum rule and the product rule defined as follows.
+
+
+\subsection{Graphical Models}
+
+\subsection{Challenges and Shortcomings}
