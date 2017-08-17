@@ -1,12 +1,13 @@
 % !TEX root = ../main.tex
 
-\chapter*{A Primer on Probability Theory}
-\addcontentsline{toc}{chapter}{A Primer on Probability Theory}
+\chapter{A Brief Introduction to Probability Theory}
+\label{chp:prob}
 
-This primer provides some essential background on probability theory and outlines conventions
+Before going into the main content of the paper, we first provide a quick primer on probability
+theory, providing some essential background and outlining conventions
 that we will use throughout the thesis.  Readers familiar with the differences between a probability
 and a probability density and between a random variable and an outcome may wish skip to this
-section, referring back as needed for clarification on any conventions undertaken.  Others
+Chapter, referring back as needed for clarification on any conventions undertaken.  Others
 will hopefully find it to be a gentle introduction to the key concepts that will be needed to
 be understood to follow the rest of the thesis.  Notation has been chosen with accessibility 
 as the primary aim and we will avoid
@@ -14,19 +15,26 @@ the use measure theory except were it is absolutely necessary.  Nonetheless, we 
 approach to probability is essential for a more rigorous understanding and refer
 the interested reader to~\cite{durrett2010probability}.
 
+\section{Random Variables, Outcomes, and Events}
+\label{sec:prob:random}
+
 A \emph{random variable} is a variable
 whose realization is currently unknown, such that it can take on multiple different
 values or \emph{outcomes}.\footnote{Technically speaking, outcomes are points in \emph{sample
 		space} and random variables are measurable functions from outcomes to a measurable
-	space.  As we said though, we are trying to avoid the niceties of measure theory\dots}
+	space.  As we said though, we are trying to avoid the niceties of measure theory when
+	 possible\dots}
 A set of one of more outcomes is known as an \emph{event}.
 For example, if we roll a fair six-sided dice then the result of the roll is a random variable, 
-while rolling a $4$ both a possible outcome and a possible event.  Rolling a number greater
+while rolling a $4$ is both a possible outcome and a possible event.  Rolling a number greater
 or equal to $5$ on the other hand, is a possible event but not a possible outcome: it is a set
 of two individual outcomes, namely rolling a $5$ and rolling a $6$.  Outcomes are
 \emph{mutually exclusive}, i.e. if its not possible for two separate outcomes to occur in a
 particular trial, but events are not - for example it is possible for both the events that we
 roll and even number and we roll a number greater than $3$ to occur.
+
+\section{Probabilities}
+\label{sec:prob:prob}
 
 A \emph{probability} is
 the chance of an event occurring.  For example, if we denote the output
@@ -62,8 +70,11 @@ is you smoke.  The process of updating a probability using the information from 
 known as conditioning on that event.  For example, one can condition the probability that a football team
 will win the league this seasons on the results from their first few games.  
 
+\section{The Laws of Probability}
+\label{sec:prob:laws}
+
 Though not technically axiomatic, the mathematical laws of probability can be summarized by the \emph{product rule}
-and the \emph{sum rule}.  Remarkably, all of probability can be derived from these two simple rules.
+and the \emph{sum rule}.  Remarkably, almost all of probability stems from these two simple rules.
 The product rule states that the probability of two events occurring is the probability of one of the events
 occurring times the probability of the over event happening given the first event happened, namely
 \begin{align}
@@ -110,6 +121,9 @@ For example, $P(A|B)$ is a probability distribution over $A$ with all the corres
 requirements, but is not a distribution over $B$.  Therefore,
 for example, it is possible to have for example $\sum_{i} P(A|B=b_i) >1$.
 
+\section{Probability Densities}
+\label{sec:prob:den}
+
 Thus far we have presumed that our random variables a discrete, i.e. that there is some fixed
 number possible outcomes.\footnote{Technically speaking, discrete random variables can also
 	take on a \emph{countable} number of values.  For example, the Poisson distribution is defined
@@ -145,19 +159,79 @@ that $X$ is less than equal to the outcome $x$
 \label{eq:prob:cumulative}
 P(X\le x) = \int_{-\infty}^{x} p(u) du,
 \end{align}
-where $u$ is simply a dummy variable.
+where $u$ is a dummy variable.
 
-Consider now if there is also a probability that the runner does not finish the race...
+Most of the key rules of probability theory, such as the sum rule, the product rule, and Bayes
+rule, apply equally well to continuous and discrete random variables.  All that is required
+is that we replace the summations with integrals over the appropriate variable.  As in
+the case of probabilities, we will usually use the short hand $p(x)$ for the probability density
+$p(X=x)$ outside of this Chapter.
 
+\section{Measures}
+\label{sec:prob:measure}
 
+Consider now if there is also a probability that the runner does not finish the race which
+we denote as the outcome $X=\infty$.  As we
+have thus-far introduced them, neither the concept of a probability or a probability density
+seem to be suitable for this case: every outcome other than $X=\infty$ has zero probability,
+but $X=\infty$ seems to have infinite probability density.  To solve this conundrum we 
+have to briefly break our promise to avoid measure theory.  A measure can be thought of
+as something that assigns a size to a set of objects.  In the context of probability theory,
+measures are used to assign probabilities to events, remembering that events represent 
+sets of outcomes.  The measure assigned to event including all possible outcomes is thus $1$,
+the measure assigned to the empty set is $0$.  We can generalize the concept of a probability 
+density by defining if with respect to an appropriate measure.  In the context of~\eqref{eq:prob:density}, we can informally think of the $dx$ term as representing the measure.
+This will now allow us to
+deal with more complicated scenarios by setting up appropriate measures to the problem at hand.
 
-Change of variables
+In the continuous example
+we implicitly used (a scaled version of)\footnote{In more formal settings, one normally defines
+	 probability measures on the $\sigma$-algebra of the sample space so that the 
+	 Lebesgue measure is used exactly.  Here we are defining them on the 
+	 realizations of random variables themselves for exposition and so are used a scaled version
+	 of the Lebesgue measure.  The same reasoning applies to our use of the counting measure.}
+the \emph{Lebesgue measure} which corresponds to
+the standard euclidean notion of size, coinciding with the concepts of length, area, and
+volume in 1, 2, and 3 dimensions respectively.  In the discrete examples, we have implicitly
+used the notion of a counting measure which simply counts the number of outcomes which
+lead to a particular event.   For the example where the runner might not finish, we can
+use a \emph{mixed measure} that is some scaling of the counting measure for the outcome
+$X=\infty$ and a scaling of the Lebesgue measure everywhere else.  
 
-Expectation and variance
+Because of this generalization, we will often use densities to represent both discrete
+and continuous probabilities throughout the thesis.  In particular, this will be convenient
+for representing results that apply to both cases.
 
+It is important to note that when we define densities-measure pairs in this way, these 
+definitions are not in general not unique for an underlying random process.  For example, 
+in the case of the runner who might not finish the marathon, we could assign any density 
+we want to the event $T=\infty$ provided we adjust the respective measure accordingly.
+A particularly important case of this is in a so-called \emph{change of variables}.  Imagine
+that a random variable $Y=g(X)$ is a deterministic function of another random variable $X$.
+Given a probability density function for $X$, we can define a probability density function
+on $Y$ using
+\begin{align}
+\label{eq:prob:change}
+p(Y=y)dy = p(X=x)dx = p(X=g^{-1}(y))dx
+\end{align} 
+where $p(Y=y)$ and $p(X=x)$ are the respective probability densities for $Y$ and $X$
+respectively.  Rearranging we see that, for one dimensional problems, 
+\begin{align}
+\label{eq:prob:change2}
+p(Y=y) = \left|\frac{dg^{-1}(y))}{dy}\right|p(X=g^{-1}(y)).
+\end{align}
+For the multidimensional case, the derivative is replaced by the determinant of the
+Jacobian for the inverse mapping.  Note that by~\eqref{eq:prob:density}, changing
+variables does not change the value of actual probabilities or exceptions (see
+ Section~\ref{sec:prob:expt}).  However,~\eqref{eq:prob:change}
+still has the importance consequence that the optimum of a probability distribution
+depends on the parameterization.  For example, if we parameterizing the same model with
+either $X$ or $\log X$ will lead to different value of the most likely value of the parameter
+$x^*$, i.e.
+\begin{align}
+x^* = \argmax_{x} p(X=x) \neq g^{-1} \left(\argmax_{g(x)} p(g(X)=g(x))\right)
+\end{align}
+in general.
 
-
-We will often implicitly use the notion of a density 
-for both continuous and discrete random variables in the interest
-convenience.  We will also be intentionally carefree about delineating between random
-variables and the inputs to density functions, except for when the distinction is explicitly necessary.
+\section{Expectations and Variances}
+\label{sec:prob:expt}
