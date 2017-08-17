@@ -88,13 +88,13 @@ The intuition of the sum rule is perhaps easiest to see by considering that
 P(B) - P(A \cap B) = P(B)(1-P(A|B)) = P(B, \neg A)
 \]
  is the probability of $B$ and 
-not $A$.  $P(A\cup B)$ can only occur if $A$ occurs or $B$ and not $A$ occurs.  As it is not
+not $A$.  $A\cup B$ can only occur if $A$ occurs or if $B$ and not $A$ occurs.  As it is not
 possible for both these events to occur, the probability of either event must be the sum of the
 probability of each separate event.
 There are a number of immediate consequences of the sum rule.  For example, if $A$ and $B$ are
 mutually exclusive then $P(A\cup B) = P(A) + P(B)$.  As outcomes are mutually exclusive, it
 follows from the sum rule and the axioms of probability that the sum of the probabilities
-for each possible outcome is equal to $1$.  We can also use the sum rule to
+for each possible outcome is equal to $1$.  We can also use this to
 define the concept of \emph{marginalizing} out a random variable $Y$ as
 \begin{align}
 \label{eq:prob:marginal}
@@ -110,12 +110,46 @@ For example, $P(A|B)$ is a probability distribution over $A$ with all the corres
 requirements, but is not a distribution over $B$.  Therefore,
 for example, it is possible to have for example $\sum_{i} P(A|B=b_i) >1$.
 
+Thus far we have presumed that our random variables a discrete, i.e. that there is some fixed
+number possible outcomes.\footnote{Technically speaking, discrete random variables can also
+	take on a \emph{countable} number of values.  For example, the Poisson distribution is defined
+	over $0,1,2,\dots,\infty$ and is discrete distribution with infinite possible outcomes.  
+	However, this countable infinity is much smaller that the \emph{uncountably infinite} number
+	of possible outcomes for continuous random variables.}
+Things get somewhat more complicated if our variables are continuous.  Consider for example
+the probability that a runner takes exactly $\pi$ hours to run a marathon $P(X=\pi)$.  
+Clearly the probability
+of this particular event is zero, $P(X=\pi)=0$, as is the probability of the runner taking any other exact time
+to complete the race: we have an infinite number of possible outcomes, each with zero probability
+(presuming the runner finishes the race).  Thankfully, the notion of an event that we previously
+introduced comes to our rescue.  For example, the event that the runner takes between $3$ and
+$4$ hours is has non-zero probability: $P(3\le X \le 4) \neq 0$.  Here our event itself include
+an infinite number of possible outcomes and even though each individual outcome had
+zero probability, the combination of \emph{uncountably infinite} many such outcomes need
+not also have zero probability.  To more usefully characterize probability in such cases, we can
+define a \emph{probability density function} which reflects the relative probability of areas of
+the space of outcomes.  We can define this more precisely by considering the probability
+of being some small area of the space of size $\delta x$.  Presuming that the probability density
+$p(x)$ is roughly constant within our small area, we can say that 
+$p(x)\delta x \approx P(x\le X <x+\delta x)$ and thus 
+$p(x) = \lim\limits_{\delta\rightarrow0} \frac{P(x\le X <x+\delta x)}{\delta x}$.  More formally
+we can define the probability density as satisfying
+\begin{align}
+\label{eq:prob:density}
+P(X\in \mathcal{A}) = \int_{x\in\mathcal{A}} p(x) dx
+\end{align}
+where $X\in \mathcal{A}$ means the event that $X$ is in $\mathcal{A}$.  We can further
+use this to define the \emph{cumulative distribution function} $P(X\le x)$, which is the probability
+that $X$ is less than equal to the outcome $x$
+\begin{align}
+\label{eq:prob:cumulative}
+P(X\le x) = \int_{-\infty}^{x} p(u) du,
+\end{align}
+where $u$ is simply a dummy variable.
+
+Consider now if there is also a probability that the runner does not finish the race...
 
 
-
-Probability density
-
-Cumulative probability
 
 Change of variables
 
