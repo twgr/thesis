@@ -30,17 +30,7 @@ used for, even if that process is simply visual inspection.
 Consider the problem of calculating the expectation of some function
 $f(\theta)$ under the distribution $\theta\sim \pi(\theta)$ ($= p(\theta | \mathcal{D})$ for the Bayesian
 inference case), which we will denote 
-as\footnote{We will often implicitly use the notion of a density
-	$\pi(\theta)$ for both continuous and discrete random variables in the interest
-	convenience.  We will also at times be intentionally carefree about delineating between random
-	variables and the inputs to density functions.  More generally, we will avoid the use of measure
-	theory notation throughout this thesis when possible.  These notational decisions have been made
-	primarily in the interest of accessibility as most of the ideas introduced do not require a deep
-	knowledge of measure theory to understand.  Nonetheless, we note that a measure theoretic
-	approach to probability is essential for a more rigorous introduction.  We refer
-	the interested reader to~\cite{durrett2010probability} for an introduction to measure-theoretic
-	probability theory and~\cite{robert2004monte} for a correspondingly more rigorous introduction
-	to \mc methods.}
+as
 \begin{align}
 	\label{eq:inf:expt}
 I:=\E_{\pi(\theta)} \left[f(\theta)\right]=\int f(\theta) \pi(\theta) d\theta.
@@ -259,7 +249,7 @@ and we have convergence in probability as required.
 \subsubsection{Almost Sure Convergence}
 \label{sec:inf:mc:conv:as}
 
-Almost sure convergence is a similar, but stronger, form of convergence than convergence in
+Almost sure convergence, also known as strong convergence, is a similar, but stronger, form of convergence than convergence in
 probability.  At a high level the difference between
 convergence in probability and almost sure converge is a difference in the tail behaviour:
 convergence in probability suggests the rate at which an event happens tends to zero; almost
@@ -288,7 +278,7 @@ be found in, for example, Theorem 2.4.1 of~\cite{durrett2010probability}.
 \subsubsection{Convergence in Distribution}
 \label{sec:inf:mc:conv:dist}
 
-At a  high level, convergence in distribution states that the a sequence of variables become
+At a  high level, convergence in distribution, also known as weak convergence, states that the a sequence of variables become
 an increasingly closely distributed to a target distribution.  Whereas our previous notions of
 convergence ensure that our sequence of random variables converge to a particular value, 
 convergence in distribution only implies that our sequence of random variables tends towards

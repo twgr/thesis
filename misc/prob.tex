@@ -1,0 +1,129 @@
+% !TEX root = ../main.tex
+
+\chapter*{A Primer on Probability Theory}
+\addcontentsline{toc}{chapter}{A Primer on Probability Theory}
+
+This primer provides some essential background on probability theory and outlines conventions
+that we will use throughout the thesis.  Readers familiar with the differences between a probability
+and a probability density and between a random variable and an outcome may wish skip to this
+section, referring back as needed for clarification on any conventions undertaken.  Others
+will hopefully find it to be a gentle introduction to the key concepts that will be needed to
+be understood to follow the rest of the thesis.  Notation has been chosen with accessibility 
+as the primary aim and we will avoid
+the use measure theory except were it is absolutely necessary.  Nonetheless, we note that a measure theoretic
+approach to probability is essential for a more rigorous understanding and refer
+the interested reader to~\cite{durrett2010probability}.
+
+A \emph{random variable} is a variable
+whose realization is currently unknown, such that it can take on multiple different
+values or \emph{outcomes}.\footnote{Technically speaking, outcomes are points in \emph{sample
+		space} and random variables are measurable functions from outcomes to a measurable
+	space.  As we said though, we are trying to avoid the niceties of measure theory\dots}
+A set of one of more outcomes is known as an \emph{event}.
+For example, if we roll a fair six-sided dice then the result of the roll is a random variable, 
+while rolling a $4$ both a possible outcome and a possible event.  Rolling a number greater
+or equal to $5$ on the other hand, is a possible event but not a possible outcome: it is a set
+of two individual outcomes, namely rolling a $5$ and rolling a $6$.  Outcomes are
+\emph{mutually exclusive}, i.e. if its not possible for two separate outcomes to occur in a
+particular trial, but events are not - for example it is possible for both the events that we
+roll and even number and we roll a number greater than $3$ to occur.
+
+A \emph{probability} is
+the chance of an event occurring.  For example, if we denote the output
+of our dice roll as $X$, then we can say that $P(X=4) = 1/6$ or that $P(X\le3) = 0.5$.  Here
+$X=4$ and $X\le3$ are events for the random variable $X$ with probabilities of $1/6$ and $0.5$
+respectively.   A probability of $0$ indicates that an event has no chance of happening, 
+for example the probability that we role an $8$, while
+a probability of $1$ indicates it is certain to happen, for example the probability 
+that we role a number less than $7$.  All probabilities much thus lie (inclusively) between $0$ and $1$.  
+We will regularly use the shorthand $P(x)$ to denote the probability of the event $P(X=x)$.  
+We reiterate the importance distinction between the random variable $X$ and the outcome $x$:
+the former has an unknown value (e.g. the result of the dice roll) and the latter is
+a fixed possible realization of the random variable (e.g. rolling a $4$).
+All the same, we will at times be intentionally carefree about delineating between
+random variables and outcomes, except for when the distinction is explicitly necessary.
+
+Somewhat surprisingly, there are two competing (and often incompatible)
+formal definitions for what probabilities actually mean.  The frequentist definition of
+probability is that it is the average proportion of the time an event will occur if the trial is 
+repeated infinitely many times.  The Bayesian definition of probability is that it is the subjective
+belief that an event will occur in the process of incomplete information.  Both viewpoints have
+strengths and weaknesses and we will avoid being drawn into one of the biggest debates in
+science, noting only that the philosophical differences between the two are typically completely
+detached from the practical differences between the resulting
+algorithms~\citep{steinhardt2012beyond}, despite the former all too often be used to argue
+the superiority of one approach over another.
+
+A \emph{conditional probability} is the probability of an event given that another event has occurred.
+For example, the conditional probability that we roll a $4$ with a dice given that we have rolled a $3$ or
+higher is $P(X=4 | X\ge3) = 0.25$.  More typically, we will condition on events that are separate but
+correlated to the event we care about.  For example, the probability of dying of lung cancer is higher
+is you smoke.  The process of updating a probability using the information from another event is
+known as conditioning on that event.  For example, one can condition the probability that a football team
+will win the league this seasons on the results from their first few games.  
+
+Though not technically axiomatic, the mathematical laws of probability can be summarized by the \emph{product rule}
+and the \emph{sum rule}.  Remarkably, all of probability can be derived from these two simple rules.
+The product rule states that the probability of two events occurring is the probability of one of the events
+occurring times the probability of the over event happening given the first event happened, namely
+\begin{align}
+\label{eq:prob:prod}
+P(A,B) := P(A \cap B) = P(A|B) P(B) =  P(B|A) P(A)
+\end{align}
+where we have introduced $P(A,B)$ as a shorthand for the probability that both the events $A$ and $B$ occur.
+An immediate consequence of the product rule is Bayes' rule,
+\begin{align}
+P(A|B) = \frac{P(B|A)P(A)}{P(B)},
+\end{align}
+which we return at length in Section~\ref{sec:bayes:paradigm}.
+
+The sum rule has a number of different representations, the most general of which is that 
+the probability that either $A$ or $B$ occurs, $P(A\cup B)$, is given by
+\begin{align}
+\label{eq:prob:sum}
+P(A\cup B) = P(A) + P(B) - P(A, B).
+\end{align}
+The intuition of the sum rule is perhaps easiest to see by considering that
+\[
+P(B) - P(A \cap B) = P(B)(1-P(A|B)) = P(B, \neg A)
+\]
+ is the probability of $B$ and 
+not $A$.  $P(A\cup B)$ can only occur if $A$ occurs or $B$ and not $A$ occurs.  As it is not
+possible for both these events to occur, the probability of either event must be the sum of the
+probability of each separate event.
+There are a number of immediate consequences of the sum rule.  For example, if $A$ and $B$ are
+mutually exclusive then $P(A\cup B) = P(A) + P(B)$.  As outcomes are mutually exclusive, it
+follows from the sum rule and the axioms of probability that the sum of the probabilities
+for each possible outcome is equal to $1$.  We can also use the sum rule to
+define the concept of \emph{marginalizing} out a random variable $Y$ as
+\begin{align}
+\label{eq:prob:marginal}
+P(X=x) = \sum_{i} P(X=x,Y=y_i)
+\end{align}
+where the sum is over all the possible outcomes of $Y$.  Here $P(X=x)$ is known as the
+\emph{marginal probability} of $X$ and $P(X=x,Y=y)$ as the \emph{join probability} of $X$
+and $Y$.
+
+Conditional probabilities follow  the same key results as unconditional probabilities, but it 
+should be noted that they do not define probability distributions over the conditioning term.  
+For example, $P(A|B)$ is a probability distribution over $A$ with all the corresponding 
+requirements, but is not a distribution over $B$.  Therefore,
+for example, it is possible to have for example $\sum_{i} P(A|B=b_i) >1$.
+
+
+
+
+Probability density
+
+Cumulative probability
+
+Change of variables
+
+Expectation and variance
+
+
+
+We will often implicitly use the notion of a density 
+for both continuous and discrete random variables in the interest
+convenience.  We will also be intentionally carefree about delineating between random
+variables and the inputs to density functions, except for when the distinction is explicitly necessary.
