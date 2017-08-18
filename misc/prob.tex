@@ -144,28 +144,42 @@ not also have zero probability.  To more usefully characterize probability in su
 define a \emph{probability density function} which reflects the relative probability of areas of
 the space of outcomes.  We can define this more precisely by considering the probability
 of being some small area of the space of size $\delta x$.  Presuming that the probability density
-$p(x)$ is roughly constant within our small area, we can say that 
-$p(x)\delta x \approx P(x\le X <x+\delta x)$ and thus 
-$p(x) = \lim\limits_{\delta\rightarrow0} \frac{P(x\le X <x+\delta x)}{\delta x}$.  More formally
+$p_{X}(x)$ is roughly constant within our small area, we can say that 
+$p_{X}(x)\delta x \approx P(x\le X <x+\delta x)$ and thus 
+$p_{X}(x) = \lim\limits_{\delta\rightarrow0} \frac{P(x\le X <x+\delta x)}{\delta x}$.  More formally
 we can define the probability density as satisfying
 \begin{align}
 \label{eq:prob:density}
-P(X\in \mathcal{A}) = \int_{x\in\mathcal{A}} p(x) dx
+P(X\in \mathcal{A}) = \int_{x\in\mathcal{A}} p_{X}(x) dx
 \end{align}
 where $X\in \mathcal{A}$ means the event that $X$ is in $\mathcal{A}$.  We can further
 use this to define the \emph{cumulative distribution function} $P(X\le x)$, which is the probability
 that $X$ is less than equal to the outcome $x$
 \begin{align}
 \label{eq:prob:cumulative}
-P(X\le x) = \int_{-\infty}^{x} p(u) du,
+P(X\le x) = \int_{-\infty}^{x} p_{X}(u) du,
 \end{align}
 where $u$ is a dummy variable.
 
 Most of the key rules of probability theory, such as the sum rule, the product rule, and Bayes
 rule, apply equally well to continuous and discrete random variables.  All that is required
-is that we replace the summations with integrals over the appropriate variable.  As in
-the case of probabilities, we will usually use the short hand $p(x)$ for the probability density
-$p(X=x)$ outside of this Chapter.
+is that we replace the summations with integrals over the appropriate variable. 
+
+In the rest of the thesis will drop the notation $p_{X}(x)$, using simply $p(x)$ instead.
+The main rationale for this is will we regularly use probability density functions that we do
+not actually sample from.  For example, in importance sampling we will sample from one
+distribution but evaluate its density under another.  In these scenarios, it may not be possible
+to link a random variable to each density.  We will instead make it explicit what distribution
+of density a random variable is drawn from using the notation $X\sim p(x)$.  For the reasons
+outlined in the next section, we will also often be carefree at distinguishing between probabilities
+and probability densities as this oft-used convention will regularly be highly convenient when
+dealing with variables that could be discrete or continuous.  We will also regularly be carefree about
+distinguishing between random variables and outcomes by using loose notations such as
+$x\sim p(x)$ when the delineation is not necessary in the context.
+
+%As in
+%the case of probabilities, we will usually use the short hand $p(x)$ for the probability density
+%$p(X=x)$ outside of this Chapter.
 
 \section{Measures}
 \label{sec:prob:measure}
@@ -212,13 +226,13 @@ Given a probability density function for $X$, we can define a probability densit
 on $Y$ using
 \begin{align}
 \label{eq:prob:change}
-p(Y=y)dy = p(X=x)dx = p(X=g^{-1}(y))dx
+p(y)dy = p(x)dx = p(g^{-1}(y))dx
 \end{align} 
-where $p(Y=y)$ and $p(X=x)$ are the respective probability densities for $Y$ and $X$
+where $p(y)$ and $p(x)$ are the respective probability densities for $Y$ and $X$
 respectively.  Rearranging we see that, for one dimensional problems, 
 \begin{align}
 \label{eq:prob:change2}
-p(Y=y) = \left|\frac{dg^{-1}(y))}{dy}\right|p(X=g^{-1}(y)).
+p(y) = \left|\frac{dg^{-1}(y))}{dy}\right|p(g^{-1}(y)).
 \end{align}
 For the multidimensional case, the derivative is replaced by the determinant of the
 Jacobian for the inverse mapping.  Note that by~\eqref{eq:prob:density}, changing
@@ -229,9 +243,78 @@ depends on the parameterization.  For example, if we parameterizing the same mod
 either $X$ or $\log X$ will lead to different value of the most likely value of the parameter
 $x^*$, i.e.
 \begin{align}
-x^* = \argmax_{x} p(X=x) \neq g^{-1} \left(\argmax_{g(x)} p(g(X)=g(x))\right)
+x^* = \argmax_{x} p(x) \neq g^{-1} \left(\argmax_{g(x)} p(g(x))\right)
 \end{align}
 in general.
 
 \section{Expectations and Variances}
 \label{sec:prob:expt}
+
+The \emph{expected value} $\E [X]$, or mean, of a random variable $X$ is the average value that the variable
+will take if an infinite number of independent draws are made.  Its definition is easiest convey using 
+probability density notation
+\begin{align}
+\label{eq:prob:expt}
+\E [X] = \int x p(x)dx.
+\end{align}
+In the discrete case this leads to $\E [X] = \sum_{i} x_i P(X=x_i)$.  Because expectations are defined by a random
+variable (rather than a distribution), they
+average over all the contained randomness, e.g. $\E [f(X,Y)]=\iint f(x,y) p(x,y)dxdy$.  However, if we
+wish to average only with respect to part of the randomness in a system, we can instead use a conditional
+expectation for example
+\begin{align}
+\label{eq:prob:cond-expt}
+\E [f(X,Y) | Y=y] = \int f(x,y) p(x|y) dx,
+\end{align}
+for which we will sometimes use the shorthand $\E [f(X,Y) | Y]$.
+
+It will also sometimes be convenient to implicitly define the random variable and conditioning for an 
+expectation for which we use the slightly loose notation
+\begin{align}
+\label{eq:prob:expt-2}
+\E_{p(x|y)} \left[f(x,y,z)\right] = \int f(x,y,z) p(x|y) dx,
+\end{align}
+where we have implicitly defined the random variables $Y \sim p(y)$ and $X \sim p(x | Y=y)$,
+we are calculating $\E \left[f(X,Y,z) | Y=y\right]$,
+and this resulting expectation is a function of $z$.  One can informally think about this
+as being the expectation of $f(x,y,z)$ with respect to $p(x|y)$:
+our expectation is only over the randomness associated with drawing from $p(x|y)$.  Thus,
+for example, we are not taking an expectation over nor condition upon $z$ in this example
+-- it is treated as a fixed input, even if it is a random variable externally to this expectation.
+Depending on the context, we will switch between these different notations for expectation
+and will sometimes simply using the integral form directly.
+
+Denoting the mean of a random variable $X$ as $\mu=\E [X]$, the \emph{variance} of $X$
+is defined using any one of the following equivalent forms
+\begin{align}
+\var (X) = \E \left[(X-\mu)^2\right] = \int (x-\mu)^2 p(x)dx = \E [X^2] - \mu^2 =
+\int x^2 p(x) dx - \mu^2.
+\end{align}
+In other words, it is the average squared distance of a variable from its mean.
+Its square root, the \emph{standard deviation}, informally forms an estimate for the average
+amount of variation of the variable from its mean and has units which are the same
+as the data.  We will use the same notational conventions as for expectations when defining
+variances.
+
+The variance is a particular case of the more general concept of  a covariance between
+two random variables $X$ and $Y$.  Defining $\mu_X=\E [X]$ and $\mu_Y=\E [Y]$
+then the covariance is defined by any one of the following equivalent forms
+\begin{align}
+\cov& (X,Y) = \E \left[(X-\mu_X)(Y-\mu_Y)\right] = \iint (x-\mu_X)(y-\mu_Y) p(x,y) dxdy \nonumber \\
+&= \E \left[XY\right]-\E \left[X\right]\E \left[Y\right] = \iint xyp(x,y) dxdy - \left(\int xp(x) dx\right)
+\left(\int yp(y) dy\right).
+\end{align}
+The covariance between two variables measures the joint variability of two random
+variables.  It is perhaps easiest to interpret through the definition of correlation
+(or more specifically Pearson's correlation coefficient) which is the correlation
+scaled by the standard deviation of each of the variables:
+\begin{align}
+\corr (X,Y) = \frac{\cov (X,Y)}{\sqrt{\var(X) \var(Y)}}.
+\end{align}
+The correlation between two variables is always in the range $[-1,1]$.  Positive
+correlations indicate that when one variable is relatively larger, the other variable
+also tends to be larger.  The higher the correlation, the more strongly this relationship
+holds: if the correlation is $1$ then one variable is \emph{linearly} dependent on the other.  The
+same hold for negative correlations except that when one variable increases, the other tends
+to decrease.  Independent variables have a correlation (and thus covariance) of zero.
+Note that correlation is not causation.

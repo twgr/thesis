@@ -7,7 +7,7 @@ The key idea of MC is that the expectation of an arbitrary function
 $\lambda \colon \mathcal{Y} \rightarrow \mathcal{F} \subseteq \real$ under a probability distribution $p(y)$ for its input $y \in \mathcal{Y}$ can be approximately calculated using:
 \begin{align}
 \label{eq:MC}
-I &= \mathbb{E}_{y\sim p(y)} \left[\lambda(y)\right]
+I &= \mathbb{E}_{p(y)} \left[\lambda(y)\right]
 \approx \frac{1}{N} \sum_{n=1}^{N} \lambda(y_n) \quad \text{where} \quad y_n \iid p(y).
 \end{align}
 In this paper, we consider the case that $\lambda$ is itself intractable, defined only in terms of a functional mapping of an expectation. Specifically, $\lambda(y) = f(y,\gamma(y))$
@@ -18,9 +18,9 @@ intractable expectation of another variable $z \in \mathcal{Z}$:
 	\begin{align}
 	\label{eq:gamma_1}
 	\text{either}\quad
-	\gamma(y) &=  \mathbb{E}_{z\sim p(z | y)} \left[\phi(y,z)\right] \\
+	\gamma(y) &=  \mathbb{E}_{p(z | y)} \left[\phi(y,z)\right] \\
 	\label{eq:gamma_2}
-	\text{or} \quad \gamma(y) &= \mathbb{E}_{z\sim p(z)} \left[\phi(y,z)\right]
+	\text{or} \quad \gamma(y) &= \mathbb{E}_{p(z)} \left[\phi(y,z)\right]
 	\end{align}
 \end{subequations}
 depending on the problem, with $\phi \colon \mathcal{Y} \times \mathcal{Z} \rightarrow \Phi \subseteq \real^{D_{\phi}}$.

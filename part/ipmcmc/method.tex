@@ -292,7 +292,7 @@ Note that adding a backward or ancestor simulation step can drastically increase
 \label{sec:allparticles}
 At each \mcmc iteration $r$, we generate $MN$ full particle trajectories. Using only $P$ of these as in \eqref{eq:mcestimate} might seem a bit wasteful. We can however make use of all particles to estimate expectations of interest by, for each Gibbs update $j$, averaging over the possible new values for the conditional node index $c_j$ and corresponding particle index $b_j$. We can do this by replacing $f(\xb_j'[r])$ in \eqref{eq:mcestimate} by
 \begin{align*}
-\E_{c_j|c_{1:P\backslash j}}\left[\E_{b_j | c_j}\left[f(\xb_j'[r])\right]\right] 
+\E\left[f(\xb_j'[r]) \middle| \xi_{1:M}, c_{1:P\backslash j} \right] 
 = \sum_{m=1}^M 
 \hat\nz_{m}^j
 %\frac{\hat Z_{\pi_T,m} \iden_{m \notin c_{1:P \backslash j}}}{\sum_n \hat Z_{\pi_T,n} \iden_{n \notin c_{1:P \backslash j}}} 
@@ -300,15 +300,25 @@ At each \mcmc iteration $r$, we generate $MN$ full particle trajectories. Using 
 \nw_{T,m}^i f(\xb_{m}^i).
 %\frac{w_{T,m}^{i}}{\sum_\ell w_{T,m}^{\ell}} f(\xb_{m}^i),
 \end{align*}
-This procedure is referred to as a Rao-Blackwellization of a statistical estimator and is (in terms of variance) never worse than the original one.  We highlight that each $\hat\nz_{m}^j$, as defined in~\eqref{eq:zeta_def}, depends on which indices are sampled earlier in the index reassignment loop.  
+where the expectation is over $b_j$ and $c_j$.
+This procedure is referred to as a Rao-Blackwellization of a statistical estimator and is (in terms of variance) 
+never worse than the original one.  At a high level, we are taking an analytic expectation over part of
+the randomness of the system (namely the sampling of $b_j$ and $c_j$ at each Gibbs step of the reassignment
+loop) to reduce the variance.  
+We highlight that each $\hat\nz_{m}^j$, as defined in~\eqref{eq:zeta_def}, 
+depends on which indices are sampled earlier in the index reassignment loop.  
 
 To derive this we first note that for iteration $r$ we need to calculate the following
 \begin{align*}
 \frac{1}{P}\sum_{j=1}^P f(\xb_j'[r]) = \frac{1}{P}\sum_{j=1}^P f(\xb_{c_j}^{b_j}),
 \end{align*}
-where we can Rao-Blackwellize the selection of the retained particle along with each individual Gibbs update as following
+where we can Rao-Blackwellize the selection of the retained particle along with each individual Gibbs update
+and thereby replace $f(\xb_{c_j}^{b_j})$ with its expectation over $c_j$ and $b_j$ given all the other variables
+as follows
 \begin{align*}
-\frac{1}{P}\sum_{j=1}^P \E_{c_j, b_j | \xi_{1:M}, c_{1:P \backslash j}}\left[f(\xb_{c_j}^{b_j}) \right] =& \frac{1}{P}\sum_{j=1}^P \E_{c_j | \xi_{1:M}, c_{1:P \backslash j}}\left[\sum_{i=1}^N \bar w_{T,c_j}^i  f(\xb_{c_j}^{i}) \right] \\ =& \frac{1}{P}\sum_{j=1}^P \sum_{i=1}^N \E_{c_j | \xi_{1:M}, c_{1:P \backslash j}}\left[\bar w_{T,c_j}^i  f(\xb_{c_j}^{i}) \right] \\
+\frac{1}{P}\sum_{j=1}^P \E \left[f(\xb_{c_j}^{b_j}) \middle| \xi_{1:M}, c_{1:P\backslash j} \right] =& 
+\frac{1}{P}\sum_{j=1}^P \E \left[\sum_{i=1}^N \bar w_{T,c_j}^i  f(\xb_{c_j}^{i}) \middle| \xi_{1:M}, c_{1:P\backslash j} \right] \\ 
+=& \frac{1}{P}\sum_{j=1}^P \sum_{i=1}^N \E \left[\bar w_{T,c_j}^i  f(\xb_{c_j}^{i}) \middle| \xi_{1:M}, c_{1:P\backslash j}  \right] \\
 =& \frac{1}{P}\sum_{j=1}^P \sum_{i=1}^N \sum_{m=1}^M \hat \zeta_m^j \bar w_{T,m}^i  f(\xb_{m}^{i}) \\=& \frac{1}{P}\sum_{j=1}^P \sum_{m=1}^M \hat \zeta_m^j \sum_{i=1}^N \bar w_{T,m}^i  f(\xb_{m}^{i})
 \\=& \frac{1}{P} \sum_{m=1}^M  \left[\left(\sum_{j=1}^P \hat \zeta_m^j \right) \cdot \left(\sum_{i=1}^N \bar w_{T,m}^i  f(\xb_{m}^{i}) \right)\right].
 %&\E_{c_j|c_{1:P\backslash j}}\left[\E_{b_{1:P}}\left[\frac{1}{P}\sum_{j=1}^P f(\xb_{c_j}^{b_j})\right]\right] = \frac{1}{P}\sum_{j=1}^P \E_{c_j|c_{1:P\backslash j}}\left[\E_{b_{1:P}}\left[ f(\xb_{c_j}^{b_j})\right]\right] = \frac{1}{P}\sum_{j=1}^P \E_{c_j|c_{1:P\backslash j}}\left[ \sum_{i=1}^N \bar w_{T,c_j}^i  f(\xb_{c_j}^{i})\right] \\

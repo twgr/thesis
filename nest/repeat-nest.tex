@@ -20,7 +20,7 @@ f_1 \left(y^{(0:1)}, \gamma_2\left(y^{(0:1)}\right)\right)&=
 f_2 \left(y^{(0:2)}\right)&=\frac{1}{\sqrt{2\pi}}\exp\left(-\frac{\left(y^{(0)}-y^{(1)}-y^{(2)}\right)^2}{2}\right),\\
 \phi_1(y,z_1,\gamma_2) &= \sqrt{2/\pi}\exp\left(-2(y-z_1)^2\right), \\
 \phi_2(y,z_1,z_2) &= \sqrt{2/\pi}\exp\left(-2(y-z_1-z_2)^2\right), \\
-I &= \E_{y\sim p(y)}\left[\log\left(\E_{z_1\sim p(z_1)}\left[\phi_1\left(y,\log\left(\E_{z_2\sim
+I &= \E_{p(y)}\left[\log\left(\E_{p(z_1)}\left[\phi_1\left(y,\log\left(\E_{
 	 p(z_2)}\left[\phi_2(y,z_1,z_2)\right]\right)\right)\right]\right)\right].
 \end{split}
 \end{align}

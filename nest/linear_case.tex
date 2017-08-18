@@ -31,13 +31,12 @@ is integrable and linear in its second argument, i.e. $f(y,\alpha v + \beta w) =
 In this case, we can rearrange the problem to a single expectation:
 \begin{align*}
 I
-& = \mathbb{E}_{y \sim p(y)}\left[f(y,\gamma(y))\right] = \mathbb{E}_{y \sim p(y)}\left[f\left(y,\mathbb{E}_{z\sim p(z|y)}\left[\phi(y,z)\right]\right)\right]
-\\
-& = \mathbb{E}_{y \sim p(y)}\left[ \mathbb{E}_{z\sim p(z|y)}\left[f(y,\phi(y,z))\right]\right]
+& = \mathbb{E}\left[f(y,\gamma(y))\right] = \mathbb{E}\left[f\left(y,\mathbb{E}\left[\phi(y,z)\middle|y\right]\right)\right]
+= \mathbb{E}\left[ \mathbb{E}\left[f(y,\phi(y,z))\middle|y\right]\right] \\&= \mathbb{E}\left[f(y,\phi(y,z))\right]
  \approx\frac{1}{N} \sum_{n=1}^{N} f(y_n,\phi(y_n,z_n))
 \end{align*}
-where $(y_n, z_n) \sim p(y)p(z|y)$.
-Note that if $\gamma(y)$ is of the form of~\eqref{eq:gamma_2} instead of~\eqref{eq:gamma_1}, then $y$ and $z$ are drawn independently from their marginals instead of the joint.
+where $(y_n, z_n) \sim p(y)p(z|y)$ if $\gamma(y)$ is of the form of~\eqref{eq:gamma_1} and
+$y_n \sim p(y)$ and $z_n \sim p(z)$ are independently drawn if $\gamma(y)$ is of the form of~\eqref{eq:gamma_2}.
 % or the use of nested queries \cite{goodman2008church,rainforth2016nips} in probabilistic
 % programming when the outer query does not depend on any nonlinear functional mapping of
 % the marginal probability from the inner query.  
@@ -64,7 +63,7 @@ multiple expectations, rather than just a single expectation as per~\eqref{eq:ga
 That is,
 \begin{equation}
 \label{eq:prod-mc}
-I = \mathbb{E}_{y\sim p(y)}\left[ f\left(y,\prod_{\ell=1}^{L}\mathbb{E}_{z_{\ell}\sim p(z_{\ell}|y)}\left[\psi_{\ell}(y,z_{\ell})\right]\right) \right].
+I = \mathbb{E}_{p(y)}\left[ f\left(y,\prod_{\ell=1}^{L}\mathbb{E}_{p(z_{\ell}|y)}\left[\psi_{\ell}(y,z_{\ell})\right]\right) \right].
 \end{equation}
 This product of expectations can be rearranged to a single expectation and so the estimation of $I$ 
 corresponds to the formulation laid out in Section~\ref{sec:prob-form}. To see this, consider the set of 
@@ -79,8 +78,8 @@ For every $y \in \mathcal{Y}$ we now have
 %Now define the set of variables  $\{z'_{\ell}\}_{\ell=1:L}$ such that $z'_{\ell}= \{Z_{\ell}\}_{\ell}$.
 %We can now see that each $z'_{\ell} | y \sim p(z_{\ell} | y)$, but unlike $z_{\ell}$, the $z'_{\ell}$ must be independent of one another and thus
 \begin{align*}
- \prod_{\ell=1}^{L}&\mathbb{E}_{z_{\ell}\sim p(z_{\ell}|y)}[\psi_{\ell}(y,z_{\ell})] =  \prod_{\ell=1}^{L}\mathbb{E}_{z'_{\ell}\sim p(z'_{\ell}|y)}[\psi_{\ell}(y,z'_{\ell})]
-  = \mathbb{E}_{\{z'_{\ell}\}_{\ell=1:L} \sim p(\{z'_{\ell}\}_{\ell=1:L}|y)}\left[ \prod_{\ell=1}^{L} \psi_{\ell}(y,z'_{\ell}) \right]
+ \prod_{\ell=1}^{L}&\mathbb{E}_{p(z_{\ell}|y)}[\psi_{\ell}(y,z_{\ell})] =  \prod_{\ell=1}^{L}\mathbb{E}_{p(z'_{\ell}|y)}[\psi_{\ell}(y,z'_{\ell})]
+  = \mathbb{E}_{p(\{z'_{\ell}\}_{\ell=1:L}|y)}\left[ \prod_{\ell=1}^{L} \psi_{\ell}(y,z'_{\ell}) \right]
 \end{align*}
 which is a single expectation on an extended space and implies that \eqref{eq:prod-mc} 
 fits the NMC formulation.

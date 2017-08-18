@@ -67,7 +67,7 @@ The clinicians have at their disposal a simulator for the evolution of tumours w
 parameterized by both observable values, $y$, such as tumour size, and unobservable values, $z$, such as the patient-specific response to treatment.
 Given a set of input parameters, the simulator deterministically returns a binary response $\phi(y,z)\in\left\lbrace 0,1\right\rbrace $, with $\phi(y,z) = 1$ indicating a successful treatment.
 To estimate the probability of a successful treatment for a given patient, the clinician must calculate the expected
-success over these unobserved variables, namely $\E_{z\sim p(z|y)} [\phi(y,z)]$ where $p(z|y)$ represents a probabilistic
+success over these unobserved variables, namely $\E_{p(z|y)} [\phi(y,z)]$ where $p(z|y)$ represents a probabilistic
 model for the unobserved variables, which could, for example, be constructed based on empirical data.
 The clinician then decides whether to go ahead with the treatment for that
 patient based on whether the calculated probability of success exceeds a certain threshold $T_{\mathrm{treat}}$.
@@ -77,7 +77,7 @@ To do this, it needs to calculate the expectation of the clinician's decisions t
 treatment, giving the complete nested expectation for calculating the number of treated patients as
 \begin{equation}
 	\label{eq:cancer}
-I(T_{\mathrm{treat}}) = \E_{y \sim p(y)} \left[\mathbb{I}\left(\E_{z\sim p(z|y)} [\phi(y,z)]>T_{\mathrm{treat}}\right)\right],
+I(T_{\mathrm{treat}}) = \E_{p(y)} \left[\mathbb{I}\left(\E_{p(z|y)} [\phi(y,z)]>T_{\mathrm{treat}}\right)\right],
 \end{equation}
 which we propose to estimate using NMC.  Full details on $\phi$, $p(y)$, and $p(z|y)$ are 
 provided in Appendix~\ref{sec:cancer_sim_app}.

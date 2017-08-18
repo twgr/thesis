@@ -93,7 +93,7 @@ marginalized over some latent variables $X$, namely
 \begin{align}
 	\label{eq:opt:MML}
 	\theta^* &= \argmax_{\theta \in \vartheta} p(Y|\theta) 
-	= \argmax_{\theta \in \vartheta} \E \left[p(Y|X,\theta) | Y, \theta\right]
+	= \argmax_{\theta \in \vartheta} \E \left[p(Y,X|\theta) | Y, \theta\right]
 \end{align}
 where the above expectation is with respect to $p(X | \theta)$.  Common examples of MML
 problems include parameter tuning, decision making, and model learning.
@@ -103,7 +103,7 @@ of a prior on the target parameters.  Specifically it aims to optimize
 \begin{align}
 \label{eq:opt:MMAP}
 \theta^* &= \argmax_{\theta \in \vartheta} p(Y,\theta) 
-= \argmax_{\theta \in \vartheta} \E \left[p(Y|X,\theta) p(\theta) | Y, \theta\right].
+= \argmax_{\theta \in \vartheta} \E \left[p(Y,X|\theta) p(\theta) | Y, \theta\right].
 \end{align}
 As with MAP estimation compared with ML estimation, 
 MMAP estimation problems extend MML by allowing for prior information or regularization to be
