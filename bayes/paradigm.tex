@@ -2,7 +2,9 @@
 
 At its core, the Bayesian paradigm is simple, intuitive, and compelling: for any task involving
 learning from data we start with some prior knowledge and then update that knowledge to
-incorporate information from the data.  Imagine we are trying to reason about some variables
+incorporate information from the data.  This process is known as \emph{Bayesian inference}.
+
+Imagine we are trying to reason about some variables
 or parameters $\theta$.  We can encode our initial belief as relative probabilities for different
 possible instances of $\theta$, this is known as a \emph{prior} $p(\theta)$.  Given observed data
 $\mathcal{D}$, we can characterize how likely different values of $\theta$ are to have given rise
@@ -19,6 +21,8 @@ Here the denominator, $p(\mathcal{D})$, is a normalization constant know as the 
 	likelihood} and is necessary to ensure $p(\theta | \mathcal{D})$ is a valid probability distribution
 (or probability density for continuous problems).  The high level interpretation of~\eqref{eq:bayes:bayes} is
 thus that the posterior is proportional the to the prior times the likelihood.  
+For such a fundamental theorem, Bayes' rule has a remarkably simple derivation, following directly
+from the product rule of probability as shown in Chapter~\ref{chp:prob}.
 
 A key feature of Bayes' rule is that it can be used in a self-similar fashion where the posterior from
 one task becomes the prior when the model is updated with more data, i.e.
@@ -46,12 +50,158 @@ increasing understanding for the world around us.  We can never hope to truly un
 of the universe  -- after all it is, at least for practical purposes, fundamentally random~\citep{rainforth2013random} 
 -- and so we can hope only to construct increasingly accurate and pertinent models.
 
-\todo[inline]{To give a more concrete example of Bayesian inference ....}
+To give a more concrete example of Bayesian modeling consider estimating
+the probability of getting a heads from a weighted coin.  Lets call this weighting $\theta \in [0,1]$ such
+that the probability of getting a heads  ($H$)  when flipping the coin is $p(Y=H | \theta)=\theta$
+where $Y$ is the output of the flip.  This will be our likelihood function, corresponding to a
+\emph{Bernoulli} distribution, noting that the probability
+of getting a tails ($T$) is $p(Y = T | \theta) = 1-\theta$.
+Prior to seeing the coin being flipped we have some prior belief on the weighting of the coin.  We
+can therefore define a prior $p(\theta)$, for which we take the beta distribution
+\begin{align}
+\label{eq:bayes:beta}
+p(\theta) = \textsc{Beta}\left(\theta ; \alpha,\beta\right) = \frac{\Gamma(\alpha+\beta)}{\Gamma (\alpha) \Gamma(\beta)}
+\theta^{\alpha-1} (1-\theta)^{\beta-1}
+\end{align}
+where $\Gamma(\cdot)$ is the gamma function and we will take $\alpha=\beta=2$.  
+A plot for this prior is shown in Figure~\ref{fig:inf:coin_flip:0}
+where we see that under our prior then it is more probable that $\theta$ is close to $0.5$ than the
+extremes $0$ and $1$.  
 
-For such a fundamental theorem, Bayes' rule has a remarkably simple derivation, following almost
-directly from axioms of probability theory.  Though not technically axiomatic, one can summarize
-the basic laws of probability using the sum rule and the product rule defined as follows.
+Now imagine that we fill the coin and get a tails ($T$).  We can
+use our prior and likelihood to calculate the posterior
+\begin{align}
+p(\theta | Y_1 = T) &= \frac{p(\theta) p(Y_1=T | \theta)}{\int p(\theta) p(Y_1=T | \theta) d\theta} = \frac{\theta (1-\theta)^2}{\int \theta (1-\theta)^2 d\theta} \nonumber \\
+&= \textsc{Beta}\left(\theta ; 2,3\right) = 
+\frac{\Gamma(\alpha+\beta)}{\Gamma (\alpha) \Gamma(\beta)} \theta (1-\theta)^2 \label{eq:prob:beta_post_1}.
+\end{align}
+Here we have used the fact that a Beta prior is \emph{conjugate} to a Bernoulli likelihood
+to give an analytic solution.  Conjugacy means that the prior-likelihood combination gives
+a posterior that is of the same form as the prior distribution.  More generally, for a prior of
+$\textsc{Beta}(\theta ; \alpha, \beta)$ then the posterior will be $\textsc{Beta}(\theta ; \alpha+1, \beta)$
+if we observe a heads and $\textsc{Beta}(\theta ; \alpha, \beta+1)$ if we observe a tails.
+Figure~\ref{fig:inf:coin_flip:1} shows that our
+posterior incorporates the information from the prior and the observed data.  Namely, the distribution
+has drifted towards it being more probable that $\theta<0.5$ because of observing a tails.  However,
+it also reflects the fact that we are still uncertain about the value of $\theta$ -- it is not simply the
+empirical average of our observations which would give $\theta=0$ -- and because we have only
+seen one observation, our uncertainty is still quite high.
 
+\begin{figure}[t]
+	\centering
+	\begin{subfigure}[t]{0.24\textwidth}
+		\includegraphics[width=\textwidth]{coin_flip_0}
+		\caption{Prior \label{fig:inf:coin_flip:0}}
+	\end{subfigure}
+	\begin{subfigure}[t]{0.24\textwidth}
+		\includegraphics[width=\textwidth]{coin_flip_1}
+		\caption{Posterior 1 flip \label{fig:inf:coin_flip:1}}
+	\end{subfigure}
+	\begin{subfigure}[t]{0.24\textwidth}
+		\includegraphics[width=\textwidth]{coin_flip_6}
+		\caption{Posterior 6 flips \label{fig:inf:coin_flip:6}}
+	\end{subfigure}
+	\begin{subfigure}[t]{0.24\textwidth}
+		\includegraphics[width=\textwidth]{coin_flip_1000}
+		\caption{Posterior 1000 flips \label{fig:inf:coin_flip:1000}}
+	\end{subfigure}
+	\caption{Prior and posteriors for coin flip example after different numbers
+		of observations.
+		\label{fig:inf:coin_flip}}
+\end{figure}
+
+If we now flip the coin again, our previous posterior~\eqref{eq:prob:beta_post_1} becomes our
+prior and we can incorporate the new observations in the same way.  
+Through our previous conjugacy result, then if we observe $n_{H}$ heads
+and $n_{T}$ tails and our prior is $\textsc{Beta}(\theta ; \alpha, \beta)$ then our posterior is
+$\textsc{Beta}(\theta ; \alpha+n_H, \beta+n_T)$.
+Thus if our sequence of new
+observations is $HTHHH$ then our new posterior is
+\begin{align}
+p(\theta | Y_1,\dots,Y_6) = \frac{p(Y_2,\dots,Y_6 | \theta)p(\theta | Y_1)}
+{\int p(Y_2,\dots,Y_6 | \theta)p(\theta | Y_1) d\theta} = \textsc{Beta}\left(\theta ; 6,4\right),
+\end{align}
+which is shown in Figure~\ref{fig:inf:coin_flip:6}.  We see now that our belief for the probability of heads
+has shifted higher and that the the uncertain has reduced because of the increased number
+of observations.
+After seeing a total of $1000$ observations as shown in Figure~\ref{fig:inf:coin_flip:1000}, we
+see that the posterior has predominantly collapsed down to a small range of $\theta$,
+close to the true value of $\theta$ which happens to be $0.7$.
+
+Now we have combined  our prior information with the information from data, a natural
+next question is how can we use this to make predictions.  In the Bayesian setting
+this is done with the posterior predictive distribution which marginalizes out over
+the parameters.  For the coin flip case we have
+\begin{align}
+\label{eq:bayes:post-pred}
+p( Y_{N+1}=H | Y_{1:N}) &= \int p(Y_{N+1}=H, \theta | Y_{1:N}) d\theta
+= \int p(Y_{N+1}=H | \theta) p(\theta | Y_{1:N})  d\theta \nonumber \\
+&= \int  \theta \; \textsc{Beta}(\theta ; \alpha+n_H, \beta+n_T) d\theta 
+%= \int  
+%\frac{\Gamma(\alpha+\beta)}{\Gamma (\alpha) \Gamma(\beta)} 
+%\theta^{\alpha} (1-\theta)^{\beta-1} d\theta = 
+%\frac{\Gamma(\alpha+\beta) \Gamma (\alpha+1)}{\Gamma (\alpha) \Gamma(\alpha+1+\beta)} \nonumber \\
+=\frac{\alpha+n_H}{\alpha+n_H+\beta+n_T}
+\end{align}
+where we have used the known result for the mean of the Beta distribution.
+The role of the parameters $\alpha$ and $\beta$ in our prior now become apparent
+-- they take on the role of pseudo observations.  Our prediction is in line with the
+empirical average from seeing $\alpha+n_H$ heads and $\beta+n_T$ tails.  The larger
+$\alpha+\beta$ is then the strong our prior compared to the observations, while we
+can skew towards heads or tails being more likely by changing the relative values of $\alpha$
+and $\beta$.
+
+More generally the posterior predictive distribution will depend on a queried input point.
+To demonstrate this, consider the example of a Bayesian linear regression from inputs $x\in\real^D$
+to outputs $y\in\real^D$.  Assume that we have seen $N$ observations $\mathcal{D} = \{x_n,y_n\}_{n=1}^N$
+and let $\mathbf{x}=[x_1,\dots,x_N]^T$ and $\mathbf{y}=[y_1,\dots,y_N]^T$ respectively be 
+a $N\times D$ matrix and a column vector whose rows correspond to the different data points.
+Our regression is of the form $y_n= x_n^T\mathbf{w}+b+\epsilon_n$ where $\mathbf{w}\in\real^D$, $b\in\real$
+and each $\epsilon_n \iid \mathcal{N}(0,\sigma^2)$.  This implies a likelihood of
+\begin{align}
+\label{eq:bayes:linear-reg-lik}
+p(\mathbf{y}|\mathbf{x},\mathbf{w},b,\sigma) = \prod_{n=1}^{N} p(y_n | x_n, \mathbf{w}, b, \sigma) = 
+\prod_{n=1}^{N} \mathcal{N}(y_n;x_n^T\mathbf{w}+b,\sigma^2).
+\end{align}
+For simplicity we will assume that $\sigma$ and $b$ are known fixed parameters,
+but we will put a prior on $\mathbf{w}$ as follows in order to perform inference
+%\begin{subequations}
+%\label{eq:bayes:linear-reg-prior}
+\begin{align}
+\label{eq:bayes:linear-reg-w}
+p(\mathbf{w}) &= \mathcal{N}(\mathbf{w};\mathbf{0},C)
+%\\
+%\label{eq:bayes:linear-reg-b}
+%p(b) &= \mathcal{N}(b;0,s^2),
+\end{align}
+%\end{subequations}
+where $C$ is a fixed covariance matrix.
+%% and $s$ a fixed scalar standard deviation.
+%We further assume that $p(\mathbf{w},b | \sigma) = p(\mathbf{w}) p(b) $, i.e. that all
+%three parameters are independent under the prior.
+To make predictions, we first calculate the posterior
+\begin{align}
+p(\mathbf{w}| \mathcal{D}, b,\sigma) &= \mathcal{N}(\mathbf{w};\mathbf{0},C)
+\prod_{n=1}^{N} \mathcal{N}(y_n;x_n^T \mathbf{w}+b,\sigma^2) \nonumber \\
+&= \mathcal{N}\left(\mathbf{w} ; m, S\right) \\
+\mathrm{where} \quad m &= S^{-1} \mathbf{x}^T \left(\mathbf{y}-b\right)/\sigma^2, \nonumber \\
+S &= \left( C^{-1}+\frac{\mathbf{x}^T\mathbf{x}}{\sigma^2}\right)^{-1}. \nonumber
+%&= \mathcal{N}\left(\mathbf{w} ; \left( C^{-1}+\frac{\mathbf{x}^T\mathbf{x}}{\sigma^2}\right)^{-1} 
+%\frac{\mathbf{x}^T \left(\mathbf{y}-b\right)}{\sigma^2},
+%\left( C^{-1}+\frac{\mathbf{x}^T\mathbf{x}}{\sigma^2}\right)^{-1} \right),
+\end{align}
+We have omitted the necessary linear algebra (see for example~\cite{bishop2006pattern}
+Sections 2.3.3 and 3.3)
+but note the conjugacy between
+the normal distribution and itself.  Prediction now uses the posterior predictive, marginalizing
+over the parameters in the same manner as the coin flip example.  Here though, we are interested
+in predicting the output $\tilde{y}$ at a particular input point $\tilde{x}$ for which we have
+\begin{align}
+p(\tilde{y}| \tilde{x},\mathcal{D}, b,\sigma) = \int p(\tilde{y}| \tilde{x},\mathbf{w}) 
+p(\mathbf{w}| \mathcal{D}, b,\sigma) d\mathbf{w} \nonumber \\
+= \mathcal{N} \left(\tilde{y} \; ; \;\tilde{x}^Tm+b, \; \tilde{x}^T S^{-1}\tilde{x}+\frac{1}{\sigma^2} \right)
+\end{align}
+which again follows from standard results for Gaussian distributions.
 
 \subsection{Graphical Models}
 
