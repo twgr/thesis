@@ -197,12 +197,46 @@ the normal distribution and itself.  Prediction now uses the posterior predictiv
 over the parameters in the same manner as the coin flip example.  Here though, we are interested
 in predicting the output $\tilde{y}$ at a particular input point $\tilde{x}$ for which we have
 \begin{align}
-p(\tilde{y}| \tilde{x},\mathcal{D}, b,\sigma) = \int p(\tilde{y}| \tilde{x},\mathbf{w}) 
-p(\mathbf{w}| \mathcal{D}, b,\sigma) d\mathbf{w} \nonumber \\
-= \mathcal{N} \left(\tilde{y} \; ; \;\tilde{x}^Tm+b, \; \tilde{x}^T S^{-1}\tilde{x}+\frac{1}{\sigma^2} \right)
+p(\tilde{y}| \tilde{x},\mathcal{D}, b,\sigma) &= \int p(\tilde{y}| \tilde{x},\mathbf{w}) 
+p(\mathbf{w}| \mathcal{D}, b,\sigma) d\mathbf{w} 
+= \int \mathcal{N}(\tilde{y};\tilde{x}^T\mathbf{w}+b,\sigma^2)
+\mathcal{N}\left(\mathbf{w} ; m, S\right) d\mathbf{w} \nonumber \\
+&= \mathcal{N} \left(\tilde{y} \; ; \;\tilde{x}^Tm+b, \; \tilde{x}^T S^{-1}\tilde{x}+\frac{1}{\sigma^2} \right)
 \end{align}
-which again follows from standard results for Gaussian distributions.
+which again follows from standard results for Gaussian distributions.  We therefore have
+an analytic predictive distribution at any possible input point.
+Though this linear regression example might seem overly simple for practical purposes, we
+will see in Section~\ref{sec:opt:GPs} that substantially more advanced models, such as
+Gaussian processes, can be viewed as linear regressions between a set of features on the inputs $\phi(x)$
+and the output $y$.
+
+The models we have introduced so far are specific examples of Bayesian modeling and will
+clearly only be applicable or appropriate in very particular scenarios.  However, the only restrictions we
+have in order to carry out Bayesian modeling is that the prior and likelihood are valid probability distributions
+(in practice even these requirements can often be relaxed).  Bayesian modeling is at its heart a
+generative approach and its real power will be when we design a rich and expressive \emph{generative model} 
+that reflects our application specific knowledge.  In other words, we can define our model
+by carefully constructing a stochastic process that describes how the data and parameters are generated.
+This model then corresponds to the joint distribution $p(\theta,\mathcal{D})$.
+We can then think of providing real data as refining our model, providing an updated distribution
+on the parameters and subsequent predictions that incorporate the information from the data.  The more
+flexible we make our generative model, the more we can make it represent the our data.  The less flexible
+we make the generative model, the more weighting is given to our prior assumptions.
+
+To give an intuitive example of such a generative approach, consider the problem of identifying objects in
+a visual scene.  Here it is relatively straightforward to construct a model for generating images by
+constructing a sampler for which objects appear in the scene and their respective positions.  Such
+graphics generators are used for computer games all the time.  Here our parameters are the objects and
+the data is the image.  Bayesian inference can now be thought of as the process of \emph{inverting} our generator:
+given objects we can generate images but we want to identify objects from images.  We will refer
+to these ideas in Chapter~\ref{chp:probprog} where we show how, using probabilistic programming,
+one can think of all stochastic simulators as defining Bayesian models and as the process of inference as
+inverting these simulators.
 
 \subsection{Graphical Models}
+\label{sec:bayes:paradigm:graph}
+
+Generative models will typically have many variables and a complex \emph{dependency structure}.
+
 
 \subsection{Challenges and Shortcomings}
