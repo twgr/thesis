@@ -44,6 +44,9 @@ respectively.   A probability of $0$ indicates that an event has no chance of ha
 for example the probability that we role an $8$, while
 a probability of $1$ indicates it is certain to happen, for example the probability 
 that we role a number less than $7$.  All probabilities much thus lie (inclusively) between $0$ and $1$.  
+A \emph{distribution} of a random variable provides the probabilities of each possible 
+outcome for that random variable occurring.
+
 We will regularly use the shorthand $P(x)$ to denote the probability of the event $P(X=x)$.  
 We reiterate the importance distinction between the random variable $X$ and the outcome $x$:
 the former has an unknown value (e.g. the result of the dice roll) and the latter is
@@ -62,13 +65,32 @@ detached from the practical differences between the resulting
 algorithms~\citep{steinhardt2012beyond}, despite the former all too often be used to argue
 the superiority of one approach over another.
 
+\section{Conditioning and Independence}
+\label{sec:prob:cond}
+
 A \emph{conditional probability} is the probability of an event given that another event has occurred.
 For example, the conditional probability that we roll a $4$ with a dice given that we have rolled a $3$ or
 higher is $P(X=4 | X\ge3) = 0.25$.  More typically, we will condition on events that are separate but
 correlated to the event we care about.  For example, the probability of dying of lung cancer is higher
 is you smoke.  The process of updating a probability using the information from another event is
 known as conditioning on that event.  For example, one can condition the probability that a football team
-will win the league this seasons on the results from their first few games.  
+will win the league this seasons on the results from their first few games.
+
+Events are \emph{independent} if the occurrence of one event does not effect the probability of 
+the occurrence of the other event.  Similarly random variables are independent if the outcome of
+one random variable does not affect the distribution of the other.  Independence of random variables
+indicates the probability of that variable is the same as the conditional probability given the other
+variable, i.e. if $X$ and $Y$ are independent, $P(X=x)=P(X=x|Y=y)$ for all possible $y$.  Note that 
+independence does not necessarily carry over when adding or removing a conditioning:
+if $X$ and $Y$ are independent, this does not necessarily mean that $P(X=x|A) = P(X=x|A,Y=y)$
+for some event $A$.  For example, the probability that the next driver to pass a speed camera
+is speeding and that the speed camera is
+malfunctioning can be reasonably safely presumed to be independent.  However, conditioned on the
+event that the speed camera is triggered, the two are clearly not independent as if the camera is working,
+this would indicate that the driver is speeding.
+If $P(X=x|A) = P(X=x|A,Y=y)$ holds, then $X$ and
+$Y$ are known as conditionally dependent given $A$.  In the same way that independence does not
+imply conditional independence, conditional independence does not imply non-conditional independence.
 
 \section{The Laws of Probability}
 \label{sec:prob:laws}
@@ -87,6 +109,8 @@ An immediate consequence of the product rule is Bayes' rule,
 P(A|B) = \frac{P(B|A)P(A)}{P(B)},
 \end{align}
 which we return at length in Section~\ref{sec:bayes:paradigm}.
+Another is that for independent random variables, the joint distribution is the product of the
+individual probabilities: $P(A,B)=P(A)P(B)$.
 
 The sum rule has a number of different representations, the most general of which is that 
 the probability that either $A$ or $B$ occurs, $P(A\cup B)$, is given by
