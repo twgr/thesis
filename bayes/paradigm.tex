@@ -1,5 +1,8 @@
 % !TEX root = ../main.tex
 
+\section{Learning from Data -- the Bayesian Paradigm}
+\label{sec:bayes:paradigm}
+
 At its core, the Bayesian paradigm is simple, intuitive, and compelling: for any task involving
 learning from data we start with some prior knowledge and then update that knowledge to
 incorporate information from the data.  This process is known as \emph{Bayesian inference}.
@@ -47,13 +50,13 @@ There is similarly something distinctively Bayesian to the scientific process it
 to explain observed phenomena and then run experiments to validate how well our model matches
 real observations.  We then update and improve our model accordingly in a never ending process of
 increasing understanding for the world around us.  We can never hope to truly understand the workings
-of the universe  -- after all it is, at least for practical purposes, fundamentally random~\citep{rainforth2013random} 
+of the universe  -- after all, it is, at least for practical purposes, fundamentally random~\citep{rainforth2013random} 
 -- and so we can hope only to construct increasingly accurate and pertinent models.
 
 To give a more concrete example of Bayesian modeling consider estimating
 the probability of getting a heads from a weighted coin.  Lets call this weighting $\theta \in [0,1]$ such
 that the probability of getting a heads  ($H$)  when flipping the coin is $p(Y=H | \theta)=\theta$
-where $Y$ is the output of the flip.  This will be our likelihood function, corresponding to a
+where $Y$ is the outcome of the flip.  This will be our likelihood function, corresponding to a
 \emph{Bernoulli} distribution, noting that the probability
 of getting a tails ($T$) is $p(Y = T | \theta) = 1-\theta$.
 Prior to seeing the coin being flipped we have some prior belief on the weighting of the coin.  We
@@ -232,11 +235,3 @@ given objects we can generate images but we want to identify objects from images
 to these ideas in Chapter~\ref{chp:probprog} where we show how, using probabilistic programming,
 one can think of all stochastic simulators as defining Bayesian models and as the process of inference as
 inverting these simulators.
-
-\subsection{Graphical Models}
-\label{sec:bayes:paradigm:graph}
-
-Generative models will typically have many variables and a complex \emph{dependency structure}.
-In other words, 
-
-\subsection{Challenges and Shortcomings}
