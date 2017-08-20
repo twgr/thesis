@@ -81,22 +81,22 @@ of each node given its parents.  As shown in~\eqref{eq:bayes:example-graph}, the
 all these factors is equal to our joint distribution.  The DAG has thus formed a convenient means
 of representing our generative process.
 
-Clearly our aim for this problem will be to find the marginal probability $p(b|c)$.  To calculate this
-we will need to perform Bayesian inference as explained.
+Clearly our aim for this problem will be to find the marginal probability $p(b|c)$ which will
+require Bayesian inference.
 An importance feature of the breakdown of graphical models will become apparent when we
-consider how we can conduct Bayesian inference more a general class of 
+consider how we can conduct such inference for more a general class of 
 models where the solution is no analytic in Chapter~\ref{chp:inf}.  Here knowing the dependency
 structure, and in particular the independence relationships, will be essential to many inference 
 schemes such as message passing schemes.
 
-A natural question is now how can we deduce the independence relationships from DAG?
+A natural question is now how can we deduce the independence relationships from a DAG?
 This can be done by introducing the notion of \emph{d-separation}~\citep{pearl2014probabilistic}.
-Consider three arbitrary, non-intersecting, subsets of our DAG $A$, $B$, and $C$.  $A$ and $B$
+Consider three arbitrary, non-intersecting, subsets $A$, $B$, and $C$ of our DAG.  $A$ and $B$
 are conditionally independent given $C$ if there is no \emph{unblocked} paths from $A$ to $B$
 (or equivalently from $B$ to $A$), in which case $A$ is said to be d-separated from $B$ by $C$.  
 Paths do not need to be in the directions defined by the DAG but are blocked if either
 \begin{enumerate}
-	\item Two consecutive arrows in the path both point towards a node that is not $C$ and
+	\item Two consecutive arrows in the path both point towards a node that is not in and
 	has no descendants in $C$, i.e. we cannot get to any of the nodes in $C$ by following the arrows
 	from this node.
 	\item Two consecutive arrows in the path meet at a node in $C$ and one of them
@@ -189,14 +189,14 @@ In the simple example of Figure~\ref{fig:bayes:simple-graph} there were no indep
 we gain little from working with the DAG compared to just the joint probability distribution.
 A more advanced example where there are substantial independence relationships which can
 be exploited is shown in Figure~\ref{fig:bayes:hmm}.
-  This model is known as a hidden Markov model 
-(HMM)\footnote{The use of the tern HMM in the literature (and later in this paper) often also implies that
+  This model is known as a hidden Markov 
+model\footnote{The use of the tern HMM in the literature (and later in this paper) often also implies that
 	the latent states are discrete variables, with the equivalent continuous model referred to as a
-	(Markovian) state space model.}
+	(Markovian) state space model.} (HMM)
 and has $T$ latent variables $x_{1:T}$ and $T$ observations $y_{1:T}$.  The joint distribution is as follows
 \begin{align}
 \label{eq:bayes:hmm}
-p(x_{1:T},y_{1:T}) = p(x_1) p(y_1|x_1)\prod_{t=2}^{T} p(x_t|x_{t-1})p(y_t|x_t).
+p(x_{1:T},y_{1:T}) = p(x_1) p(y_1|x_1)\prod_{t=2}^{T} p(x_t|x_{t-1})p(y_t|x_t),
 \end{align}
 where each $x_t$ is
 independent of $x_{1:{t-2}}$ and $y_{1:t-1}$ given $x_{t-1}$ and of $x_{t+2:T}$ and $y_{{t+1}:T}$ given $x_{t+1}$.
@@ -205,10 +205,8 @@ variables and observations through its immediate neighbours.  In essence, the mo
 is passed forwards (or backwards) only through the value of the previous latent state.  A number of stochastic
 processes and dynamical systems obey the Markov property and HMMs and their extensions are extensively used for
 a number of tasks involving sequential data from DNA sequencing~\citep{durbin1998biological} to tracking
-animals~\citep{dhir2016tracking,dhir2017interpreting}.  A key part to their appeal is that the structure of the
-DAG can be exploited to give analytic solutions to resulting Bayesian inference whenever each $p(y_t | x_t)$ 
-and $p(x_t | x_{t-1})$ is either a discrete or Gaussian distribution. Even when this does not hold, there 
-are still a number of features of the dependency structure that can make the inference substantially easier.
+animals~\citep{dhir2016tracking,dhir2017interpreting}.  For example, in a dynamical system, then the next state
+depends only on the dynamics of the system and its  current state (e.g. position velocity etc).
 
 \begin{figure}[t]
 	\centering 
@@ -217,9 +215,17 @@ are still a number of features of the dependency structure that can make the inf
 		\label{fig:bayes:hmm}}
 \end{figure}
 
-We finish the section by noting a potential problem with the inference for models such as the HMM being analytic,
-or more specifically a problem with the lack of analytical solutions for other problems.  As we will show
-in Chapter~\ref{chp:inf}, Bayesian inference is generally a challenging problem, often prohibitively so.  As
-such, simplifying approximations or unjustified assumptions are often made for tractability so that a model 
-like the HMM can be used. Though often necessary, this must be done with extreme care and implications of 
-the approximations carefully considered.
+A key part to the appeal of HMMs is that the structure of the
+DAG can be exploited to give analytic solutions to resulting Bayesian inference whenever each $p(y_t | x_t)$ 
+and $p(x_t | x_{t-1})$ is either a discrete or Gaussian distribution. Even when this does not hold, there 
+are still a number of features of the dependency structure that can make the inference substantially easier.
+As we will show in Chapter~\ref{chp:inf}, Bayesian inference is generally a challenging problem, often prohibitively so.
+Therefore the (fast) analytic inference for HMMs is highly convenient.  However, it can mean that HMMs are perhaps overused.
+More generally, simplifying approximations or unjustified assumptions are often made by Bayesian practitioners 
+for tractability, e.g. by using an off-the-shelf model like a HMM with known analytic solution. Though often necessary, 
+this must be done with extreme care and the implications of the approximations should carefully considered.  Unfortunately, 
+quantifying the implications of approximations can be very difficult, given that they are typically made in the interest
+of tractability in the first place.  The is a serious practical weakness of Bayesian modeling and should be factored in
+to the decision processes of whether taking a Bayesian approach or not.  While taking a Bayesian approach for large projects, 
+one should, in general, avoid making approximations or non-clearcut assumptions until absolutely necessary, but also 
+keep in mind that it may be necessary to do so further down the line and account for this appropriately.

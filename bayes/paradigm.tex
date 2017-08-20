@@ -22,8 +22,8 @@ incorporated
 \end{align}
 Here the denominator, $p(\mathcal{D})$, is a normalization constant know as the \emph{marginal
 	likelihood} and is necessary to ensure $p(\theta | \mathcal{D})$ is a valid probability distribution
-(or probability density for continuous problems).  The high level interpretation of~\eqref{eq:bayes:bayes} is
-thus that the posterior is proportional the to the prior times the likelihood.  
+(or probability density for continuous problems).  One can therefore think of Bayes' rule in the even
+simpler form of the posterior being proportional to the prior times the likelihood.
 For such a fundamental theorem, Bayes' rule has a remarkably simple derivation, following directly
 from the product rule of probability as shown in Chapter~\ref{chp:prob}.
 
@@ -32,19 +32,20 @@ one task becomes the prior when the model is updated with more data, i.e.
 \begin{align}
 	\label{eq:bayes:repeat-bayes}
 p(\theta | \mathcal{D}_1, \mathcal{D}_2) = 
-\frac{p(\mathcal{D}_2 | \theta, \mathcal{D}_1)p(\theta | \mathcal{D}_1)}{p(\mathcal{D}_2 | \mathcal{D}_1)}
+\frac{p(\mathcal{D}_2 | \theta, \mathcal{D}_1)p(\theta | \mathcal{D}_1)}{p(\mathcal{D}_2 | \mathcal{D}_1)} =
 \frac{p(\mathcal{D}_2 | \theta, \mathcal{D}_1)p(\mathcal{D}_1 | \theta) p(\theta)}
-{p(\mathcal{D}_2 | \mathcal{D}_1) p(\mathcal{D}_1)} 
+{p(\mathcal{D}_2 | \mathcal{D}_1) p(\mathcal{D}_1)} .
 \end{align}
-This means their is something quintessentially human about the Bayesian paradigm: we learn
+As a consequence, their is something quintessentially human about the Bayesian paradigm: we learn
 from our experiences by updating our beliefs after making observations.  Our model of the world
 is constantly evolving over time and is the cumulation of experiences over a lifetime.  
 If we make an observation that goes against our prior experience, we do not suddenly make
 drastic changes to our underlying belief, but if we see multiple corroborating observations our
 view will change.
-This also sometimes leads to less savory elements of human behavior -- once we have developed
+Furthermore, once we have developed
 a strong prior belief about something, we can take substantial convincing to change our mind, even
-if that prior belief is high illogical.
+if that prior belief is high illogical.  Perhaps this why humans seem to have a tendency to develop
+deep rooted prejudices.
 
 There is similarly something distinctively Bayesian to the scientific process itself.  In science we construct models
 to explain observed phenomena and then run experiments to validate how well our model matches
@@ -52,6 +53,8 @@ real observations.  We then update and improve our model accordingly in a never 
 increasing understanding for the world around us.  We can never hope to truly understand the workings
 of the universe  -- after all, it is, at least for practical purposes, fundamentally random~\citep{rainforth2013random} 
 -- and so we can hope only to construct increasingly accurate and pertinent models.
+This sequential updating, at the very least, shares parallels with the process of Bayesian modeling
+and could be argued to be a fundamentally Bayesian process in its own right.
 
 To give a more concrete example of Bayesian modeling consider estimating
 the probability of getting a heads from a weighted coin.  Lets call this weighting $\theta \in [0,1]$ such
@@ -59,7 +62,7 @@ that the probability of getting a heads  ($H$)  when flipping the coin is $p(Y=H
 where $Y$ is the outcome of the flip.  This will be our likelihood function, corresponding to a
 \emph{Bernoulli} distribution, noting that the probability
 of getting a tails ($T$) is $p(Y = T | \theta) = 1-\theta$.
-Prior to seeing the coin being flipped we have some prior belief on the weighting of the coin.  We
+Before seeing the coin being flipped we have some prior belief about its weighting.  We
 can therefore define a prior $p(\theta)$, for which we take the beta distribution
 \begin{align}
 \label{eq:bayes:beta}
@@ -71,7 +74,7 @@ A plot for this prior is shown in Figure~\ref{fig:inf:coin_flip:0}
 where we see that under our prior then it is more probable that $\theta$ is close to $0.5$ than the
 extremes $0$ and $1$.  
 
-Now imagine that we fill the coin and get a tails ($T$).  We can
+Now imagine that we flip the coin and get a tails ($T$).  We can
 use our prior and likelihood to calculate the posterior
 \begin{align}
 p(\theta | Y_1 = T) &= \frac{p(\theta) p(Y_1=T | \theta)}{\int p(\theta) p(Y_1=T | \theta) d\theta} = \frac{\theta (1-\theta)^2}{\int \theta (1-\theta)^2 d\theta} \nonumber \\
@@ -84,11 +87,11 @@ a posterior that is of the same form as the prior distribution.  More generally,
 $\textsc{Beta}(\theta ; \alpha, \beta)$ then the posterior will be $\textsc{Beta}(\theta ; \alpha+1, \beta)$
 if we observe a heads and $\textsc{Beta}(\theta ; \alpha, \beta+1)$ if we observe a tails.
 Figure~\ref{fig:inf:coin_flip:1} shows that our
-posterior incorporates the information from the prior and the observed data.  Namely, the distribution
-has drifted towards it being more probable that $\theta<0.5$ because of observing a tails.  However,
-it also reflects the fact that we are still uncertain about the value of $\theta$ -- it is not simply the
-empirical average of our observations which would give $\theta=0$ -- and because we have only
-seen one observation, our uncertainty is still quite high.
+posterior incorporates the information from the prior and the observed data.  Namely, our observations 
+means the distribution
+has drifted towards it being more probable that $\theta<0.5$.  The posterior
+also reflects the fact that we are still uncertain about the value of $\theta$, it is not simply the
+empirical average of our observations which would give $\theta=0$.
 
 \begin{figure}[t]
 	\centering
@@ -231,7 +234,7 @@ a visual scene.  Here it is relatively straightforward to construct a model for 
 constructing a sampler for which objects appear in the scene and their respective positions.  Such
 graphics generators are used for computer games all the time.  Here our parameters are the objects and
 the data is the image.  Bayesian inference can now be thought of as the process of \emph{inverting} our generator:
-given objects we can generate images but we want to identify objects from images.  We will refer
+given objects we can generate images but we want to identify objects from images.  We will return
 to these ideas in Chapter~\ref{chp:probprog} where we show how, using probabilistic programming,
 one can think of all stochastic simulators as defining Bayesian models and as the process of inference as
 inverting these simulators.
