@@ -59,12 +59,22 @@ such as a persistent cough.  Here we have the following natural breakdown of the
 \label{eq:bayes:example-graph}
 p(a,b,c) = p(a) p(b|a) p(c|a,b).
 \end{align}
+\begin{wrapfigure}{r}{0.35\textwidth}
+	\vspace{-12pt}
+	\centering 
+	\resizebox{.32\textwidth}{!}{
+		\input{bayes/figures/simple_graph.tex}
+	}
+	\caption{Simple example DAG corresponding to~\eqref{eq:bayes:example-graph}
+		\label{fig:bayes:simple-graph}}
+	\vspace{-10pt}
+\end{wrapfigure}
 The lifestyle and genetic factors will generally either be known or can be estimated from tests or
 simply prevalence within the population.  These factors, the likelihood of somebody developing
 lung cancer can be modeled using existing data and domain expertise.   Given the lifestyle and
 genetic factors and the knowledge of whether lung cancer is present, we can predict the likelihood
 of observing the observed symptoms.  We can express our model and this factorization using
-the DAG shown in Figure INSERT.\todo{Add DAG}
+the DAG shown in Figure~\ref{fig:bayes:simple-graph}.
   Here we have shaded in $c$ to express the fact that this is
 observed.  The graphical model expresses our dependency structure as we have the probability
 of each node given its parents.  As shown in~\eqref{eq:bayes:example-graph}, the product of
@@ -77,8 +87,7 @@ An importance feature of the breakdown of graphical models will become apparent 
 consider how we can conduct Bayesian inference more a general class of 
 models where the solution is no analytic in Chapter~\ref{chp:inf}.  Here knowing the dependency
 structure, and in particular the independence relationships, will be essential to many inference 
-schemes such as sequential Monte Carlo and message
-passing schemes.\todo{Add refs to relevant sections}
+schemes such as message passing schemes.
 
 A natural question is now how can we deduce the independence relationships from DAG?
 This can be done by introducing the notion of \emph{d-separation}~\citep{pearl2014probabilistic}.
@@ -88,17 +97,95 @@ are conditionally independent given $C$ if there is no \emph{unblocked} paths fr
 Paths do not need to be in the directions defined by the DAG but are blocked if either
 \begin{enumerate}
 	\item Two consecutive arrows in the path both point towards a node that is not $C$ and
-	has no descendants in $C$, i.e. we cannot get to any of nodes in $C$ by following the arrows
+	has no descendants in $C$, i.e. we cannot get to any of the nodes in $C$ by following the arrows
 	from this node.
 	\item Two consecutive arrows in the path meet at a node in $C$ and one of them
 	points away from the node.
 \end{enumerate}
-Examples of blocked paths are shown in Figure INSERT while examples of unblocked paths
-are shown in Figure INSERT, explanations for which are shown in the captions.\todo{Add Figures and captions}
+Note that only the first of these rules is necessary for establishing marginal independence
+between nodes as this rule can still be used when $C$ is empty.
+Examples of blocked paths are shown in Figure~\ref{fig:bayes:blocked-graphs} while examples of unblocked paths
+are shown in Figure~\ref{fig:bayes:unblocked-graphs}, explanations for which are given in the captions.
 For a more comprehensive introduction to establishing independence in DAGs we
 refer the reader to Section 8.2 of~\cite{bishop2006pattern}.
 
-In the simple example of Figure INSERT there were no independence relationships and so
+\begin{figure}[p]
+	\centering 
+	\begin{subfigure}[t]{0.32\textwidth}
+		\centering
+		\resizebox{0.9\textwidth}{!}{
+		\input{bayes/figures/block1.tex}}
+		\caption{\label{fig:bayes:block1}}
+	\end{subfigure}
+	\begin{subfigure}[t]{0.32\textwidth}
+		\centering
+		\resizebox{0.9\textwidth}{!}{
+		\input{bayes/figures/block2.tex}}
+		\caption{\label{fig:bayes:block2}}
+	\end{subfigure}
+	\begin{subfigure}[t]{0.32\textwidth}
+		\centering
+		\resizebox{0.9\textwidth}{!}{
+		\input{bayes/figures/block3.tex}}
+		\caption{\label{fig:bayes:block3}}
+	\end{subfigure}
+	\caption{Examples of DAGs blocked between $a$ and $b$.  \textbf{(a)} is blocked
+		by the second rule of d-separation.  More specifically we have 
+		$p(b|a,c)=\frac{p(a,b,c)}{p(a,c)} = \frac{p(a)p(c|a)p(b|c)}{p(a)p(c|a)} = p(b|c)$.
+		\textbf{(b)} is blocked by the first rule of d-separation.  Here we have
+		$p(b|a,c)=\frac{p(c)p(a|c)p(b|c)}{p(c)p(a|c)} = p(b|c)$.  Consequently, for \textbf{(a)} 
+		and \textbf{(b)} then $a$ and $b$ are conditionally independent given $c$ .
+		\textbf{(c)} is an instead example of where $a$ and $b$ are marginally independent.  Here
+		the path between $a$ and $b$ is blocked because the the arrows meet head-to-head at 
+		$d$ and neither $d$ nor any of its
+		descendants are observed.  We thus have $p(b|a) = \frac{p(a)p(b)p(d|a,b)}{p(a)p(d|a,b)} = p(b)$.
+		Note though that $a$ and $b$ are note conditionally independent given $d$ as
+		the path becomes unblocked if this is observed (see Figure~\ref{fig:bayes:unblocked-graphs}).
+		\label{fig:bayes:blocked-graphs}}
+\end{figure}
+
+\begin{figure}[p]
+	\centering 
+	\hspace{-15pt}
+	\begin{subfigure}[t]{0.32\textwidth}
+		\centering
+		\resizebox{0.9\textwidth}{!}{
+		\input{bayes/figures/unblock1.tex}}
+		\caption{\label{fig:bayes:unblock1}}
+	\end{subfigure}
+	\begin{subfigure}[t]{0.32\textwidth}
+		\centering
+		\resizebox{0.9\textwidth}{!}{
+		\input{bayes/figures/unblock2.tex}}
+		\caption{\label{fig:bayes:unblock2}}
+	\end{subfigure}
+	\begin{subfigure}[t]{0.32\textwidth}
+		\centering
+		\resizebox{1.1\textwidth}{!}{
+		\input{bayes/figures/unblock3.tex}}
+		\caption{\label{fig:bayes:unblock3}}
+	\end{subfigure}
+	\caption{Examples of DAGs unblocked between $a$ and $b$. For \textbf{(a)} then the path from $a$ to
+		$b$ is not blocked by the d-separation rules.  Perhaps more intuitively, we have that
+		$p(b|a) = \int p(b,d|a) dd = \int p(b|d)p(d|a) dd \neq p(b)$ unless $p(d|a)=p(d)$.
+		Similarly there is an unblocked path for \textbf{(b)} from $a$ to $b$ as the path
+		that does not pass through any observed nodes or nodes with both arrows points towards it.
+		Here we have $p(b|a) = \frac{p(d)p(a|d)p(b|d)}{p(a)p(d|a,b)} \neq p(b)$ again in general.
+		The path in \textbf{(c)} is unblocked because of the phenomenon of \emph{explaining away}.
+		The first rule of d-separation does not apply here because $c$ is an observed descent of
+		$d$.  We thus have that $a$ and $b$ are marginally independent as per Figure~\ref{fig:bayes:block3},
+		but not conditionally independent given $c$ (and/or $d$). The rationale for explaining away can thought
+		of in terms of events needing an explanation -- if two precursor events (here $a$ and $b$) can give rise 
+		to a third event (here $c$), then
+		the third event occurring but not the first precursor event implies that the second precursor
+		event occurs.  Thus the two precursor events are correlated because one \emph{explains away} the other.
+		As described in Section~\ref{sec:prob:cond}, one example of this is that if a speed camera is
+		triggered and the camera is not malfunctioning, this implies the vehicle is speeding, even though
+		the vehicle speeding and the camera malfunctioning are marginally independent.	
+		\label{fig:bayes:unblocked-graphs}}
+\end{figure}
+
+In the simple example of Figure~\ref{fig:bayes:simple-graph} there were no independence relationships and so
 we gain little from working with the DAG compared to just the joint probability distribution.
 A more advanced example where there are substantial independene relationships which can
 be exploited is shown in Figure INSERT.  This model is known as a HMM\dots Markov property

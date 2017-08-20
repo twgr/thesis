@@ -1,0 +1,21 @@
+% !TEX root = ../../main.tex
+
+\begin{tikzpicture}
+
+%\node[latent]  (a) {$a$};
+%\node[latent, right=2.4cm of a]  (b) {$b$};
+%\node[latent, below= of a, xshift=1.2cm] (d) {$d$};
+%%\node[latent, right=1.8cm of d]             (e) {$e$};
+%
+%%\edge {d} {e} ; %
+%\edge {a} {d} ; %
+%\edge {b} {d} ; %
+
+\node[latent]                               (d) {$d$};
+\node[latent, above=of d, xshift=-1.2cm] (a) {$a$};
+\node[latent, above=of d, xshift=1.2cm]  (b) {$b$};
+
+\edge {a} {d} ; %
+\edge {b} {d} ; %
+
+\end{tikzpicture}

@@ -1,0 +1,12 @@
+% !TEX root = ../../main.tex
+
+\begin{tikzpicture}
+
+\node[latent]                               (d) {$d$};
+\node[latent, below=of d, xshift=-1.2cm] (a) {$a$};
+\node[latent, below=of d, xshift=1.2cm]  (b) {$b$};
+
+\edge {d} {a} ; %
+\edge {d} {b} ; %
+
+\end{tikzpicture}
