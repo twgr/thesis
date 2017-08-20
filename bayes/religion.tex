@@ -136,7 +136,16 @@ information is often essential for effective modelling.
 Now we have exposed some shortcomings of the frequentist approach, lets consider if the Bayesian approach does any better.
 Unfortunately, we find that the Bayesian approach is also not without its shortcomings.  We have already discussed one
 key criticism in the last section in that the Bayesian approach relies on the likelihood principle which itself may not
-be sound, or at the very least ill-suited for some statistical modeling problems.
+be sound, or at the very least ill-suited for some statistical modeling problems.  More generally, it can be seen as
+foolhardy to not consider other possible datasets that might have been generated.  The rationale typically given for
+this is that we should use all the information available in the data and by calculating a frequentist risk we are throwing
+some of this away.  For example, cross-validation approaches only ever use a subset of the data when training the model.
+However, a common key aim of statistics is generalization and repeatability.  Bayesian approaches will often reach
+spectacularly different conclusions for purely random changes between different datasets.  Consider for example, a binary
+classification
+problem were classifier $A$ classifies one billion of two billion points in the dataset correctly while classifier $B$
+gets one billion and one thousand of data points correctly.  This increase in classification accuracy of $0.00005\%$ but
+for 
 
 \subsection{Are there Alternatives?}
 \label{sec:bayes:religion:correct}
