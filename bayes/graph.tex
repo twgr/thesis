@@ -187,8 +187,39 @@ refer the reader to Section 8.2 of~\cite{bishop2006pattern}.
 
 In the simple example of Figure~\ref{fig:bayes:simple-graph} there were no independence relationships and so
 we gain little from working with the DAG compared to just the joint probability distribution.
-A more advanced example where there are substantial independene relationships which can
-be exploited is shown in Figure INSERT.  This model is known as a HMM\dots Markov property
-etc \dots
+A more advanced example where there are substantial independence relationships which can
+be exploited is shown in Figure~\ref{fig:bayes:hmm}.
+  This model is known as a hidden Markov model 
+(HMM)\footnote{The use of the tern HMM in the literature (and later in this paper) often also implies that
+	the latent states are discrete variables, with the equivalent continuous model referred to as a
+	(Markovian) state space model.}
+and has $T$ latent variables $x_{1:T}$ and $T$ observations $y_{1:T}$.  The joint distribution is as follows
+\begin{align}
+\label{eq:bayes:hmm}
+p(x_{1:T},y_{1:T}) = p(x_1) p(y_1|x_1)\prod_{t=2}^{T} p(x_t|x_{t-1})p(y_t|x_t).
+\end{align}
+where each $x_t$ is
+independent of $x_{1:{t-2}}$ and $y_{1:t-1}$ given $x_{t-1}$ and of $x_{t+2:T}$ and $y_{{t+1}:T}$ given $x_{t+1}$.
+This is known as the Markov property and means that each latent variable only depends on the other
+variables and observations through its immediate neighbours.  In essence, the model has no memory as information
+is passed forwards (or backwards) only through the value of the previous latent state.  A number of stochastic
+processes and dynamical systems obey the Markov property and HMMs and their extensions are extensively used for
+a number of tasks involving sequential data from DNA sequencing~\citep{durbin1998biological} to tracking
+animals~\citep{dhir2016tracking,dhir2017interpreting}.  A key part to their appeal is that the structure of the
+DAG can be exploited to give analytic solutions to resulting Bayesian inference whenever each $p(y_t | x_t)$ 
+and $p(x_t | x_{t-1})$ is either a discrete or Gaussian distribution. Even when this does not hold, there 
+are still a number of features of the dependency structure that can make the inference substantially easier.
 
-Improving models - addding hyperparameters to the HMM example\dots
+\begin{figure}[t]
+	\centering 
+	\input{bayes/figures/hmm.tex}
+	\caption{DAG for a hidden Markov model.
+		\label{fig:bayes:hmm}}
+\end{figure}
+
+We finish the section by noting a potential problem with the inference for models such as the HMM being analytic,
+or more specifically a problem with the lack of analytical solutions for other problems.  As we will show
+in Chapter~\ref{chp:inf}, Bayesian inference is generally a challenging problem, often prohibitively so.  As
+such, simplifying approximations or unjustified assumptions are often made for tractability so that a model 
+like the HMM can be used. Though often necessary, this must be done with extreme care and implications of 
+the approximations carefully considered.
