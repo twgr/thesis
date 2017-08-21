@@ -50,7 +50,8 @@ that could have been generate to give the frequentist risk $R(\theta)$ which is 
 \label{eq:bayes:freq-risk}
 R(\theta)  = \E\left[L(a(X),\theta) | \theta \right].
 \end{align}
-The focus is therefore on the generalization of our approach to different datasets that \emph{could} have been generated.
+The focus is therefore on \emph{repeatability}
+the generalization of the approach to different datasets that \emph{could} have been generated.
 Choosing the parameters $\theta$ is thus based on optimizing for the best average performance over possible datasets,
 which common approaches including cross validation and minimax selection of $\theta$.  In some ways this is a pessimistic
 approach and the emphasis is on repeat performance and ensuring satisfactory performance for repeated use on different possible
@@ -65,11 +66,12 @@ to make predictions conditioned on the value of $X$ giving the \emph{posterior e
 where $\pi(\theta)$ is a prior distribution on $\theta$.  Although $\varrho(\pi,X)$ is a function of the data, the Bayesian
 approach takes the data as given (after all we have a particular dataset) and so for a given prior, the posterior
 expected loss is a fixed value and, unlike in the frequentist case, further analysis is not required: the posterior
-conveys all the information required.  The focus in the Bayesian cases is generalizing over all the possible values of
-the parameters.  This can be quite an optimistic approach as it does not consider the fact that, even for a given $\theta$,
+conveys all the information required.  The focus of the Bayesian approach is generalizing over all the possible values of
+the parameters and using all the information at hand.  
+This can be quite an optimistic approach as it does not consider the fact that, even for a given $\theta$,
 other datasets might have been generated.  
 
-\subsection{Why the Frequentist Approach is Flawed}
+\subsection{Shortcomings of the Frequentist Approach}
 \label{sec:bayes:religion:freq}
 
 One of the key criticisms of the frequentist approach is that predictions depend on the experimental procedure and
@@ -130,7 +132,7 @@ argue for elsewhere in the paper), this is itself also a weakness of the frequen
 information is often essential for effective modelling.
 
 
-\subsection{Why the Bayesian Approach is Flawed}
+\subsection{Shortcomings of the Bayesian Approach}
 \label{sec:bayes:religion:bayes}
 
 Now we have exposed some shortcomings of the frequentist approach, lets consider if the Bayesian approach does any better.
@@ -143,12 +145,33 @@ some of this away.  For example, cross-validation approaches only ever use a sub
 However, a common key aim of statistics is generalization and repeatability.  Bayesian approaches will often reach
 spectacularly different conclusions for purely random changes between different datasets.  Consider for example, a binary
 classification
-problem were classifier $A$ classifies one billion of two billion points in the dataset correctly while classifier $B$
-gets one billion and one thousand of data points correctly.  This increase in classification accuracy of $0.00005\%$ but
-for 
+problem were using parameters $\theta_1$ classifies four billion of five billion points in the dataset correctly 
+while using parameters $\theta_2$
+classifies four billion and one thousand of data points correctly.  This gives a difference in classification accuracy 
+of $0.00002\%$ but differences in the posterior probabilities for $\theta_1$ and $\theta_2$ will generally
+be huge.\todo{Make this concrete}
+Now presume that we regenerate our data and that each new point is drawn i.i.d.,
+ that the probability of it being correctly classified using $\theta_1$ is independent to the probability of
+being correctly classified by $\theta_2$, and that these probabilities are equal to the empirical misclassification
+rates.  The probability that $\theta_1$ gives a better misclassification rate for the new dataset is around
+almost $50\%$, even though previous posterior suggested that $\theta_2$ was substantially better than $\theta_1$.
+Furthermore, if $\theta_1$ does give a a much better misclassification rate for the new dataset, it is likely 
+to be assigned a substantially higher mass under then posterior that $\theta_2$, even though we known that 
+the latter is actually asymptotically preferable.  In terms of the posterior expected loss, this is not much of a problem
+as for most sensible loss functions this will not substantially change.  However, if our aim is actually to learn 
+about $\theta$ then this is quite worrying.  At the very least it shows why we should view posteriors with
+a degree of skepticism, rather than taking them as ground truth.
+
+Another concern for Bayesian approaches is the choice of the prior \dots \todo[inline]{write me}
+
+Lack of ability to take discriminant approac
+
+Computational intensity, particularly in terms of prediction compared to using point estimate for $\theta$.
 
 \subsection{Are there Alternatives?}
 \label{sec:bayes:religion:correct}
+
+\todo[inline]{Rewrite and expand the next paragraph}
 
 We might now ask, is anything correct?  The answer here is probably no, but that this does not really matter.  All methods
 have their strengths and weaknesses and provided we use approaches appropriate to the problem at hand, things short work out.
@@ -157,17 +180,18 @@ by averaging both over data and over parameters, leading to the \emph{Bayes risk
 about the results from a cross validation test.  Such an approach is still inevitably not universal -- we still need to choose
 a prior, 
 
+We argue that the two positions that are completely indefensible are the complete dismissal of Bayesian
+methods and the complete dismissal of frequentist methods.  We have demonstrated that their are shortfalls
+in both and, in general, there will be some cases were one is preferable and some where the other is.  In
+particular, the Bayesian approach is essential when working with small datasets but where we have substantial
+prior expertise.  On the other hand, a frequentist approach is essential to ensuring repeatability for large
+datasets with little prior knowledge of note.  
+We will take a Bayesian approach for most of the rest of this thesis, but this is decision based subject matter and
+to give focus of the work, rather than a point of principle.
 
-
-
-Issues of Bayesian model averaging.
-
+\todo[inline]{Missing points
 Bayesian models are slow in prediction
-
-Optimist vs pessimist
 
 mean vs median
 
-Both assume some true underlying $\theta$ - often inferior to say an ensemble approach.
-
-Will take a Bayesian approach for most of the thesis, but as a subject matter, rather than a point of principle.
+Both assume some true underlying $\theta$ - often inferior to say an ensemble approach, Issues of Bayesian model averaging.}
