@@ -1,0 +1,37 @@
+% !TEX root = ../main.tex
+
+\section{Inverting Simulators -- a User's View}
+\label{sec:probprog:inv}
+
+Though the use of Bayesian modeling through the sciences and engineering is widespread,
+it is still dwarfed by the use of simulators more generally.  Some simulations are inherently
+probabilistic, such as many of those used in statistical physics~\citep{landau2014guide},
+ financial modeling~\citep{jackel2002monte}, and weather prediction~\cite{evensen1994sequential}.  
+ Others are deterministic approximations
+of a truly stochastic world, such as lap time simulation for formula one cars~\citep{perantoni2014optimal}
+and finite element simulations for fluid dynamics~\citep{versteeg2007introduction}.
+In many of these scenarios, real data is also available, but not in sufficient quantities that the carefully
+constructed simulations can be done away with entirely and replaced by a purely data based
+approach.  
+
+Imagine the potential utility of general purpose methods for incorporating real data
+into these simulators to improve them, without having to throw away the existing carefully constructed models.  
+What about if we could even find methods for automatically
+inverting these simulators?  Given a target lap time, we could return the best car setup; given observations
+of and a simulator for human behavior, we could learn about the underlying cognitive processes; given
+a climate change model and measurements, we might infer what the driving factors are.  The ambitious long
+term aim of probabilistic programming is to solve such problems and to do so in automated fashion
+so that it requires little or no statistical expertise on the behalf of the user, allowing for simple, widespread usage
+across many fields.  
+In a hypothetical future where scientists
+code all their simulators in extremely powerful probabilistic programming systems, these tasks would
+all be automated in the same way current compilers convert high-level coding languages to machine code.  
+However, this ability is not completely
+hypothetical -- many such problems can already be handled by existing systems.  The challenge
+is improving and scaling such systems to deal effectively with more difficult and more wide ranging models
+in a tractable manner.  The need for such systems to work in an automated manner for a wide array
+of possible problems makes this a very difficult problem, after all we are somewhat flaunting the no-free-lunch
+theorem.  However, there is a key component that provides hope that this may be possible: we have access
+to the target source code of the simulator itself, rather than needing to treat it as a black-box.  Therefore
+maybe we can have our cake an eat it by using the source code itself to guide our algorithms such that
+they behave in problem specific ways.  
