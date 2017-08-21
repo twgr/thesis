@@ -1,17 +1,16 @@
 % !TEX root = ../main.tex
 
-\chapter{Probabilistic Programming and the Need for Automation}
+\chapter{Probabilistic Programming -- the User's Perspective}
 \label{chp:probprog}
 
-\todo[inline]{Better chapter title}
-
 In this chapter we will provide a high level introduction to probabilistic programming,
-outlining its aims and explaining how it can be used for and extend Bayesian modeling.  Our
-key points are the ability of probabilistic programming to provide the \emph{flexibility} to define
-wide ranging and potentially obscure models, \emph{expressivity} by providing a framework for 
+outlining its aims and explaining how it can be used for and to extend Bayesian modeling.  The
+key points we will covey are the ability of probabilistic programming systems (PPSs) to provide 
+the \emph{flexibility} to define
+wide ranging and potentially obscure models, the \emph{expressivity} of a framework for 
 model definition that is more in line we conventional scientific simulation than mainstream 
-statistical approaches, and \emph{automation} by decoupling model specification and inference 
-using general purpose inference engines that run on any problem the user might write.  
+statistical approaches, and the \emph{automation} to  run on any problem the user might write
+by decoupling model specification and inference.
 Together these characteristics produce a framework that allows researchers whose expertise 
 lies elsewhere, to carry out powerful statistical analyses and deliver the best possible 
 performance for their application specific tasks.  It also aids in the development of both inference
@@ -26,11 +25,11 @@ techniques not usually associated with Bayesian modeling in a more Bayesian mind
 We will mostly ignore the rather major issue of how to conduct Bayesian inference for
 models defined in probabilistic programs, assuming for now that we have magical
 general purpose systems, before returning to actually confront this major stumbling
-block in Chapter~\ref{chp:proginf} once we have introduced the problems of Bayesian
-inference more generally.  We will provide a brief introduction to the Anglican probabilistic
-programing system (PPS) to give us a platform for providing examples and highlighting
+block in Chapter~\ref{chp:proginf}, once we have introduced the problems of Bayesian
+inference more generally.  We will provide a brief introduction to the Anglican PPS
+to give us a platform for providing examples and highlighting
 key components of designing a PPS.  Finally, we discuss some of the current limitations
-and opportunities for probabilitistic programming systems (other than the obvious computational
+and opportunities for PPSs (other than the obvious computational
 issues we which return to later), in particular demonstrating how we can use them to go beyond
 standard inference frameworks and why we would want to do so.
 
@@ -41,7 +40,7 @@ standard inference frameworks and why we would want to do so.
 
 Probabilistic programming systems allow users to define probabilistic models using a domain-specific programming language. A probabilistic program implicitly defines a distribution on random variables, whilst the system back-end implements general-purpose inference methods.  
 
-PPS such as Infer.Net \citep{minka_software_2010} and Stan \citep{carpenter2015stan} can be thought of as defining graphical models or factor graphs.  Our focus will instead be on systems such as Church \citep{goodman_uai_2008}, Venture \citep{mansinghka2014venture}, WebPPL \citep{goodman_book_2014}, and Anglican \citep{wood2014new}, which employ a general-purpose programming language for model specification. In these systems, the set of random variables is dynamically typed, such that it is possible to write programs in which this set differs from execution to execution.  This allows an unspecified number of random variables and incorporation of arbitrary black box deterministic functions, such as was exploited by the \simulatec function in Figure \ref{fig:house-heating-code}. The price for this expressivity is that inference methods must be formulated in such a manner that they are applicable to models where the density function is intractable and can only be evaluated during forwards simulation of the program. 
+PPSs such as Infer.Net \citep{minka_software_2010} and Stan \citep{carpenter2015stan} can be thought of as defining graphical models or factor graphs.  Our focus will instead be on systems such as Church \citep{goodman_uai_2008}, Venture \citep{mansinghka2014venture}, WebPPL \citep{goodman_book_2014}, and Anglican \citep{wood2014new}, which employ a general-purpose programming language for model specification. In these systems, the set of random variables is dynamically typed, such that it is possible to write programs in which this set differs from execution to execution.  This allows an unspecified number of random variables and incorporation of arbitrary black box deterministic functions, such as was exploited by the \simulatec function in Figure \ref{fig:house-heating-code}. The price for this expressivity is that inference methods must be formulated in such a manner that they are applicable to models where the density function is intractable and can only be evaluated during forwards simulation of the program. 
 
 
 \section{An Introduction to Anglican}

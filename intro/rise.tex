@@ -1,18 +1,59 @@
 % !TEX root = ../main.tex
 
+How come a dog is able to catch a
+frisbee in mid-air? How come a batsmen can instinctively predict the flight of a cricket ball
+moving at over $100$km/h sufficiently accurately and quickly to hit it with the bat when there
+is not even time to consciously make a prediction?  Clearly neither can be based on an
+deep explicit knowledge of the laws of physics or some hard-coded model for the movement
+of objects; we are not even born with the knowledge that unsupported objects will not 
+fall down~\citep{baillargeon2002acquisition}.  The only reasonable explanation for these
+abilities is that the batsmen and the dog have \emph{learnt from experience}.  We are
+not born with all the knowledge we require to survive, but we are born with the
+ability to learn and adapt, making observations about the world around us and using these
+to refine our cognitive models for everything from the laws of physics to social interaction.
+Classically the scientific method has relied on human interpretation of the world to formulate
+explicit models to explain our internal intuitions, which we then test
+through experimentation.  However, even as a whole scientific society, our models
+are often terribly inferior to the subconscious models of animals and children, such as for most
+tasks revolving around social interaction.  This leads one to ask, is there something fundamentally
+wrong with this hand-crafted modeling approach?  Is there another approach that more mimics the
+way humans themselves learn?
+
+\emph{Machine learning} is an exciting alternative, and often complementary,
+approach that focuses on constructing algorithms and systems that can adapt, or learn, from data in order
+to make predictions that have not been explicitly programmed by the user.
+Machine learning is exciting not only because of the potential it brings
+to automate and improve a wide array of computational tasks, but because it allows us to design 
+systems capable of going beyond the boundaries of human understanding, reasoning
+about and making predictions for tasks we cannot solve directly ourselves.
+As a field, machine leaning is very wide ranging,
+straddling computer science, statistics, engineering, and beyond. 
+It is perhaps most closely related to the field of computational statistics, differing predominantly
+in its emphasis on prediction rather than understanding.  Despite the current hype around the
+field, most of the core ideas have existed for some
+time, often under the guise of pattern recognition, artificial intelligence, or computational 
+statistics.  Nonetheless, the explosion in the availability of data and in computational processing power in recent
+years has led to a surge of interest in machine learning by academia and industry alike, particularly 
+in its application to real world problems.  This interest alone is enough to forgive the hype as the
+spotlight is not only driving the machine learning community itself forward, but helping identify
+huge numbers of applications where existing techniques can be transferred to fantastic effect.
 From autonomous vehicles~\citep{lefevre2014survey}, to speech recognition \citep{jurafsky2014speech},
 and designing new drugs \citep{burbidge2001drug}, machine learning is rapidly becoming a 
 crucial component in many technological and scientific advancements.  
-At its heart, it is the study of algorithms which can adapt, or learn, from data in order
-to make predictions that have not been explicitly programmed by the user.  It is a wide ranging field,
-straddling computer science, statistics, engineering, and beyond. Though it has existed for some
-time, often under the guise of pattern recognition, artificial intelligence, or computational 
-statistics, the explosion in the availability of data and in computational processing power in recent
-years has led to a surge of interest in machine learning by academia and industry alike, particularly 
-in its application to real world problems.  This is exciting not only because of the potential it brings
-to automate and improve a wide array of computational tasks, but because it allows us to design 
-systems capable of going beyond the boundaries of human understanding and prediction, reasoning
-about and making predictions for tasks we cannot solve directly ourselves.
+
+%From autonomous vehicles~\citep{lefevre2014survey}, to speech recognition \citep{jurafsky2014speech},
+%and designing new drugs \citep{burbidge2001drug}, machine learning is rapidly becoming a 
+%crucial component in many technological and scientific advancements.  
+%At its heart, it is the study of algorithms which can adapt, or learn, from data in order
+%to make predictions that have not been explicitly programmed by the user.  It is a wide ranging field,
+%straddling computer science, statistics, engineering, and beyond. Though it has existed for some
+%time, often under the guise of pattern recognition, artificial intelligence, or computational 
+%statistics, the explosion in the availability of data and in computational processing power in recent
+%years has led to a surge of interest in machine learning by academia and industry alike, particularly 
+%in its application to real world problems.  This is exciting not only because of the potential it brings
+%to automate and improve a wide array of computational tasks, but because it allows us to design 
+%systems capable of going beyond the boundaries of human understanding and prediction, reasoning
+%about and making predictions for tasks we cannot solve directly ourselves.
 
 In many machine learning applications it is essential to use a principled \emph{probabilistic} 
 approach \cite{ghahramani2015probabilistic}, incorporating uncertainty and utilizing all the information at hand, 
@@ -20,15 +61,17 @@ particularly when data is scarce.  The \emph{Bayesian paradigm} provides an exce
 specialist constructs a probabilistic model for data generation, conditions this on the actual observations received, 
 and, using Bayes' rule, receives an updated model incorporating this information.  This
 allows both information from existing expertise and from data to be combined in a statistically
-rigorous fashion.
+rigorous fashion.  As such, it allows us to use machine learning to complement the conventional
+scientific approach, rather than directly replacing it: we can construct models in a similar way to
+that which is already done, but then improve and refine these models using data.
 
 Unfortunately, there are two key stumbling blocks that often make it difficult for this idealized
-viewpoint to be realised in practice.  Firstly, a process known as \emph{Bayesian inference} is
-required to solve the specified problems.  Bayesian inference is typically a challenging task, closely 
+viewpoint of the Bayesian machine learning approach to be realised in practice.  Firstly, a process 
+known as \emph{Bayesian inference} is
+required to solve the specified problems.  This is typically a challenging task, closely 
 related to integration, which is often computationally intensive to solve.  Furthermore, it often
 requires significant statistical expertise to implement effectively, creating a substantial barrier to
 entry.  
-
 Secondly, it can be challenging to specify models that are true to the assumptions the user
 wishes to make and the prior information available.  It can again require statistical expertise to abstract
 application specific knowledge to a valid statistical model.  Furthermore, assumptions are often made in the interest
@@ -38,7 +81,7 @@ at hand.
 
 %Similar scenarios of limited data are prevalent through all areas of research; medical trials, materials testing, drug discovery, design of robotic movement and engineering design, to name but a few.  Indeed, the prevalence of such problems is so large, that the problem in solving them is arguably more one of expertise than appropriate techniques.  Bayesian approaches offer a powerful means to mathematically formalize these problems, but the required expertise to effectively solve the resulting inference can be prohibitive, or at least problematic and time consuming, particularly for those from less mathematical backgrounds.
 
-Probabilistic programming systems (PPS) \cite{carpenter2015stan,wood2014new} are an attempt to
+Probabilistic programming systems (PPS) \citep{goodman2008church} are an attempt to
 overcome this dichotomy between the Bayesian ideal and common practice.  Their core philosophy 
 is to decouple model specification and inference, the former corresponding to the user-specified 
 program code, composing of a generative model and statements for conditioning on data, and the 
@@ -54,7 +97,7 @@ and testing of new inference algorithms.  Furthermore, the availability of the t
 code, with known semantics, opens up many opportunities for new methods that would
 not otherwise be possible.
 
-The core theme of this thesis is improving and extending probabilistic programs.  However,
+The theme of this thesis is improving and extending probabilistic programs.  However,
 doing this will require us to make advancements in a number of different research areas such
 as particle Markov chain Monte Carlo methods~\citep{andrieu2010particle,rainforth2016interacting},
 Bayesian optimization~\citep{movckus1975bayesian,rainforth2016bayesian}, and \mc

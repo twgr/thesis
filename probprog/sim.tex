@@ -1,6 +1,6 @@
 % !TEX root = ../main.tex
 
-\section{Inverting Simulators -- a User's View}
+\section{Inverting Simulators}
 \label{sec:probprog:inv}
 
 Though the use of Bayesian modeling through the sciences and engineering is widespread,
@@ -13,19 +13,61 @@ and finite element simulations for fluid dynamics~\citep{versteeg2007introductio
 In many of these scenarios, real data is also available, but not in sufficient quantities that the carefully
 constructed simulations can be done away with entirely and replaced by a purely data based
 approach.  
-
 Imagine the potential utility of general purpose methods for incorporating real data
 into these simulators to improve them, without having to throw away the existing carefully constructed models.  
 What about if we could even find methods for automatically
 inverting these simulators?  Given a target lap time, we could return the best car setup; given observations
 of and a simulator for human behavior, we could learn about the underlying cognitive processes; given
-a climate change model and measurements, we might infer what the driving factors are.  The ambitious long
+a climate change model and measurements, we might infer what the driving factors are.  
+
+The ambitious long
 term aim of probabilistic programming is to solve such problems and to do so in automated fashion
 so that it requires little or no statistical expertise on the behalf of the user, allowing for simple, widespread usage
-across many fields.  
+across many fields.  The key realization is that stochastic simulators implicitly define probability distributions.
+They therefore represent generative models and, using probabilistic programming, we can reason about and
+work with these generative models explicitly.  One typically things of Bayesian modeling in terms of the
+prior and the posterior, but one can also think about it in terms of defining a joint distribution over
+both parameters and data, then fixing the data to the actual data to get a conditional distribution from
+this joint.  One can think about a simulator as defining a joint distribution that outputs data in the form
+of predictions given input parameters.  Probabilistic programming allows us to turn this on its head,
+using the same code as the original simulator but instead providing the observed data as the input and
+inverting the simulator to infer the input parameters and other variables sampled during the program's
+forward execution.  Such inversion is exceptionally useful in its own right, but also allows us to improve
+our simulator using real data by calculating the posterior predictive distribution that incorporates both
+the original model and the information from the data.
+Because a simulator defines a joint probability distribution and because a joint distribution on parameters
+and data fully defines the model in the Bayesian framework, if 
+we can construct our PPS's semantics appropriately all the user 
+needs to do to define their full model is write this forward simulator and provide the data.
+If we can now construct inference engines capable of working on arbitrary code, we can now 
+construct systems for automatic inference on any simulator or model the user defines.
+
+To explain what we mean by inverting simulators more precisely, we will now consider
+the example of inferring Captchas.   Even if the name is not familiar we should all
+have come across Captchas before when a website shows us and image such
+as that shown in Figure INSERT and asks us to
+type the characters in that image to demonstrate we are not a robot.  We now ask the
+Machiavellian but important question: how might we write an algorithm that breaks this Captcha by 
+automatically predicting these characters directly from the image? In other words, 
+can we build a robot that mimics a human on a task specifically designed to 
+distinguish between the two.  If we had access to unlimited supply of training examples with
+character-image pairs we could of course use an off-the-shelf discriminative algorithm;
+neural networks have been used to try and solve the problem in exactly this way with good
+success~\citep{von2008recaptcha}.  However, without access to such data this is rather
+challenging task --- 
+
+Incorporate the observations we do have
+
+If we can make systems that successful carry out the tasks laid out in this section, 
+the huge potential applications this could provide should be clear. We would have a 
+system where the user requires no expertise in inference or conventional
+Bayesian modeling in order to write application specific models and have them solved automatically.
+Instead, they need only have the ability to write stochastic simulators for the process they wish to
+model, a skill possessed my most of the scientific community and many of those outside it as well.
 In a hypothetical future where scientists
-code all their simulators in extremely powerful probabilistic programming systems, these tasks would
-all be automated in the same way current compilers convert high-level coding languages to machine code.  
+code all their simulators in extremely powerful PPSs, tasks such as
+inverting those simulators and improving the simulator by incorporating real data would
+be automated in the same way current compilers convert high-level coding languages to machine code.  
 However, this ability is not completely
 hypothetical -- many such problems can already be handled by existing systems.  The challenge
 is improving and scaling such systems to deal effectively with more difficult and more wide ranging models
@@ -34,4 +76,5 @@ of possible problems makes this a very difficult problem, after all we are somew
 theorem.  However, there is a key component that provides hope that this may be possible: we have access
 to the target source code of the simulator itself, rather than needing to treat it as a black-box.  Therefore
 maybe we can have our cake an eat it by using the source code itself to guide our algorithms such that
-they behave in problem specific ways.  
+they behave in problem specific ways.  We will discuss how this can be done at length in 
+Chapters~\ref{chp:proginf} and~\ref{chp:bopp}.
