@@ -17,48 +17,115 @@ Imagine the potential utility of general purpose methods for incorporating real 
 into these simulators to improve them, without having to throw away the existing carefully constructed models.  
 What about if we could even find methods for automatically
 inverting these simulators?  Given a target lap time, we could return the best car setup; given observations
-of and a simulator for human behavior, we could learn about the underlying cognitive processes; given
+of and, a simulator for human behavior, we could learn about the underlying cognitive processes; given
 a climate change model and measurements, we might infer what the driving factors are.  
 
 The ambitious long
 term aim of probabilistic programming is to solve such problems and to do so in automated fashion
 so that it requires little or no statistical expertise on the behalf of the user, allowing for simple, widespread usage
 across many fields.  The key realization is that stochastic simulators implicitly define probability distributions.
-They therefore represent generative models and, using probabilistic programming, we can reason about and
-work with these generative models explicitly.  One typically things of Bayesian modeling in terms of the
+They therefore represent generative models and, using probabilistic programming, we can reason about, and
+work with, these generative models explicitly.  One typically thinks of Bayesian modeling in terms of the
 prior and the posterior, but one can also think about it in terms of defining a joint distribution over
-both parameters and data, then fixing the data to the actual data to get a conditional distribution from
-this joint.  One can think about a simulator as defining a joint distribution that outputs data in the form
-of predictions given input parameters.  Probabilistic programming allows us to turn this on its head,
+both parameters and data, then fixing the latter to the actual observations to get a conditional distribution from
+this joint.  Simulators implicitly define such joint distributions, with the outputs of the simulator corresponding
+to the data and the inputs and internal variables the parameters.  Probabilistic programming allows us to turn this on its head,
 using the same code as the original simulator but instead providing the observed data as the input and
-inverting the simulator to infer the input parameters and other variables sampled during the program's
-forward execution.  Such inversion is exceptionally useful in its own right, but also allows us to improve
+then inverting the simulator through inference, thus learning about possible input parameters and other 
+variables sampled during the program's forward execution.  
+As well as the clear direct utility of allowing such inversion, this process also allows us to improve
 our simulator using real data by calculating the posterior predictive distribution that incorporates both
 the original model and the information from the data.
-Because a simulator defines a joint probability distribution and because a joint distribution on parameters
-and data fully defines the model in the Bayesian framework, if 
-we can construct our PPS's semantics appropriately all the user 
-needs to do to define their full model is write this forward simulator and provide the data.
-If we can now construct inference engines capable of working on arbitrary code, we can now 
-construct systems for automatic inference on any simulator or model the user defines.
 
 To explain what we mean by inverting simulators more precisely, we will now consider
 the example of inferring Captchas.   Even if the name is not familiar we should all
 have come across Captchas before when a website shows us and image such
-as that shown in Figure INSERT and asks us to
+as that shown in Figure~\ref{fig:probprog:example_captchas} and asks us to
 type the characters in that image to demonstrate we are not a robot.  We now ask the
-Machiavellian but important question: how might we write an algorithm that breaks this Captcha by 
+Machiavellian, but important, question: how might we write an algorithm that breaks this Captcha by 
 automatically predicting these characters directly from the image? In other words, 
 can we build a robot that mimics a human on a task specifically designed to 
 distinguish between the two.  If we had access to unlimited supply of training examples with
 character-image pairs we could of course use an off-the-shelf discriminative algorithm;
 neural networks have been used to try and solve the problem in exactly this way with good
-success~\citep{von2008recaptcha}.  However, without access to such data this is rather
-challenging task --- 
+success~\citep{von2008recaptcha}.  However, without access to an abundance of data this is rather
+challenging task and we will need to exploit our prior knowledge about the problem.  
 
-Incorporate the observations we do have
+\begin{figure}[t]
+	\centering 
+	\begin{subfigure}[t]{0.58\textwidth}
+		\centering
+			\includegraphics[width=\textwidth]{probprog/figures/example_captchas.pdf}
+		\caption{Examples of real Captchas
+			 \label{fig:probprog:example_captchas}}
+	\end{subfigure}
+	~~
+	\begin{subfigure}[t]{0.38\textwidth}
+		\centering
+			\includegraphics[width=\textwidth]{probprog/figures/captcha_sim.pdf}
+		\caption{Example simulation of Captcha
+			\label{fig:probprog:captcha_sim}}
+	\end{subfigure}
+	\caption{Solving Captchas by simulator inversion.   \textbf{(a)} gives examples of real
+		Facebook Captchas taken from~\cite{le2017using}.  Here the corresponding
+		generating strings going
+		to clockwise from the top left YPL9ceu, mJGD7zP, 9xPBS5k, 8VNARw, z7T7Jda, and
+		GePHEz4.  As user is asked to type in these strings when shown the corresponding
+		image to show they are not a robot.
+		\textbf{(b)} gives an example of the process of simulating Captchas taken by
+		~\cite{le2017inference}.  Here we see that we can generate a Captcha by first
+		simulating a series of characters then simulating appropriate manipulations 
+		to those characters such as warping, rotating, and adding noise.  Inverting this
+		simulation process corresponds to process of inference, where we want to find
+		out the characters that lead to a particular image.
+		\label{fig:probprog:captcha}}
+\end{figure}
 
-If we can make systems that successful carry out the tasks laid out in this section, 
+Doing this process in reverse, i.e. simulating a Captcha, on the other hand, is a substantially
+less daunting process.  The original process for generating the true Captchas was using
+a simulator and so we can attempt to mimic the original simulation process with our own.
+For example, as shown in Figure~\ref{fig:probprog:captcha_sim} we might first sample a 
+number of characters, then a symbol for each character
+from a set of those allowable, apply manipulations such as rotations and warpings, simulate
+some obscuring lines or other noise, and finally render our simulated components into an
+image.  Though admittedly it might make some time and effort to construct a high fidelity
+simulator that well matches the produced images, the technical requirements for doing this
+(other than possibly the final rendering) are minimal and so it could be carried out by most
+people with a reasonable degree of experience in scientific programming.  The number of
+people able to write such a simulator should certainly be substantially larger than the
+number of people with sufficient experience in Bayesian modeling to construct an equivalent
+using a graphical model or direct mathematical formulation.  The number of people
+with the expertise to then write an appropriate inference scheme for the problem is even
+smaller still.  In a PPS, writing this simulator and providing the data is all that is required.
+Given these, the PPS will carry out the inference required to invert the simulator automatically
+inferring the characters from the image.  More generally, we are estimating the inputs and
+internal variables of our simulator, given target values for the outputs.
+
+\todo[inline]{BP example?}
+
+
+Their are two key factors to realizing our aim of inverting simulators.  Firstly we need to provide a 
+language which easily allows users to
+write down simulators and which has semantics that allows the compiler to extract an appropriate
+representation of the joint distribution.  In other words, we need our language to be sufficiently
+general purpose and easy to use to not burden the user, while at the same time having semantics that
+ensure the corresponding joint distribution is well defined and can be converted into a form where
+we can run inference.  Doing this will require introduction of specially defined \emph{random
+	primitives} whose behavior can be controlled at run time, rather than just always sampling from
+the same predefined distribution as they would in an ordinary programming language, and primitives
+for \emph{conditioning} on data.  The former can be thought of as defining terms in the prior and the
+latter as terms in the likelihood as we will discuss in Section~\ref{sec:probprog:models}.
+
+Secondly, our language needs a general purpose inference(s)
+engine capable of working on any program the user writes.  Bayesian models are fully defined
+by their joint distribution and the data.  Therefore, once a user has written their simulator and provided
+the data, this uniquely defines a posterior and the only problem is in solving resulting Bayesian inference.
+If we can now construct inference engines capable of working on arbitrary code, we can now 
+construct systems for automatic inference on any simulator or model the user defines, creating an
+abstraction barrier between model definition and solving the model.  We will discuss how this can be
+done in length in Chapter~\ref{chp:proginf}.
+
+If we can make systems that successful carry out these tasks, 
 the huge potential applications this could provide should be clear. We would have a 
 system where the user requires no expertise in inference or conventional
 Bayesian modeling in order to write application specific models and have them solved automatically.
@@ -72,7 +139,7 @@ However, this ability is not completely
 hypothetical -- many such problems can already be handled by existing systems.  The challenge
 is improving and scaling such systems to deal effectively with more difficult and more wide ranging models
 in a tractable manner.  The need for such systems to work in an automated manner for a wide array
-of possible problems makes this a very difficult problem, after all we are somewhat flaunting the no-free-lunch
+of possible problems makes this a very difficult problem; after all we are somewhat flaunting the no-free-lunch
 theorem.  However, there is a key component that provides hope that this may be possible: we have access
 to the target source code of the simulator itself, rather than needing to treat it as a black-box.  Therefore
 maybe we can have our cake an eat it by using the source code itself to guide our algorithms such that

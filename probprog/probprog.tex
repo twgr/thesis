@@ -24,7 +24,8 @@ used to both extend the traditional Bayesian framework and reinterpret many comp
 techniques not usually associated with Bayesian modeling in a more Bayesian mindset.
 We will mostly ignore the rather major issue of how to conduct Bayesian inference for
 models defined in probabilistic programs, assuming for now that we have magical
-general purpose systems, before returning to actually confront this major stumbling
+general purpose inference engines that will solve any model we provide,
+before returning to actually confront this major stumbling
 block in Chapter~\ref{chp:proginf}, once we have introduced the problems of Bayesian
 inference more generally.  We will provide a brief introduction to the Anglican PPS
 to give us a platform for providing examples and highlighting
@@ -34,6 +35,12 @@ issues we which return to later), in particular demonstrating how we can use the
 standard inference frameworks and why we would want to do so.
 
 \input{probprog/sim.tex}
+
+\section{Bayesian Models as Program Code}
+\label{sec:probprog:models}
+
+
+Ability to use implicit measure without defining them.
 
 \section{Two Distinct Approaches}
 \label{sec:probprog:two}
@@ -49,13 +56,6 @@ PPSs such as Infer.Net \citep{minka_software_2010} and Stan \citep{carpenter2015
 One such general purpose system, \emph{Anglican}, will be used as a reference in this paper.  In Anglican, models are defined using the inference macro \defquery. These models, which we refer to as queries \citep{goodman_uai_2008}, specify a joint distribution $p(Y,X)$ over data $Y$ and variables $X$. Inference on the model is performed using the macro \doquery, which produces a sequence of approximate samples from the conditional distribution $p(X|Y)$ and, for importance sampling based inference algorithms (e.g. sequential Monte Carlo), a marginal likelihood estimate $p(Y)$.  
 
 Random variables in an Anglican program are specified using \sample statements, which can be thought of as terms in the prior. Conditioning is specified using \observe statements which can be thought of as likelihood terms.  Outputs of the program, taking the form of posterior samples, are indicated by the return values.  There is a finite set of \sample and \observe statements in a program source code, but the number of times each statement is called can vary between executions.  We refer the reader to  \href{http://www.robots.ox.ac.uk/~fwood/anglican/}{\small\url{http://www.robots.ox.ac.uk/~fwood/anglican/}} for more details.
-
-\section{Bayesian Models as Program Code}
-\label{sec:probprog:models}
-
-
-Ability to use implicit measure without defining them.
-
 
 \section{Going Beyond Bayesian Inference}
 \label{sec:probprog:limit}
