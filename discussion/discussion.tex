@@ -13,3 +13,96 @@
 	adaptation as Tuan Anh's paper says.
 	\item Randomness vs no randomness - blog post for Michi
 \end{itemize}
+
+\section{Do we need Random Numbers?}
+	
+Random numbers are a fundamental tool in the arsenal of all the mathematical sciences, especially in the realm of 
+probabilistic numerics.  From basic cross-validation to advanced MCMC methods, randomness is at the core of 
+many of our most prevalent and highest performance algorithms.  In his related post, Michael will 
+try to convince you why we should eventually try and do away this randomness; here I will do my best to explain why
+\texttt{if(rand<1-$\varepsilon$)\{we should not\}}.
+
+My argument can be broken down into four main reasons that we need, and always will need, random numbers:
+\begin{enumerate}
+	\item Speed and simplicity - sometimes even if there if there is the information available to improve a computation, 
+	uncovering or incorporating that information in a principled manner may require substantially more computational 
+	power than not doing so.
+	\item Honesty and reliability - the alternative to randomness is almost always approximation, introducing bias 
+	and an error whose uncertainty is inherently subjective.
+	\item Compossibility - methods such as Monte Carlo are ambivalent to how the samples are to be used, creating 
+	a scalable ability to modularize, compose and reuse.  Non-compossible systems, on the other hand, are doomed to fail
+	for large frameworks through the curse of repeated nested of estimators~\citep{rainforth2016pitfalls}\todo{Update to new paper}
+	\item Lack of repeatability - though it is always convenient when an experiment is repeatable, systematically 
+	returning the same incorrect answer is far more dangerous.
+\end{enumerate}
+Of these, the speed and simplicity argument is perhaps the most commonly used to support the use of random 
+numbers and is certainly a core reason for their prevalence.  However, I believe it is the other three, and in 
+particular the honesty of random numbers, that is most critical for why random numbers are, will remain to be, 
+fundamental to numerical computation.  All of these arguments are related to the following principle:
+
+\emph{Once we have imparted all possible information upon a system, we must treat what is left as truly 
+	stochastic or introduce bias.}
+
+In other words, imagine we can construct a problem in a manner that utilizes all available prior information,
+both in terms of the model and in how best to solve the model.
+Any remaining uncertainty is now, at least for all practical purposes, inherent to the problem and so any
+further attempt to remove randomness from the system is indirectly adding in further prior information we
+did not want to impart.  Furthermore, when things we kept random, we can gauge the error in our approximation
+or the level of our uncertainty by simply rerunning the system.  As soon as we replace this with an approximation
+or fix the random number seed, we lose calibration of the uncertainty in our estimate because we can estimate the variance
+resulting from randomness, but typically not the bias resulting from approximation.
+
+Putting our frequentist hat on for the moment, then the notion of doing away with randomness is scary.
+Frequentist statistics is all about \emph{repeatability} and focuses on the fact that any data we collect is random
+in a many-worlds point of view,
+because even with the same ground-truth underlying generative process, the inherent randomness
+of the universe (or at least effective randomness if you have philosophical objects to this) means that multiple possible
+datasets \emph{could} have been generated.  Regardless of your philosophical position on the Bayesian vs frequentist divide,
+there are many times when such a frequentist approach is absolutely essential from a practical viewpoint.  For example, in medical tasks we need
+to make sure that our confidence intervals are actually correct when we repeat a procedure -- we need guarantees on
+their \emph{calibration}.  This simply is not possible in a Bayesian framework as by its very nature it presumes the data
+is fixed and thus permits no concept of repetition.  Once we realize that we sometimes need to take a frequentist
+approach, the need for randomness becomes obvious, as in the frequentist framework probability originates only
+through random variables.  In other words, as powerful as the Bayesian framework is, it is inherently optimistic and subjective
+(e.g. there are always unknown unknowns), and as such it can never really be the whole story.  If we try and
+do away with randomness completely it is impossible to be objective -- we have to choose our approximation, sometimes
+in an arbitrary fashion (e.g. by setting the random number seed) -- and so we can never provide properly calibrated confidence 
+intervals that are not prone to subjective interpretation.
+
+This honesty of Monte Carlo goes beyond specific applications.  One of its most powerful consequences is the compossibility
+of Monte Carlo estimates: give a sample from a marginal, I can generate a valid sample of the joint by sampling from the
+conditional.  Similarly, if I have samples from a joint, I also have samples from the marginal distributions.  This behavior
+is essential when composing different components into a greater system as one can ensure each component takes in
+samples as inputs and outputs corresponding samples as output that can be used by the next process in the pipeline.
+If we instead make some deterministic approximation at each stage, we flaunt the flaw of averages and our biases
+will conflagulate to give a result that might be substantially different to the truth.  Sticking with unbiased Monte Carlo estimation
+(e.g. using importance sampling or sequential Monte Carlo~\citep{doucet2009tutorial}) then although it is of course possible that our 
+variance will explode, we at least know that if our estimate has a poor accuracy.  If we do away with randomness,
+we might generate large errors without even knowing we have.
+
+This lack of repeatability is actually an essential advantage of Monte Carlo.  It is better for a system to give you
+a different wrong answer each time it is queried than to always give the same wrong answer, particularly if the average
+of the different answers is in fact the truth, as is often the case.  When we write scientific papers we run our experiments
+multiple times to show the variability in the results.  Systems that always give the same answer and instead return
+a single subjective uncertainty estimate (e.g. a Gaussian process) are not generally trustworthy because there is no
+true calibration or sense of whether the experimenter simply got lucky with a system that does not actually work well
+in practice.  Furthermore, such a setting it very open to intentional or unintentional abuse.  If we fix our randomness
+a priori and then adapt our algorithm until it works, we may well simply be over-fitting to what works best for that
+random number seed or approximation.  It horrifies me that some people fix their random number seeds when 
+tunning or improving an algorithm and I expect that this practice has actually led to a plethora of statistically incorrect
+results.  If we want to maintain scientific integrity then we have to report results on experiments that have not been
+tested during the design of our algorithm and which are tested with multiple different choices for arbitrary or subjective
+decisions, to show that those results are actually stable and representative.  If we do away with randomness, we lose, or at the very least
+seriously hamper, this ability to repeat experiments in an objective manner.
+
+To summarize, we need randomness because we do not know everything.  In the Bayesian framework we place distributions
+on what we are not sure about to reflect this lack of knowledge.  A key part of this process is acknowledging that once we
+have done this, what is left is random.  After all, this uncertainty is where the Bayesian definition of probability actually comes
+from and what does it mean to have probability without randomness?  Yes we might be able to impart more knowledge on
+problems that we currently do, such as by decorrelating our samples, but there always become a point where we have
+imparted everything we know, after which what is left is truly random by the Bayesian definition of
+probability.  If we go outside the Bayesian framework, the need for randomness becomes even more pronounced.  In
+frequentist settings even our data is a random variable and probability is defined through variations in repeating an
+experiment.  In short, regardless of whether we take a Bayesian or frequentist viewpoint, arguing for the 
+removal of all randomness from our system is tantamount to arguing that we should do away with probability
+theory entirely.
