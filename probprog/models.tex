@@ -1,0 +1,43 @@
+% !TEX root = ../main.tex
+
+\section{Bayesian Models as Program Code}
+\label{sec:probprog:models}
+
+In the last section we shown how we can thing of PPS as inverting simulators, predicting internal
+variables and the inputs given the outputs.  In this section we will take a different perspective and
+show how we can translate Bayesian modeling into the framework of program code.  As we 
+showed in Chapter~\ref{chp:bayes} we showed how a Bayesian model is defined by a prior over
+parameters and a likelihood function for those parameters given the data.  This viewpoint will
+mostly translate into the probabilistic programming setting by equating between the prior
+and sampling statements and between the likelihood and conditioning statements.  At the end
+of the section we will explain why this is actually a slight approximation (in short because we
+might condition on internally sampled variables) but for most purposes this viewpoint will suffice.
+We will keep things predominantly high-level for now, giving a more detailed look in
+Section~\ref{sec:probprog:anglican} by introducing a particular PPS, namely Anglican, in detail.
+
+\section{A Simplified Probabilistic Programming Setup}
+\label{sec:probprog:models:first}
+
+We start by considering the case of constructing a restricted PPS.  We will presume that our
+language has no branching (i.e. no \texttt{if} statements or equivalent), is \emph{first order}
+(i.e. variables cannot be functions), and that there is no recursion.  We will give our language
+two special constructs, \sample and \observe, between which the distribution of the
+program is defined.  As such the program should not include any other random components.
+Informally, \sample will be used to specify terms in the prior and \observe terms in the
+likelihood.  More precisely, \sample will be used to make random draws $\theta \sim p(\theta | \Xi)$,
+where $\Xi$ is all the other variables in scope, and \observe will use to condition on
+data $p(\mathcal{D}|\Xi)$.  Note that both add a factor to the joint distribution given by
+\begin{align}
+p(content...)
+\end{align}
+but vary in whether they define a new random variable or effect the probability of the
+program given particular instances of the other random variables.
+
+
+
+
+\todo[inline]{Conditioning on internally sampled variables
+	
+	Ordering of decelerations matters
+	
+	Memoization}
