@@ -207,7 +207,7 @@ is propagated forward in time to $t$ by first drawing an ancestor variable $a_{t
 \ell&=1,\ldots,N,
 \end{align}
 where $\nw_{t-1}^\ell = w_{t-1}^\ell / \sum_i w_{t-1}^i$. This is equivalent to our process of resampling, but
-will provide poor precise notation when we come to deal with PMCMC methods in Section~\ref{sec:inf:pmcmc}
+will provide poor precise notation when we come to deal with PMCMC methods in Section~\ref{sec:part:pmcmc}
 where we see that it is beneficial to consider our approach as working on an \emph{extended target} comprising
 of both the samples for the latent variables and the ancestor variables.  Note that any of the resampling 
 methods introduced in Section~\ref{sec:inf:foundation:resampling} can be used for~\eqref{eq:part:anc-sample}.  As
@@ -279,3 +279,48 @@ observations, avoiding the exponential divergence between the weights of differe
 occurs for importance sampling as $T$ increases.
 This can be demonstrated both empirically and theoretically \citep[Chapter 9]{del2004feynman}.
 We refer the reader to the review by \citet{doucet2009tutorial} for a more in-depth treatment of SMC.
+
+\subsection{Adaptive Resampling}
+\label{sec:part:smc:adapt-resam}
+
+\todo[inline]{Write me}
+
+\subsection{Sequential Monte Carlo for an Arbitrary Series of Targets}
+\label{sec:part:smc:arb}
+
+In its most general form, we can consider SMC as targeting an arbitrary
+series of unnormalized target distributions $\left\{\gamma_t\right\}_{t=1:T}$ each defined on a space
+$\mathcal{X}_t$ with strictly increasing dimension\footnote{This restriction
+	can be avoided by using the SMC samplers approach of \citet{del2006sequential}.}
+$\mathrm{dim}(\mathcal{X}_{t-1})<\mathrm{dim}(\mathcal{X}_{t})$. 
+Let
+\begin{align}
+\label{eq:part:norm-targets}
+\pi_t(x_{1:t}) := \frac{\gamma_t(x_{1:t})}{Z_t}
+\end{align}
+be the series of normalized targets densities approximated by our SMC scheme
+where $\gamma_t(x_{1:t})$ and $Z_t := \int \pi_t(x_{1:t}) dx_{1:t}$
+are the corresponding unnormalized targets and normalization constants respectively.
+The overall normalization constant for the SMC is given by $Z:=Z_T$.  
+Let $q_1(x_1)$ denote the first proposal density and $q_t(x_t | x_{1:t - 1})$ 
+the intermediate proposal densities.  The particle weights (assuming resampling is
+carried out at each step $t$) are now given by
+\begin{align}
+w_1^k &= \frac{\gamma_1(x_1^k)}{q_1(x_1^k)} \\
+w_t^k &= \frac{\gamma_t({x}_{1:t}^k)}{\gamma_{t - 1}({x}_{1:t - 1}^{a_{t - 1}^k}) q_t(x_t^i|x_{1:t-1}^{a_{t-1}^i})}.
+\end{align}
+Everything else is then kept as for the NMSSM case.
+
+An upshot of this ability is that we can use SMC in lots of scenarios that do not
+actually permit an appropriate breakdown of the target distribution but where we 
+can provide guiding distributions to that which we care about.  For example, in a probabilistic
+context free grammar we might have a sequential generative model that can be evaluated on the
+full dataset at any point.  For example, in~\cite{janz2016probstruct}, we considered the example of doing inference
+on the structure and parameters of a GP kernel.  Here we can think of expanding our kernel at each
+iteration and our targets as being the posterior on kernel structure and hyperparameters for the GP
+for sequentially more complex kernels.\footnote{Technically in this work actually uses a population
+	Monte Carlo~\cite{cappe2004population} we uses a series of static targets.  However, we could
+	have done this in the same way using only SMC.}  Another example is provided by~\cite{lakshminarayanan2013top}
+who use SMC for Bayesian learning of decision trees.  For both these problems, SMC has been used
+to exploit the fact that the overall problem can be broken down into a series of increasingly difficult
+problems, namely those with an increasingly large prior.

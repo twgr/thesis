@@ -1,12 +1,28 @@
 % !TEX root = ../main.tex
 
 \section{Particle Markov Chain Monte Carlo Methods}
-\label{sec:inf:pmcmc}
+\label{sec:part:pmcmc}
 
 Particle Markov chain Monte Carlo (\pmcmc) methods, introduced by \citet{andrieuDH2010}, make use of 
 sequential Monte Carlo (\smc) algorithms \citep{gordon1993novel,doucet2001sequential} to construct 
-efficient proposals for the \mcmc sampler. 
+efficient proposals for the \mcmc sampler. The core reason for wanting to do this is that
+one is typically memory restricted in the number of particles that can be run $N$.  Though as we explained
+before, we can run multiple sweeps and combine these using the marginal likelihood estimates, if $N$ is
+not large enough, this typically results it widely varying estimates.  Although these estimates are unbiased,
+they are typically extremely skew, often following a roughly Gaussian distribution in their \emph{log} marginal
+likelihood CITE SOMETHING.  As such, it usually happens if $N$ is not large enough that one sweep dominates the others because
+its marginal likelihood is many orders of magnitude larger than the others and our estimate is
+effectively just the particle sweep with the highest marginal likelihood.  We therefore desire a more principled
+means of transferring the information of one iteration to the next which we can do by constructing an appropriate MCMC
+sampler.  We can then combine the advantages of SMC in its exploitation of the structure of the target with
+the local updating advantages of MCMC methods.  Naturally this will come with the drawbacks of MCMC samplers
+discussed in Section~\ref{sec:inf:foundation:mcmc}, in particular the loss of unbiasedness or marginal likelihood estimates.
+However, the advantages will generally outweigh these drawbacks.  PMCMC methods will also allow us to explicitly
+treat global parameters of our system differently to the latent states in a manner that can substantially improve
+the performance of the model.
 
+\subsection{Particle Independent Metropolis Hastings}
+\label{sec:part:pmcmc:pimh}
 
 
 
