@@ -1,0 +1,37 @@
+% !TEX root = ../main.tex
+
+\begin{tikzpicture}
+
+\node[latent, minimum size=27pt] (x1) {$x_1$};
+\node[latent, right=1.4cm of x1, minimum size=27pt] (x2) {$x_2$};
+\node[right=1.4cm of x2] (x3) {{\tiny $\bullet \; \bullet \; \bullet$}};
+\node[latent, right=1.4cm of x3, minimum size=27pt] (x4) {$x_{T\text{-}1}$};
+\node[latent, right=1.4cm of x4, minimum size=27pt] (xT) {$x_T$};
+
+\node[obs, below=of x1, minimum size=27pt] (y1) {$y_1$};
+\node[obs, below=of x2, minimum size=27pt] (y2) {$y_2$};
+%\node[obs, below=of x3] (y3) {$y_3$};
+\node[obs, below=of x4, minimum size=27pt] (y4) {$y_{T\text{-}1}$};
+\node[obs, below=of xT, minimum size=27pt] (yT) {$y_T$};
+
+%\node[latent, above=of x1, xshift=-1.2cm, minimum size=27pt] (t) {$\theta$};
+
+\edge {x1} {x2,y1} ; %
+\edge {x2} {x3,y2} ; %
+\edge {x3} {x4} ; %
+\edge {x4} {xT,y4} ; %
+\edge {xT} {yT} ; %
+
+%\edge {t} {x1,x2};
+%\edge[bend left=0] {t} {x4};
+%\edge[bend left=10] {t} {xT};
+
+\edge[bend left=30] {x1} {x4}
+\edge[bend left=35] {x1} {xT}
+\edge[bend left=20] {x2} {xT}
+
+\edge[bend left=0] {x1} {y2,y4,yT}
+\edge[bend left=10] {x2} {y4,yT}
+\edge[bend left=0] {x4} {yT}
+
+\end{tikzpicture}

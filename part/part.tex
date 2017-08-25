@@ -5,13 +5,14 @@
 
 Particle based inference methods (PBIM), such as sequential Monte Carlo (SMC)~\citep{gordon1993novel,doucet2001introduction} and 
 particle Markov chain Monte Carlo (PMCMC) methods~\citep{andrieu2009pseudo,rainforth2016interacting},
-are a powerful class of inference algorithms based on propagating \emph{populations} of samples
-known as \emph{particles}.  By working with populations of samples at the same time (rather than individual
+are a powerful class of inference algorithms based on propagating populations of samples
+known as \emph{particles}.  By working with populations of samples, also known as \emph{particle systems},
+ at the same time (rather than individual
 samples in turn) they allow information to be shared across the population and computational
 resources to be adaptively reallocated to where they are needed.  A common feature of PBIMs is
 that they make use \emph{intermediate information} available during the inference process and thereby
 exploit the structure of the problem.  For example, SMC uses a series of intermediate target distributions
-which act a stepping stones to full posterior.  By using the information gathered from these intermediate
+which act a stepping stones to the full posterior.  By using the information gathered from these intermediate
 solutions, they can better allocate computational resources for the next target and combat the curse of
 dimensionality.  As such, PBIMs can be highly effective for problems which rich, exploitable, structures, 
 for example time series models, but are generally less effective for problems that do not lend themselves
@@ -19,16 +20,17 @@ to a series of intermediate targets.
 
 \input{part/smc.tex}
 \input{part/pmcmc.tex}
+\section{Degeneracy}
+
 \input{part/ipmcmc/ipmcmc.tex}
 
 \begin{itemize}
-	\item Kalman filter
 	\item Backwards / ancestral sampling
 	\item Pseudo-marginal methods
-	\item System identification
 	\item Rao-Blackwellization for PMCMC.
 	\item Sequential Monte Carlo samplers / population monte carlo
-	\item Smoothing vs filtering
 	\item Non-state space models / non-expanding targets
 	\item Dave's work as example of non-expanding target
+	\item Resample-move stuff
+	\item Rejuvenation
 \end{itemize}

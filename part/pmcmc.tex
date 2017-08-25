@@ -1,7 +1,15 @@
 % !TEX root = ../main.tex
 
 \section{Particle Markov Chain Monte Carlo Methods}
-\label{sec:inf:smc:pg}
+\label{sec:inf:pmcmc}
+
+Particle Markov chain Monte Carlo (\pmcmc) methods, introduced by \citet{andrieuDH2010}, make use of 
+sequential Monte Carlo (\smc) algorithms \citep{gordon1993novel,doucet2001sequential} to construct 
+efficient proposals for the \mcmc sampler. 
+
+
+
+
 The \pg algorithm \citep{andrieuDH2010} is a Gibbs sampler on the extended space composed of all random variables generated at one iteration, which still retains the original target distribution as a marginal. Though \pg allows for inference over both latent variables and static parameters, we will in this paper focus on sampling of the former.  The core idea of \pg is to iteratively run \emph{conditional} sequential Monte Carlo (\csmc) sweeps as shown in Algorithm~\ref{alg:csmc}, whereby each conditional trajectory is sampled from the surviving trajectories of the previous sweep.  This \emph{retained particle} index, $b$, is sampled with probability proportional to the final particle weights $\bar{w}^i_T$. 
 
 
