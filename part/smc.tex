@@ -79,6 +79,7 @@ such assumptions to be made.  Naturally this will come at the cost of having acc
 			\renewcommand{\algorithmicrequire}{\textbf{Inputs:}}
 			\renewcommand{\algorithmicensure}{\textbf{Outputs:}}			 
 			\Require model $p(x_{1:T},y_{1:T})$, data $y_{1:T}$, proposals $q_1,\dots,q_T$, number of samples $N$
+			\Ensure weighted samples $\left\{x_{1:T}^i,w_T^i\right\}_{i=1}^N$
 			\For{i=1,\dots,N}	
 			\State $x_1^i \sim q_1(x_1)$
 			\State $w_1^i = \frac{g_1(y_1|x_1^i) \mu(x_1^i)}{q_1(x_1^i)}$
@@ -88,7 +89,6 @@ such assumptions to be made.  Naturally this will come at the cost of having acc
 			\State $w_t^i = w_{t-1}^i \frac{g_t(y_t|x_{1:t}^i) f_t(x_t^i | x_{1:t-1}^{i})}{q_t(x_t^i|x_{1:t-1}^{i})}$
 			\EndFor
 			\EndFor
-			\Ensure weighted samples $\left\{x_{1:T}^i,w_T^i\right\}_{i=1}^N$
 		\end{algorithmic}
 	\end{spacing}
 \end{algorithm}
