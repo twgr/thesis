@@ -3,6 +3,45 @@
 \section{Sequential Monte Carlo}
 \label{sec:part:smc:smc}
 
+\subsection{Non-Markovian State-Space Models}
+
+Although SMC can be used for for an arbitrary series of targets as we will explain
+later, we will mostly introduce them in the context of non-Markovian state-space
+models (SSMs).  SSMs are probabilistic models over a set of latent variables 
+$X_t \in \mathcal{X}_t, \forall t = 1:T$
+and observed variables $Y_t \in \mathcal{Y}_t, \forall t = 1:T$.  
+We can further consider a model to be parameterized by $\theta \in \Theta$ which
+we will for now presume is known.
+They are similar to
+the HMM introduced in~\ref{sec:bayes:paradigm:graph}, but different by not
+making the Markov assumption.  This leads to the graphical model shown in INSERT.
+They are fully defined by an initial density $\mu_{\theta} (x_1)$,
+a series of transition densities $f_{t,\theta} (x_t | x_{1:t-1})$, and a series of
+emission densities $g_{t,\theta} (y_t | x_{1:t})$
+\begin{align*}
+X_1 &\sim \mu_{\theta}(\cdot), \\
+X_t \| (X_{1:t - 1} = x_{1:t - 1}) &\sim f_{t,\theta}(\cdot \| x_{1:t - 1}), \\
+Y_t \| (X_{1:t} = x_{1:t}) &\sim g_{t,\theta}(\cdot \| x_{1:t}).
+\end{align*}
+which gives a joint density of
+\begin{align*}
+p_{\theta}(x_{1:T}, y_{1:T}) = \mu_{\theta}(x_1) \prod_{t = 2}^T f_{t,\theta}(x_t \| x_{1:t - 1}) \prod_{t = 1}^T g_{t,\theta}(y_t \| x_{1:t}).
+\end{align*}
+We are free to choose any density for
+$\mu_{\theta} (x_1)$ and each $f_{t,\theta} (x_t | x_{1:t-1})$ and $g_{t,\theta} (y_t | x_{1:t})$. One is usually interested characterizing the posterior
+\begin{align*}
+p_{\theta}(x_{1:T} \| y_{1:T}) \propto p_{\theta}(x_{1:T}, y_{1:T})
+\end{align*}
+or expectations of some function $\varphi$ under this posterior
+\begin{align*}
+I(\varphi) = \int \varphi(x_{1:T}) p_{\theta}(x_{1:T} \| y_{1:T}) \,\mathrm dx_{1:T}
+\end{align*}
+which can be used further in some decision-theoretic framework.
+We refer to these two tasks as inference.
+Inference in models which are non-linear, non-discrete, and non-Gaussian is difficult
+and one must resort to approximate methods, for which SMC has been shown to
+be one of the most successful approaches \citep{doucet2009tutorial}.
+
 We start by briefly reviewing sequential Monte Carlo \citep{gordon1993novel,doucet2001sequential} and the particle Gibbs algorithm \citep{andrieuDH2010}. Let us consider a non-Markovian latent variable model of the following form
 \begin{subequations}
 	\label{eq:ssm}
@@ -59,14 +98,14 @@ is propagated forward in time to $t$ by first drawing an ancestor variable $a_{t
 &
 \ell&=1,\ldots,N,
 \end{align}
-where $\nw_{t-1}^\ell = w_{t-1}^\ell / \sum_i w_{t-1}^i$. This is commonly known as the resampling step in the literature. We introduce the ancestor variables $\{a_{t-1}^i\}_{i=1}^N$ explicitly to simplify the exposition of the theoretical justification given in Section \ref{sec:theory}.
+where $\nw_{t-1}^\ell = w_{t-1}^\ell / \sum_i w_{t-1}^i$. This is commonly known as the resampling step in the literature. We introduce the ancestor variables $\{a_{t-1}^i\}_{i=1}^N$ explicitly to simplify the exposition of the theoretical justification | in Section \ref{sec:theory}.
 
-We continue by simulating from some given proposal density $x_t^i \sim q_t(x_t | x_{1:t-1}^{a_{t-1}^i})$ and re-weight the system of particles as follows:
+We continue by simulating from some | proposal density $x_t^i \sim q_t(x_t | x_{1:t-1}^{a_{t-1}^i})$ and re-weight the system of particles as follows:
 \begin{align}
 \label{eq:smcweights}
 w_t^i = \frac{g_t(y_t|x_{1:t}^i) f_t(x_t^i | x_{1:t-1}^{a_{t-1}^i})}{q_t(x_t^i|x_{1:t-1}^{a_{t-1}^i})},
 \end{align}
-where $x_{1:t}^i = (x_{1:t-1}^{a_{t-1}^i},x_t^i)$. This results in a new particle system $\{(x_{1:t}^i,w_t^i)\}_{i=1}^N$ that approximates $p(x_{1:t}|y_{1:t})$. A summary is given in Algorithm~\ref{alg:smc}.
+where $x_{1:t}^i = (x_{1:t-1}^{a_{t-1}^i},x_t^i)$. This results in a new particle system $\{(x_{1:t}^i,w_t^i)\}_{i=1}^N$ that approximates $p(x_{1:t}|y_{1:t})$. A summary is | in Algorithm~\ref{alg:smc}.
 
 %Let $q_{\text{SMC}}(\xb^{1:N},\ab^{1:N})$ denote the joint probability distribution over $\xb^{1:N}=x_{1:T}^{1:N}, \ab^{1:N} = a_{1:t-1}^{1:N}$ induced by running Algorithm~\ref{alg:smc}. We can write the complete distribution, which will be useful for the correctness proof, as follows
 %\begin{align}
