@@ -153,14 +153,14 @@ We now show how one can still use importance sampling in these scenarios, by
 \emph{self-normalizing} the importance weights.
 
 The key idea for self-normalized importance sampling (SNIS) is that the weights provide
-an unbiased and consistent estimate of the marginal likelihood
+an unbiased and consistent estimator of the marginal likelihood
 \begin{align}
 Z_N &= \frac{1}{N} \sum_{n=1}^{N} w_n, \\
 \E [Z_N] &= \frac{1}{N} \sum_{n=1}^{N} \E[w_n] =\E_{q(\hth_1)}[\gamma(\hth_1)/q(\hth_1)] = Z.
 \end{align}
 Now as $\E_{q(\theta)}\left[\frac{\gamma(\theta)}{q(\theta)}f(\theta)\right]=
 E_{q(\theta)}\left[\frac{\pi(\theta)}{q(\theta)} Zf(\theta)\right]=Z\;\E_{\pi(\theta)} \left[f(\theta)\right]$, we can 
-use our samples to construct \mc estimates for both $Z$ and $Z\;\E_{\pi(\theta)} \left[f(\theta)\right]$ and use the ratio
+use our samples to construct \mc estimators for both $Z$ and $Z\;\E_{\pi(\theta)} \left[f(\theta)\right]$ and use the ratio
 of our estimates to get an estimate for $E_{\pi(\theta)} \left[f(\theta)\right]$
 \begin{align}
 \label{eq:inf:snis}
@@ -175,16 +175,16 @@ weights such that $\sum_{n=1}^N\bar{w}_n = 1$.
 The consistency of~\eqref{eq:inf:snis} follows
 directly from the individual consistency of both the numerator and the denominator to 
 $Z\;\E_{\pi(\theta)} \left[f(\theta)\right]$ and $Z$ respectively.
-However, unlike~\eqref{eq:inf:importance},~\eqref{eq:inf:snis} is biased estimate
+However, unlike~\eqref{eq:inf:importance},~\eqref{eq:inf:snis} is biased estimator
 for finite $N$.  This is
 because the numerator and denominator are correlated and because 
-even though $Z_N$ is an unbiased estimate of $Z$, $1/Z_N$ is not an unbiased
-estimate of $1/Z$. The latter follows directly from Jensen's inequality
+even though $Z_N$ is an unbiased estimator of $Z$, $1/Z_N$ is not an unbiased
+estimator of $1/Z$. The latter follows directly from Jensen's inequality
 noting that inversion is a convex function for strictly positive inputs,
 \begin{align}
 \E \left[\frac{1}{\sum_{n=1}^{N} w_n}\right] \ge \frac{1}{\E \left[\sum_{n=1}^{N} w_n\right]} = \frac{1}{Z},
 \end{align}
-where equality holds only if $Z_N$ is a zero variance estimate for $Z$ (which
+where equality holds only if $Z_N$ is a zero variance estimator for $Z$ (which
 typically happens only in the limit $N\rightarrow\infty$).  However, it can be shown that the
 bias decreases at a rate $O(1/N)$ (see e.g.~\cite{doucet2009tutorial}), whereas the
 standard deviation of the estimate decreases at a rate $O(1/\sqrt{N})$.  Thus the bias
@@ -234,7 +234,8 @@ when targeting $\gamma_1(\theta)\gamma_2(\phi|\theta)$ then the importance weigh
 \end{align}
 This is known as sequential importance sampling and means that we can propagate importance
 weighted samples through a computational system and retain a valid importance
-sampler with the standard properties such as unbiasedness and consistency.\footnote{Note that
+sampler with the standard properties such as unbiasedness (presume the weights are not self-normalized) 
+and consistency.\footnote{Note that
 	this does not apply to the \emph{nested estimation} case as we discuss in
 	Chapter~\ref{chp:nest}.} 
 
@@ -372,7 +373,7 @@ resampling as producing the approximation
 \end{align}
 where $k_n$ is the number times the sample $\hth_n$ appears in the resampled sample
 set $\left\{\tilde{\theta}_n\right\}_{n=1}^N$.  Provided that $\E[k_n | \{w_n\}_{n=1}^N] = Nk_n$,
-then it directly follows that $\tilde{\pi}(\theta)$ is an unbiased estimate of $\hat{\pi}(\theta)$.
+then it directly follows that $\tilde{\pi}(\theta)$ is an unbiased estimator for $\hat{\pi}(\theta)$.
 Consequently the $L^2$ convergence, and thus consistency, of SNIS with resampling follows
 directly from the $L^2$ convergence of SNIS.
 	

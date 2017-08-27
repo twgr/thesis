@@ -271,7 +271,8 @@ given in Section~\ref{sec:part:pmcmc:pimh}.  Producing unbiased
 estimates of the marginal likelihood has numerous significant advantages.  
 
 Firstly, it means that one can combine
-results from difference SMC runs and still have an unbiased and consistent estimator for the target.  
+results from difference SMC runs and still have a consistent estimator for the target and a both unbiased and
+consistent estimate for the marginal likelihood.
 The is particularly important as the number of particles $N$, is typically restricted by the availability of memory
 and we often want to run more than one \emph{SMC sweep} (i.e. a single run of SMC).
 To combine our estimates, one simply weights each sample by the marginal likelihood of its sweep times
@@ -286,8 +287,7 @@ Methods that make use of such unbiased likelihood estimates are known as pseudo-
 methods~\citep{andrieu2009pseudo,andrieu2015convergence,andersson2015nested}
 	 and we will discuss them further in Chapter~\ref{chp:nest},
 proving the validity of many pseudo-marginal methods on the basis that they form a special case of Theorem~\ref{the:prod}.
-We note that some PMCMC methods, namely particle independent Metropolis-Hastings and particle marginal
-Metropolis-Hastings, can be interpreted as pseudo-marginal methods.
+We note that some PMCMC methods can be interpreted as pseudo-marginal methods.
 %
 %The sequential nature of SMC and the resampling step are crucial in making SMC scalable to large $T$.
 %The former makes it easier to design efficient proposal distributions as each step need only target 

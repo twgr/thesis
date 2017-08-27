@@ -5,17 +5,22 @@
 
 Particle Markov chain Monte Carlo (\pmcmc) methods, introduced by \citet{andrieuDH2010}, make use of 
 sequential Monte Carlo (\smc) algorithms \citep{gordon1993novel,doucet2001sequential} to construct 
-efficient proposals for an \mcmc sampler. The core reason for wanting to do this is that
-one is typically memory restricted in the number of particles that can be run $N$.  Though as we explained
-before, we can run multiple sweeps and combine these using the marginal likelihood estimates, if $N$ is
-not large enough, this typically results it widely varying estimates.  Although these estimates are unbiased,
-they are typically extremely skew, often following a roughly Gaussian distribution in their \emph{log} marginal
-likelihood CITE SOMETHING.  As such, it usually happens if $N$ is not large enough that one sweep dominates the others because
-its marginal likelihood is many orders of magnitude larger than the others and our estimate is
-effectively just the particle sweep with the highest marginal likelihood.  We therefore desire a more principled
-means of transferring the information of one iteration to the next which we can do by constructing an appropriate MCMC
-sampler.  We can then combine the advantages of SMC in its exploitation of the structure of the target with
-the local updating advantages of MCMC methods.  Naturally this will come with the drawbacks of MCMC samplers
+efficient proposals for an \mcmc sampler. This allows it to both utilize the ability of SMC to
+exploit the structure of the target problem and the hill climbing behavior of MCMC methods.
+The critical difference from running independent SMC sweeps is that information can be transferred
+from sweep to the next. 
+%The core reason for wanting to do this is that
+%one is typically memory restricted in the number of particles that can be run $N$.  Though as we explained
+%before, we can run multiple sweeps and combine these using the marginal likelihood estimates, if $N$ is
+%not large enough, this typically results it widely varying estimates.  Although these estimates are unbiased,
+%they are typically extremely skew, often following a roughly Gaussian distribution in their \emph{log} marginal
+%likelihood CITE SOMETHING.  As such, it usually happens if $N$ is not large enough that one sweep dominates the others because
+%its marginal likelihood is many orders of magnitude larger than the others and our estimate is
+%effectively just the particle sweep with the highest marginal likelihood.  We therefore desire a more principled
+%means of transferring the information of one iteration to the next which we can do by constructing an appropriate MCMC
+%sampler.  We can then combine the advantages of SMC in its exploitation of the structure of the target with
+%the local updating advantages of MCMC methods.  
+Naturally this will come with the drawbacks of MCMC samplers
 discussed in Section~\ref{sec:inf:foundation:mcmc}, in particular the loss of unbiasedness or marginal likelihood estimates.
 However, the advantages will generally outweigh these drawbacks.  PMCMC methods will also allow us to explicitly
 treat global parameters of our system differently to the latent states in a manner that can substantially improve
@@ -26,15 +31,16 @@ to the NMSSM case in this section for notational simplicity.
 \subsection{Particle Independent Metropolis Hastings}
 \label{sec:part:pmcmc:pimh}
 
-Particle independent Metropolis Hastings (PIMH) is the simplest PMCMC algorithm.  Although it isolation it is
-predominantly useless (as it strictly worse than running independent SMC sweeps and combining 
-them),\footnote{There is though use when also including MCMC steps on global parameters, see~\cite{andrieu2010particle}.}
+Particle independent Metropolis Hastings (PIMH) is the simplest PMCMC algorithm.  Although in isolation it is
+not especially useful (as it strictly worse than running independent SMC sweeps and combining 
+them),\footnote{There is, though, utility in doing this when also including MCMC steps on global parameters, see~\cite{andrieu2010particle}.}
  it is an
-importance theoretical stepping stone to more advanced approaches.  The idea from a practical perspective 
-is very simple: use an SMC sweep as an independent proposal for an MCMC algorithm targeting $p(x_{1:T}|y_{1:T})$.
+important theoretical stepping stone to more advanced approaches.  The idea from a practical perspective 
+is very simple: use an SMC sweep as an independent proposal for an MCMC algorithm targeting $\pi(x_{1:T}) = p(x_{1:T}|y_{1:T})$.
 From a theoretical perspective, the approach is rather more profound as it can be viewed as a sampler on 
-an \emph{extended space} whose marginal on the returned particles is the target.  We will then be able to use
-this to construct more powerful samplers.
+an \emph{extended space} whose marginal on the returned particles is the target.  
+%We will then be able to use
+%this to construct more powerful samplers.
 
 \begin{algorithm}[tb]
 	\caption{Particle Independent Metropolis Hastings}
@@ -43,19 +49,17 @@ this to construct more powerful samplers.
 		\begin{algorithmic}[1]
 			\renewcommand{\algorithmicrequire}{\textbf{Inputs:}}
 			\renewcommand{\algorithmicensure}{\textbf{Outputs:}}				 
-			\Require data $y_{1:T}$, number of particles $N$, proposals $q_t$, number of MCMC iterations R
+			\Require SMC sampler, number of MCMC iterations R
 			\Ensure MCMC samples $\{\hat{x}_{1:T}^r\}_{r=1}^R$
-			\State Run SMC giving a weighted particle set $X_{1:T}^0 = \{x_{1:T}^{i,0},w_T^{i,0}\}_{i=1}^N$ and marginal likelihood $\hat{Z}^0$
-			\State Sample an single sample from the particle set $\hat{x}_{1:T}^0 \sim X_{1:T}^0$ in proportion to the particle weights
+			\State Run SMC giving particle set $X_{1:T}^0 = \{x_{1:T}^{i,0},w_T^{i,0}\}_{i=1}^N$ and marginal likelihood $\hat{Z}^0$
+			\State Sample a single particle from set $\hat{x}_{1:T}^0 \sim X_{1:T}^0$ with probability proportional to weight
 			\For{$r=2:R$}
-			\State Run SMC giving new candidate particle set $\tilde{X}_{1:T}^r = \{x_{1:T}^{i,r},w_T^{i,r}\}_{i=1}^N$
-				 and marginal likelihood $\tilde{Z}^r$
+			\State Run SMC giving candidate $\tilde{X}_{1:T}^r = \{x_{1:T}^{i,r},w_T^{i,r}\}_{i=1}^N$
+				 and $\tilde{Z}^r$
 			\If{$u\le \min \left(1,\frac{\tilde{Z}^r}{\hat{Z}^{r-1}}\right)$ where $u\sim \textsc{Uniform}(0,1)$}
-			\State $\hat{x}_{1:T}^r \sim \tilde{X}_{1:T}^r$
-			\State $\hat{Z}^{r} \leftarrow \tilde{Z}^r$
+			\State $\hat{x}_{1:T}^r \sim \tilde{X}_{1:T}^r, \quad \hat{Z}^{r} \leftarrow \tilde{Z}^r$
 			\Else
-			\State $\hat{x}_{1:T}^r \leftarrow \hat{x}_{1:T}^{r-1}$
-			\State $\hat{Z}^{r} \leftarrow \hat{Z}^{r-1}$
+			\State $\hat{x}_{1:T}^r \leftarrow \hat{x}_{1:T}^{r-1}, \quad \hat{Z}^{r} \leftarrow \hat{Z}^{r-1}$
 			\EndIf
 			\EndFor
 		\end{algorithmic}
@@ -63,29 +67,29 @@ this to construct more powerful samplers.
 \end{algorithm}
 
 The PIMH algorithm is given in Algorithm~\ref{alg:part:pimh}.  We see that PIMH is an MCMC
-algorithm where our proposal involves proposing a new sample by running an independent SMC
-sweep and then sampling one of the particles from this this particle set in proportion to
+algorithm where our proposal involves running an independent SMC
+sweep and then sampling one of the particles from this particle set in proportion to
 the weight of the particle.  This sample is then accepted or rejected using a MH accept-reject
-step that  uses the marginal likelihoods of the sweep.  It might sweep wasteful to only use
-one particle from each sweep, but we will be able to Rao-Blackwellize this step to actual
-return all the particles at each step as we explain in Section INSERT.  Because our proposal
+step that  uses the marginal likelihoods of the sweep.  Because our proposal
 is independent of our current point, this is strictly worse than just running independent SMC sweeps
 (which can also be thought of as applying waste recycling to PIMH CITE SOMETHING).  
+It might seem wasteful to only use
+one particle from each sweep, but we will be able to Rao-Blackwellize this step and actually
+return all the particles at each step as we explain in Section INSERT. 
 
-Imagine that we were able to exactly calculate the posterior probability of the of samples
-generated by an SMC sweep up to a normalization constant $\gamma(X_{1:T} |y_{1:T})$.  It would
-now be straightforward to construct a valid sampler on this distribution by constructing an independent
-MH proposal and accept/reject the particle sets in the standard way.  
-The key components of proving the correctness of the PIMH algorithm is in showing that it is a valid
+%Imagine that we were able to exactly calculate the posterior probability of the of samples
+%generated by an SMC sweep up to a normalization constant $\gamma(X_{1:T} |y_{1:T})$.  It would
+%now be straightforward to construct a valid sampler on this distribution by constructing an independent
+%MH proposal and accept/reject the particle sets in the standard way.
+The key component of proving the correctness of the PIMH algorithm is in showing that it is a valid
 MH sampler on an extended target whose marginal is the distribution of interest.
 %The two key components of proving
 %the correctness of the PIMH algorithm are in showing that running and SMC sweep then sampling
 %one of the samples produced an extended target distribution whose normalized marginal distribution is
 %the posterior of interest $\pi(x_{1:T}|y_{1:T})$ and that our MH algorithm remains valid when
 %provided with an \emph{unbiased estimate} of the target distribution rather than an exact calculation.
-
 Let $\xib \eqdef \{x_{t}^i\}_{\substack{i=1:N\\t=1:T}} \bigcup \{a_{t}^i\}_{\substack{i=1:N\\t=1:T-1}}$
-denote all generated particles and ancestor variables of a \smc sampler.  The distribution induced
+denote all generated particles and ancestor variables of a \smc sampler.  The density of the distribution induced
 by running a SMC sweep is now given by
 \begin{align}
 \label{eq:part:smc:proposal}
@@ -97,46 +101,66 @@ q_t(x_{t}^i|x_{1:t-1}^{a_{t-1}^i}) \right]
 and the distribution induced by running an SMC sweep and then sampling particle $b$ from the
 sample set is 
 \begin{align}
-q_{\text{PIMH}}(b,\xib) = \bar{w}_T^b q_{\text{SMC}}(\xib) \quad \mathrm{where} \frac{\bar{w}_t^i}{\sum_{\ell=1}^{N}w_t^{\ell}} .
+q_{\text{PIMH}}(\xib,b) = \bar{w}_T^b q_{\text{SMC}}(\xib) \quad \text{where} \quad \bar{w}_t^i = \frac{{w}_t^i}{\sum_{\ell=1}^{N}w_t^{\ell}}.
 \end{align}
 Let $\xb^i = x_{1:T,m}^i$ denote one of the final particles and let the trajectory associated
 with the particle we sample be $\{\xb^{b},\bb\}$, with $\bb = (\beta_{1,},\ldots,\beta_{T})$,
 $\beta_{T} = b$ and $\beta_{t} = a_{t}^{\beta_{t+1}}$. The proof for the validity of the PIMH
-algorithm is now demonstrated by showing that it targets the distribution
+algorithm is now demonstrated by showing that it a valid MH sampler for an \emph{extended target distribution}
+whose marginal distribution on $\xb^b$ is the distribution of interest $\pi(\xb^b)$.  To construct our
+extended target distribution, we consider the following sampling process
+\begin{enumerate}
+	\item Sample a particle exactly from the target $\xb^b \sim \pi(\xb^b)$,
+	\item Sample a path for the particle uniformly at random path by independently sampling each $\beta_t \sim \textsc{UniformDiscrete}(1,N)$,
+	\item Sample all of the other particles and trajectories conditioned on $\{\xb^{b},\bb\}$ by sampling \[
+	\xib \backslash \{\xb', \bb\} \sim q_{\text{CSMC}}\left(\xib \backslash \{\xb', \bb\} \mid \xb', \bb \right) = 
+	\prod_{\substack{i=1\\i\neq b_{1}}}^N  q_1(x_{1}^i) \cdot \prod_{t=2}^T \prod_{\substack{i=1\\i\neq b_{t}}}^N \left[
+	\nw_{t-1}^{a_{t-1}^i}q_t(x_{t}^i|x_{1:t-1}^{a_{t-1}^i})\right].
+	\]
+\end{enumerate}
+Together this steps induce the distribution
 \begin{align}
 \label{eq:part:pimh-target}
-\tilde{\pi}(b,\xi) = \frac{\pi(\xb^{b})}{N^T} \frac{q_{\text{SMC}}(\xib)}{q_1(x_1^{\beta_1}) \prod_{t=2}^{T} \bar{w}_{t-1}^{\beta_{t-1}}
-	 q_t(x_t^{\beta_t} | x_{t-1}^{\beta_{t-1}})}
-\end{align}
-which has the marginal distribution on the samples we return $\pi(\xb^{b})$, i.e. the
-distribution of interest.  To see this, we can substitute~\eqref{eq:part:smc:proposal} into
-\eqref{eq:part:pimh-target} to give
-\begin{align}
-\tilde{\pi}(b,\xi) = \frac{\pi(\xb^{b})}{N^T} \prod_{i=1, i\neq\beta_1}^N q_1(x_{1}^i) \cdot \prod_{t=2}^T \prod_{i=1, i\neq\beta_t}^N \left[ 
+\tilde{\pi}(\xi,b) = \frac{\pi(\xb^{b})}{N^T} \prod_{i=1, i\neq\beta_1}^N q_1(x_{1}^i) \cdot \prod_{t=2}^T \prod_{i=1, i\neq\beta_t}^N \left[ 
 \nw_{t-1}^{a_{t-1}^i}
-%\frac{w_{t-1}^{a_{t-1}^i}}{\sum_\ell w_{t-1}^{\ell}}
-q_t(x_{t}^i|x_{1:t-1}^{a_{t-1}^i}) \right]
+q_t(x_{t}^i|x_{1:t-1}^{a_{t-1}^i}) \right].
 \end{align}
-where we see that terms of $\xb^{b}$ only appear in $\pi(\xb^{b})$, which must thus
-have the correct marginal.  Now we note that
+By construction, the marginal of this distribution is $\pi(\xb^{b})$ and so if we can
+construct a consistent MCMC estimator on~\ref{eq:part:pimh-target} then this by proxy
+produces a consistent estimator for $\pi(\xb^{b})$.  We can now show that this is the
+case for the PIMH algorithm by explicitly calculating the importance weight implied by
+targeting $\tilde{\pi}(\xi,b)$ using the proposal $q_{\text{PIMH}}(\xib,b)$
 \begin{align}
-\frac{\tilde{\pi}(b,\xi)}{q_{\text{PIMH}}(b,\xib)} &= \frac{\pi(\xb^{b})}{N^T \bar{w}_T^b q_1(x_1^{\beta_1}) \prod_{t=2}^{T} \bar{w}_{t-1}^{\beta_{t-1}} q_t(x_t^{\beta_t} | x_{t-1}^{\beta_{t-1}})} \nonumber \\
-&= \frac{\gamma(\xb^{b})}{
-	Z \left(q_1(x_1^{\beta_1}) \prod_{t=2}^{T} q_t(x_t^{\beta_t} | x_{t-1}^{\beta_{t-1}})\right)
-	 \left(N^T \bar{w}_T^b\prod_{t=2}^{T} \bar{w}_{t-1}^{\beta_{t-1}}\right)} \nonumber \\
-&= \frac{
-	w_T^b \prod_{t=2}^{T} w_{t-1}^{\beta_{t-1}}
-	}{
-	Z N^T \bar{w}_T^b \prod_{t=2}^{T} \bar{w}_{t-1}^{\beta_{t-1}}} \nonumber \\
-&= \frac{1}{Z} \prod_{t=1}^T \frac{1}{N} \sum_{\ell=1}^N w_{t}^{\ell} \nonumber \\
-& = \frac{\hat{Z}}{Z}
+\frac{\tilde{\pi}(\xi,b)}{q_{\text{PIMH}}(\xib,b)} &= \frac{\pi(\xb^{b}) q_{\text{CSMC}}\left(\xib \backslash \{\xb', \bb\} \mid \xb', \bb \right)}
+{N^T \bar{w}_T^b q_{\text{SMC}}(\xib)} \\
+&= \frac{\pi(\xb^{b})}{N^T \bar{w}_T^b q_1(x_1^{\beta_1}) \prod_{t=2}^{T} \bar{w}_{t-1}^{\beta_{t-1}} q_t(x_t^{\beta_t} | x_{t-1}^{\beta_{t-1}})} \nonumber \\
+&= \left(\frac{\gamma(\xb^{b})/Z}{
+	q_1(x_1^{\beta_1}) \prod_{t=2}^{T} q_t(x_t^{\beta_t} | x_{t-1}^{\beta_{t-1}})}\right) \cdot
+	\left( \frac{1}{N^T \bar{w}_T^b\prod_{t=2}^{T} \bar{w}_{t-1}^{\beta_{t-1}}} \right) \nonumber \\
+&= \left(\frac{w_T^b}{Z}
+	 \prod_{t=2}^{T} w_{t-1}^{\beta_{t-1}}\right)\cdot\left(
+	\frac{1}{N^T \bar{w}_T^b \prod_{t=2}^{T} \bar{w}_{t-1}^{\beta_{t-1}}}\right) \nonumber \\
+&= \left(\frac{w_T^b}{Z}
+	\prod_{t=2}^{T} w_{t-1}^{\beta_{t-1}}\right)\cdot\left(
+	\frac{\prod_{t=1}^T \frac{1}{N} \sum_{\ell=1}^N w_{t}^{\ell}}{w_T^b \prod_{t=2}^{T} w_{t-1}^{\beta_{t-1}}}\right) \nonumber \\
+&= \frac{1}{Z} \prod_{t=1}^T \frac{1}{N} \sum_{\ell=1}^N w_{t}^{\ell}
+= \frac{\hat{Z}}{Z}.
 \end{align}
-and therefore $\hat{Z}$ is, up to a normalization constant, the importance weight for our sampling.
-Thus we can use $\hat{Z}$ in our accept-reject step to get a valid sampler MH sampler.  Note that
-as an aside, this also shows the unbiasedness of SMC as we see that
+We thus have that $\hat{Z}$ is a the importance weight for sampling the unnormalized
+version of the target $\tilde{\gamma}(\xi,b) = Z \tilde{\pi}(\xi,b)$ and so using the
+ratio of marginal likelihood estimates provides the required acceptance ratio.  We
+have therefore proven that the PIMH algorithm induces a consistent Markov chain for
+the target $\pi(x_{1:T})$.
+
+Note that as an aside, this also shows the unbiasedness of the SMC marginal likelihood estimate
+as we see that
 \begin{align}
-\E_{q_{\text{PIMH}}(b,\xib)} \left[\hat{Z}\right]=\E_{\tilde{\pi}(b,\xi)} \left[Z\right]=Z.
+\E_{q_{\text{SMC}}(\xib)} \left[\hat{Z}\right] = \E_{q_{\text{PIMH}}(\xib,b)} 
+\left[\hat{Z}\right]=\E_{\tilde{\pi}(\xi,b)} \left[Z\right]=Z.
 \end{align}
+However, SMC will not, in general, provide unbiased estimates for expectations of
+functions, for the same reasons that self-normalized importance sampling gives biased
+estimates of expectations (see Section~\ref{sec:inf:foundation:importance:self-norm}).
 
 \subsection{Particle Gibbs}
 \label{sec:part:pmcmc:pgibbs}

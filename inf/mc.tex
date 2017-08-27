@@ -35,13 +35,13 @@ as
 	\label{eq:inf:expt}
 I:=\E_{\pi(\theta)} \left[f(\theta)\right]=\int f(\theta) \pi(\theta) d\theta.
 \end{align}
-This can be approximated using the following \mc estimate $I_N$ where
+This can be approximated using the \mc estimator $I_N$ where
 \begin{align}
 	\label{eq:inf:mc-est}
 	I \approx I_N := \frac{1}{N} \sum_{n=1}^{N}f(\hat{\theta}_n)
 	\quad \text{where} \quad \hat{\theta}_n \sim \pi(\theta).
 \end{align}
-The first result we note is that~\eqref{eq:inf:mc-est} is an \emph{unbiased} estimate for $I$.  This can
+The first result we note is that~\eqref{eq:inf:mc-est} is an \emph{unbiased} estimator for $I$.  This can
 be easily shown by noting that
 \begin{align}
 \label{eq:inf:unbiased}
@@ -112,12 +112,12 @@ our estimator using $N$ samples, is $1/N$ times the mean squared error of an est
 a single sample, which is itself equal to the variance of $f(\theta)$.  As $N\rightarrow\infty$, we thus
 have that our expected error goes to $0$.
 
-A key upshot of this result is that the difference between our empirical estimate and the true value
-$I_N-I$ should be of order $O(1/\sqrt{N})$.  In some way this is rather slow; deterministic numerical
+A key upshot of this result is that the difference$I_N-I$  between our empirical estimate and the true value
+ should be of order $O(1/\sqrt{N})$.  In some way this is rather slow; deterministic numerical
 integration schemes of have much fast convergence theoretical convergence rates.  For example,
 Simpson's rule has a a convergence rate of $O(1/n^4)$ for one dimensional functions.  However, this
 requires smoothness assumptions on $f$ and, more critically, the convergence rate diminishes rapidly
-in higher dimensions.  As such, \mc is often an inferior way of estimate integrals for smooth functions
+in higher dimensions.  As such, \mc is often an inferior way of estimating integrals for smooth functions
 in low dimensions.  However, \mc scales substantially more gracefully to higher dimensions than
 alternatives.  Looking at~\eqref{eq:inf:LLN-informal}, we see that the dimensionality of the problem
 only effects the \mc convergence rate through changes in the constant factor $\sigma_{\theta}$.  Though
@@ -342,9 +342,9 @@ on our estimates without needing to know $\sigma$ as we can instead use our empi
 The form of~\eqref{eq:inf:emprical-var} might at first look at bit strange - why is the normalizing
 term $1/(N-1)$ instead of $1/N$?  Although replacing $1/(N-1)$ term with $1/N$ would still lead
 to a consistent estimator, this estimator turns out to be biased whereas~\eqref{eq:inf:emprical-var}
-if in fact unbiased.  The bias correction $N/(N-1)$ is known as Bessel's correction, while the proof
+is in fact unbiased.  The bias correction $N/(N-1)$ is known as Bessel's correction, while the proof
 that~\eqref{eq:inf:emprical-var} is unbiased follows from straightforward algebraic manipulations.
-Note though that the estimate of the standard deviation, $\sigma_N$, is still biased by Jensen's
+Note though that the estimator of the standard deviation, $\sigma_N$, is still biased by Jensen's
 inequality.
 As a consequence of the unbiasedness, $\sigma_N^2 \asto \sigma^2$ by the strong LLN, 
 from which the second result

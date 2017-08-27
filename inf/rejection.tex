@@ -23,7 +23,7 @@ A_{\text{shape}} &= A_{\text{box}}	P(\theta \in \text{shape}) \\
 &\approx \frac{A_{\mathrm{box}}}{N} \sum_{n=1}^{N} \ind (\hat{\theta}_n \in \text{shape})
 \quad \text{where} \quad \hat{\theta}_n \sim \textsc{Uniform}(\text{box})
 \end{align}
-where we have used a Monte Carlo estimate for $P(\theta \in \text{shape})$.
+where we have used a Monte Carlo estimator for $P(\theta \in \text{shape})$.
 Note that the value of $P(\theta \in \text{shape})$ will
 dictate the efficiency of our estimation as it represents the \emph{acceptance rate}
 of our samples.  In other words, we need to generate on average $1/P(\theta \in \text{shape})$
