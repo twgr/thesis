@@ -52,7 +52,9 @@ be easily shown by noting that
 \end{align}
 where we have first moved the sum outside of expectation using
 linearity,\footnote{Note that this presumes that $N$ is independent
-	of the samples.  This is usually the case, but care is necessary in some situations.}
+	of the samples.  This is usually the case, but care is necessary in some situations, namely when
+	the number of samples taken is adaptively chosen based on the sample values, for example in
+	adaptive stratified sampling~\citep{etore2010adaptive}.}
 then the fact that each $\hat{\theta}_n$ is identically distributed to note that
 each $\E \left[f(\hat{\theta}_n)\right]= \E \left[f(\hat{\theta}_1)\right]$, and finally
 that $\E \left[f(\hat{\theta}_1)\right] = I$ by the definition of $I$ and the distribution

@@ -107,7 +107,10 @@ See Appendix~\ref{sec:app-prod}.
 As this result holds in the case $L=1$, an important consequence is that
 whenever $f$ is linear, the same convergence rate is achieved regardless of whether we
 reformulate the problem to a single expectation or not, provided that the number of samples
-used by the inner estimator remains fixed.  Conversely, as we will show in Section~\ref{sec:convergence},
+used by the inner estimator remains fixed.  This, for example, demonstrates that pseudo-marginal
+methods where the outer estimator uses importance sampling or direct MC estimation converge at the 
+standard MC error rate.
+Conversely, as we will show in Section~\ref{sec:convergence},
 if $f$ is nonlinear, it will be necessary for the number of samples in \emph{both} the inner and the 
 outer estimators to increase in order to achieve the convergence of~\eqref{eq:nested-mc}. 
 

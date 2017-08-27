@@ -5,7 +5,7 @@
 
 Particle Markov chain Monte Carlo (\pmcmc) methods, introduced by \citet{andrieuDH2010}, make use of 
 sequential Monte Carlo (\smc) algorithms \citep{gordon1993novel,doucet2001sequential} to construct 
-efficient proposals for the \mcmc sampler. The core reason for wanting to do this is that
+efficient proposals for an \mcmc sampler. The core reason for wanting to do this is that
 one is typically memory restricted in the number of particles that can be run $N$.  Though as we explained
 before, we can run multiple sweeps and combine these using the marginal likelihood estimates, if $N$ is
 not large enough, this typically results it widely varying estimates.  Although these estimates are unbiased,
