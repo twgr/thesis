@@ -72,7 +72,7 @@ sweep and then sampling one of the particles from this particle set in proportio
 the weight of the particle.  This sample is then accepted or rejected using a MH accept-reject
 step that  uses the marginal likelihoods of the sweep.  Because our proposal
 is independent of our current point, this is strictly worse than just running independent SMC sweeps
-(which can also be thought of as applying waste recycling to PIMH CITE SOMETHING).  
+(which can also be thought of as applying waste recycling to PIMH ~\citep{frenkel2006waste}).  
 It might seem wasteful to only use
 one particle from each sweep, but we will be able to Rao-Blackwellize this step and actually
 return all the particles at each step as we explain in Section INSERT. 
@@ -108,27 +108,32 @@ with the particle we sample be $\{\xb^{b},\bb\}$, with $\bb = (\beta_{1,},\ldots
 $\beta_{T} = b$ and $\beta_{t} = a_{t}^{\beta_{t+1}}$. The proof for the validity of the PIMH
 algorithm is now demonstrated by showing that it a valid MH sampler for an \emph{extended target distribution}
 whose marginal distribution on $\xb^b$ is the distribution of interest $\pi(\xb^b)$.  To construct our
-extended target distribution, we consider the following sampling process
+extended target distribution, we consider the following hypothetical sampling process
 \begin{enumerate}
 	\item Sample a particle exactly from the target $\xb^b \sim \pi(\xb^b)$,
 	\item Sample a path for the particle uniformly at random path by independently sampling each $\beta_t \sim \textsc{UniformDiscrete}(1,N)$,
-	\item Sample all of the other particles and trajectories conditioned on $\{\xb^{b},\bb\}$ by sampling \[
-	\xib \backslash \{\xb', \bb\} \sim q_{\text{CSMC}}\left(\xib \backslash \{\xb', \bb\} \mid \xb', \bb \right) = 
+	\item Sample all of the other particles and trajectories conditioned on $\{\xb^{b},\bb\}$ using \begin{align}
+	\label{eq:part:csmc}
+	q_{\text{CSMC}}\left(\xib \backslash \{\xb', \bb\} \mid \xb', \bb \right) = 
 	\prod_{\substack{i=1\\i\neq b_{1}}}^N  q_1(x_{1}^i) \cdot \prod_{t=2}^T \prod_{\substack{i=1\\i\neq b_{t}}}^N \left[
 	\nw_{t-1}^{a_{t-1}^i}q_t(x_{t}^i|x_{1:t-1}^{a_{t-1}^i})\right].
-	\]
+	\end{align}
 \end{enumerate}
-Together this steps induce the distribution
+Together these steps induce the distribution
 \begin{align}
 \label{eq:part:pimh-target}
 \tilde{\pi}(\xi,b) = \frac{\pi(\xb^{b})}{N^T} \prod_{i=1, i\neq\beta_1}^N q_1(x_{1}^i) \cdot \prod_{t=2}^T \prod_{i=1, i\neq\beta_t}^N \left[ 
 \nw_{t-1}^{a_{t-1}^i}
 q_t(x_{t}^i|x_{1:t-1}^{a_{t-1}^i}) \right].
 \end{align}
-By construction, the marginal of this distribution is $\pi(\xb^{b})$ and so if we can
+By construction, the marginal of this distribution is $\pi(\xb^{b})$.
+Therefore, although it is not possible to actually
+sample from $\tilde{\pi}(\xi,b)$ directly (we started the definition by sampling exactly
+from the distribution of interest), if we can
 construct a consistent MCMC estimator on~\ref{eq:part:pimh-target} then this by proxy
-produces a consistent estimator for $\pi(\xb^{b})$.  We can now show that this is the
-case for the PIMH algorithm by explicitly calculating the importance weight implied by
+produces a consistent estimator for $\pi(\xb^{b})$.
+We can now show that this is exactly what the
+PIMH algorithm does by explicitly calculating the importance weight implied by
 targeting $\tilde{\pi}(\xi,b)$ using the proposal $q_{\text{PIMH}}(\xib,b)$
 \begin{align}
 \frac{\tilde{\pi}(\xi,b)}{q_{\text{PIMH}}(\xib,b)} &= \frac{\pi(\xb^{b}) q_{\text{CSMC}}\left(\xib \backslash \{\xb', \bb\} \mid \xb', \bb \right)}
@@ -146,9 +151,10 @@ targeting $\tilde{\pi}(\xi,b)$ using the proposal $q_{\text{PIMH}}(\xib,b)$
 &= \frac{1}{Z} \prod_{t=1}^T \frac{1}{N} \sum_{\ell=1}^N w_{t}^{\ell}
 = \frac{\hat{Z}}{Z}.
 \end{align}
-We thus have that $\hat{Z}$ is a the importance weight for sampling the unnormalized
+We thus have that $\hat{Z}$ is the importance weight for sampling the unnormalized
 version of the target $\tilde{\gamma}(\xi,b) = Z \tilde{\pi}(\xi,b)$ and so using the
-ratio of marginal likelihood estimates provides the required acceptance ratio.  We
+ratio of marginal likelihood estimates provides is exactly the acceptance ratio required for
+the MH sampler.  We
 have therefore proven that the PIMH algorithm induces a consistent Markov chain for
 the target $\pi(x_{1:T})$.
 
@@ -165,9 +171,31 @@ estimates of expectations (see Section~\ref{sec:inf:foundation:importance:self-n
 \subsection{Particle Gibbs}
 \label{sec:part:pmcmc:pgibbs}
 
-One particularly widely used \pmcmc algorithm is particle Gibbs (\pg). The \pg algorithm modifies the \smc step in the \pmcmc algorithm to sample the latent variables conditioned on an existing particle trajectory, resulting in what is called a conditional sequential Monte Carlo (\csmc) step. The \pg method was first introduced as an efficient Gibbs sampler for latent variable models with static parameters \citep{andrieuDH2010}. Since then, the \pg algorithm and the extension by \citet{lindstenJS2014} have found numerous applications in \eg Bayesian non-parametrics \citep{ValeraFSPC2015,tripuraneni2015}, probabilistic programming \citep{wood2014new,vandemeent_aistats_2015} and graphical models \citep{everitt2012,naessethLS2014,naessethLS2015nested}.  
+One particularly widely used \pmcmc algorithm is particle Gibbs (\pg). The \pg algorithm modifies the 
+\smc step in the \pmcmc algorithm to sample the latent variables conditioned on an existing particle
+ trajectory, resulting in what is called a conditional sequential Monte Carlo (\csmc) step. The \pg method
+  was first introduced as an efficient Gibbs sampler for latent variable models with static parameters 
+  \citep{andrieuDH2010}. Since then, the \pg algorithm and the extension by \citet{lindstenJS2014} have 
+  found numerous applications in \eg Bayesian non-parametrics \citep{ValeraFSPC2015,tripuraneni2015}, 
+  probabilistic programming \citep{wood2014new,vandemeent_aistats_2015} and graphical models 
+  \citep{everitt2012,naessethLS2014,naessethLS2015nested}.  
 
-The \pg algorithm \citep{andrieuDH2010} is a Gibbs sampler on the extended space composed of all random variables generated at one iteration, which still retains the original target distribution as a marginal. Though \pg allows for inference over both latent variables and static parameters, we will in this paper focus on sampling of the former.  The core idea of \pg is to iteratively run \emph{conditional} sequential Monte Carlo (\csmc) sweeps as shown in Algorithm~\ref{alg:csmc}, whereby each conditional trajectory is sampled from the surviving trajectories of the previous sweep.  This \emph{retained particle} index, $b$, is sampled with probability proportional to the final particle weights $\bar{w}^i_T$. 
+The \pg algorithm targets the same extended target $\tilde{\pi}(\xib,b)$ as the PIMH algorithm defined
+in~\ref{eq:part:pimh-target}, but rather than constructing a MH sampler with independent proposals for
+this target, it constructs a Gibbs sampler.  This is done by iteratively 
+running \emph{conditional} sequential Monte Carlo (\csmc) sweeps. As described in Algorithm~\ref{alg:csmc},
+a \csmc sweep is similar to a standard, unconditional \smc sweep, except that it starts
+with an existing \emph{conditional trajectory} $x_{1:T}'$, known as a \emph{retained particle} in the \pg
+context, and runs the sweep conditioned on this conditional trajectory being present in the final sample
+set.  One can think of this as running a SMC sweep conditioned on the predefined particle surviving each
+of the resampling steps.  In other words, the other particles can sample the retained particle as an
+ancestor but not vice versa, with the values and ancestral path of the retained particle prefixed. 
+ In Algorithm~\ref{alg:csmc} we have
+presumed  that this ancestral path is $\bb = (N,\dots,N)$ which is not always the case from a theoretical
+perspective.  However, because the path is fixed up front, all possible paths are equivalent from the point
+of view of running the sweep.  Therefore,
+given we only actually care about the $\xb$ sampled by the algorithm and not the ancestral paths themselves,
+we can just use a convenient fixed ancestral path for the retained particle in practice, as done in Algorithm~\ref{alg:csmc}.
 
 \begin{algorithm}[tb]
 	\caption{Conditional sequential Monte Carlo}
@@ -190,8 +218,29 @@ The \pg algorithm \citep{andrieuDH2010} is a Gibbs sampler on the extended space
 	\end{spacing}
 \end{algorithm}
 
+Unlike \smc sweeps, \csmc sweeps can be linked together by conditioning each sweep using a \emph{retained particle}
+sampled from the previous sweep with probability proportional to the final particle weights $\bar{w}^i_T$.
+Therefore, once initialized, say using a standard \smc sweep, one can iterate between sampling a retained
+particle in the same manner ancestor indices are sampled and running \csmc sweeps conditioned on this
+retained particle.  Considerations about global parameters aside (see Section INSERT), this is know
+as iterated \csmc and constitutes the \pg algorithm.  A characterization is provided in INSERT. 
+
+\todo[inline]{Add PG characterization figure.}
+
+The theoretical justification for the \pg algorithm can be shown in a similar manner as the PIMH algorithm.
+The sampled index $b$ now corresponds the index of the retained particle and we can think of the
+approach as alternating between Gibbs updates on $b$ and $\xib \backslash \{\xb,\bb\}$.    In other
+words, we alternate between sampling $b \sim \tilde{\pi}(\cdot | \xib)$ and 
+$\xib \backslash \{\xb,\bb\} \sim \tilde{\pi}(\cdot | \xb,\bb)$.  \todo[inline]{Continue here}
+
+
+Though \pg allows for inference over both latent variables and static parameters, 
+we will in this paper focus on sampling of the former.  
+
 A drawback of PG is that it can be particularly adversely affected by \emph{path degeneracy} in the CSMC step.  Conditioning on an existing trajectory means that whenever resampling of the trajectories results in a common ancestor, this ancestor must correspond to this trajectory.  Consequently, the mixing of the Markov chain for the early steps in the state sequence can become very slow when the particle set typically coalesces to a single ancestor during the CSMC sweep.
 We address this next with the iPMCMC algorithm.
+
+\todo[inline]{Rao-Black}
 
 %In the same way as above for the standard \smc algorithm we can define a joint probability distribution induced by running Algorithm~\ref{alg:csmc} %$q_{\text{CSMC}}(\xb^{1:N},\ab^{1:N}\backslash\{\xb^N,\bb^N\} | \xb^N,\bb^N)$, induced by running Algorithm~\ref{alg:csmc}, where $\xb^N, \bb^N$ is the retained (conditioning) particle. 
 %\begin{align}
