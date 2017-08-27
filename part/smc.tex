@@ -310,10 +310,13 @@ Here $Z_t := \int \gamma_t(x_{1:t}) dx_{1:t}$ is the normalization constant and 
 the corresponding normalized target.  
 The only difference that needs to be made from the NMSSM case is in how the weights
 are calculated, with them now given by
+\begin{subequations}
+\label{eq:part:smc-arb-weights}
 \begin{align}
 w_1^k &= \frac{\gamma_1(x_1^k)}{q_1(x_1^k)} \\
 w_t^k &= \frac{\gamma_t({x}_{1:t}^k)}{\gamma_{t - 1}({x}_{1:t - 1}^{a_{t - 1}^k}) q_t(x_t^i|x_{1:t-1}^{a_{t-1}^i})}.
 \end{align}
+\end{subequations}
 It can be easily seen that the NMSSM weights are a particular case of this, by
 plugging in $\gamma_t(x_{1:t}) = p(x_{1:t},y_{1:t})$ into the above expression.  
 
@@ -324,7 +327,8 @@ to a valid inference provided that the final target is the desired posterior and
 of our intermediate targets place zero probability mass on events that have non-zero
 probability mass under the corresponding marginals of the final target 
 \begin{align}
-\tilde{pi}_t (x_{1:t}) = \int_{X_T \backslash X_t} \pi_T (x_{1:T}) dx_{t+1:T}
+\label{eq:part:opt-target}
+\tilde{\pi}_t (x_{1:t}) = \int_{X_T \backslash X_t} \pi_T (x_{1:T}) dx_{t+1:T}
 \end{align}
 $\ne \pi_t (x_{1:t})$ in general.  In fact, the series of targets given
 for the NMSSM case are actually sub-optimal and used because of the fact that
@@ -409,26 +413,38 @@ However, it does cause some complications from a theoretical perspective~\citep{
 form for the resampling criteria is to only resample if the effective sample size falls below a certain threshold,
 for which $N/2$ is a common choice~\cite{doucet2009tutorial}.
 
-We finish the section by considering what the optimal proposals are for SMC.  Here we can
-leverage ideas from the effective sample size and consider what proposal minimizes the variance of the estimate
-for the next target.  It trivial to see that this is
+We finish the section by considering what the optimal proposals are for SMC.  Unfortunately it is not generally
+possible to establish the optimal proposal for the variance of the final estimate in the finite $N$ case, but we can
+calculate the so-called \emph{one-step optimal proposal} by minimizing the variance of the individual weights (and
+by proxy the marginal likelihood estimate) at the next iteration.  The one-step optimal proposal is given by
 \begin{align}
-q^*(x_t | x_{1:t-1}) = p(x_t | x_{1:t-1}, y_t)\propto f_t(x_t | x_{1:t-1}) g_t(y_t | x_{1:t})
+\label{eq:part:opt-prop}
+q_t^*(x_t | x_{1:t-1}) \propto \frac{\gamma_t({x}_{1:t})}{\gamma_{t - 1}({x}_{1:t - 1})} 
 \end{align}
-for the NMSSM formulation as this results in all of the weights being equal, giving an effective sample size of $N$.
-\todo{Wrong as different normalization constants.}
-This as known as the \emph{one-step optimal proposal} as it is the optimal proposal, in terms of
-variance of the estimator, for estimating the next target~\citep{doucet2009tutorial} (i.e. the filtering distribution).
-Though theoretically establishing the optimal proposal for the smoothing distribution is somewhat more
-complicated, the one-step optimal proposal is still generally best in practice.  In particular, it is generally
+$= f_t(x_t | x_{1:t-1}) g_t(y_t | x_{1:t})$ for the NMSSM formulation.  To see why this is optimal we note that
+by substituting~\eqref{eq:part:opt-prop} into~\eqref{eq:part:smc-arb-weights} (noting that the proposal needs
+to be correctly normalized) we get weights of
+\begin{align}
+w_t(x_{1:t}) &= \int_{\mathcal{X}_t} \frac{\gamma_t({x}_{1:t})}{\gamma_{t - 1}({x}_{1:t - 1})} dx_t
+\end{align}
+$=p(y_t | x_{1:t-1})$ for the NMSSM formulation.  Consequently, the weights in the this case care no longer
+functions of the sampled value and so the marginal likelihood and effective sample size are deterministic
+functions of the particle system before proposing the $x_{t}$, namely of $\{x_{1:t-1}^i,a_{t-1}^i\}_{i=1}^N$.
+This also means that we can switch the order of sampling from the proposal and doing the resampling when
+using $q_t^*(x_t | x_{1:t-1})$, which is preferable as it increases the diversity in the final sample set.
+Note that the weights are not all the same when using the one-step optimal proposal, because
+the marginal probability of the particles will change when we incorporate the new observation (or equivalently
+move to the new target).  However, given the expected value of each weight is fixed, i.e. $\E [w_t(x_{1:t}) | x_{1:t-1}]=
+\int_{\mathcal{X}_t} \frac{\gamma_t({x}_{1:t})}{\gamma_{t - 1}({x}_{1:t - 1})} dx_t$ regardless of the proposal
+used, using any proposal other than the optimal one-step proposal only increases the variance of the estimate
+at the next step.  In particular, it is generally
 not beneficial to use proposals that include some form of lookahead (e.g. approximating $p(x_{t} |x_{1:t-1},y_{1:T})$
 instead of $p(x_{t} |x_{1:t-1},y_{1:t})$) because the resampling step will correct back to the current target and
 most likely kill off the ``good'' samples we generated, simply giving us few distinct samples than if we had
 used the one-step optimal proposal instead.\footnote{Note that lookahead in the proposal is distinct from
 	lookahead using auxiliary weights, thus things like block sampling are still useful.}
-There is not generally an analogue to the one-step optimal proposal for SMC with an arbitrary series of targets
-because whereas $\int p(x_t | x_{1:t-1}, y_t) dx_t=1$ regardless of the current sample for $x_{1:t-1}$,
-\todo{Wrong because can do the same thing with arbitrary targets}
-\todo{Looks like it is optimality in terms of variance of each individual weight, not the variance in terms of the ESS definition.  However, if the variance of each weight is 0, the variance of the
-	weights as a set is zero, and thus can do resampling first (if we knew %$p(y_t | x_{1:t-1})$, and 
-	thus we destroy less information by doing the resampling earlier.}
+In both the case were the optimal series of targets~\eqref{eq:part:opt-target} is used and in the large $N$ case then
+the \emph{one-step optimal proposal} is optimal more generally for the whole SMC sweep.  However, because it is
+not usually possible to analytically calculate the required normalization for $q_t^*(x_t | x_{1:t-1})$, it is
+not generally tractable.  Nonetheless, it provides a good guide for designing, or adapting for, effective proposal
+distributions.
