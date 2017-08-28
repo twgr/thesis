@@ -209,7 +209,7 @@ if $f(\theta)\ge0 \; \forall \theta$.
 So far we have assumed that we are using importance sampling to calculate an expectation 
 of a known function.  In practice, there will be many scenarios, particularly in the Bayesian inference setting,
 where $f(\theta)$ is not known ahead of time and we instead desire to generate samples
-for some future unknown use.  For example, in Section INSERT we will introduce the concept
+for some future unknown use.  For example, in Section~\ref{sec:part:smc} we will introduce the concept
 of \emph{sequential Monte Carlo} where we will typically have multiple importance sampling steps
 before any target function is itself evaluated.
 When no $f(\theta)$ is specified we can carry out importance sampling in the
@@ -348,7 +348,7 @@ exact in the limit $N\rightarrow\infty$.
 Resampling on its own always lead to a higher variance estimator than using~\eqref{eq:inf:snis}
 directly.   However, in addition to  being necessary when unweighted samples are required,
 it will be a key component in the so-called particle-based inference methods discussed
-in Chapter INSERT.  For example, when interleaved with sequential importance sampling,
+in Chapter~\ref{chp:part}.  For example, when interleaved with sequential importance sampling,
 this leads to the sequential importance resampling algorithm which is the backbone of 
 sequential \mc methods.
 

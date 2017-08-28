@@ -1,7 +1,7 @@
 % !TEX root = ../main.tex
 
 \chapter{Particle-Based Inference Methods}
-\label{sec:part}
+\label{chp:part}
 
 Particle-based inference methods (PBIM), such as sequential Monte Carlo (SMC)~\citep{gordon1993novel,doucet2001introduction} and 
 particle Markov chain Monte Carlo (PMCMC) methods~\citep{andrieu2009pseudo,rainforth2016interacting},
@@ -14,7 +14,7 @@ that they make use \emph{intermediate information} available during the inferenc
 exploit the structure of the problem.  For example, SMC uses a series of intermediate target distributions
 which act a stepping stones to the full posterior.  By using the information gathered from these intermediate
 solutions, they can better allocate computational resources for the next target and combat the curse of
-dimensionality.  As such, PBIMs can be highly effective for problems which rich, exploitable, structures, 
+dimensionality.  As such, PBIMs can be highly effective for problems with rich, exploitable, structures, 
 for example time series models, but are generally less effective for problems that do not lend themselves
 to a series of intermediate targets.
 
