@@ -395,6 +395,9 @@ problems, namely those with an increasingly large prior, to guide towards good s
 \subsection{Practical Considerations}
 \label{sec:part:smc:prat}
 
+\subsubsection{Use as Many Particles as Possible}
+\label{sec:part:smc:prat:part}
+
 The most important practical consideration for SMC, and in most cases for PMCMC methods also, is to
 \emph{use as many particles as possible}.  Although, as we showed in~\ref{sec:part:smc:nmssm},
 one can run multiple, say $R$, SMC sweeps and then combine them using their marginal likelihood estimates, this
@@ -413,6 +416,9 @@ an unweighted fashion (see for example~\cite{lakshminarayanan2013top}).  Though 
 is clearly only trading variance for bias and thus is more of a means of mitigating rather than solving the problem.
 A more principled means of overcoming this issue is presented by PMCMC methods as discussed later in the Chapter.
 
+\subsubsection{Adaptive Resampling}
+\label{sec:part:smc:prat:ad-re}
+
 Another important practical consideration to note is that it is not always beneficial to resample.  Resampling
 obviously throws away information (by reducing the number of distinct particles)
 and therefore should not be done spuriously.  As the reason for doing
@@ -428,6 +434,9 @@ skipping some of the intermediate targets, remembering that it is only the final
 However, it does cause some complications from a theoretical perspective~\citep{del2012adaptive}.  A common
 form for the resampling criteria is to only resample if the effective sample size falls below a certain threshold,
 for which $N/2$ is a common choice~\cite{doucet2009tutorial}.
+
+\subsubsection{Optimal Proposals}
+\label{sec:part:smc:prat:opt}
 
 We finish the section by considering what the optimal proposals are for SMC.  Unfortunately it is not generally
 possible to establish the optimal proposal for the variance of the final estimate in the finite $N$ case, but we can

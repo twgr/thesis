@@ -1,11 +1,18 @@
 % !TEX root = ../../main.tex
 
 % Here we describe the proposed method and its theoretical properties
-\subsection{Interacting Particle Markov Chain Monte Carlo}
+\subsection{Method}
 \label{sec:method}
 %Our main goal with the interacting particle Markov chain Monte Carlo method is to increase the efficiency of particle \mcmc, particle Gibbs especially, by coupling independent \smc methods with \csmc algorithms, perhaps running on different nodes or threads. The method we propose, interacting particle Markov chain Monte Carlo (\ipmc), makes efficient use of multi-core and distributed computing architectures to increase accuracy of the Monte Carlo sampler.
 
-The main goal of \ipmcmc is to increase the efficiency of \pmcmc, in particular particle Gibbs. The basic \pg algorithm is especially susceptible to the \emph{path degeneracy} effect of \smc samplers, \ie sample impoverishment due to frequent resampling.  Whenever the ancestral lineage collapses at the early stages of the state sequence, the common ancestor is, by construction, guaranteed to be equal to the retained particle.  This results in high correlation between the samples, and poor mixing of the Markov chain. %Since we force one trajectory, the conditional part, to survive to the end it means that for early time steps we will almost always pick the corresponding sample from last iteration. 
+The main goal of \ipmcmc is to increase the efficiency of \pmcmc, in particular \pg. 
+As we explain in Section~\ref{sec:part:pmcmc:path-deg}, \pg is especially
+susceptible to the \emph{path degeneracy} effect of \smc samplers because the early
+time steps in the state-sequence can become stuck in the same position for long
+periods if the ancestral paths in the \csmc sweeps typically coalesce to a single sample,
+which is by construction guaranteed to be the retained particle.
+%The basic \pg algorithm is especially susceptible to the \emph{path degeneracy} effect of \smc samplers, \ie sample impoverishment due to frequent resampling.  Whenever the ancestral lineage collapses at the early stages of the state sequence, the common ancestor is, by construction, guaranteed to be equal to the retained particle.  
+This results in high correlation between the samples, and poor mixing of the Markov chain. %Since we force one trajectory, the conditional part, to survive to the end it means that for early time steps we will almost always pick the corresponding sample from last iteration. 
 To counteract this we might need a very high number of particles to get good mixing for all latent variables $x_{1:T}$, which can be infeasible due to e.g.~limited available memory. \ipmc can alleviate this issue by, from time to time, switching out a \csmc particle system with a completely independent \smc one, resulting in improved mixing.
 
 \ipmcmc, summarized in Algorithm~\ref{alg:ipmc}, consists of $M$ interacting separate \csmc and \smc algorithms, exchanging only very limited information at each iteration to draw new \mcmc samples. We will refer to these internal \csmc and \smc algorithms as nodes, and assign an index $m=1,\ldots,M$. 
@@ -22,7 +29,7 @@ The \csmc nodes are given an identifier $c_j \in \{1,\ldots,M\}, ~j=1,\ldots,P$ 
 		\renewcommand{\algorithmicensure}{\textbf{Outputs:}}				 
 		\Require number of nodes $M$, conditional nodes $P$ and \mcmc steps $R$, initial $\xb_{1:P}'[0]$
 		\For{$r = 1$ {\bfseries to} $R$}
-		\State Workers $1:M \backslash c_{1:P}$ run Algorithm~\ref{alg:smc} (\smc)
+		\State Workers $1:M \backslash c_{1:P}$ run Algorithm~\ref{alg:part:smc} (\smc)
 		\State Workers $c_{1:P}$ run Algorithm~\ref{alg:csmc} (\csmc), conditional on $\xb_{1:P}'[r-1]$ respectively.
 		\For{$j = 1$ {\bfseries to} $P$}
 		\State Select a new conditional node by simulating $c_j$ according to \eqref{eq:simConditional}. %with probability 
@@ -33,11 +40,13 @@ The \csmc nodes are given an identifier $c_j \in \{1,\ldots,M\}, ~j=1,\ldots,P$ 
 \end{spacing}
 \end{algorithm}
 
-Suppose we have access to $P$ trajectories ${\xb_{1:P}'[0]=(\xb_1'[0],\ldots,\xb_P'[0])}$ corresponding to the initial retained particles, where the index $[\cdot]$ denotes \mcmc iteration. At each iteration $r$, the nodes $c_{1:P}$ run \csmc (Algorithm~\ref{alg:csmc}) with the previous \mcmc sample $\xb_j'[r-1]$ as the retained particle. The remaining $M-P$ nodes run standard (unconditional) \smc, \ie Algorithm~\ref{alg:smc}.  Each node $m$ returns an estimate of the marginal likelihood for the internal particle system defined as
-\begin{align}
-\label{eq:ML}
-\hat Z_{m} = \prod_{t=1}^T \frac{1}{N} \sum_{i=1}^N w_{t,m}^{i}.
-\end{align}
+Suppose we have access to $P$ trajectories ${\xb_{1:P}'[0]=(\xb_1'[0],\ldots,\xb_P'[0])}$ corresponding to the initial retained particles, where the index $[\cdot]$ denotes \mcmc iteration. At each iteration $r$, the nodes $c_{1:P}$ run \csmc (Algorithm~\ref{alg:csmc}) with the previous \mcmc sample $\xb_j'[r-1]$ as the retained particle. The remaining $M-P$ nodes run standard (unconditional) \smc, \ie Algorithm~\ref{alg:part:smc}.  Each node $m$ returns an estimate of the marginal likelihood $\hat Z_{m} $ for the internal particle system
+calculated as per~\eqref{eq:part:ML}.  Note that whereas for the \smc sweeps this is an unbiased estimate of the 
+marginal likelihood, this a biased estimator for the \csmc sweeps that is being specifically defined for our purposes.
+%\begin{align}
+%\label{eq:ML}
+%\hat Z_{m} = \prod_{t=1}^T \frac{1}{N} \sum_{i=1}^N w_{t,m}^{i}.
+%\end{align}
 %along with a single trajectory $\xb_{m}^{s_m}$ sampled according to 
 %\begin{align}
 %\label{eq:simTrajectory}
@@ -51,7 +60,7 @@ The new conditional nodes are then set using a single loop $j=1:P$ of Gibbs upda
 &\Prb(c_j = m|c_{1:P\backslash j}) = \hat\nz_{m}^j \\
 \label{eq:zeta_def}
 \mathrm{and}  \quad &{\hat\nz_{m}^j = \frac{\hat Z_{m} \iden_{m \notin c_{1:P \backslash j}}}{ \sum_{n=1}^M \hat Z_{n} \iden_{n \notin c_{1:P \backslash j}}}},
-%\Prb(c_j = m|c_{1:P\backslash j}) = \frac{\hat Z_{\pi_T,m} \iden_{m \notin c_{1:P \backslash j}}}{\sum_{n=1}^M \hat Z_{\pi_T,n} \iden_{n \notin c_{1:P \backslash j}}},
+%\Prb(c_j = m|c_{1:P\backslash j}) = \frac{\hat Z_{\pi,m} \iden_{m \notin c_{1:P \backslash j}}}{\sum_{n=1}^M \hat Z_{\pi,n} \iden_{n \notin c_{1:P \backslash j}}},
 \end{align}
 defining ${c_{1:P\backslash j} = \{c_1,\ldots,c_{j-1},c_{j+1},\ldots,c_P\}}$.  We thus loop once through the conditional node indices and resample them from the union of the current node index and the unconditional node indices\footnote{Unconditional node indices here refers to all $m \notin c_{1:P}$ at that point in the loop. It may thus include nodes who just ran a CSMC sweep, but have been ``switched out'' earlier in the loop.}, in proportion to their marginal likelihood estimates.  This is the key step that lets us switch completely the nodes from which the retained particles are drawn.
 
@@ -74,18 +83,18 @@ defining ${c_{1:P\backslash j} = \{c_1,\ldots,c_{j-1},c_{j+1},\ldots,c_P\}}$.  W
 
 %The next step involves exchange of information--we need access to the normalisation constant estimates from each node to sample the next \mcmc output $\xb_j'[r]$. The normalisation constant estimate for each node $m$ is computed using the internal particle system as ${\hat Z_{m} = \prod_{t=1}^T \frac{1}{N} \sum_{i=1}^N w_{t,m}^{i}}$.
 %%\begin{align}
-%%\hat Z_{\pi_T,m} = \prod_{t=1}^T \frac{1}{N} \sum_{i=1}^N w_{t,m}^{i}.
+%%\hat Z_{\pi,m} = \prod_{t=1}^T \frac{1}{N} \sum_{i=1}^N w_{t,m}^{i}.
 %%\end{align}
 %%Note that this estimate is unbiased for the standard \smc methods but positively biased for the \csmc{s}. 
 %These estimates are then used to set new conditional nodes by simulating new node indices $c_j$ from
 %\begin{align}
 %\label{eq:simConditional}
 %\Prb(c_j = m|c_{1:P\backslash j}) = \hat\nz_{m}^j, \quad j=1,\ldots,P
-%%\Prb(c_j = m|c_{1:P\backslash j}) = \frac{\hat Z_{\pi_T,m} \iden_{m \notin c_{1:P \backslash j}}}{\sum_{n=1}^M \hat Z_{\pi_T,n} \iden_{n \notin c_{1:P \backslash j}}},
+%%\Prb(c_j = m|c_{1:P\backslash j}) = \frac{\hat Z_{\pi,m} \iden_{m \notin c_{1:P \backslash j}}}{\sum_{n=1}^M \hat Z_{\pi,n} \iden_{n \notin c_{1:P \backslash j}}},
 %\end{align}
 %with ${\hat\nz_{m}^j = \hat Z_{m} \iden_{m \notin c_{1:P \backslash j}} / \sum_{n=1}^M \hat Z_{n} \iden_{n \notin c_{1:P \backslash j}}}$ and ${c_{1:P\backslash j} = \{c_1,\ldots,c_{j-1},c_{j+1},\ldots,c_P\}}$. This is the key step that lets us switch completely the nodes from which we draw our next \mcmc samples (retained particles) $\xb_{1:P}'[r]$.%This ensures that all the conditional node indices $c_{1:P}$ will be distinct.
 %
-One \mcmc iteration $r$ is concluded by setting the new samples $\xb_{1:P}'[r]$ by simulating from the corresponding conditional node's, $c_j$, internal particle system
+One \mcmc iteration $r$ is concluded by setting the new samples $\xb_{1:P}'[r]$ by simulating from the corresponding conditional node's, $c_j$, internal particle system in the same way as $b$ was sampled for the \pg algorithm
 \begin{align}
 \label{eq:simTrajectory}
 \Prb(b_j = i | c_j) &= \nw_{T,c_j}^i, \nonumber\\%\frac{w_{T,c_j}^{i}}{\sum_\ell w_{T,c_j}^{\ell}}, \nonumber\\
@@ -128,10 +137,10 @@ We note that \ipmcmc is suited to distributed and multi-core architectures. In p
 
 
 % Theoretical foundation
-\subsubsection{Theoretical Justification}
-\label{sec:theory}
+\subsection{Theoretical Justification}
+\label{sec:part:ipmcmc:theory}
 In this section we will give some crucial results to justify the proposed \ipmc sampler. This section is due to space constraints fairly brief and it is helpful to be familiar with the proof of \pg in \citet{andrieuDH2010}.
-We start by defining some additional notation.
+We start by defining some additional notation, much of which is duplicated from the \pg introduction.
 % Let $\nw_t^i \eqdef w_t^i/\sum_\ell w_t^\ell$ denote the normalised importance weights,
 % and let 
 Let $\xib \eqdef \{x_{t}^i\}_{\substack{i=1:N\\t=1:T}} \bigcup \{a_{t}^i\}_{\substack{i=1:N\\t=1:T-1}}$
@@ -142,26 +151,27 @@ We write $\xib_m$ when referring to the variables of the sampler local to node $
 Let the conditional particle trajectory and corresponding ancestor variables for node $c_j$ be denoted by $\{\xb_{c_j}^{b_j},\bb_{c_j}\}$, with $\bb_{c_j} = (\beta_{1,c_j},\ldots,\beta_{T,c_j})$,
 %\fredrik{I changed to lower case $b_j$ here to agree with (7), but the notation might be a bit confusing. Use a different symbol in (7) or here?}
 $\beta_{T,c_j} = b_j$ and $\beta_{t,c_j} = a_{t,c_j}^{\beta_{t+1,c_j}}$. %\tom{Feel that mabye this could do with an extra line of explanation for people not already familiar with this notation from the PMCMC paper}. 
-Let the posterior distribution of the latent variables be denoted by $\pi_T(\xb) \eqdef p(x_{1:T}|y_{1:T})$ with normalisation constant $Z \eqdef p(y_{1:T})$. 
+Let the posterior distribution of the latent variables be denoted by $\pi(\xb) \eqdef p(x_{1:T}|y_{1:T})$ with normalisation constant $Z \eqdef p(y_{1:T})$. 
 %
 Finally we % the induced distributions of the \smc and \csmc algorithms
 note that the \smc and \csmc algorithms induce the respective distributions over the random variables
-generated by the procedures:
-\vspace{-2mm}
-\begin{align*}
-q_{\text{SMC}}(\xib) &= \prod_{i=1}^N q_1(x_{1}^i) \cdot \prod_{t=2}^T \prod_{i=1}^N \left[ 
-\nw_{t-1}^{a_{t-1}^i}
-%\frac{w_{t-1}^{a_{t-1}^i}}{\sum_\ell w_{t-1}^{\ell}}
-q_t(x_{t}^i|x_{1:t-1}^{a_{t-1}^i}) \right], \\
-q_{\text{CSMC}}\left(\xib \backslash \{\xb', \bb\} \mid \xb', \bb \right) &= \prod_{\substack{i=1\\i\neq b_{1}}}^N  q_1(x_{1}^i) \cdot \prod_{t=2}^T \prod_{\substack{i=1\\i\neq b_{t}}}^N \left[
-\nw_{t-1}^{a_{t-1}^i}
-%\frac{w_{t-1}^{a_{t-1}^i}}{\sum_\ell w_{t-1}^\ell}
-q_t(x_{t}^i|x_{1:t-1}^{a_{t-1}^i})\right].
-\end{align*}
-Note that running Algorithm~\ref{alg:csmc} corresponds to simulating from $q_\text{CSMC}$ using a fixed
-choice for the index variables $\bb = (N\,\ldots,N)$. While these indices are used to facilitate the
-proof of validity of the proposed method, they have no practical relevance and can thus be set to arbitrary
-values, as is done in Algorithm~\ref{alg:csmc}, in a practical implementation.
+generated by the procedures are given by~\eqref{eq:part:smc:proposal} and~\eqref{eq:part:csmc}
+%respectively.
+%\vspace{-2mm}
+%\begin{align*}
+%q_{\text{SMC}}(\xib) &= \prod_{i=1}^N q_1(x_{1}^i) \cdot \prod_{t=2}^T \prod_{i=1}^N \left[ 
+%\nw_{t-1}^{a_{t-1}^i}
+%%\frac{w_{t-1}^{a_{t-1}^i}}{\sum_\ell w_{t-1}^{\ell}}
+%q_t(x_{t}^i|x_{1:t-1}^{a_{t-1}^i}) \right], \\
+%q_{\text{CSMC}}\left(\xib \backslash \{\xb', \bb\} \mid \xb', \bb \right) &= \prod_{\substack{i=1\\i\neq b_{1}}}^N  q_1(x_{1}^i) \cdot \prod_{t=2}^T \prod_{\substack{i=1\\i\neq b_{t}}}^N \left[
+%\nw_{t-1}^{a_{t-1}^i}
+%%\frac{w_{t-1}^{a_{t-1}^i}}{\sum_\ell w_{t-1}^\ell}
+%q_t(x_{t}^i|x_{1:t-1}^{a_{t-1}^i})\right].
+%\end{align*}
+%Note that running Algorithm~\ref{alg:csmc} corresponds to simulating from $q_\text{CSMC}$ using a fixed
+%choice for the index variables $\bb = (N\,\ldots,N)$. While these indices are used to facilitate the
+%proof of validity of the proposed method, they have no practical relevance and can thus be set to arbitrary
+%values, as is done in Algorithm~\ref{alg:csmc}, in a practical implementation.
 
 % \begin{align*}
 % &q_{\text{SMC}}(\xib_m) = \nonumber \\
@@ -176,24 +186,26 @@ Now we are ready to state the main theoretical result.
 	\begin{align}
 	\label{eq:targetdistribution}
 	&\tilde \pi(\xib_{1:M}, c_{1:P}, b_{1:P}) =  \nonumber \\
-	&\frac{1}{N^{PT} \binom{M}{P}} \prod_{\substack{m=1\\m\notin c_{1:P}}}^M q_{\text{SMC}}\left(\xib_m\right) \cdot \prod_{j = 1}^P \left[ \pi_T\left(\xb_{c_j}^{b_j}\right) \iden_{c_j \notin c_{1:j-1}} 
+	&\frac{1}{N^{PT} \binom{M}{P}} \prod_{\substack{m=1\\m\notin c_{1:P}}}^M q_{\text{SMC}}\left(\xib_m\right) \cdot \prod_{j = 1}^P \left[ \pi\left(\xb_{c_j}^{b_j}\right) \iden_{c_j \notin c_{1:j-1}} 
 	q_{\text{CSMC}}\left(\xib_{c_j} \backslash \{\xb_{c_j}^{b_j}, \bb_{c_j}\} \mid \xb_{c_j}^{b_j}, \bb_{c_j}\right) \right].
 	\end{align}
 \end{theorem}
 \begin{proof}
-	The proof follows similar ideas as \citet{andrieuDH2010}. We prove that the interacting particle Markov chain Monte Carlo sampler is in fact a standard partially collapsed Gibbs sampler \citep{van2008partially} on an extended space \[
+	The proof follows similar ideas as our derivation for the PIMH and \pg samplers and thus follows similar ideas
+	to those introduced by~\cite{andrieu2010particle}. 
+	We prove that the interacting particle Markov chain Monte Carlo sampler is in fact a standard partially collapsed Gibbs sampler \citep{van2008partially} on an extended space \[
 	{\Upsilon \eqdef \setX^{\otimes MTN} \times [N]^{\otimes M(T-1)N} \times [M]^{\otimes P} \times [N]^{\otimes P}}.
 	\]
 	%Assume the setup of Section~\ref{sec:method}. %For convenience, we repeat the target distribution $\tilde\pi(\cdot)$, \ie \eqref{eq:targetdistribution}, on $\Upsilon$ here 
 	%\begin{align}
 	%\label{app:targetdistribution}
 	%&\tilde \pi(\xib_{1:M}, c_{1:P}, b_{1:P}) = \nonumber \\
-	%& \frac{1}{N^{PT} \binom{M}{P}} \prod_{\substack{m=1\\m\notin c_{1:P}}}^M q_{\text{SMC}}\left(\xib_m\right) \times \prod_{j = 1}^P \pi_T\left(\xb_{c_j}^{b_j}\right) \iden_{c_j \notin c_{1:j-1}} \nonumber \\
+	%& \frac{1}{N^{PT} \binom{M}{P}} \prod_{\substack{m=1\\m\notin c_{1:P}}}^M q_{\text{SMC}}\left(\xib_m\right) \times \prod_{j = 1}^P \pi\left(\xb_{c_j}^{b_j}\right) \iden_{c_j \notin c_{1:j-1}} \nonumber \\
 	%&\prod_{j = 1}^P q_{\text{CSMC}}\left(\xib_{c_j} \backslash \{\xb_{c_j}^{b_j}, \bb_{c_j}\} \mid \xb_{c_j}^{b_j}, \bb_{c_j}, c_j, b_j \right).
 	%\end{align}
 	%\begin{align}
 	%\label{eq:supptargetdist}
-	%\tilde \pi(\xb_{1:M}^{1:N}, \ab_{1:M}^{1:N}, C_{1:P}, B_{1:P}) &= \frac{1}{N^{PT} \binom{M}{P}} \prod_{\substack{m=1\\m\notin C_{1:P}}}^M q_{\text{SMC}}\left(\xb_m^{1:N},\ab_m^{1:N}\right)  \times \prod_{j = 1}^P \pi_T\left(\xb_{C_j}^{B_j}\right) \mathbbm{1}_{C_j \notin C_{1:j-1}}  \nonumber\\
+	%\tilde \pi(\xb_{1:M}^{1:N}, \ab_{1:M}^{1:N}, C_{1:P}, B_{1:P}) &= \frac{1}{N^{PT} \binom{M}{P}} \prod_{\substack{m=1\\m\notin C_{1:P}}}^M q_{\text{SMC}}\left(\xb_m^{1:N},\ab_m^{1:N}\right)  \times \prod_{j = 1}^P \pi\left(\xb_{C_j}^{B_j}\right) \mathbbm{1}_{C_j \notin C_{1:j-1}}  \nonumber\\
 	%&\times \prod_{j = 1}^P q_{\text{CSMC}}\left(\xb_{C_j}^{1:N},\ab_{C_j}^{1:N} \backslash \{\xb_{C_j}^{B_j}, \bb_{C_j}^{B_j}\} \mid \xb_{C_j}^{B_j}, \bb_{C_j}^{B_j}, C_j, B_j \right),
 	%\end{align}
 	%with $q_{\text{SMC}}(\cdot), ~q_{\text{CSMC}}(\cdot)$ given by the following expressions
@@ -221,23 +233,28 @@ Now we are ready to state the main theoretical result.
 	\end{align*}
 	This, excluding the conditional trajectories, just corresponds to steps 3--4 in Algorithm~\ref{alg:ipmc}, \ie running $P$ \csmc and $M-P$ \smc algorithms independently.
 	
-	We continue with a reformulation of \eqref{eq:targetdistribution} which will be useful to prove correctness for the other two steps
+	We continue with a reformulation of \eqref{eq:targetdistribution} which will be useful to prove correctness for the other two steps.
+	Here we first note that
 	\begin{align}
-	\label{eq:reformtargetdist}
-	\tilde \pi & (\xib_{1:M},  c_{1:P}, b_{1:P}) \nonumber\\ &=\frac{1}{\binom{M}{P}} \prod_{m=1}^M q_{\text{SMC}}\left(\xib_m\right) \cdot
+	\tilde \pi (\xib_{1:M},  c_{1:P}, b_{1:P})&=\frac{1}{\binom{M}{P}} \prod_{m=1}^M q_{\text{SMC}}\left(\xib_m\right) \nonumber\\ &\cdot
 	\prod_{j = 1}^P \left[
 	\iden_{c_j \notin c_{1:j-1}} \nw_{T,c_j}^{b_j}
-	\pi_T\left(\xb_{c_j}^{b_j}\right) \frac{q_{\text{CSMC}}\left(\xib_{c_j} \backslash \{\xb_{c_j}^{b_j}, \bb_{c_j}\} \mid \xb_{c_j}^{b_j}, \bb_{c_j}, c_j, b_j \right)}{N^{T} 
-		\nw_{T,c_j}^{b_j}
-		%\frac{w_{T,c_j}^{b_j}}{\sum_{i=1}^N w_{T,c_j}^i} 
-		q_{\text{SMC}}\left(\xib_{c_j}\right)}\right] \nonumber\\
-	&= \frac{1}{\binom{M}{P}} \prod_{m=1}^M q_{\text{SMC}}\left(\xib_m\right) \cdot \prod_{j = 1}^P \frac{\hat Z_{c_j}}{Z}\iden_{c_j \notin c_{1:j-1}} 
-	\nw_{T,c_j}^{b_j}
-	%\frac{w_{T,c_j}^{b_j}}{\sum_{i=1}^N w_{T,c_j}^i}
-	.
+	\frac{\pi\left(\xb_{c_j}^{b_j}\right) q_{\text{CSMC}}\left(\xib_{c_j} \backslash \{\xb_{c_j}^{b_j}, \bb_{c_j}\} \mid 
+		\xb_{c_j}^{b_j}, \bb_{c_j}, c_j, b_j \right)}{N^{T} \nw_{T,c_j}^{b_j}q_{\text{SMC}}\left(\xib_{c_j}\right)}\right].
 	\end{align}
-	
-	Furthermore, we note that by marginalising (collapsing) the above reformulation, \ie \eqref{eq:reformtargetdist}, over $b_{1:P}$ we get
+	Now by self similarity to importance weight calculated for the PIMH derivation in~\eqref{eq:part:pimh-w} we have that
+	\begin{align}
+	\frac{\pi\left(\xb_{c_j}^{b_j}\right) q_{\text{CSMC}}\left(\xib_{c_j} \backslash \{\xb_{c_j}^{b_j}, \bb_{c_j}\} \mid 
+		\xb_{c_j}^{b_j}, \bb_{c_j}, c_j, b_j \right)}{N^{T} \nw_{T,c_j}^{b_j}q_{\text{SMC}}\left(\xib_{c_j}\right)}
+	= \frac{\hat Z_{c_j}}{Z}
+	\end{align}
+	and therefore
+	\begin{align}
+		\label{eq:reformtargetdist}
+	\tilde \pi (\xib_{1:M},  c_{1:P}, b_{1:P}) &= \frac{1}{\binom{M}{P}} \prod_{m=1}^M q_{\text{SMC}}\left(\xib_m\right) \cdot \prod_{j = 1}^P \frac{\hat Z_{c_j}}{Z}\iden_{c_j \notin c_{1:j-1}} 
+	\nw_{T,c_j}^{b_j}.
+	\end{align}
+	By marginalizing this reformulation over $b_{1:P}$ we get
 	\begin{align*}
 	\tilde\pi(\xib_{1:M}, c_{1:P}) 
 	%&= \sum_{b_{1:P}}\tilde\pi(\xib_{1:M}, c_{1:P}, b_{1:P}) \nonumber \\
@@ -245,8 +262,8 @@ Now we are ready to state the main theoretical result.
 	\end{align*}
 	From this it is easy to see that $\tilde\pi(c_j | \xib_{1:M}, c_{1:P\backslash j}) = \hat\nz_{c_j}^j$, which 
 	%\begin{align*}
-	%\tilde\pi(c_j | \xib_{1:M}, c_{1:P\backslash j}) = \hat\nz_{\pi_T,c_j}^j
-	%\tilde\pi(c_j | \xib_{1:M}, c_{1:P\backslash j}) = \frac{\hat Z_{\pi_T,c_j} \iden_{c_j \notin c_{1:P\backslash j}}}{\sum_{m=1}^M \hat Z_{\pi_T,m} \iden_{m \notin c_{1:P\backslash j}}}
+	%\tilde\pi(c_j | \xib_{1:M}, c_{1:P\backslash j}) = \hat\nz_{\pi,c_j}^j
+	%\tilde\pi(c_j | \xib_{1:M}, c_{1:P\backslash j}) = \frac{\hat Z_{\pi,c_j} \iden_{c_j \notin c_{1:P\backslash j}}}{\sum_{m=1}^M \hat Z_{\pi,m} \iden_{m \notin c_{1:P\backslash j}}}
 	%\end{align*}
 	corresponds to sampling the conditional node indices, \ie step 6 in Algorithm~\ref{alg:ipmc}. Finally, from \eqref{eq:reformtargetdist} we can see that simulating $b_{1:P}$ can be done independently as follows
 	\begin{align*}
@@ -259,23 +276,27 @@ Now we are ready to state the main theoretical result.
 \end{proof}
 \newtheorem{rem}{Remark}
 \begin{rem}
-	The marginal distribution of $(\xb_{c_{1:P}}^{b_{1:P}},c_{1:P},b_{1:P})$, with $\xb_{c_{1:P}}^{b_{1:P}} = (\xb_{c_1}^{b_1},\ldots,\xb_{c_P}^{b_P})$, under \eqref{eq:targetdistribution} is given by
+	The marginal distribution of $(\xb_{c_{1:P}}^{b_{1:P}},c_{1:P},b_{1:P})$, with $\xb_{c_{1:P}}^{b_{1:P}} = (\xb_{c_1}^{b_1},\ldots,\xb_{c_P}^{b_P})$, under \eqref{eq:targetdistribution} is by construction given by
 	\begin{align}
 	\label{eq:marginaldistribution}
-	&\tilde \pi\left(\xb_{c_{1:P}}^{b_{1:P}},c_{1:P},b_{1:P}\right) = \frac{\prod_{j = 1}^P \pi_T\left(\xb_{c_j}^{b_j}\right) \iden_{c_j \notin c_{1:j-1}}}{N^{PT} \binom{M}{P}} .
+	&\tilde \pi\left(\xb_{c_{1:P}}^{b_{1:P}},c_{1:P},b_{1:P}\right) = \frac{\prod_{j = 1}^P \pi\left(\xb_{c_j}^{b_j}\right) \iden_{c_j \notin c_{1:j-1}}}{N^{PT} \binom{M}{P}}
 	\end{align}
+	because our extended target is formulated as being the process of sampling exactly from~\eqref{eq:marginaldistribution}
+	and then running the $P$ \csmc sweeps and $M-P$ \smc sweeps.
 	This means that each trajectory $\xb_{c_j}^{b_j}$ is marginally distributed according to the
-	posterior distribution of interest, $\pi_T$. Indeed, the $P$ retained trajectories of \ipmcmc
+	posterior distribution of interest, $\pi$. Indeed, the $P$ retained trajectories of \ipmcmc
 	will in the limit $R \rightarrow \infty$ %(or $N \rightarrow \infty$) 
-	be independent draws from $\pi_T$.
-	% , by targeting \eqref{eq:targetdistribution} with an \mcmc sampler we will, in the limit, equivivalently draw $P$ exact samples from $\pi_T$ as a byproduct at each iteration.
+	be independent draws from $\pi$.  Note similarly that it follows that~\eqref{eq:mcestimate}
+	is a consistent estimator (converging in the limit $R\rightarrow\infty$ provided the standard
+	assumptions for convergence of Gibbs samplers are satisfied (see e.g.~\citep{roberts1994simple}).
+	% , by targeting \eqref{eq:targetdistribution} with an \mcmc sampler we will, in the limit, equivivalently draw $P$ exact samples from $\pi$ as a byproduct at each iteration.
 \end{rem}
 Note that adding a backward or ancestor simulation step can drastically increase mixing when sampling the conditional trajectories $\xb_j'[r]$ \citep{lindsten2013backward}. In the \ipmcmc sampler we can replace simulating from the final weights on line~7 by a backward simulation step. Another option for the \csmc nodes is to replace this step by internal ancestor sampling \citep{lindstenJS2014} steps and simulate from the final weights as normal.
-%According to the above remark if we can generate samples from \eqref{eq:targetdistribution} we will equivivalently draw exact samples from $\pi_T$ as a byproduct. We formalize this and show a basic convergence result of the \mcmc samples $\xb^{1:P}[r]$ generated by running Algorithm~\ref{alg:ipmc}.
+%According to the above remark if we can generate samples from \eqref{eq:targetdistribution} we will equivivalently draw exact samples from $\pi$ as a byproduct. We formalize this and show a basic convergence result of the \mcmc samples $\xb^{1:P}[r]$ generated by running Algorithm~\ref{alg:ipmc}.
 %\begin{theorem}[Convergence]
 %\begin{align}
 %\label{eq:convergence}
-%\|\mathcal{L}\{\xb^j[r] \in \cdot \}-\pi_T(\cdot) \| \rightarrow 0, \quad \text{as}~~r\to\infty,~\forall j=1,\ldots,P
+%\|\mathcal{L}\{\xb^j[r] \in \cdot \}-\pi(\cdot) \| \rightarrow 0, \quad \text{as}~~r\to\infty,~\forall j=1,\ldots,P
 %\end{align}
 %\end{theorem}
 %\begin{proof}
@@ -288,39 +309,43 @@ Note that adding a backward or ancestor simulation step can drastically increase
 
 
 % How to use all particles when estimating expectations
-\subsubsection{Using All Particles}
-\label{sec:allparticles}
-At each \mcmc iteration $r$, we generate $MN$ full particle trajectories. Using only $P$ of these as in \eqref{eq:mcestimate} might seem a bit wasteful. We can however make use of all particles to estimate expectations of interest by, for each Gibbs update $j$, averaging over the possible new values for the conditional node index $c_j$ and corresponding particle index $b_j$. We can do this by replacing $f(\xb_j'[r])$ in \eqref{eq:mcestimate} by
+\subsection{Using All the Particles}
+\label{sec:part:ipmcmc:allparticles}
+
+As we discussed for the PIMH and \pg cases in Section~\ref{sec:part:pmcmc:all},
+it can be wasteful to throw away most of our generated samples.  Thankfully we
+can again carry out a Rao-Blackwellization for \ipmcmc to 
+make use of all particles when estimating expectations of interest.  To do this
+we will at each Gibbs update $j$, averaging over the possible new values for the 
+conditional node index $c_j$ and corresponding particle index $b_j$. We can do this by replacing $\frac{1}{P}\sum_{j=1}^P f(\xb_j'[r])$ 
+in \eqref{eq:mcestimate} by
 \begin{align*}
-\E\left[f(\xb_j'[r]) \middle| \xi_{1:M}, c_{1:P\backslash j} \right] 
-= \sum_{m=1}^M 
-\hat\nz_{m}^j
-%\frac{\hat Z_{\pi_T,m} \iden_{m \notin c_{1:P \backslash j}}}{\sum_n \hat Z_{\pi_T,n} \iden_{n \notin c_{1:P \backslash j}}} 
-\sum_{i=1}^N
-\nw_{T,m}^i f(\xb_{m}^i),
+\frac{1}{P}\sum_{j=1}^P \E\left[f(\xb_j'[r]) \middle| \xi_{1:M}, c_{1:P\backslash j} \right] 
+=\frac{1}{P} \sum_{m=1}^M  \left[\left(\sum_{j=1}^P \hat \zeta_m^j \right) \cdot 
+\left(\sum_{i=1}^N \bar w_{T,m}^i  f(\xb_{m}^{i}) \right)\right]
+%= \sum_{m=1}^M 
+%\hat\nz_{m}^j
+%%\frac{\hat Z_{\pi,m} \iden_{m \notin c_{1:P \backslash j}}}{\sum_n \hat Z_{\pi,n} \iden_{n \notin c_{1:P \backslash j}}} 
+%\sum_{i=1}^N
+%\nw_{T,m}^i f(\xb_{m}^i),
 %\frac{w_{T,m}^{i}}{\sum_\ell w_{T,m}^{\ell}} f(\xb_{m}^i),
 \end{align*}
 where the expectation is over $b_j$ and $c_j$.
-This procedure is referred to as a Rao-Blackwellization of a statistical estimator and is (in terms of variance) 
-never worse than the original one.  At a high level, we are taking an analytic expectation over part of
-the randomness of the system (namely the sampling of $b_j$ and $c_j$ at each Gibbs step of the reassignment
-loop) to reduce the variance.  
 We highlight that each $\hat\nz_{m}^j$, as defined in~\eqref{eq:zeta_def}, 
 depends on which indices are sampled earlier in the index reassignment loop.  
 
-To derive this we first note that for iteration $r$ we need to calculate the following
-\begin{align*}
-\frac{1}{P}\sum_{j=1}^P f(\xb_j'[r]) = \frac{1}{P}\sum_{j=1}^P f(\xb_{c_j}^{b_j}),
-\end{align*}
+To derive this we first note that for iteration $r$ we calculate
+$\frac{1}{P}\sum_{j=1}^P f(\xb_j'[r]) = \frac{1}{P}\sum_{j=1}^P f(\xb_{c_j}^{b_j})$
 where we can Rao-Blackwellize the selection of the retained particle along with each individual Gibbs update
 and thereby replace $f(\xb_{c_j}^{b_j})$ with its expectation over $c_j$ and $b_j$ given all the other variables
 as follows
 \begin{align*}
 \frac{1}{P}\sum_{j=1}^P \E \left[f(\xb_{c_j}^{b_j}) \middle| \xi_{1:M}, c_{1:P\backslash j} \right] =& 
 \frac{1}{P}\sum_{j=1}^P \E \left[\sum_{i=1}^N \bar w_{T,c_j}^i  f(\xb_{c_j}^{i}) \middle| \xi_{1:M}, c_{1:P\backslash j} \right] \\ 
-=& \frac{1}{P}\sum_{j=1}^P \sum_{i=1}^N \E \left[\bar w_{T,c_j}^i  f(\xb_{c_j}^{i}) \middle| \xi_{1:M}, c_{1:P\backslash j}  \right] \\
-=& \frac{1}{P}\sum_{j=1}^P \sum_{i=1}^N \sum_{m=1}^M \hat \zeta_m^j \bar w_{T,m}^i  f(\xb_{m}^{i}) \\=& \frac{1}{P}\sum_{j=1}^P \sum_{m=1}^M \hat \zeta_m^j \sum_{i=1}^N \bar w_{T,m}^i  f(\xb_{m}^{i})
-\\=& \frac{1}{P} \sum_{m=1}^M  \left[\left(\sum_{j=1}^P \hat \zeta_m^j \right) \cdot \left(\sum_{i=1}^N \bar w_{T,m}^i  f(\xb_{m}^{i}) \right)\right].
+%=& \frac{1}{P}\sum_{j=1}^P \sum_{i=1}^N \E \left[\bar w_{T,c_j}^i  f(\xb_{c_j}^{i}) \middle| \xi_{1:M}, c_{1:P\backslash j}  \right] \\
+=& \frac{1}{P}\sum_{j=1}^P \sum_{i=1}^N \sum_{m=1}^M \hat \zeta_m^j \bar w_{T,m}^i  f(\xb_{m}^{i}) \\
+%=& \frac{1}{P}\sum_{j=1}^P \sum_{m=1}^M \hat \zeta_m^j \sum_{i=1}^N \bar w_{T,m}^i  f(\xb_{m}^{i})\\
+=& \frac{1}{P} \sum_{m=1}^M  \left[\left(\sum_{j=1}^P \hat \zeta_m^j \right) \cdot \left(\sum_{i=1}^N \bar w_{T,m}^i  f(\xb_{m}^{i}) \right)\right].
 %&\E_{c_j|c_{1:P\backslash j}}\left[\E_{b_{1:P}}\left[\frac{1}{P}\sum_{j=1}^P f(\xb_{c_j}^{b_j})\right]\right] = \frac{1}{P}\sum_{j=1}^P \E_{c_j|c_{1:P\backslash j}}\left[\E_{b_{1:P}}\left[ f(\xb_{c_j}^{b_j})\right]\right] = \frac{1}{P}\sum_{j=1}^P \E_{c_j|c_{1:P\backslash j}}\left[ \sum_{i=1}^N \bar w_{T,c_j}^i  f(\xb_{c_j}^{i})\right] \\
 %&= \frac{1}{P}\sum_{j=1}^P \sum_{i=1}^N \E_{c_j|c_{1:P\backslash j}}\left[ \bar w_{T,c_j}^i  f(\xb_{c_j}^{i})\right] = \frac{1}{P}\sum_{j=1}^P \sum_{i=1}^N \sum_{m=1}^M \hat \zeta_m^j \bar w_{T,m}^i  f(\xb_{m}^{i}) = \frac{1}{P}\sum_{j=1}^P \sum_{m=1}^M \hat \zeta_m^j \sum_{i=1}^N \bar w_{T,m}^i  f(\xb_{m}^{i}),
 \end{align*}
@@ -332,8 +357,8 @@ Here we have made use of the knowledge that the internal particle system $\{(\xb
 %\subsubsection{Static Parameters}
 %We can also use the \ipmcmc algorithm to sample static parameters $\theta$ in a Gibbs-type method by alternating between sampling latent variables $x_{1:T}$ and $\theta$. The basic version of this would add two extra steps in Algorithm~\ref{alg:ipmc} by simulating new parameters from the full conditional distributions for the \csmc nodes and the parameter prior for the standard \smc nodes.
 
-\subsubsection{Choosing P}
-\label{sec:choosingP}
+\subsection{Choosing P}
+\label{sec:part:ipmcmc:choosingP}
 Before jumping into the full details of our experimentation, we quickly consider the choice of $P$. Intuitively we can think of the independent \smc's as particularly useful if they are selected as the next conditional node. The probability of the event %(denoted by $\mathcal{S}$) 
 that at least one conditional node switches with an unconditional, is given by
 \begin{align}
@@ -342,7 +367,7 @@ that at least one conditional node switches with an unconditional, is given by
 \Prb(\{\text{switch}\}) 
 = 1 - \E\Big[\prod_{j=1}^P \frac{\hat Z_{c_j}}{\hat Z_{c_j} +\sum_{m \notin c_{1:P}}^M \hat Z_{m}}\Big].
 \end{align}
-There exist theoretical and experimental results \citep{pitt2012some,berard2014lognormal,doucet2015efficient} that show that the distributions of the normalisation constants are well-approximated by their log-Normal limiting distributions. Now, with $\sigma^2$ ($\propto \frac{1}{N}$) being the variance of the (C)\smc estimate, it means we have $\log \left(Z^{-1} \hat Z_{c_j} \right) \sim \N(\frac{\sigma^2}{2},\sigma^2)$ and $\log \left(Z^{-1} \hat Z_{m} \right) \sim \N(-\frac{\sigma^2}{2},\sigma^2)$, $m\notin c_{1:P}$ at stationarity, where $Z$ is the true normalization constant. Under this assumption, we can accurately estimate the probability \eqref{eq:switchingprob} for different choices of $P$ an example of which is shown in Figure~\ref{fig:theSwitchingProb} along with additional analysis in Appendix~\ref{sec:supp-choosep}. These provide strong empirical evidence that the switching probability is maximised for $P=M/2$.
+There exist theoretical and experimental results \citep{pitt2012some,berard2014lognormal,doucet2015efficient} that show that the distributions of the normalisation constants are well-approximated by their log-Normal limiting distributions. Now, with $\sigma^2$ ($\propto \frac{1}{N}$) being the variance of the (C)\smc estimate, it means we have $\log \left(Z^{-1} \hat Z_{c_j} \right) \sim \N(\frac{\sigma^2}{2},\sigma^2)$ and $\log \left(Z^{-1} \hat Z_{m} \right) \sim \N(-\frac{\sigma^2}{2},\sigma^2)$, $m\notin c_{1:P}$ at stationarity, where $Z$ is the true normalization constant. Under this assumption, we can accurately estimate the probability \eqref{eq:switchingprob} for different choices of $P$ an example of which is shown in Figure~\ref{fig:theSwitchingProb} along with additional analysis given in the supplementary material of~\cite{rainforth2016interacting}. These provide strong empirical evidence that the switching probability is maximised for $P=M/2$.
 
 \begin{figure}[t]
 	\centering

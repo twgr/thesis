@@ -86,11 +86,9 @@ b \sim \Discrete\left(\left\{\nw_{T}^\ell\right\}_{\ell=1}^N\right).
 \end{align}
 Sampling a particle also indicates an ancestral path
 which we denote as $\bb = (\beta_{1,},\ldots,\beta_{T})$, with
-$\beta_{T} = b$ and $\beta_{t} = a_{t}^{\beta_{t+1}}$.  We refer to the combination of a sampled
-particle and its ancestral path as a \emph{trajectory}, such that the trajectory returned by running \smc
-and sampling $b$ is given by $\{\xb^{b},\bb\}$.  Running \smc followed by sampling the index $b$
-corresponds to proposing a trajectory, though in the context of PIMH we only care about the particle
-associated with that trajectory.  Given this proposal, the acceptance ratio used for PIMH is
+$\beta_{T} = b$ and $\beta_{t} = a_{t}^{\beta_{t+1}}$.  The result of running a \smc sweep
+and sampling $b$ thus proposes a $\{\xb^{b},\bb\}$, though in the context of PIMH we only care about the particle
+$\xb^b$.  Given this proposal, the acceptance ratio used for PIMH is
 given by the ratio of the marginal likelihood estimates for the current point and the \smc used
 to propose the candidate particle.  If we denote the MCMC particle sample at iteration $r$ as $\xb'[r]$ and
 associated marginal likelihood as $\mathbf{Z}'[r]$, then our proposed sample $\{\xb^b,\hat{Z}\}$ 
@@ -180,7 +178,7 @@ targeting $\tilde{\pi}(\xi,b)$ using the proposal $q_{\text{PIMH}}(\xib,b)$
 	\prod_{t=2}^{T} w_{t-1}^{\beta_{t-1}}\right)\cdot\left(
 	\frac{\prod_{t=1}^T \frac{1}{N} \sum_{\ell=1}^N w_{t}^{\ell}}{w_T^b \prod_{t=2}^{T} w_{t-1}^{\beta_{t-1}}}\right) \nonumber \\
 &= \frac{1}{Z} \prod_{t=1}^T \frac{1}{N} \sum_{\ell=1}^N w_{t}^{\ell}
-= \frac{\hat{Z}}{Z}.
+= \frac{\hat{Z}}{Z}. \label{eq:part:pimh-w}
 \end{align}
 We thus have that $\hat{Z}$ is the importance weight for sampling the unnormalized
 version of the target $\tilde{\gamma}(\xi,b) = Z \tilde{\pi}(\xi,b)$ and so using the
@@ -218,12 +216,11 @@ context, and runs the sweep conditioned on this conditional trajectory being pre
 set.  One can think of this as running a SMC sweep conditioned on the predefined particle surviving each
 of the resampling steps.  In other words, the other particles can sample the retained particle as an
 ancestor but not vice versa, with the values and ancestral path of the retained particle prefixed. 
- In Algorithm~\ref{alg:csmc} we have
-presumed  that this ancestral path our our trajectory is $\bb = (N,\dots,N)$ which is not always the case from a theoretical
-perspective.  However, because the path is fixed up front, all possible paths are equivalent from the point
-of view of running the sweep.  Therefore,
-given we only actually care about the $\xb$ sampled by the algorithm and not the ancestral paths themselves,
-we can just use a convenient fixed ancestral path for the retained particle in practice, as done in Algorithm~\ref{alg:csmc}.
+Note that running Algorithm~\ref{alg:csmc} corresponds to simulating from $q_\text{CSMC}$ using a fixed
+choice for the index variables $\bb = (N\,\ldots,N)$. While these indices are used to facilitate the
+proof of validity of the proposed method, they have no practical relevance (all path are marginally equivalent
+by symmetry) and can thus be set to arbitrary
+values, as is done in Algorithm~\ref{alg:csmc}, in a practical implementation.
 \begin{algorithm}[tb]
 	\caption{Conditional sequential Monte Carlo}
 	\label{alg:csmc}
@@ -251,6 +248,12 @@ Therefore, once initialized, say using a standard \smc sweep, one can iterate be
 particle in the same manner ancestor indices are sampled and running \csmc sweeps conditioned on this
 retained particle.  Considerations about global parameters aside (see Section INSERT), this is know
 as iterated \csmc and constitutes the \pg algorithm.  A characterization is provided in INSERT. 
+Note that the resampling step must always be done for \csmc sweeps (i.e. the techniques introduced in
+Section~\ref{sec:part:smc:prat:ad-re} cannot be used) as unlike in an \smc sweep, the resampling for
+a \csmc sweep does not maintain the target distribution.  Similarly one cannot do a gratituitious resampling
+step at the end of a \csmc sweep. to produce unweighted samples as is sometimes done for \smc.  Another
+important difference is that, unlike \smc, a \csmc sweep does not provide an unbiased estimate for the
+marginal likelihood (expect in the limit $N\rightarrow\infty$).
 
 \todo[inline]{Add PG characterization figure.}
 
@@ -294,7 +297,7 @@ defined in~\eqref{eq:part:pimh-est} leads to a consistent estimator.
 A drawback of particle based methods, and in particular the \pg algorithm, is that they can be adversely 
 affected by \emph{path degeneracy} in the (C)SMC sweep.  Path degeneracy is the tendency of the number
 of unique samples to diminish as one follows the ancestry backwards through the sweep.  In other words, because
-of the resampling, there will typically be fewer (and never more) unique instances of $x_{t-1}$ then of $x_t$
+of the resampling, there will typically be fewer (and never more) unique instances of $x_{t-1}$ than of $x_t$
 in the final particle set $\{x_{1:T}^i,\nw_{T}^i\}_{i=1}^T$ and therefore there are often few distinct samples
 for the earlier steps.  It is not uncommon for the ancestral paths to collapse back to a single sample for
 small $t$, an example of which is demonstrated in the bottom right of Figure~\ref{fig:part:smc_explan}
@@ -350,7 +353,7 @@ a Metropolis-with-Gibbs update.  In the latter case it is typically preferable t
 on the parameters between each \csmc to ensure fast mixing, noting that the latter is generally at least a 
 factor of $N$ more times expensive.
 
-\subsection{Using all the Samples}
+\subsection{Rao-Blackwellization}
 \label{sec:part:pmcmc:all}
 
 At each \mcmc iteration $r$, we generate $N$ full particle trajectories. 
