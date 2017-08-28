@@ -129,13 +129,14 @@ w_1 (x_1) &= \frac{\mu (x_1)g_{t}(y_1 | x_1)}{q_1(x_1)} \\
 w_t (x_{1:t}) &= w_{t-1} (x_{1:t-1}) \frac{g_{t}(y_t|x_{1:t}) f_{t}(x_t | x_{1:t-1})}{q_t(x_t|x_{1:t-1})}.
 \end{align}
 \end{subequations}
-Once completed this will produce a weighted sample $\{\hat{x}_{1:T},\bar{w}_T(\hat{x}_{1:T})\}$ for 
+Once completed this will produce a set of weighted sample $\{\hat{x}_{1:T},w_T(\hat{x}_{1:T})\}$ for 
 $p(x_{1:T} | y_{1:T})$.  A summary of the SIS process is given in Algorithm~\ref{alg:part:sis}.
 Note we do not need the targets to be normalized because we can use self-normalized importance sampling
 as introduced in~\ref{sec:inf:foundation:importance:self-norm}.
 
 Because SIS produces are pure importance sampling estimate, it will share all the desirable properties
-of importance sampling introduced in Section~\ref{sec:inf:foundation:importance}.  In fact, it is just
+of importance sampling introduced in Section~\ref{sec:inf:foundation:importance}, including the
+ability to use self-normalization.  In fact, it is just
 a particular case of importance sampling because could have produced the same samples and weights
 by sampling $x_{1:T} \sim q_1(x_1) \prod_{t=2}^{T} q_t (x_t | x_{1:t-1})$ and then calculating the
 corresponding importance weight $w_T(x_{1:T})$ in one go. As such, 
@@ -177,12 +178,13 @@ A characterization of the method is shown in Figure~\ref{fig:part:smc_explan}.
 		the importance weights are not propagated from one time step to the next (see Algorithm~\ref{alg:part:smc}).
 		We now again have a weight particle set $\{x_{1:2}^i,w_2^i\}_{i=1}^N$, for which we again perform a resampling
 		step to produce an unweighted set of particles.  The process continues in the same way, eventually returning the
-		final set of samples $\{x_{1:T}^i,w_T^i\}_{i=1}^N$.  Note that over time, many of the generated samples are
+		final set of samples $\{x_{1:T}^i,\nw_T^i\}_{i=1}^N$, where we have self-normalized the final weights.  
+		Note that over time, many of the generated samples are
 		discarded by the system (shown in gray) during the resampling step.  A consequence of this, which can be seen
 		in the bottom right, is that
 		many time steps, then our particle set become \emph{degenerate}.  Here we have multiple distinct samples for $x_9$, but
 		all our samples share the same \emph{ancestors} for $t=1:6$, i.e. each $x_t^i$ in our final sample set is
-		the same for $t\le6$.  We will return to discuss this in Section~\ref{sec:part:ipmcmc}.
+		the same for $t\le6$.  We will return to discuss this further in Section~\ref{sec:part:pmcmc:path-deg}.
 		\label{fig:part:smc_explan}}
 \end{figure}
 
@@ -232,8 +234,14 @@ where $x_{1:t}^i = (x_{1:t-1}^{a_{t-1}^i},x_t^i)$.   Note that after resampling,
 all the particles have the same weight and therefore, unlike for SIS, the weights at the previous step
 do not feature in the weights at the current time step.
 This results in a new particle system $\{x_{1:t}^i,w_t^i\}_{i=1}^N$ that approximates $p(x_{1:t}|y_{1:t})$
-and the algorithm continues in a self-similar manner.
-The overall process if detailed in Algorithm~\ref{alg:part:smc}
+and the algorithm continues in a self-similar manner up to time $T$.
+The overall process is detailed in Algorithm~\ref{alg:part:smc}.  Once run, we can use our final, self-normalized,
+particle set $\{x_{1:T}^i,\nw_T^i\}_{i=1}^N$ as a Monte Carlo estimator in the same manner as self-normalized
+importance sampling:
+\begin{align}
+\label{eq:part:smc-est}
+\E_{\pi (x_{1:T})} \left[f(x_{1:T})\right] \approx \frac{1}{N} \sum_{i=1}^{N} \nw_T^i f(x_{1:T}^i).
+\end{align}
 
 \begin{algorithm}[tb]
 	\caption{Sequential Monte Carlo \hfill {\small (all for $i=1,\ldots,N$)}}
@@ -267,7 +275,9 @@ unbiased estimate for the marginal likelihood $p(y_{1:T})$
 as first shown by~\cite{del2004feynman}.  Although this original
 proof requires advanced techniques we will not touch on here, we will later show that this results can also be shown
 as a consequence of the proof of correctness for the particle independent Metropolis-Hastings method
-given in Section~\ref{sec:part:pmcmc:pimh}.  Producing unbiased
+given in Section~\ref{sec:part:pmcmc:pimh}.  Note that although the marginal likelihood estimate is
+unbiased, the estimator for an general expectation given by~\eqref{eq:part:smc-est} is biased in the same
+way as the self-normalized importance sampling estimator given in~\eqref{eq:inf:snis} is.  Nonetheless, producing unbiased
 estimates of the marginal likelihood has numerous significant advantages.  
 
 Firstly, it means that one can combine
@@ -276,9 +286,15 @@ consistent estimate for the marginal likelihood.
 The is particularly important as the number of particles $N$, is typically restricted by the availability of memory
 and we often want to run more than one \emph{SMC sweep} (i.e. a single run of SMC).
 To combine our estimates, one simply weights each sample by the marginal likelihood of its sweep times
-its local weight $w_T^i$.  The ability to do this is known as \emph{proper weighting} and we can justify it by
+its local, self-normalized, weight $\nw_T^i$, giving the estimator
+\begin{align}
+\label{eq:part:ind-smc}
+\E_{\pi (x_{1:T})} \left[f(x_{1:T})\right] \approx \frac{1}{RN} \sum_{r=1}^{R}\sum_{i=1}^{N} \hat{Z}[r] \nw_T^i[r] f(x_{1:T}^i[r]).
+\end{align}
+where the notation $[r]$ is used to indicates samples from sweep $r$.
+ The ability to do this is known as \emph{proper weighting} and we can justify it by
 thinking in terms of using a proposal that first samples a full particle set, giving importance weight $\hat Z$, and then sampling a particle
-from this set, giving importance weight $w_T^i$.  The product of these separate weights thus gives the weight of
+from this set, giving importance weight $\nw_T^i$.  The product of these separate weights thus gives the weight of
 each sample.  
 
 Secondly, the unbiased marginal likelihood estimate means that we can \emph{nest} SMC within other 
@@ -335,7 +351,7 @@ for the NMSSM case are actually sub-optimal and used because of the fact that
 $p(x_{1:t},y_{1:t})$ can, in general, be calculated exactly.  It is a well known result
 (see, for example, the appendices of~\cite{le2017auto}) that the optimal series
 of proposals (complications with computability and proposals aside) is actually 
-the marginals $\tilde{pi}_t (x_{1:t})$, $=p(x_{1:t} | y_{1:T})$ for
+the marginals $\tilde{\pi}_t (x_{1:t})$, $=p(x_{1:t} | y_{1:T})$ for
 the NMSSM case.  To see this, note that at the $t^{\mathrm{t}}$ step, we are generating 
 the samples for $x_{t}$ and that if each of targets is the marginal distribution then
 the marginal probability of the already sampled variables does not change from

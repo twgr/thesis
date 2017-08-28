@@ -118,7 +118,7 @@ a new point $x'$ according to the a proposal $x' \sim q(x' | x_n)$ conditioned o
 and then accepts the new sample with probability
 \begin{align}
 \label{eq:inf:accept-prob}
-A = \min \left(1, \frac{\gamma(x') q(x_n | x')}{\gamma(x_n) q(x' | x_n)}\right).
+P(\text{Accept}) = \min \left(1, \frac{\gamma(x') q(x_n | x')}{\gamma(x_n) q(x' | x_n)}\right).
 \end{align}
 At iteration $n$ then we set $x_{n+1} \leftarrow x'$ if the sample is accepted and otherwise
 set $x_{n+1} \leftarrow x_{n}$.  Critically this process does not require access to the normalized
@@ -233,13 +233,21 @@ exactly\todo{give examples} and thus carry out Gibbs sampling exactly.  We can t
 the $\theta_d$, either in a random order or in sequence, and apply the appropriate updates.  The
 effectiveness of this approach will depend on the level of correlation between the different variables.  The more
 correlated each variable: the smaller the updates will be for each variable conditioned on the values of the
-others and the slower the chain will mix.
+others and the slower the chain will mix.  In extreme cases, this does impose stricter conditions
+for convergence for Gibbs samplers than MH~\citep{roberts1994simple}.  For example, consider an exclusive
+or style problem where $\pi(\theta_1,\theta_2) = 1$ if $0\le\theta_1\le1$ and $0\le\theta_2\le1$
+or $-1\le\theta_1<0$ and $-1\le\theta_2<0$ and $\pi(\theta_1,\theta_2) = 0$ otherwise.  Here there is no
+way to move from the $[0,1]^2$ square to the $[-1,0]^2$ by updating only one of the variables at a time.  As
+such a Gibbs sampler would end up stuck in either the positive or negative square.
 
-If this is not possible or if it is only
-possible for some of the variables, we can instead use a \emph{Metropolis-within-Gibbs} approach where
+If it is not possible to sample from the conditional distributions exactly or if it is only
+possible for some of the variables, we can instead use a \emph{Metropolis-within-Gibbs} approach,
+also known as \emph{component-wise Metropolis-Hastings}, where
 we use a proposal to approximate one or more $\pi(\theta_d' | \theta \backslash \theta_d)$ with an
 appropriate proposal.  Naturally this means that the acceptance ratio is no longer always $1$ and so
-an accept-reject step becomes necessary.
+an accept-reject step becomes necessary.  Though the convergence of this approach has
+been shown by~\cite{jones2014convergence}, additional assumptions are required compared to the
+standard Gibbs or MH cases.
 
 \subsubsection{Advanced MCMC Algorithms}
 \label{sec:inf:foundation:advanced}
