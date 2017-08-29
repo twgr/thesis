@@ -25,7 +25,7 @@ any conditioning on internally sampled variables.
 We will give our language
 two special constructs, \sample and \observe, between which the distribution of the
 program is defined.  As such the program should not include any other random components.
-Informally, \sample will be used to specify terms in the prior and \observe terms in the
+Informally, \sample will be used to specify terms in the prior and \observe terms in the\todo{Add syntax}
 likelihood.  More precisely, \sample will be used to make random draws $x_t \sim f_t(x_t | \Xi_t)$,
 where $\Xi_t$ is a subset the other variables in scope at the point of sampling, and \observe will use to condition on
 data $g_s(y_s|\Lambda_s)$ with $\Lambda_s$ defined in the same way as $\Xi_t$.  We presume that the program takes 
