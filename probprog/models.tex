@@ -15,29 +15,91 @@ might condition on internally sampled variables) but for most purposes this view
 We will keep things predominantly high-level for now, giving a more detailed look in
 Section~\ref{sec:probprog:anglican} by introducing a particular PPS, namely Anglican, in detail.
 
-\section{A Simplified Probabilistic Programming Setup}
+\subsection{A Simplified Probabilistic Programming Setup}
 \label{sec:probprog:models:first}
 
 We start by considering the case of constructing a restricted PPS.  We will presume that our
-language has no branching (i.e. no \texttt{if} statements or equivalent), is \emph{first order}
-(i.e. variables cannot be functions), and that there is no recursion.  We will give our language
+language has no branching (i.e. no \texttt{if} statements or equivalent), is  first order
+(i.e. variables cannot be functions), that there is no recursion, and that it does not allow 
+any conditioning on internally sampled variables.  
+We will give our language
 two special constructs, \sample and \observe, between which the distribution of the
 program is defined.  As such the program should not include any other random components.
 Informally, \sample will be used to specify terms in the prior and \observe terms in the
-likelihood.  More precisely, \sample will be used to make random draws $\theta \sim p(\theta | \Xi)$,
-where $\Xi$ is all the other variables in scope, and \observe will use to condition on
-data $p(\mathcal{D}|\Xi)$.  Note that both add a factor to the joint distribution given by
+likelihood.  More precisely, \sample will be used to make random draws $x_t \sim f_t(x_t | \Xi_t)$,
+where $\Xi_t$ is a subset the other variables in scope at the point of sampling, and \observe will use to condition on
+data $g_s(y_s|\Lambda_s)$ with $\Lambda_s$ defined in the same way as $\Xi_t$.  We presume that the program takes 
+in as input external parameters $\theta$ and data $y_{1:S}$, the former of which is taken as inputs that are 
+not ``observed'' at any point but can effect the conditioning through $\Xi_t$ and $\Lambda_s$, while we presume 
+for our simplified setup that the latter appears in neither $\Xi_t$ or $\Lambda_s$.
+We define both \sample and \observe as adding a factor to the joint distribution which is therefore given by
 \begin{align}
-p(content...)
+\label{eq:probprog:simple-joint}
+p(x_{1:T},y_{1:S} | \theta) = \prod_{t=1}^{T} f_t(x_t | \Xi_t) \prod_{s=1}^{S} g_s(y_s|\Lambda_s).
 \end{align}
-but vary in whether they define a new random variable or effect the probability of the
+The two vary in whether they define a new random variable or effect the probability of the
 program given particular instances of the other random variables.
+Our presumptions for this simplified setup that no $y_{s}$ terms are present in the $\Xi_t$ or $\Lambda_s$
+and that we do not condition on internally sampled variables, means that we can here have
+exactly that our prior is $\prod_{t=1}^{T} g_t(x_t | \Xi_t) =: p(x_{1:T} | \theta)$ and our likelihood is
+$\prod_{s=1}^{S} g_s(y_s|\Lambda_s) =: p(y_{1:S} | x_{1:T}, \theta)$.  Consequently, for our simplified setup,
+each program defines a finite directed acyclic graphical model (see Section~\ref{sec:bayes:paradigm:graph})
+where the conditional relationships are defined through the definitions of $f_t$ and $g_s$.
+This breakdown into a prior and likelihood and the equivalence to graphical models
+will not hold in the more general cases we consider later.  \todo[inline]{Some example programs and equivalent
+	graphical models for our simplified setup are given in Figure INSERT}
+
+An important point to note is that~\eqref{eq:probprog:simple-joint} shows that all of our \sample
+and \observe statements are exchangeable, in the sense that their order can be moved around and
+still define the same joint distribution, up to restrictions about all the required variables required
+for the conditioning existing and being in scope.  For example, if all variables remain in scope
+and are not redefined, we can generally move all our \observe statements to the end of the program
+without changing the joint distribution.  Nonetheless, the position of the \observe statements
+can often be important from the perspective of the performance of the inference engine.  This exchangeability
+result will carry over to the non-simplified cases.
+
+Other than \sample and \observe statements, the rest of our program is by construction totally deterministic.  Therefore,
+though it may contain random variables other than $x_{1:T}$, these random variables are deterministic
+functions of the ``raw'' random draws $x_{1:T}$ and inputs $\theta$ and $y_{1:S}$.  We can therefore 
+define the outputs of our program as $z := h(x_{1:T},y_{1:S},\theta)$ for some deterministic function $h$.
+As we explained in Section~\ref{sec:prob:measure}, the change of variables means that the density function on $z$,
+$p(z | y_{1:S}, \theta) $
+can have a different form to the posterior implied by our program, namely $p(x_{1:T} | y_{1:S}, \theta)$.
+  Though this is a serious complication in the
+context of optimization (we may not in general be able to find $\argmax_z p(z|y_{1:S},\theta)$
+or even evaluate $p(z | y_{1:S}, \theta)$ exactly), it
+is perfectly acceptable in the context of calculating expectations as
+\begin{align}
+\int f(z) p(z | y_{1:S}, \theta) dz = \int f(h(x_{1:T}, y_{1:S}, \theta)) p(x_{1:T} | y_{1:S}, \theta) dx_{1:T}
+\end{align}
+for implicitly defined measures $dz$ and $dx_{1:T}$.  Two consequences of this are that
+we can express any expectations calculated by our program as expectations over $p(x_{1:T} | y_{1:S}, \theta)$
+which was fully defined by the joint~\eqref{eq:probprog:simple-joint} and that, provided we are not worried
+about carrying out optimizations, we do not need to explicitly worry about the implicit measures defined
+by the definition of our program, other than any potential effects on the inference scheme.
 
 
+%
+%Because of the assumptions we have made for our language, the latent
+%variables we wish to do inference for are statically determined as $x_{1:T} = x_1,\dots,x_T$ 
+%such that the posterior of interest is $p_{\theta} (x_{1:T} | y_{1:S})$ (or some marginal of this for
+%which we can still using Monte Carlo inference on the joint).
+%
+%Our implied target posterior
+%is proportional to this joint in the standard way $p_{\theta}(x_{1:T}|y_{1:S}) \propto p_{\theta}(x_{1:T},y_{1:S})$.
 
+\subsection{A General Probabilistic Programming Setup}
+\label{sec:probprog:models:general}
+
+Note that as $y_s$ terms can appear in the $\Xi_t$ terms, it can be the case that 
+$p(x_{1:T} | \theta) \neq \prod_{t=1}^{T} p(x_t | \Xi_t)$ such that the latter does not
+ex
+can also enter \sample or \observe terms through $\Xi_t$ and $\Xi_s$ respectively.
 
 \todo[inline]{Conditioning on internally sampled variables
 	
 	Ordering of decelerations matters
 	
-	Memoization}
+	Memoization
+	
+	Complications of maximization}

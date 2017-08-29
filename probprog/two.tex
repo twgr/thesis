@@ -1,0 +1,51 @@
+% !TEX root = ../main.tex
+
+\section{Differing Approaches}
+\label{sec:probprog:two}
+
+PPSs allow users to define probabilistic models 
+using a domain-specific programming language or modeling library. A probabilistic program implicitly 
+defines a distribution on random variables, whilst the system back-end implements 
+general-purpose inference methods.  As such, rather than being a clearly defined particular algorithm,
+probabilistic programming is more of an umbrella term that covers a spectrum of 
+different approaches, varying from inference toolboxes, through to languages that allow
+arbitrary probabilistic code to be written, even that which might not correspond to a valid
+model.  Often there is a trade-off between efficiency and expressivity: the more restricted
+one makes the language, the more those restrictions can be exploited to improve the efficiency
+of the inference.  This leads itself two distinct philosophies when developing a language: 
+start with a particular inference algorithm and then design a language around making it as
+easy as possible to write models for which that inference algorithm is suitable, or start with a
+general as possible a language to allow any possible model to be written and then try to construct
+inference engines that are capable of work in such a general framework.  Both approaches 
+have their merits and drawbacks, with the distinction typically coming down to the intended use.
+We will now elucidate each approach more precisely.  
+
+Though there is a plethora of bespoke inference algorithms design for particular models, the vast majority of these are based around
+a relatively small number of foundational methods such as importance sampling, sequential Monte Carlo,
+Metropolis-Hastings, Gibbs sampling, message passing, and variational inference (see Chapter~\ref{chp:inf}).
+The extensive use of these core inference approaches throughout Bayesian statistics and machine
+learning means that it makes clear sense to write packages for automating them and to provide packages
+that make it easy for the user to define an appropriate graphical models for which the inference can be automated.
+This both improves efficiency of modeling and reduces barriers to effective Bayesian modeling by reducing the
+required inference expertise for users.  This inference-first philosophy is taken by a number of successful PPSs
+such as
+\begin{itemize}
+	\item BUGS (Bayesian inference Using Gibbs Sampling) \citep{spiegelhalter1996bugs} . Extensions JAGS
+	\item Infer.Net \citep{minka_software_2010}
+	\item Stan \citep{carpenter2015stan}
+\end{itemize}
+and many more.  These PPSs do not allow users to write models that would be difficult (at least for
+an expert) to code without a PPS -- in general they all can be thought of as defining a graphical model
+or sometimes factor graph -- but they offer substantial utility through ease of model exposition and
+automating inference.
+
+PPSs such as Infer.Net \citep{minka_software_2010},
+ and Stan \citep{carpenter2015stan} 
+can be thought of as defining graphical models or factor graphs.  Our focus will instead be on systems such as Church \citep{goodman_uai_2008}, Venture \citep{mansinghka2014venture}, WebPPL \citep{goodman_book_2014}, and Anglican \citep{wood2014new}, which employ a general-purpose programming language for model specification. In these systems, the set of random variables is dynamically typed, such that it is possible to write programs in which this set differs from execution to execution.  This allows an unspecified number of random variables and incorporation of arbitrary black box deterministic functions, such as was exploited by the \simulatec function in Figure \ref{fig:house-heating-code}. The price for this expressivity is that inference methods must be formulated in such a manner that they are applicable to models where the density function is intractable and can only be evaluated during forwards simulation of the program. 
+
+
+Probabilistic programming systems allow users to define probabilistic models using a domain-specific programming language or modeling library. A probabilistic program implicitly defines a density on random variables. The inference back end implements one or more general-purpose methods that may be used to perform posterior inference on the variables in a program.
+
+For the purposes of our discussion here, we will distinguish between two classes of probabilistic programming systems.  In systems such as BUGS \citep{spiegelhalter1996bugs}, Infer.Net \citep{minka_software_2010} and Stan \citep{carpenter2015stan}, the set of random variables in the model is statically determinable, which is to say that it is possible to perform type inference over the full set of random variables that will be instantiated upon execution. Probabilistic programs defined in this class of systems can be thought of as graphical models or factor graphs. 
+
+Our focus will be on systems such as Church \citep{goodman_uai_2008}, Venture \citep{mansinghka2014venture}, WebPPL \citep{goodman_book_2014}, and Anglican \citep{wood2014new}, which employ a general-purpose programming language for model specification. In these systems, the set random variables is fundamentally dynamically typed, in the sense that it is possible to write programs in which this set differs from execution to execution. Models specified using a general-purpose language can employ an unspecified number of random variables and easily incorporate arbitrary black box deterministic functions. The price for this expressivity is that inference methods must be formulated in such a manner that they are applicable to models where the density function is intractable, in the sense it can only be evaluated by executing the program. 
