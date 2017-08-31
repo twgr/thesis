@@ -3,19 +3,16 @@
 \section{Differing Approaches}
 \label{sec:probprog:two}
 
-PPSs allow users to define probabilistic models 
-using a domain-specific programming language or modeling library. A probabilistic program implicitly 
-defines a distribution on random variables, whilst the system back-end implements 
-general-purpose inference methods.  As such, rather than being a clearly defined particular algorithm,
+Rather than being a clearly defined particular algorithm,
 probabilistic programming is more of an umbrella term that covers a spectrum of 
-different approaches, varying from inference toolboxes, through to languages that allow
+different approaches, varying from inference toolboxes through to languages that allow
 arbitrary probabilistic code to be written, even that which might not correspond to a valid
 model.  Often there is a trade-off between efficiency and expressivity: the more restricted
 one makes the language, the more those restrictions can be exploited to improve the efficiency
-of the inference.  This leads itself two distinct philosophies when developing a language: 
-start with a particular inference algorithm and then design a language around making it as
-easy as possible to write models for which that inference algorithm is suitable, or start with a
-general as possible a language to allow any possible model to be written and then try to construct
+of the inference.  This leads itself two distinct philosophies when developing a system. 
+Firstly one can start with a particular inference algorithm and then design a language around making it as
+easy as possible to write models for which that inference algorithm is suitable.  Secondly one can start
+with  a general purpose language that allows as many model as possible to be written and then try to construct
 inference engines that are capable of work in such a general framework.  Both approaches 
 have their merits and drawbacks, with the distinction typically coming down to the intended use.
 We will now elucidate each approach more precisely.  
@@ -23,13 +20,13 @@ We will now elucidate each approach more precisely.
 \subsection{Inference Driven Systems}
 \label{sec:probprog:two:inf}
 
-Though there is a plethora of bespoke inference algorithms design for particular models, the vast majority of these are based around
+Though there is a plethora of bespoke inference algorithms designed for particular models, the vast majority of these are based around
 a relatively small number of foundational methods such as importance sampling, sequential Monte Carlo,
 Metropolis-Hastings, Gibbs sampling, message passing, and variational inference (see Chapter~\ref{chp:inf}
 for an introduction to Bayesian inference).
 The extensive use of these core inference approaches throughout Bayesian statistics and machine
 learning means that it makes clear sense to write packages for automating them and which
-that make it easy for the user to define an appropriate graphical models for which the inference can be automated.
+make it easy for the user to define an appropriate graphical models for which the inference can be automated.
 This both improves efficiency of modeling and reduces barriers to effective Bayesian modeling by reducing the
 required inference expertise for users.  This inference-first philosophy is taken by a number of successful PPSs
 and inference toolboxes (the distinguishing line between which can be a little blurry) such as, amongst many others,
@@ -59,15 +56,50 @@ an expert) to code without a PPS -- in general they all can be thought of as def
 or sometimes factor graph -- but they offer substantial utility through ease of model exposition and
 automating inference.
 
-\subsection{Flexibility Driven Systems}
+\subsection{General Purpose Systems}
 \label{sec:probprog:two:general}
 
-Our focus will instead be on systems such as Church \citep{goodman_uai_2008}, Venture \citep{mansinghka2014venture}, 
-WebPPL \citep{goodman_book_2014}, and Anglican \citep{wood2014new}, which employ a general-purpose programming 
-language for model specification. In these systems, the set of random variables is dynamically typed, such that it is possible 
-to write programs in which this set differs from execution to execution.  This allows an unspecified number of random 
-variables and incorporation of arbitrary black box deterministic functions. The price for this expressivity is that inference 
-methods must be formulated in such a manner that they are applicable to models where the density function is intractable 
-and can only be evaluated during forwards simulation of the program. 
+As useful as these inference-driven systems are, they do not fit very well with the notion of
+inverting simulators we introduced in Section~\ref{sec:probprog:inv}.  They are still closely tied
+to graphical models and are more toolboxes for streamlining the Bayesian modeling process than
+a means of writing models that would be problematic to define by conventional means.  Achieving
+our long term ambitious aim of making general purpose systems for conducting inference of
+arbitrary simulators will require us to take a somewhat different approach that instead starts
+with a general-purpose language and then attempts to design inference algorithms capable of
+working on arbitrary models and code.  It will be necessary for such systems to
+support models where the set of random variables is dynamically typed, such that it is possible 
+to write programs in which this set, and thus potentially the number of random variables, differs 
+from execution to execution.  To avoid hindering the user or restricting the models which can be
+defined, it will important to allow 
+things such as branching, recursion, higher-order functions,
+conditional existence of variables, and arbitrary black-box
+deterministic functions.  Ideally, we would like to provide no restrictions on the code that the user
+can write, except for eliminating programs do not define valid probability distributions, such as
+those that have a non-zero probability of never terminating.  In practice catching such cases can
+be hard or even impossible and so many systems actually adopt a philosophy of applying no restrictions,
+such that it is perfectly possible to define invalid models.  General purpose PPSs actually bring up new
+theoretical questions about what constitutes a valid probability model CITE HONGSEOK/SAM, while
+even the set of valid definable models is a strict super-set of the those definable by graphical models 
+for many systems CITE SOMETHING.
 
-\todo[inline]{write me, better section title}
+We will predominantly focus on these more general systems in the rest of this thesis,
+regularly using the PPS Anglican~\citep{wood2014new} as a reference.  An introduction
+to Anglican is provided in Section~\ref{sec:probprog:anglican}, while other prominent
+general purpose PPSs include
+\begin{itemize}
+\item Church \citep{goodman_uai_2008}
+\item Venture \citep{mansinghka2014venture}
+\item WebPPL \citep{goodman_book_2014}
+\end{itemize}
+
+The price for the expressivity of these general purpose systems is a substantial extra 
+burden on the inference engine as we will
+discuss in Chapter~\ref{chp:proginf}.  In general, inference methods for such systems 
+must be formulated in such a manner that they are applicable to models where the 
+density function is intractable and can only be evaluated during forwards simulation of the program. 
+For example, it may not be possible to know if a variable is continuous or discrete except by
+running the program, while some variables will only exist conditioned on the values of others.
+This required generality of the inference engine will naturally lead to a drop in performance compared to
+custom written inference code, but this is often a price worth paying for generality, particularly
+when considering models that would be challenging to express, let alone do inference in, using more
+conventional frameworks.
