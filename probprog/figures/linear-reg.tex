@@ -1,0 +1,16 @@
+% !TEX root = ../../main.tex
+
+\begin{tikzpicture}
+
+\node[latent, minimum size=27pt] (m) {$m$};
+\node[latent, right=1.4cm of x1, minimum size=27pt] (c) {$c$};
+
+\node[obs, below=of m, minimum size=27pt, xshift=-2.7cm] (y1) {$y_1$};
+\node[obs, right=1cm of y1, minimum size=27pt] (y2) {$y_2$};
+\node[right=1cm of y2, minimum size=27pt] (y3) {{\tiny $\bullet \; \bullet \; \bullet$}};
+\node[obs, right=1cm of y3, minimum size=27pt] (y4) {$y_{S\text{-}1}$};
+\node[obs, right=1cm of y4, minimum size=27pt] (y5) {$y_S$};
+
+\edge {m,c} {y1,y2,y4,y5};
+
+\end{tikzpicture}

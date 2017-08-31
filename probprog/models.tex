@@ -3,36 +3,189 @@
 \section{Bayesian Models as Program Code}
 \label{sec:probprog:models}
 
-In the last section we shown how we can thing of PPS as inverting simulators, predicting internal
-variables and the inputs given the outputs.  In this section we will take a different perspective and
-show how we can translate Bayesian modeling into the framework of program code.  As we 
-showed in Chapter~\ref{chp:bayes} we showed how a Bayesian model is defined by a prior over
+In Section~\ref{sec:probprog:inv} we showed how one can think of PPS as inverting simulators, 
+predicting internal variables given the outputs.  In this section we will take a 
+different perspective and
+show how we can translate Bayesian modeling into the framework of program code.   
+In Chapter~\ref{chp:bayes} we showed how a Bayesian model is defined by a prior over
 parameters and a likelihood function for those parameters given the data.  This viewpoint will
 mostly translate into the probabilistic programming setting by equating between the prior
-and sampling statements and between the likelihood and conditioning statements.  At the end
-of the section we will explain why this is actually a slight approximation (in short because we
-might condition on internally sampled variables) but for most purposes this viewpoint will suffice.
-We will keep things predominantly high-level for now, giving a more detailed look in
-Section~\ref{sec:probprog:anglican} by introducing a particular PPS, namely Anglican, in detail.
+and sampling statements and between the likelihood and conditioning statements, though as
+we explain in Section~\ref{sec:probprog:models:general}, this is not always true.
+%At the end
+%of the section we will explain why this is actually a slight approximation (in short because we
+%might condition on internally sampled variables) but for most purposes this viewpoint will suffice.
+%We will keep things predominantly high-level for now, giving a more detailed look in
+%Section~\ref{sec:probprog:anglican} by introducing a particular PPS, namely Anglican, in detail.
+
+A key point to note throughout this section is that probabilistic programs define
+models rather than procedures.  In a standard programming language, functions take in inputs
+and then run through a series of commands in order until termination is reached.\footnote{In functional
+	programming languages operations are not necessary carried out in the order they are defined,
+	but it still holds that the function takes inputs carries out a series of actions until the desired output
+	is (perhaps lazily) calculated.}  Likewise, random sampling statements like \texttt{rand}, \texttt{randn}
+etc, make a single draw from the same distribution each time they appear in the execution trace.
+Neither is the case for a probabilistic program.  Instead a probabilistic program defines a model
+which is interpreted or compiled to a form that can be interpreted by an inference engine which then
+outputs some characterization of the posterior such as a series of samples.  Perhaps the easiest way to think
+about how a probabilistic program runs (though not necessarily what happens for all systems) is that
+the program is, or sometimes parts of the program are, run many times and the exact behavior
+of this running is control by the inference engine.  For example, the inference engine 
+might sample from a different distribution then specified by the original sampling statement or it
+might run lots of instances of the program in parallel and then terminate some of the instances
+performing poorly, while duplicating instances doing well.
 
 \subsection{A Simplified Probabilistic Programming Setup}
 \label{sec:probprog:models:first}
 
-We start by considering the case of constructing a restricted PPS.  We will presume that our
-language has no branching (i.e. no \texttt{if} statements or equivalent), is  first order
+We first consider the case of constructing a restricted example PPS.  We emphasize that
+this is by no means the only setup one can use, with design choices made in the interest of exposition.
+We will presume that our
+language has no branching (i.e. there are no \texttt{if} statements or equivalent), is  first order
 (i.e. variables cannot be functions), that there is no recursion, and that it does not allow 
 any conditioning on internally sampled variables.  
 We will give our language
 two special constructs, \sample and \observe, between which the distribution of the
-program is defined.  As such the program should not include any other random components.
-Informally, \sample will be used to specify terms in the prior and \observe terms in the\todo{Add syntax}
+program is defined.  We will presume here and throughout that, other than the effects of \sample and \observe,
+functions in our PPS are \emph{pure} such that they always provide the same outputs when
+called with the same inputs.  This restriction naturally means that programs should not have
+any random components other than dictated by \sample and \observe, but also suggests that
+they should be free from side effects such as modifications of global variables.
+Informally, \sample will be used to specify terms in the prior and \observe terms in the
 likelihood.  More precisely, \sample will be used to make random draws $x_t \sim f_t(x_t | \Xi_t)$,
 where $\Xi_t$ is a subset the other variables in scope at the point of sampling, and \observe will use to condition on
-data $g_s(y_s|\Lambda_s)$ with $\Lambda_s$ defined in the same way as $\Xi_t$.  We presume that the program takes 
-in as input external parameters $\theta$ and data $y_{1:S}$, the former of which is taken as inputs that are 
-not ``observed'' at any point but can effect the conditioning through $\Xi_t$ and $\Lambda_s$, while we presume 
-for our simplified setup that the latter appears in neither $\Xi_t$ or $\Lambda_s$.
-We define both \sample and \observe as adding a factor to the joint distribution which is therefore given by
+data $g_s(y_s|\Lambda_s)$ with $\Lambda_s$ defined in the same way as $\Xi_t$.  
+For our inference, it will be necessary to control the sampling and so we define
+the syntax of \sample to take a \emph{distribution object} as its only input and for \observe
+to take a distribution object and an observation as input.  We further define each distribution
+object as containing a sampling procedure and a density function that can be evaluated
+exactly.\footnote{It will actually often be possible to use incomplete distribution objects for
+	both \sample and \observe that only contain the sampler and the density function respectively.
+	This former can be permitted by using inference algorithms that use the prior as the proposal, such
+	that only the sampler will be required.  The latter is sufficient in the vast majority of scenarios as, unless
+	one is carrying out amortization~\citep{paige2016inference,le2017inference}, the data is fixed and does
+	not need to be sampled.}  Our language will be provided with a number of \emph{random primitives} in
+the form of distribution classes for common sampling distributions such as the normal and Poisson
+distributions, but will also provide the ability for users to define their own distribution classes.   These
+classes allow a distribution object to be constructed when provided with the required parameters, such that
+the distribution is fully defined before being passed to a \sample or \observe.
+We complete our syntactic definition of \sample and \observe by defining them to return a sample and \texttt{nil}
+respectively.
+
+\begin{figure}[p]
+	\centering
+	\begin{subfigure}[t]{\textwidth}
+		\centering	
+		\begin{minipage}[t]{0.48\textwidth}
+		\begin{algorithmic}[1]
+			\renewcommand{\algorithmicrequire}{\textbf{Inputs:}}
+			\renewcommand{\algorithmicensure}{\textbf{Outputs:}}			 
+			\Require Student-t degrees of freedom $\nu$, error
+			scale $\sigma$, data $y_{1:S} = \{u_s,v_s\}_{s=1}^S$
+			%\Ensure weighted samples $\left\{x_{1:T}^i,w_T^i\right\}_{i=1}^N$
+%			\State \texttt{m\_dist} $\leftarrow$ 
+%			\State \texttt{c\_dist} $\leftarrow$ \normal(0,1)
+			\State $m\leftarrow$\sample(\normal(0,1))
+			\State $c\leftarrow$\sample(\normal(0,1))
+			\State \lstinline$obs-dist$\xspace $\leftarrow$ \studentt $(\nu)$
+			\For{$s=1,\dots,S$}	
+			\State $d \leftarrow (v_s-m u_s - c)/\sigma$
+			\State \observe(\lstinline$obs-dist$\xspace,~$d$)
+			\EndFor
+			\State \Return $m, \; c$
+		\end{algorithmic}
+		\end{minipage}
+		~~
+		\begin{minipage}[t]{0.48\textwidth}
+			\vfill
+			\resizebox{\textwidth}{!}{
+				\input{probprog/figures/linear-reg.tex}}
+			{\small
+			\begin{align*}
+			p(m,c&, y_{1:S} | \theta)= \mathcal{N}(m;0,1) \mathcal{N}(c;0,1) \\
+										&\prod_{s=1}^{S} \textsc{Student-T} \left(\frac{v_s-mu_s-c}{\sigma} ; \nu \right)
+			\end{align*}}
+		\end{minipage}
+		\caption{Bayesian linear regression model with student-t likelihood, namely
+			$v_s = m u_s + c + \sigma \epsilon_s$ where $\epsilon_t \sim \textsc{Student-T}(\nu)$.
+			We presume that the scaling of the error $\sigma$ and the number of degrees of freedom $\nu$
+			are fixed input parameters (i.e. $\theta=\{\nu,\sigma\}$), that our fixed data is $y_{1:S} = \{u_s,v_s\}_{t=1}^S$,
+		 and that we are trying to infer the slope $m$ and intercept $c$ (we thus have $x_1=m$, $x_2=c$ in our
+		 general notation), both of which are assigned a unit Gaussian as a prior.  Our probabilistic program 
+			first samples $m$ and $c$ (note that \normal(0,1) generates a unit Gaussian distribution object)
+			and constructs a student-t distribution object \lstinline$obs-dist$.  It then cycles
+		  over each datapoint and observes $(v_t-m u_t -c)/\sigma$ using \lstinline$obs-dist$,
+		  before finally returning $m$ and $c$ as outputs.  
+%		  The program corresponds to the graphical model
+%		  shown in the top right and induces the joint distribution shown bottom right.  
+		  Note that if we instead
+		  wished to directly predict the outputs at some untested inputs points $u_{S+1:S+n}$ then we could
+		  predict these anywhere in the program (after $m$ and $c$ have been defined) and return these
+		  as outputs along with, or instead of, $m$ and $c$.
+		  \label{fig:probprog:linear-reg}
+		  }
+	\end{subfigure}
+		\begin{subfigure}[t]{\textwidth}
+			\vspace{10pt}
+\centering	
+\begin{minipage}[t]{0.45\textwidth}
+	\begin{algorithmic}[1]
+		\renewcommand{\algorithmicrequire}{\textbf{Inputs:}}
+		\renewcommand{\algorithmicensure}{\textbf{Outputs:}}			 
+		\Require Transition std-dev $\sigma$, output shape $\alpha$,
+		output rate $\beta$, data $y_{1:T}$
+		%\Ensure weighted samples $\left\{x_{1:T}^i,w_T^i\right\}_{i=1}^N$
+		%			\State \texttt{m\_dist} $\leftarrow$ 
+		%			\State \texttt{c\_dist} $\leftarrow$ \normal(0,1)
+		\State $x_0\leftarrow0$
+		\State \lstinline$tr-dist$\xspace $\leftarrow$ \normal $(0,\sigma)$
+		\State \lstinline$obs-dist$\xspace $\leftarrow$ \lstinline$gamma$\xspace $(\alpha,\beta)$
+		\For{$t=1,\dots,T$}	
+		\State $x_t \leftarrow x_{t\text{-}1}+$\sample(\lstinline$tr-dist$\xspace)
+		\State \observe(\lstinline$obs-dist$\xspace,~$y_t-x_t$)
+		\State $z_t \leftarrow \mathbb{I}(x_t>4)$
+		\EndFor
+		\State \Return $z_{1:T}$
+	\end{algorithmic}
+\end{minipage}
+~~
+\begin{minipage}[t]{0.52\textwidth}
+	\vfill
+	~~~\resizebox{0.96\textwidth}{!}{
+		\input{probprog/figures/state-space.tex}}
+	{\small
+	\begin{align*}
+	p(x_{1:T}&, y_{1:T} | \theta)= \mathcal{N}(x_1;0,\sigma^2) \textsc{Gam}(y_1\text{-}x_1;\alpha,\beta)\\
+	&\prod_{t=2}^{T} \mathcal{N}(x_t\text{-}x_{t-1};0,\sigma^2)\textsc{Gam} (y_t\text{-}x_t;\alpha,\beta)
+	\end{align*}}
+\end{minipage}
+			\caption{Linear state-space model with Gaussian transition and Gamma emission distributions.
+				This is a continuous form of the HMM model given in~\eqref{eq:bayes:hmm} with
+				$p(x_1)=\mathcal{N}(x_1;0,\sigma^2)$, $p(x_t | x_{t-1}) = \mathcal{N}(x_t-x_{t-1}; 0,\sigma^2)$,
+				and Gamma likelihood model $p(y_t | x_t) = \textsc{Gamma}(y_t-x_t ; \alpha, \beta)$ with
+				shape parameter $\alpha$ and scale parameter $\beta$.  We assume that the input
+				parameters $\theta = \{\sigma,\alpha,\beta\}$ are fixed and we want
+				to sample from $p(z_{1:T} | y_{1:T}, \theta)$ given data $y_{1:T}$ where each 
+				$z_t$ is an indicator for if $x_{t}$ exceeds a threshold of $4$. Our program, exploiting the
+				equivalence between $p(x_1)$ and $p(x_t|x_{t-1}=0)$, first initializes $x_0=0$ and creates
+				distribution objects for the transitions \lstinline$tr-dist$\xspace and emissions
+				\lstinline$obs-dist$\xspace.  It then loops over time steps, sampling each $x_t$ given
+				$x_{t-1}$, observing $y_t$ given $x_t$, and deterministically calculating $z_t$.  Finally
+				the $z_{1:T}$ are returned as the desired output.
+				\label{fig:probprog:LGSSM}
+				}
+		\end{subfigure}
+\caption{Example pseudo-programs for our simplified probabilistic programming setup with
+	corresponding graphical models and joint distributions.\label{fig:probprog:example-progs}}
+\end{figure}
+
+We distinguish between two types of inputs to our programs: external parameters $\theta$ and data $y_{1:S}$.
+The external parameters are defined as the inputs that are 
+not ``observed'' at any point but can effect the conditioning through $\Xi_t$ and $\Lambda_s$.
+We presume for our simplified setup that the data terms, defined as the inputs we are observed, 
+appear in neither $\Xi_t$ or $\Lambda_s$.
+We now define both \sample and \observe from the probability model perspective
+as adding a factor to the joint distribution which is therefore given by
 \begin{align}
 \label{eq:probprog:simple-joint}
 p(x_{1:T},y_{1:S} | \theta) = \prod_{t=1}^{T} f_t(x_t | \Xi_t) \prod_{s=1}^{S} g_s(y_s|\Lambda_s).
@@ -40,23 +193,18 @@ p(x_{1:T},y_{1:S} | \theta) = \prod_{t=1}^{T} f_t(x_t | \Xi_t) \prod_{s=1}^{S} g
 The two vary in whether they define a new random variable or effect the probability of the
 program given particular instances of the other random variables.
 Our presumptions for this simplified setup that no $y_{s}$ terms are present in the $\Xi_t$ or $\Lambda_s$
-and that we do not condition on internally sampled variables, means that we can here have
-exactly that our prior is $\prod_{t=1}^{T} g_t(x_t | \Xi_t) =: p(x_{1:T} | \theta)$ and our likelihood is
+and that we do not condition on internally sampled variables, means that the product of the \sample terms
+correspond exactly to our prior $\prod_{t=1}^{T} g_t(x_t | \Xi_t) =: p(x_{1:T} | \theta)$ and that the
+product of the \observe terms corresponds exactly to our likelihood
 $\prod_{s=1}^{S} g_s(y_s|\Lambda_s) =: p(y_{1:S} | x_{1:T}, \theta)$.  Consequently, for our simplified setup,
 each program defines a finite directed acyclic graphical model (see Section~\ref{sec:bayes:paradigm:graph})
 where the conditional relationships are defined through the definitions of $f_t$ and $g_s$.
 This breakdown into a prior and likelihood and the equivalence to graphical models
-will not hold in the more general cases we consider later.  \todo[inline]{Some example programs and equivalent
-	graphical models for our simplified setup are given in Figure INSERT}
-
-An important point to note is that~\eqref{eq:probprog:simple-joint} shows that all of our \sample
-and \observe statements are exchangeable, in the sense that their order can be moved around and
-still define the same joint distribution, up to restrictions about all the required variables required
-for the conditioning existing and being in scope.  For example, if all variables remain in scope
-and are not redefined, we can generally move all our \observe statements to the end of the program
-without changing the joint distribution.  Nonetheless, the position of the \observe statements
-can often be important from the perspective of the performance of the inference engine.  This exchangeability
-result will carry over to the non-simplified cases.
+will not hold in the more general cases we consider later.  Our aim will be to perform inference
+to provide a characterization of $p(x_{1:T} | y_{1:S}, \theta)$ (or the posterior for some deterministic
+mapping of $x_{1:T}$), typically in the form of (approximate)
+samples.  Figure~\ref{fig:probprog:example-progs} shows two example programs in our example
+language along with the corresponding graphical models and joint distributions they define.
 
 Other than \sample and \observe statements, the rest of our program is by construction totally deterministic.  Therefore,
 though it may contain random variables other than $x_{1:T}$, these random variables are deterministic
@@ -72,12 +220,27 @@ is perfectly acceptable in the context of calculating expectations as
 \begin{align}
 \int f(z) p(z | y_{1:S}, \theta) dz = \int f(h(x_{1:T}, y_{1:S}, \theta)) p(x_{1:T} | y_{1:S}, \theta) dx_{1:T}
 \end{align}
-for implicitly defined measures $dz$ and $dx_{1:T}$.  Two consequences of this are that
+for implicitly defined measures $dz$ and $dx_{1:T}$.  One consequence of this is that
 we can express any expectations calculated by our program as expectations over $p(x_{1:T} | y_{1:S}, \theta)$
-which was fully defined by the joint~\eqref{eq:probprog:simple-joint} and that, provided we are not worried
+which was fully defined by the joint~\eqref{eq:probprog:simple-joint}.  Another is that, provided we are not worried
 about carrying out optimizations, we do not need to explicitly worry about the implicit measures defined
-by the definition of our program, other than any potential effects on the inference scheme.
+by the definition of our program, other than any potential effects on the inference scheme.  In particular,
+if our aim is to generate samples from $p(z | y_{1:S}, \theta)$ then we can simply generate samples then
+we can simply generate samples from $p(x_{1:T} | y_{1:S}, \theta)$ and then deterministically convert each
+sample to the space of $z$.  In other words, our inference engine does not need to worry about
+the consequences of changes of variables if our intended output is just a sequence of samples.
 
+An important point to note is that~\eqref{eq:probprog:simple-joint} shows that all of our \sample
+and \observe statements are exchangeable, in the sense that their order can be moved around and
+still define the same joint distribution, up to restrictions about all the required variables (namely the
+distribution object and, if required, observation in our current setup) existing and being in scope.  
+For example, if all variables remain in scope
+and are not redefined, we can generally move all our \observe statements to the end of the program
+without changing the joint distribution.  Therefore the program given in Figure~\ref{fig:probprog:LGSSM}
+would define the same model if all the $x_t$ were sampled upfront before making any observations.
+Nonetheless, the position of the \observe statements
+can often be important from the perspective of the performance of the inference engine.  This exchangeability
+result will carry over to the non-simplified cases.
 
 %
 %Because of the assumptions we have made for our language, the latent
