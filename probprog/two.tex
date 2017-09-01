@@ -56,7 +56,7 @@ an expert) to code without a PPS -- in general they all can be thought of as def
 or sometimes factor graph -- but they offer substantial utility through ease of model exposition and
 automating inference.
 
-\subsection{General Purpose Systems}
+\subsection{Universal Probabilistic Programming}
 \label{sec:probprog:two:general}
 
 As useful as these inference-driven systems are, they do not fit very well with the notion of
@@ -82,10 +82,12 @@ theoretical questions about what constitutes a valid probability model CITE HONG
 even the set of valid definable models is a strict super-set of the those definable by graphical models 
 for many systems CITE SOMETHING.
 
-We will predominantly focus on these more general systems in the rest of this thesis,
-regularly using the PPS Anglican~\citep{wood2014new} as a reference.  An introduction
-to Anglican is provided in Section~\ref{sec:probprog:anglican}, while other prominent
-general purpose PPSs include
+In the rest of this thesis, we will predominantly focus on these \emph{universal} PPSs, 
+so-called because they are based on \emph{Turing complete} languages that can specify any
+computable prior , 
+We will regularly using the PPS Anglican~\citep{wood2014new} as a reference, an introduction
+to which is provided in Section~\ref{sec:probprog:anglican}. Other prominent
+universal PPSs include
 \begin{itemize}
 \item Church \citep{goodman_uai_2008}
 \item Venture \citep{mansinghka2014venture}

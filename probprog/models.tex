@@ -24,11 +24,11 @@ and then run through a series of commands in order until termination is reached.
 	programming languages operations are not necessary carried out in the order they are defined,
 	but it still holds that the function takes inputs carries out a series of actions until the desired output
 	is (perhaps lazily) calculated.}  Likewise, random sampling statements like \texttt{rand}, \texttt{randn}
-etc, make a single draw from the same distribution each time they appear in the execution trace.
+etc, make a single independent draw from the same distribution each time they appear in the execution trace.
 Neither is the case for a probabilistic program.  Instead a probabilistic program defines a model
-which is interpreted or compiled to a form that can be interpreted by an inference engine which then
+which is compiled to a form that can be interpreted by an inference engine which then
 outputs some characterization of the posterior such as a series of samples.  Perhaps the easiest way to think
-about how a probabilistic program runs (though not necessarily what happens for all systems) is that
+about how a probabilistic program works (though not necessarily what happens for all systems) is that
 the program is, or sometimes parts of the program are, run many times and the exact behavior
 of this running is control by the inference engine.  For example, the inference engine 
 might sample from a different distribution then specified by the original sampling statement or it
@@ -64,7 +64,8 @@ exactly.\footnote{It will actually often be possible to use incomplete distribut
 	This former can be permitted by using inference algorithms that use the prior as the proposal, such
 	that only the sampler will be required.  The latter is sufficient in the vast majority of scenarios as, unless
 	one is carrying out amortization~\citep{paige2016inference,le2017inference}, the data is fixed and does
-	not need to be sampled.}  Our language will be provided with a number of \emph{random primitives} in
+	not need to be sampled.}  Our language will be provided with a number of \emph{elementary random
+	procedures} in
 the form of distribution classes for common sampling distributions such as the normal and Poisson
 distributions, but will also provide the ability for users to define their own distribution classes.   These
 classes allow a distribution object to be constructed when provided with the required parameters, such that
@@ -102,7 +103,7 @@ respectively.
 				\input{probprog/figures/linear-reg.tex}}
 			{\small
 			\begin{align*}
-			p(m,c&, y_{1:S} | \theta)= \mathcal{N}(m;0,1) \mathcal{N}(c;0,1) \\
+			p(m,c&, y_{1:S} | \nu, \sigma)= \mathcal{N}(m;0,1) \; \mathcal{N}(c;0,1) \\
 										&\prod_{s=1}^{S} \textsc{Student-T} \left(\frac{v_s-mu_s-c}{\sigma} ; \nu \right)
 			\end{align*}}
 		\end{minipage}
@@ -150,17 +151,18 @@ respectively.
 \end{minipage}
 ~~
 \begin{minipage}[t]{0.52\textwidth}
-	\vfill
+	\vspace{-6pt}
 	~~~\resizebox{0.96\textwidth}{!}{
 		\input{probprog/figures/state-space.tex}}
 	{\small
 	\begin{align*}
-	p(x_{1:T}&, y_{1:T} | \theta)= \mathcal{N}(x_1;0,\sigma^2) \textsc{Gam}(y_1\text{-}x_1;\alpha,\beta)\\
-	&\prod_{t=2}^{T} \mathcal{N}(x_t\text{-}x_{t-1};0,\sigma^2)\textsc{Gam} (y_t\text{-}x_t;\alpha,\beta)
+	p&(x_{1:T}, y_{1:T} | \sigma,\alpha,\beta)= \\
+	&\mathcal{N}(x_1;0,\sigma^2) \; \textsc{Gamma}(y_1-x_1;\alpha,\beta)\\
+	&\prod_{t=2}^{T} \mathcal{N}(x_t-x_{t-1};0,\sigma^2) \; \textsc{Gamma} (y_t-x_t;\alpha,\beta)
 	\end{align*}}
 \end{minipage}
-			\caption{Linear state-space model with Gaussian transition and Gamma emission distributions.
-				This is a continuous form of the HMM model given in~\eqref{eq:bayes:hmm} with
+			\caption{State-space model with Gaussian transition and Gamma emission distributions.
+				It is a form of the HMM model given in~\eqref{eq:bayes:hmm} with
 				$p(x_1)=\mathcal{N}(x_1;0,\sigma^2)$, $p(x_t | x_{t-1}) = \mathcal{N}(x_t-x_{t-1}; 0,\sigma^2)$,
 				and Gamma likelihood model $p(y_t | x_t) = \textsc{Gamma}(y_t-x_t ; \alpha, \beta)$ with
 				shape parameter $\alpha$ and scale parameter $\beta$.  We assume that the input
