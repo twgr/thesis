@@ -41,8 +41,9 @@ performing poorly, while duplicating instances doing well.
 We first consider the case of constructing a restricted example PPL.  We emphasize that
 this is by no means the only setup one can use, with design choices made in the interest of exposition.
 We will presume that our PPL
-has no branching (i.e. there are no \texttt{if} statements or equivalent), is  first order
-(i.e. variables cannot be functions), that there is no recursion, and that it does not allow 
+has no branching (i.e. there are no \texttt{if} statements or equivalent), recursion, or memoization
+(i.e. functions are always re-evaluated from scratch when called); is first order
+(i.e. variables cannot be functions); and that it does not allow 
 any conditioning on internally sampled variables.  
 We will give our language
 two special constructs, \sample and \observe, between which the distribution of the
@@ -256,15 +257,112 @@ result will carry over to the non-simplified cases.
 \subsection{A General Probabilistic Programming Setup}
 \label{sec:probprog:models:general}
 
-Note that as $y_s$ terms can appear in the $\Xi_t$ terms, it can be the case that 
-$p(x_{1:T} | \theta) \neq \prod_{t=1}^{T} p(x_t | \Xi_t)$ such that the latter does not
-ex
-can also enter \sample or \observe terms through $\Xi_t$ and $\Xi_s$ respectively.
+Perhaps surprisingly, we do not need to do anything to our language to extend it to a universal
+PPL other than to relax a number of the restrictions made for our simplified case.  Namely,
+we will allow branching, higher order functions, (potentially infinite) recursion, memoization, conditioning on internally sampled
+variables, and the use of the ``data'' inputs $y_{1:T}$ in the definition of our generate model (instead of
+just allowing them to be observed).  We will maintain the syntax of our simplified
+setup, along with the assumption that functions are pure other than the effect of \sample and \observe.
+An important point to note though for why such a language is universal is that arbitrary distributions
+with finite\todo{countable?} parameters can be defined through a series of uniform $[0,1]$ draws followed
+by an arbitrary deterministic mapping -- after all, this is effectively how all probability distributions are
+defined from a measure theoretic point of view.\footnote{Interesting, this viewpoint breaks down for
+	distributions over functions for which measure theory itself somewhat breaks down~\cite{heunen2017convenient}.
+	As such, universal PPSs actually go beyond the standard measure-theoretic view of probability.}
 
-\todo[inline]{Conditioning on internally sampled variables
-	
-	Ordering of decelerations matters
-	
-	Memoization
-	
-	Complications of maximization}
+However, these generalization will have a substantial effect on the intuitions relating our universal
+PPL to the Bayesian framework, the range of models we can define, and the difficulty of performing
+general purpose inference.  For example, as $y_s$ terms can appear in the $\Xi_t$ terms,
+it can be the case that $p(x_{1:T} | \theta) \neq \prod_{t=1}^{T} p(x_t | \Xi_t)$ such that the latter no
+longer explicitly corresponds to a conventional definition of a prior.  Some variables may change type (e.g.
+between continuous and discrete) or even not exist depending on the value of other variables.  The number
+of variables may change from one execution to the next and it could even be the case that the number
+of latent variables could be unbounded provided that either the probability that any execution has a 
+finite number of variables is $1$ or that only a finite number need to be evaluated to calculate the density, such
+as is the case for Bayesian non-parametric models such as the Dirichlet process~\citep{ferguson1973bayesian,teh2011dirichlet}.
+Note that the number \sample and \observe statements lexically defined within our program must
+for obvious reasons be finite, but recursion or looping may mean that they are evaluated an uncountable
+number of times.  It is also possible for a variable within a probabilistic program to itself encode an
+infinite number of parameters, for example, one might include a Gaussian process within the program (see Section~\ref{sec:opt:GPs}).
+These complications make it difficult to mathematically reason about the joint distribution defined by a
+universal PPS, let alone reason about its breakdown into a prior and a likelihood or represent the program
+using a graphical model (which might actually not even be possible).
+
+One way to conceptually overcome these difficulties is to reason in terms of \emph{execution paths}.
+Even though we might not know upfront which \sample and \observe statements are invoked by
+a particular program output, if we execute the program in order, the draws of the \sample statements made
+thus far uniquely identify which \sample statement will be invoked next, the value of all the variables up
+to that \sample statement, and all \observe calls prior to the next \sample statement in the path.  
+In other words, given the outcome of $t$ evaluated \sample statements, which \sample statement corresponds
+to the $(t+1)$-th to be evaluated is uniquely defined and the program up to that \sample statement is
+completely deterministic, including which path to take at each \texttt{if} statement, which variables are defined
+and their values, and the probability arising from the \observe conditioning statements.
+Thus although the distribution of the program is not necessarily statically
+determinable, it can still be \emph{evaluated through execution} as each \sample statement provides
+the information we require, in addition to the information from the previous \sample statements, to deterministically evaluate
+up to the next \sample statement.
+Consequently, we can evaluate the probability of any particular evaluation as we run it, even though it might
+be challenging to evaluate the probability of a predefined configuration of the variables.
+
+Using this idea of execution paths, we can define an expression for the joint probability a program defines,
+albeit in a complex and somewhat abstract manner that only really retains meaning in our probability calculation through
+evaluation mindset.  First let $\lambda$ denote all the inputs to the program (including both parameters and
+data as we will now have no explicit distinction between the two).  Further let
+$n_x$ and $n_y$ as the number of \sample and \observe statements
+respectively invoked by a particular execution, noting that $n_x$ and $n_y$ are themselves random variables.
+We can now define $x_{1:n_x} = x_1,\dots,x_{n_x}$ and $y_{1:n_y} = y_1,\dots,y_{n_y}$ respectively as the
+outputs of our $n_x$ \sample statements and observation inputs for our $n_y$ \observe statements.
+Each $x_{i}$ is obvious a random variable, but we note that each $y_i$ might also be a random variable.  However,
+for the reasons explained in the last paragraph, each $y_{1:n_y}$ is deterministically calculable given $x_{1:n_x}$ and
+$\lambda$.
+We continue by defining $f_{1},\dots,f_{n_s}$ and $g_{1},\dots,g_{n_o}$ respectively as the $n_s$ \sample 
+and $n_o$ \observe statements defined lexically within a raw program code (i.e. the distinct \sample and \observe
+statements defined anywhere within the program), noting that $n_s$ and $n_o$ are \emph{not} random variables.
+We will further use the notation $f_i(x_j|\phi_j)$  to denote the probability density functions
+(with implicit measure) associated with lexical \sample statement $i$ returning outputs $x_j$ when provided
+with distribution object $\phi_j$, which is itself a random variable but one which is fully determined by
+$x_{1:j-1}$ and $\lambda$.  Similarly, we use the notation $g_i(y_k|\psi_k)$ to express the density of
+using lexical \observe $g_i$ to observe output $y_k$ with distribution object $\psi_k$, which is a random
+variable fully determined by $x_{1:n_x}$ and $\lambda$.  Finally we define $a_j \in \{1,\dots,n_x\}, \; 
+\forall j\in\{1,\dots,n_x\}$ and $b_k \in \{1,\dots,n_x\}, \; \forall k\in\{1,\dots,n_y\}$ as the
+random variables respectively used to index which lexical \sample and lexical \observe statements
+correspond to the $j^{\text{th}}$ and $k^{\text{th}}$ execution path \sample and \observe statement.
+We can now finally define the conditional distribution implied by our program up to a normalization constant
+as
+\begin{align}
+\label{eq:probprog:universal-cond}
+p(x_{1:n_x} | \lambda)
+&\propto
+\prod_{j=1}^{n_x} 
+f_{a_j}(x_j | \phi_j)
+\prod_{k=1}^{n_y}
+g_{b_k}(y_k | \psi_k)
+\end{align}
+noting that although the $a_j$, $\phi_j$, etc are random variables, they are all deterministically
+calculable given $x_{1:n_x}$, $\lambda$, and our program.  As a consequence, our unnormalized
+target distribution is well defined and implies a ``posterior'' simply through its normalization.
+
+Note that the right hand side of~\eqref{eq:probprog:universal-cond} does not necessarily
+correspond to a valid joint distribution because the ability to observe sampled variables and
+condition the \sample statements on the observations.  Therefore, as a simple example, our model
+might consist of a $x_1 \leftarrow$\sample(\normal(0,1)) term followed by an \observe(\normal(-1,2),~$x_1$)
+term.  This does not directly define any properly normalized joint distribution on any particular variables
+(noting $\mathcal{N}(x_1;0,1) \mathcal{N}(x_1;0,2)$ is an unnormalized distribution with only the variable
+$x_1$).  Consequently, there is no means of writing down a normalized joint distribution for a general
+program in our universal PPL setup in closed form -- we might actually need to empirically estimate
+the normalization constant to evaluate the joint.  This actually steps outside the conventional Bayesian
+modeling framework and raises a number of interesting theoretical questions (e.g. do probabilistic
+programs actually simplicity define correctly normalized joint distributions or only conditionals?).  However, from a
+practical perspective, we can note that provided the implicitly define normalization constant is finite,
+the program also implicitly defines a correctly normalized conditional distribution (noting that the right
+hand side of ~\eqref{eq:probprog:universal-cond} is always $\ge0$).
+This is analogous to knowing the joint but not the posterior in Bayesian inference, but not exactly
+equivalent because the normalization constant is no longer the marginal likelihood.
+
+\todo[inline]{Don't forget
+	to add comments to the BOPP stuff etc about this as the marginal likelihood isn't really the marginal
+	likelihood...}  
+
+So why does this really matter? .... \todo[inline]{Give an example program}
+
+\todo[inline]{Memoization?}
