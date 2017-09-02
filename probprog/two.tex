@@ -5,14 +5,15 @@
 
 Rather than being a clearly defined particular algorithm,
 probabilistic programming is more of an umbrella term that covers a spectrum of 
-different approaches, varying from inference toolboxes through to languages that allow
+different approaches, varying from inference toolboxes through to probabilistic programming
+languages (PPLs) that allow
 arbitrary probabilistic code to be written, even that which might not correspond to a valid
 model.  Often there is a trade-off between efficiency and expressivity: the more restricted
 one makes the language, the more those restrictions can be exploited to improve the efficiency
 of the inference.  This leads itself two distinct philosophies when developing a system. 
-Firstly one can start with a particular inference algorithm and then design a language around making it as
+Firstly one can start with a particular inference algorithm and then design a system around making it as
 easy as possible to write models for which that inference algorithm is suitable.  Secondly one can start
-with  a general purpose language that allows as many model as possible to be written and then try to construct
+with  a general purpose PPL that allows as many model as possible to be written and then try to construct
 inference engines that are capable of work in such a general framework.  Both approaches 
 have their merits and drawbacks, with the distinction typically coming down to the intended use.
 We will now elucidate each approach more precisely.  
@@ -78,20 +79,46 @@ can write, except for eliminating programs do not define valid probability distr
 those that have a non-zero probability of never terminating.  In practice catching such cases can
 be hard or even impossible and so many systems actually adopt a philosophy of applying no restrictions,
 such that it is perfectly possible to define invalid models.  General purpose PPSs actually bring up new
-theoretical questions about what constitutes a valid probability model CITE HONGSEOK/SAM, while
+theoretical questions about what constitutes a valid probability model~\citep{heunen2017convenient}, while
 even the set of valid definable models is a strict super-set of the those definable by graphical models 
-for many systems CITE SOMETHING.
+for many systems~\citep{goodman2013principles}.
 
-In the rest of this thesis, we will predominantly focus on these \emph{universal} PPSs, 
+In the rest of this thesis, we will predominantly focus on these \emph{universal} PPLs~\citep{goodman_uai_2008,staton2016semantics}, 
 so-called because they are based on \emph{Turing complete} languages that can specify any
-computable prior , 
+computable distribution~\citep{goodman2013principles}.  For our purposes, we further refine this definition
+to systems that also allow specification for any computable conditioning.
 We will regularly using the PPS Anglican~\citep{wood2014new} as a reference, an introduction
 to which is provided in Section~\ref{sec:probprog:anglican}. Other prominent
-universal PPSs include
+universal PPLs include
 \begin{itemize}
-\item Church \citep{goodman_uai_2008}
-\item Venture \citep{mansinghka2014venture}
-\item WebPPL \citep{goodman_book_2014}
+\item Church is a PPL based in scheme \cite{goodman_uai_2008}.  
+The original seminal paper and accompanying system 
+	forms a foundation on which many of the prominent existing systems are built through its
+	demonstration that higher-order probabilistic programs define valid probability models, even in
+	the presence of infinite recursion.  However, Church predominantly only considers the case of \emph{hard
+		conditioning},\footnote{Some very basic support for a ``noisy equals'' is provided, but this does not
+		allow for arbitrary conditioning and so Church is not universal using our refined definition.}
+	 i.e. conditioning through an explicit constraint that a certain event occurs exactly,
+	and so it can be restricted in practical use because this does not allow conditioning on continuous
+	outputs.
+	%is, ironically, arguably not universal because it is heavily restricted  in the conditioning it can apply 
+	As such, Church it can represent an arbitrary generative process, but not an arbitrary conditional distribution. 
+	Inference in Church (and its direct derivatives) is typically carried out using either rejection sampling
+	of MCMC.  Church places a particularly strong emphasis on the ability to carry out \emph{nested inference},
+	something we will look into in depth in Chapter~\ref{chp:nest} where we demonstrate that only models
+	can either be represented as a single inference, or fall out of the scope of conventional convergence proofs.
+	\todo{Looks like church might not actually support proper nesting}
+\item Venture~\citep{mansinghka2014venture} is a probabilistic programming platform providing a flexible
+system for both specification of models and inference methods.  In has a strong emphasis on being extensible
+and for allowing the hosting of eternal applications.  For example, it allows for user to provide proposals for
+the inference engine or reprogram the inference strategy entirely.  Venture is predominantly used via the
+VentureScript~\citep{mansinghka2014venture} PPL.
+\item WebPPL \citep{goodman_book_2014} is a PPL built using a purely functional subset of Javascript,
+conveniently allowing for embedding in web pages.
+In combines the ability to write a generative process using sampling statements and to add in likelihood
+terms through a \emph{factor} primitive that is analogous to the \observe primitive that we will introduce
+in Section~\ref{sec:probprog:models:first}.  At its back end, WebPPL provides a number of different inference
+algorithms, such as SMC and MCMC methods.
 \end{itemize}
 
 The price for the expressivity of these general purpose systems is a substantial extra 

@@ -38,16 +38,16 @@ performing poorly, while duplicating instances doing well.
 \subsection{A Simplified Probabilistic Programming Setup}
 \label{sec:probprog:models:first}
 
-We first consider the case of constructing a restricted example PPS.  We emphasize that
+We first consider the case of constructing a restricted example PPL.  We emphasize that
 this is by no means the only setup one can use, with design choices made in the interest of exposition.
-We will presume that our
-language has no branching (i.e. there are no \texttt{if} statements or equivalent), is  first order
+We will presume that our PPL
+has no branching (i.e. there are no \texttt{if} statements or equivalent), is  first order
 (i.e. variables cannot be functions), that there is no recursion, and that it does not allow 
 any conditioning on internally sampled variables.  
 We will give our language
 two special constructs, \sample and \observe, between which the distribution of the
 program is defined.  We will presume here and throughout that, other than the effects of \sample and \observe,
-functions in our PPS are \emph{pure} such that they always provide the same outputs when
+functions in our PPL are \emph{pure} such that they always provide the same outputs when
 called with the same inputs.  This restriction naturally means that programs should not have
 any random components other than dictated by \sample and \observe, but also suggests that
 they should be free from side effects such as modifications of global variables.
