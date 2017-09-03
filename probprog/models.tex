@@ -341,6 +341,7 @@ g_{b_k}(y_k | \psi_k)
 noting that although the $a_j$, $\phi_j$, etc are random variables, they are all deterministically
 calculable given $x_{1:n_x}$, $\lambda$, and our program.  As a consequence, our unnormalized
 target distribution is well defined and implies a ``posterior'' simply through its normalization.
+ \todo[inline]{Give an example program}
 
 Note that the right hand side of~\eqref{eq:probprog:universal-cond} does not necessarily
 correspond to a valid joint distribution because the ability to observe sampled variables and
@@ -359,10 +360,49 @@ hand side of ~\eqref{eq:probprog:universal-cond} is always $\ge0$).
 This is analogous to knowing the joint but not the posterior in Bayesian inference, but not exactly
 equivalent because the normalization constant is no longer the marginal likelihood.
 
+As simple example of why it is important to be able to define models up to an unnormalized joint
+distribution, consider an example where $a$ and $b$ are each sampled from discrete distributions
+and we want to condition on the value of $a$ and $b$ being equal (see for example the Schelling
+coordination example at {\small \url{http://www.robots.ox.ac.uk/~fwood/anglican/examples/}}).  Here
+the combination of the sample statements and the observation that the two are equal clearly
+does not lead to a correctly normalized joint (we do not even really have a conventional notion
+of a likelihood), but it clearly defines an unnormalized conditional distribution as
+\[
+P(a,b | \mathbb{I}(a=b)) = \frac{P(a)P(b|a)\mathbb{I}(a=b)}{\sum_a \sum_b P(a)P(b|a) \mathbb{I}(a=b)}.
+\]
+In such cases where our observation is a hard constraint, we can view the normalizing constant for
+the conditional defined by the program as the probability of our constraint being satisfied.  
+For more general programs of discrete variables we might have, for example,
+\[
+P(x|\lambda) \propto f(x|\lambda)g(y=\eta(x,\lambda)|x,\lambda)
+\]
+for some deterministic function $\eta$.  Here we
+can view the marginalization as being the probability of the event $y=\eta(x,\lambda)$ under the joint $P(x,y)=f(x|\lambda)g(y|x,\lambda)$.
+For our previous example we have $x:=a$, $y:=b$, $\eta(a,\lambda):=a$, $f(a):=p(a)$, and $g(b=a):=p(b=a|a)$.
+The same intuition applies to continuous cases where we now have the density of the event $y=\eta(x,\lambda)$.
+We can also think of $f(x|\lambda)g(\eta(x,\lambda)|x,\lambda)$ as defining a unnormalized distribution on $x$ whose
+normalization constant is of course $\int f(x|\lambda)g(\eta(x,\lambda)|x,\lambda) dx$.  In general, our normalization
+constant will be a combination of conventional marginal likelihood terms and terms from these ``doubly defined''
+terms.  In general, we will refer to the normalization constant as the \emph{marginal observation density} and note
+that it is given by
+\begin{align}
+\label{eq:probprog:mod}
+Z(\lambda) = \E \left[ \prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k) | \lambda \right]
+= \iint \prod_{j=1}^{n_x} f_{a_j}(x_j | \phi_j) \prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k) dx_{1:n_x} dn_x
+\end{align}
+where the expectation is under running the program forwards (i.e. the distribution implied by simulating
+from an equivalent program with all the \observe statements removed) and 
+all terms in the integral are deterministically calculable for program given $\lambda$ and $x_{1:n_x}$.
+
+We now see that we can draw a direct analogy to the Bayesian framework whereby the product of the
+\sample terms is analogous to the prior, the product of the \observe terms is analogous to the
+likelihood, and the marginal observation density is analogous to the marginal likelihood.  If observed variables
+are not sampled within or used elsewhere in the program (e.g. being used a parameters in distribution objects
+later used for sampling), then this analogy becomes exact as per our simplified setup.\footnote{Note that the
+	observed variables should not be used in deterministic elements of the code for this to hold so that they
+	cannot implicitly effect the sampling.}  However, as we have explained, it will often be desirable to go
+beyond this framework to specify some models.
+
 \todo[inline]{Don't forget
 	to add comments to the BOPP stuff etc about this as the marginal likelihood isn't really the marginal
 	likelihood...}  
-
-So why does this really matter? .... \todo[inline]{Give an example program}
-
-\todo[inline]{Memoization?}
