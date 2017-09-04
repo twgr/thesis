@@ -19,20 +19,22 @@ we explain in Section~\ref{sec:probprog:models:general}, this is not always true
 %Section~\ref{sec:probprog:anglican} by introducing a particular PPS, namely Anglican, in detail.
 
 A key point to note throughout this section is that probabilistic programs define
-models rather than procedures.  In a standard programming language, functions take in inputs
+models rather than procedures.  We refer to these models as \emph{queries} which are analogous
+to functions in a ordinary language.
+In a standard programming language, functions take in inputs
 and then run through a series of commands in order until termination is reached.\footnote{In functional
 	programming languages operations are not necessary carried out in the order they are defined,
 	but it still holds that the function takes inputs carries out a series of actions until the desired output
 	is (perhaps lazily) calculated.}  Likewise, random sampling statements like \texttt{rand}, \texttt{randn}
 etc, make a single independent draw from the same distribution each time they appear in the execution trace.
-Neither is the case for a probabilistic program.  Instead a probabilistic program defines a model
+Neither is the case for a probabilistic program query.  Instead a  query defines a model
 which is compiled to a form that can be interpreted by an inference engine which then
 outputs some characterization of the posterior such as a series of samples.  Perhaps the easiest way to think
-about how a probabilistic program works (though not necessarily what happens for all systems) is that
-the program is, or sometimes parts of the program are, run many times and the exact behavior
+about how a probabilistic program language works (though not necessarily what happens for all systems) is that
+the query is, or sometimes parts of the query are, run many (and potentially millions of) times and the exact behavior
 of this running is control by the inference engine.  For example, the inference engine 
 might sample from a different distribution then specified by the original sampling statement or it
-might run lots of instances of the program in parallel and then terminate some of the instances
+might run lots of instances of the query in parallel and then terminate some of the instances
 performing poorly, while duplicating instances doing well.
 
 \subsection{A Simplified Probabilistic Programming Setup}
@@ -47,9 +49,9 @@ has no branching (i.e. there are no \texttt{if} statements or equivalent), recur
 any conditioning on internally sampled variables.  
 We will give our language
 two special constructs, \sample and \observe, between which the distribution of the
-program is defined.  We will presume here and throughout that, other than the effects of \sample and \observe,
+query is defined.  We will presume here and throughout that, other than the effects of \sample and \observe,
 functions in our PPL are \emph{pure} such that they always provide the same outputs when
-called with the same inputs.  This restriction naturally means that programs should not have
+called with the same inputs.  This restriction naturally means that queries should not have
 any random components other than dictated by \sample and \observe, but also suggests that
 they should be free from side effects such as modifications of global variables.
 Informally, \sample will be used to specify terms in the prior and \observe terms in the
@@ -113,16 +115,16 @@ respectively.
 			We presume that the scaling of the error $\sigma$ and the number of degrees of freedom $\nu$
 			are fixed input parameters (i.e. $\theta=\{\nu,\sigma\}$), that our fixed data is $y_{1:S} = \{u_s,v_s\}_{t=1}^S$,
 		 and that we are trying to infer the slope $m$ and intercept $c$ (we thus have $x_1=m$, $x_2=c$ in our
-		 general notation), both of which are assigned a unit Gaussian as a prior.  Our probabilistic program 
+		 general notation), both of which are assigned a unit Gaussian as a prior.  Our query
 			first samples $m$ and $c$ (note that \normal(0,1) generates a unit Gaussian distribution object)
 			and constructs a student-t distribution object \lstinline$obs-dist$.  It then cycles
 		  over each datapoint and observes $(v_t-m u_t -c)/\sigma$ using \lstinline$obs-dist$,
 		  before finally returning $m$ and $c$ as outputs.  
-%		  The program corresponds to the graphical model
+%		  The query corresponds to the graphical model
 %		  shown in the top right and induces the joint distribution shown bottom right.  
 		  Note that if we instead
 		  wished to directly predict the outputs at some untested inputs points $u_{S+1:S+n}$ then we could
-		  predict these anywhere in the program (after $m$ and $c$ have been defined) and return these
+		  predict these anywhere in the query (after $m$ and $c$ have been defined) and return these
 		  as outputs along with, or instead of, $m$ and $c$.
 		  \label{fig:probprog:linear-reg}
 		  }
@@ -169,7 +171,7 @@ respectively.
 				shape parameter $\alpha$ and scale parameter $\beta$.  We assume that the input
 				parameters $\theta = \{\sigma,\alpha,\beta\}$ are fixed and we want
 				to sample from $p(z_{1:T} | y_{1:T}, \theta)$ given data $y_{1:T}$ where each 
-				$z_t$ is an indicator for if $x_{t}$ exceeds a threshold of $4$. Our program, exploiting the
+				$z_t$ is an indicator for if $x_{t}$ exceeds a threshold of $4$. Our query, exploiting the
 				equivalence between $p(x_1)$ and $p(x_t|x_{t-1}=0)$, first initializes $x_0=0$ and creates
 				distribution objects for the transitions \lstinline$tr-dist$\xspace and emissions
 				\lstinline$obs-dist$\xspace.  It then loops over time steps, sampling each $x_t$ given
@@ -178,11 +180,11 @@ respectively.
 				\label{fig:probprog:LGSSM}
 				}
 		\end{subfigure}
-\caption{Example pseudo-programs for our simplified probabilistic programming setup with
+\caption{Example pseudo-queries for our simplified probabilistic programming setup with
 	corresponding graphical models and joint distributions.\label{fig:probprog:example-progs}}
 \end{figure}
 
-We distinguish between two types of inputs to our programs: external parameters $\theta$ and data $y_{1:S}$.
+We distinguish between two types of inputs to our queries: external parameters $\theta$ and data $y_{1:S}$.
 The external parameters are defined as the inputs that are 
 not ``observed'' at any point but can effect the conditioning through $\Xi_t$ and $\Lambda_s$.
 We presume for our simplified setup that the data terms, defined as the inputs we are observed, 
@@ -194,28 +196,28 @@ as adding a factor to the joint distribution which is therefore given by
 p(x_{1:T},y_{1:S} | \theta) = \prod_{t=1}^{T} f_t(x_t | \Xi_t) \prod_{s=1}^{S} g_s(y_s|\Lambda_s).
 \end{align}
 The two vary in whether they define a new random variable or effect the probability of the
-program given particular instances of the other random variables.
+query given particular instances of the other random variables.
 Our presumptions for this simplified setup that no $y_{s}$ terms are present in the $\Xi_t$ or $\Lambda_s$
 and that we do not condition on internally sampled variables, means that the product of the \sample terms
 correspond exactly to our prior $\prod_{t=1}^{T} g_t(x_t | \Xi_t) =: p(x_{1:T} | \theta)$ and that the
 product of the \observe terms corresponds exactly to our likelihood
 $\prod_{s=1}^{S} g_s(y_s|\Lambda_s) =: p(y_{1:S} | x_{1:T}, \theta)$.  Consequently, for our simplified setup,
-each program defines a finite directed acyclic graphical model (see Section~\ref{sec:bayes:paradigm:graph})
+each query defines a finite directed acyclic graphical model (see Section~\ref{sec:bayes:paradigm:graph})
 where the conditional relationships are defined through the definitions of $f_t$ and $g_s$.
 This breakdown into a prior and likelihood and the equivalence to graphical models
 will not hold in the more general cases we consider later.  Our aim will be to perform inference
 to provide a characterization of $p(x_{1:T} | y_{1:S}, \theta)$ (or the posterior for some deterministic
 mapping of $x_{1:T}$), typically in the form of (approximate)
-samples.  Figure~\ref{fig:probprog:example-progs} shows two example programs in our example
-language along with the corresponding graphical models and joint distributions they define.
+samples.  Figure~\ref{fig:probprog:example-progs} shows two example queries
+along with the corresponding graphical models and joint distributions they define.
 
-Other than \sample and \observe statements, the rest of our program is by construction totally deterministic.  Therefore,
+Other than \sample and \observe statements, the rest of our query is by construction totally deterministic.  Therefore,
 though it may contain random variables other than $x_{1:T}$, these random variables are deterministic
 functions of the ``raw'' random draws $x_{1:T}$ and inputs $\theta$ and $y_{1:S}$.  We can therefore 
-define the outputs of our program as $z := h(x_{1:T},y_{1:S},\theta)$ for some deterministic function $h$.
+define the outputs of our query as $z := h(x_{1:T},y_{1:S},\theta)$ for some deterministic function $h$.
 As we explained in Section~\ref{sec:prob:measure}, the change of variables means that the density function on $z$,
 $p(z | y_{1:S}, \theta) $
-can have a different form to the posterior implied by our program, namely $p(x_{1:T} | y_{1:S}, \theta)$.
+can have a different form to the posterior implied by our query, namely $p(x_{1:T} | y_{1:S}, \theta)$.
   Though this is a serious complication in the
 context of optimization (we may not in general be able to find $\argmax_z p(z|y_{1:S},\theta)$
 or even evaluate $p(z | y_{1:S}, \theta)$ exactly), it
@@ -224,10 +226,10 @@ is perfectly acceptable in the context of calculating expectations as
 \int f(z) p(z | y_{1:S}, \theta) dz = \int f(h(x_{1:T}, y_{1:S}, \theta)) p(x_{1:T} | y_{1:S}, \theta) dx_{1:T}
 \end{align}
 for implicitly defined measures $dz$ and $dx_{1:T}$.  One consequence of this is that
-we can express any expectations calculated by our program as expectations over $p(x_{1:T} | y_{1:S}, \theta)$
+we can express any expectations calculated by our query as expectations over $p(x_{1:T} | y_{1:S}, \theta)$
 which was fully defined by the joint~\eqref{eq:probprog:simple-joint}.  Another is that, provided we are not worried
 about carrying out optimizations, we do not need to explicitly worry about the implicit measures defined
-by the definition of our program, other than any potential effects on the inference scheme.  In particular,
+by the definition of our query, other than any potential effects on the inference scheme.  In particular,
 if our aim is to generate samples from $p(z | y_{1:S}, \theta)$ then we can simply generate samples then
 we can simply generate samples from $p(x_{1:T} | y_{1:S}, \theta)$ and then deterministically convert each
 sample to the space of $z$.  In other words, our inference engine does not need to worry about
@@ -238,8 +240,8 @@ and \observe statements are exchangeable, in the sense that their order can be m
 still define the same joint distribution, up to restrictions about all the required variables (namely the
 distribution object and, if required, observation in our current setup) existing and being in scope.  
 For example, if all variables remain in scope
-and are not redefined, we can generally move all our \observe statements to the end of the program
-without changing the joint distribution.  Therefore the program given in Figure~\ref{fig:probprog:LGSSM}
+and are not redefined, we can generally move all our \observe statements to the end of the query
+without changing the joint distribution.  Therefore the query given in Figure~\ref{fig:probprog:LGSSM}
 would define the same model if all the $x_t$ were sampled upfront before making any observations.
 Nonetheless, the position of the \observe statements
 can often be important from the perspective of the performance of the inference engine.  This exchangeability
@@ -280,36 +282,37 @@ of variables may change from one execution to the next and it could even be the 
 of latent variables could be unbounded provided that either the probability that any execution has a 
 finite number of variables is $1$ or that only a finite number need to be evaluated to calculate the density, such
 as is the case for Bayesian non-parametric models such as the Dirichlet process~\citep{ferguson1973bayesian,teh2011dirichlet}.
-Note that the number \sample and \observe statements lexically defined within our program must
-for obvious reasons be finite, but recursion or looping may mean that they are evaluated an uncountable
-number of times.  It is also possible for a variable within a probabilistic program to itself encode an
-infinite number of parameters, for example, one might include a Gaussian process within the program (see Section~\ref{sec:opt:GPs}).
-These complications make it difficult to mathematically reason about the joint distribution defined by a
-universal PPS, let alone reason about its breakdown into a prior and a likelihood or represent the program
+Note that the number \sample and \observe statements lexically defined within our query must,
+for obvious reasons, be finite, but recursion or looping may mean that they are evaluated an uncountable
+number of times.  It is also possible for a variable within a query to itself encode an
+infinite number of parameters, for example, one might include a Gaussian process within the query (see Section~\ref{sec:opt:GPs}).
+These complications make it difficult to mathematically reason about the joint distribution defined by a query in a
+universal PPS, let alone reason about its breakdown into a prior and a likelihood or represent the query
 using a graphical model (which might actually not even be possible).
 
 One way to conceptually overcome these difficulties is to reason in terms of \emph{execution paths}.
 Even though we might not know upfront which \sample and \observe statements are invoked by
-a particular program output, if we execute the program in order, the draws of the \sample statements made
-thus far uniquely identify which \sample statement will be invoked next, the value of all the variables up
+a particular query output, if we execute the query in order, the draws of the \sample statements made
+thus far in an \emph{execution trace} uniquely identify which \sample statement will be invoked next, the value of all the variables up
 to that \sample statement, and all \observe calls prior to the next \sample statement in the path.  
 In other words, given the outcome of $t$ evaluated \sample statements, which \sample statement corresponds
-to the $(t+1)$-th to be evaluated is uniquely defined and the program up to that \sample statement is
+to the $(t+1)$-th to be evaluated is uniquely defined and the query up to that \sample statement is
 completely deterministic, including which path to take at each \texttt{if} statement, which variables are defined
 and their values, and the probability arising from the \observe conditioning statements.
-Thus although the distribution of the program is not necessarily statically
+Thus although the distribution of the query is not necessarily statically
 determinable, it can still be \emph{evaluated through execution} as each \sample statement provides
 the information we require, in addition to the information from the previous \sample statements, to deterministically evaluate
 up to the next \sample statement.
-Consequently, we can evaluate the probability of any particular evaluation as we run it, even though it might
+Consequently, we can evaluate the probability of any particular trace as we run it, even though it might
 be challenging to evaluate the probability of a predefined configuration of the variables.
 
-Using this idea of execution paths, we can define an expression for the joint probability a program defines,
+Using this idea of execution paths, we can define an expression for the joint probability a query defines,
 albeit in a complex and somewhat abstract manner that only really retains meaning in our probability calculation through
-evaluation mindset.  First let $\lambda$ denote all the inputs to the program (including both parameters and
+evaluation mindset, by define the probability of a particular trace.  First let $\lambda$ denote all the 
+inputs to the query (including both parameters and
 data as we will now have no explicit distinction between the two).  Further let
 $n_x$ and $n_y$ as the number of \sample and \observe statements
-respectively invoked by a particular execution, noting that $n_x$ and $n_y$ are themselves random variables.
+respectively invoked by the trace, noting that $n_x$ and $n_y$ are themselves random variables.
 We can now define $x_{1:n_x} = x_1,\dots,x_{n_x}$ and $y_{1:n_y} = y_1,\dots,y_{n_y}$ respectively as the
 outputs of our $n_x$ \sample statements and observation inputs for our $n_y$ \observe statements.
 Each $x_{i}$ is obvious a random variable, but we note that each $y_i$ might also be a random variable.  However,
@@ -317,7 +320,7 @@ for the reasons explained in the last paragraph, each $y_{1:n_y}$ is determinist
 $\lambda$.
 We continue by defining $f_{1},\dots,f_{n_s}$ and $g_{1},\dots,g_{n_o}$ respectively as the $n_s$ \sample 
 and $n_o$ \observe statements defined lexically within a raw program code (i.e. the distinct \sample and \observe
-statements defined anywhere within the program), noting that $n_s$ and $n_o$ are \emph{not} random variables.
+statements defined anywhere within the query), noting that $n_s$ and $n_o$ are \emph{not} random variables.
 We will further use the notation $f_i(x_j|\phi_j)$  to denote the probability density functions
 (with implicit measure) associated with lexical \sample statement $i$ returning outputs $x_j$ when provided
 with distribution object $\phi_j$, which is itself a random variable but one which is fully determined by
@@ -326,8 +329,8 @@ using lexical \observe $g_i$ to observe output $y_k$ with distribution object $\
 variable fully determined by $x_{1:n_x}$ and $\lambda$.  Finally we define $a_j \in \{1,\dots,n_x\}, \; 
 \forall j\in\{1,\dots,n_x\}$ and $b_k \in \{1,\dots,n_x\}, \; \forall k\in\{1,\dots,n_y\}$ as the
 random variables respectively used to index which lexical \sample and lexical \observe statements
-correspond to the $j^{\text{th}}$ and $k^{\text{th}}$ execution path \sample and \observe statement.
-We can now finally define the conditional distribution implied by our program up to a normalization constant
+correspond to the $j^{\text{th}}$ and $k^{\text{th}}$ execution trace \sample and \observe statement.
+We can now finally define the conditional distribution implied by our query up to a normalization constant
 as
 \begin{align}
 \label{eq:probprog:universal-cond}
@@ -339,7 +342,7 @@ f_{a_j}(x_j | \phi_j)
 g_{b_k}(y_k | \psi_k)
 \end{align}
 noting that although the $a_j$, $\phi_j$, etc are random variables, they are all deterministically
-calculable given $x_{1:n_x}$, $\lambda$, and our program.  As a consequence, our unnormalized
+calculable given $x_{1:n_x}$, $\lambda$, and our query.  As a consequence, our unnormalized
 target distribution is well defined and implies a ``posterior'' simply through its normalization.
  \todo[inline]{Give an example program}
 
@@ -350,12 +353,11 @@ might consist of a $x_1 \leftarrow$\sample(\normal(0,1)) term followed by an \ob
 term.  This does not directly define any properly normalized joint distribution on any particular variables
 (noting $\mathcal{N}(x_1;0,1) \mathcal{N}(x_1;0,2)$ is an unnormalized distribution with only the variable
 $x_1$).  Consequently, there is no means of writing down a normalized joint distribution for a general
-program in our universal PPL setup in closed form -- we might actually need to empirically estimate
+query in our universal PPL setup in closed form -- we might actually need to empirically estimate
 the normalization constant to evaluate the joint.  This actually steps outside the conventional Bayesian
-modeling framework and raises a number of interesting theoretical questions (e.g. do probabilistic
-programs actually simplicity define correctly normalized joint distributions or only conditionals?).  However, from a
+modeling framework and raises a number of interesting theoretical questions.  However, from a
 practical perspective, we can note that provided the implicitly define normalization constant is finite,
-the program also implicitly defines a correctly normalized conditional distribution (noting that the right
+the query also implicitly defines a correctly normalized conditional distribution (noting that the right
 hand side of ~\eqref{eq:probprog:universal-cond} is always $\ge0$).
 This is analogous to knowing the joint but not the posterior in Bayesian inference, but not exactly
 equivalent because the normalization constant is no longer the marginal likelihood.
@@ -371,8 +373,8 @@ of a likelihood), but it clearly defines an unnormalized conditional distributio
 P(a,b | \mathbb{I}(a=b)) = \frac{P(a)P(b|a)\mathbb{I}(a=b)}{\sum_a \sum_b P(a)P(b|a) \mathbb{I}(a=b)}.
 \]
 In such cases where our observation is a hard constraint, we can view the normalizing constant for
-the conditional defined by the program as the probability of our constraint being satisfied.  
-For more general programs of discrete variables we might have, for example,
+the conditional defined by the query as the probability of our constraint being satisfied.  
+For more general queries of discrete variables we might have, for example,
 \[
 P(x|\lambda) \propto f(x|\lambda)g(y=\eta(x,\lambda)|x,\lambda)
 \]
@@ -383,25 +385,29 @@ The same intuition applies to continuous cases where we now have the density of 
 We can also think of $f(x|\lambda)g(\eta(x,\lambda)|x,\lambda)$ as defining a unnormalized distribution on $x$ whose
 normalization constant is of course $\int f(x|\lambda)g(\eta(x,\lambda)|x,\lambda) dx$.  In general, our normalization
 constant will be a combination of conventional marginal likelihood terms and terms from these ``doubly defined''
-terms.  In general, we will refer to the normalization constant as the \emph{marginal observation density} and note
-that it is given by
+terms. We coin this normalization constant the \emph{marginal observation density}\footnote{Note this is not a
+	term that has previously appeared in the literature, where it is dubiously usually just referred to as a marginal
+	likelihood, while the right hand side of~\eqref{eq:probprog:universal-cond} is similarly questionably
+	referred to as the joint distribution defined by the query.} and note that it is given by
 \begin{align}
 \label{eq:probprog:mod}
 Z(\lambda) = \E \left[ \prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k) | \lambda \right]
 = \iint \prod_{j=1}^{n_x} f_{a_j}(x_j | \phi_j) \prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k) dx_{1:n_x} dn_x
 \end{align}
-where the expectation is under running the program forwards (i.e. the distribution implied by simulating
-from an equivalent program with all the \observe statements removed) and 
-all terms in the integral are deterministically calculable for program given $\lambda$ and $x_{1:n_x}$.
+where the expectation is under running the query forwards (i.e. the distribution implied by simulating
+from an equivalent query with all the \observe statements removed) and 
+all terms in the integral are deterministically calculable for the query given $\lambda$ and $x_{1:n_x}$.
 
 We now see that we can draw a direct analogy to the Bayesian framework whereby the product of the
 \sample terms is analogous to the prior, the product of the \observe terms is analogous to the
 likelihood, and the marginal observation density is analogous to the marginal likelihood.  If observed variables
-are not sampled within or used elsewhere in the program (e.g. being used a parameters in distribution objects
+are not sampled within or used elsewhere in the query (e.g. being used a parameters in distribution objects
 later used for sampling), then this analogy becomes exact as per our simplified setup.\footnote{Note that the
 	observed variables should not be used in deterministic elements of the code for this to hold so that they
 	cannot implicitly effect the sampling.}  However, as we have explained, it will often be desirable to go
-beyond this framework to specify some models.
+beyond this framework to specify some models.  When we do, we still have an implicit Bayesian model, in the
+same way that Bayes' rule means that a prior and a likelihood implicitly define a posterior, but we may not
+actually have access to our implicitly defined prior and likelihood.
 
 \todo[inline]{Don't forget
 	to add comments to the BOPP stuff etc about this as the marginal likelihood isn't really the marginal

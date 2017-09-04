@@ -3,8 +3,6 @@
 \section{The Anglican Probabilistic Programming Language}
 \label{sec:probprog:anglican}
 
-\todo[inline]{Move to prob prog inference section as we won't use any of this until then}
-
 To all for a more precise consideration of issues associated with designing and using a universal
 PPS, we now introduce the particular language \emph{Anglican}~\citep{wood2014new,tolpin2016design},
 while we will use for reference throughout the rest of the thesis.  
@@ -12,10 +10,13 @@ Anglican is a universal PPL integrated into \emph{Clojure}~\citep{hickey2008cloj
 programming language (specifically a dialect of Lisp) that runs on the Java virtual machine and uses just-in-time compilation.
 Anglican inherits most of the syntax of Clojure, but extends it with the key
 special forms \sample and \observe \citep{tolpin2015probabilistic,tolpin2016design}, defined in the same way as
-our example language setup in the previous section, along with a couple of others which aid in defining programs
-such as \mem, \store, and \retrieve.  Anglican was the first PPL to introduce particle based 
+our example language setup in the previous section, along with a couple of others which aid in defining queries
+such as \mem, \store, and \retrieve.  Despite using predominantly the same syntax, Anglican has different, 
+probabilistic, semantics to Clojure, i.e. code is written in the same way, but is interpreted differently.
+
+Anglican was the first PPL to introduce particle based 
 inference schemes such as SMC and particle MCMC (see Chapters~\ref{chp:part} and \ref{chp:proginf}), which was
-key advancement for universal PPSs because it allows the structure of the program to be exploited to provide
+key advancement for universal PPSs because it allows the structure of the query to be exploited to provide
 substantially more efficient inference then previous approaches.  Though these methods still form the core
 of the inference in Anglican, there have been a number of advancements and alternative inference approaches introduced since
 the original work~\citep{paige2014asynchronous,tolpin-socs-2015,tolpin2015output,vandemeent_aistats_2015,
@@ -41,19 +42,133 @@ itself.  Functions in Clojure are first class (i.e. they can be variables) and c
 {\small \lsi{(fn [args] body)}}, for example {\small \lsi{((fn [a b] (/ a b)) 10 5)}} evaluates to 2, or using the
 macro \defn to declare a named function in the namespace, for example {\small \lsi{(defn divide [a b] (/ a b))}}.
 Local bindings in closure are defined using \cllet blocks which are used to denote a number of name value
-pairs, with the bindings persisting to closure defined by the brackets of the let block.  Thus for example
+pairs, with the bindings persisting to closure defined by the brackets of the \cllet block and the return value
+being the output of the last element in the \cllet block list.  Thus for example
 {\small \lsi{(let [a 2 b 3] (+ a b))}} says let $a$ be equal to $2$, $b$ be equal to $3$, and then evaluate $a+b$, thus
-returning $5$.  Note that $a$ and $b$ remain undefined outside of this let block.  Clojure does not generally use
+returning $5$.  Note that $a$ and $b$ remain undefined outside of this let block.  
+
+Clojure does not generally use
 for loops, instead relying on recursive function calls or the constructs \map and \reduce to do looping calls.
 \map applies a function to every value in a list or vector so for example {\small \lsi{(map (fn [a] (* a 2)) [2.1 3])}}
 doubles each value in the vector of inputs returning a list {\small \lsi{(4.2 6)}}, where the brackets in the output
 now just represent a list rather than a function evaluation, just to be be confusing.  \reduce recursively applies
 a function and so for example to sum up a vector of elements in Clojure one writes for example
-{\small \lsi{(reduce + 0 [1.2 3.4 2])}} which returns $6.6$.
+{\small \lsi{(reduce + 0 [1.2 3.4 2])}} which returns $6.6$.  Note that vectors in Clojure are not restricted in
+there type so it valid to write for example {\small \lsi{(def a [1 "2" (fn [x] (inc x))])}} to define a variable 
+{\small \lsi{a}} whose component terms are different types.
+
+A important feature of Clojure, particularly with regards to Anglican, is its support for (infinite) lazy sequences.
+Lazy sequences are sequences of terms that are only evaluated as an when they are required.  As such, it is 
+valid for them to be infinitely long (typically through recursive definition) because terms are only calculated if
+they are required, so it is possible to define a term that is theoretically infinite long, but only a finite number
+of values from which are ever evaluated in practice.    For example one can define the function
+ {\small \lsi{(defn ints [n] (lazy-seq (cons n (ints (inc n))))}} and then call {\small \lsi{(ints 1)}} to produce a
+lazy sequence comprising of all the positive integers.  We can evaluate the sequence by explicitly requesting
+terms with the sequence.  For example, we can use {\small \lsi{(take 5 (ints 1))}} to return the first $5$ elements
+of our lazy sequence, thus returning {\small \lsi{(1 2 3 4 5)}}.  We could also ask for a particular term in the
+sequence using, for example, {\small \lsi{(nth 4 (ints 1))}} to return $5$.
+Lazy sequences are conceptually useful, amongst other things, for specifying things that
+are required to be infinitely long to ensure theoretical guarantees (engine an MCMC sampler needs to be run
+infinitely long to converge), but which are restricted by computational budgets.
 
 \subsection{Writing Models in Anglican}
 \label{sec:probprog:anglican:models} 
 
-Compilation of an Anglican program, performed by the macro \lsi{query}, corresponds to transforming the code into a variant of continuation-passing style (CPS) code, which results in a function that can be executed using a particular inference algorithm.
+Anglican queries are written using the macro \defquery.  This allows uses to the define a model using a mixture
+of \sample and \observe statements and deterministic code in the manner synonymous to that explained in
+Section~\ref{sec:probprog:models}, and bind that model to a variable.
+Anglican provides numerous elementary random procedures in the form of common distribution classes such
+as \gammaa, \normal, and \betaa.  This are used to generate distribution objects by calling the class constructor
+with the required parameters, e.g. {\small \lsi{(normal 0 1)}} for the unit Gaussian.
+Anglican also allows custom distribution classes to be defined using
+the \defdist macro, which requires the user to provide parameterized code for sampling from that distribution
+class and evaluating the log density at given output.
 
-One such general purpose system, \emph{Anglican}, will be used as a reference in this paper.  In Anglican, models are defined using the inference macro \defquery. These models, which we refer to as queries \citep{goodman_uai_2008}, specify a joint distribution $p(Y,X)$ over data $Y$ and variables $X$. Inference on the model is performed using the macro \doquery, which produces a sequence of approximate samples from the conditional distribution $p(X|Y)$ and, for importance sampling based inference algorithms (e.g. sequential Monte Carlo), a marginal likelihood estimate $p(Y)$.  
+\begin{wrapfigure}{r}{0.5\textwidth}
+	\centering 
+	\begin{lstlisting}[basicstyle=\ttfamily\small]
+(defquery my-query [data]
+  (let [mu (sample (normal 0 1))
+        sig (sample (gamma 2 2))
+        lik (normal mu sig)]
+   (map (fn [obs]
+          (observe lik obs))
+     data)
+  [mu sig]))
+	\end{lstlisting}	
+	\vspace{-5pt}
+	\caption{A simple Anglican query.\label{fig:probprog:simple-ang}}
+	\vspace{-10pt}
+\end{wrapfigure}
+A simple example of an Anglican query is shown in Figure~\ref{fig:probprog:simple-ang},
+corresponding to a model were we are trying to infer the mean and standard deviation
+of a Gaussian given some data.  The syntax of \defquery is {\small \lsi{(defquery name [args] body)}}
+so in Figure\ref{fig:probprog:simple-ang} our query is named {\small \lsi{my-query}} and takes
+in arguments {\small \lsi{data}}.  The query starts by sampling {\small \lsi{mu}}$\sim\mathcal{N}(0,1)$
+and {\small \lsi{sig}}$\sim\textsc{Gamma}(2,2)$ and constructing a distribution object {\small \lsi{lik}}
+to use for the observations.  It then maps over each datapoint and observes it under the distribution
+{\small \lsi{lik}}, remembering that {\small \lsi{fn}} defines a function and \map applies a function
+to every element of a list of vector.  
+Note that \observe simply returns {\small \lsi{nil}} and so we
+are not interested in these outputs -- they effect the probability of a program execution trace, but
+not the calculation of a trace itself.  After the observations are made, {\small \lsi{mu}} and {\small \lsi{sig}}
+are returned from the \cllet block and then by proxy the query itself.
+Because the data terms only get used as observations and we do
+not observe any internal random variables, this query corresponds exactly to a Bayesian model where
+the \sample terms form the prior and the \observe terms form the likelihood as we explained in
+Section~\ref{sec:probprog:models:general}.  The query thus defines a correctly normalied joint
+distribution given by
+\begin{align}
+p(\mu,\sigma,y_{1:S}) = \mathcal{N}(\mu ; 0,1) \; \textsc{Gamma}(\sigma ; 2, 2) \prod_{s=1}^{S} \mathcal{N}(y_s ; \mu, \sigma)
+\end{align}
+where we have defined $\mu:=${\small \lsi{mu}}, $sig:=${\small \lsi{sig}}, and $y_{1:S}:=${\small \lsi{data}}.
+
+Compilation of an Anglican program is performed by the macro \query.  Calling \query
+invokes a source-to-source compilation from an Anglican query to a continuation-passing 
+style (CPS) Clojure function that can be executed using a particular inference algorithm.  We
+leave discussing what this means in depth to Chapter~\ref{chp:proginf}, noting only that
+the inference algorithms associated with Anglican are written in pure Clojure (except for the odd
+bit of Java code) and the aim of the compilation is to product a model artifact which can be
+interpreted by that inference code.
+When \defquery is called, Anglican internally calls the \query and assigns the output to
+the symbol provided by the first argument of \defquery.  Therefore {\small \lsi{my-query}} in
+our example is Clojure function that can be read by the Anglican inference engines to produce
+approximate samples from the conditional distribution.  Note that, as a Clojure function, the
+inputs and body of {\small \lsi{my-query}} and not as per lexical definition of the Anglican program
+(e.g. in now takes multiple inputs).  It is instead a function that encodes all the information 
+required by the inference engine to perform inference and has the corresponding required call structure
+for the input required by the engine.
+
+Inference on the model is performed using the macro \doquery, which produces a lazy infinite sequence of 
+approximate samples from the conditional distribution and, for appropriate inference algorithms,
+ an estimate of the marginal observation density.
+The syntax of \doquery is {\small \lsi{(doquery inf-alg model inputs & options)}} where {\small \lsi{inf-alg}}
+specifies an inference algorithm, e.g. {\small \lsi{:ipmcmc}}, {\small \lsi{model}} is our query, {\small \lsi{inputs}}
+is a vector if inputs to the query, the \& represents that there might be multiple additional inputs, and {\small \lsi{options}}
+are is a series of option-value pairs for the inference engine.  For example, to produce 100 samples from
+our {\small \lsi{my-query}} model with data {\small \lsi{[2.1 5.2 1.1]}} using the LMH inference algorithm with no
+additional options, we can write {\small \lsi{(take 100 (doquery :lmh my-query [2.1 5.2 1.1]))}}.
+
+Although Anglican mostly inherits Clojure syntax, some complications arise from the compilation to
+CPS-style Clojure functions.  It is thus not possible to na\"{i}vely use all Clojure functions inside Anglican
+without providing appropriate information to the compiler to perform the required transformation.
+The transformation for many core Clojure functions has been code manually such that they form
+part of the Anglican syntax and can be used directly.  Anglican further allows users to write functions externally
+to \defquery using the macro \defm, which is analogous to \defn in Clojure and has the same call syntax (except
+for being restricted input, though as this can be a vector, this places no restrictions on the functions that can be
+written), which can then be called from inside the query without restrictions.  Other deterministic Clojure functions can also
+be called from inside queries, but must be provided with appropriate wrapping to assist the compiler.  Thankfully
+this is done automatically (except when the function itself is higher order) using the macro
+{\small \lsi{with-primitive-procedures}} that takes as inputs Clojure functions and creates an environment where
+these functions have been converted to their appropriate CPS forms.
+
+We finish our introduction by noting the ability of Anglican to \emph{nest} queries within one another.  This
+is somewhat experimental and comes with a number of health warnings because, as we will explain in Chapter~\ref{chp:nest},
+it allows users to write so called \emph{nested estimation} problems that fall beyond the scope of the standard
+proofs of convergence for stand Monte Carlo estimation schemes. Nonetheless, there are problems that cannot
+be encoded without this ability, such as the Bayesian experimental design equations discussed in Chapter~\ref{chp:design}.
+Though \doquery is not allowed directly within a \defquery block, one can still nest queries by 
+either using a \doquery in a Clojure function that is then passed to another query using {\small \lsi{with-primitive-procedures}},
+using a \doquery within a custom distribution defined by \defdist, or using the special form \conditional which
+takes a query and returns a distribution object constructor, for which the inputs to the query become the parameters.
+We will return to consider the implications of this at length in Chapter~\ref{chp:nest}.
