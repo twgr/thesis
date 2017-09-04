@@ -1,0 +1,59 @@
+% !TEX root = ../main.tex
+
+\section{The Anglican Probabilistic Programming Language}
+\label{sec:probprog:anglican}
+
+\todo[inline]{Move to prob prog inference section as we won't use any of this until then}
+
+To all for a more precise consideration of issues associated with designing and using a universal
+PPS, we now introduce the particular language \emph{Anglican}~\citep{wood2014new,tolpin2016design},
+while we will use for reference throughout the rest of the thesis.  
+Anglican is a universal PPL integrated into \emph{Clojure}~\citep{hickey2008clojure}, a dynamically-typed, general-purpose, functional
+programming language (specifically a dialect of Lisp) that runs on the Java virtual machine and uses just-in-time compilation.
+Anglican inherits most of the syntax of Clojure, but extends it with the key
+special forms \sample and \observe \citep{tolpin2015probabilistic,tolpin2016design}, defined in the same way as
+our example language setup in the previous section, along with a couple of others which aid in defining programs
+such as \mem, \store, and \retrieve.  Anglican was the first PPL to introduce particle based 
+inference schemes such as SMC and particle MCMC (see Chapters~\ref{chp:part} and \ref{chp:proginf}), which was
+key advancement for universal PPSs because it allows the structure of the program to be exploited to provide
+substantially more efficient inference then previous approaches.  Though these methods still form the core
+of the inference in Anglican, there have been a number of advancements and alternative inference approaches introduced since
+the original work~\citep{paige2014asynchronous,tolpin-socs-2015,tolpin2015output,vandemeent_aistats_2015,
+	rainforth2016interacting,rainforth2016bayesian,le2017inference}.  Another notable feature of Anglican is its
+support for Bayesian non-parametric modeling, such as providing support for general processes along with
+primitives for particular models such as Dirichlet processes.  Inevitably we can only provide a short 
+introduction here and so we also refer the interested reader to~\cite{tolpin2016design} and to the Anglican website {\small\url{http://www.robots.ox.ac.uk/~fwood/anglican/}} for more information.
+
+\subsection{Clojure}
+\label{sec:probprog:anglican:clojure} 
+
+Before getting into the details of Anglican, we first give a very brief introduction to Clojure~\citep{hickey2008clojure},
+because its syntax may be quite unfamiliar to readers without experience in Lisp based notation or functional programming
+more generally.  There are two key things to get your head around for reading and using Clojure (and Lisp languages more
+generally): almost everything is a function and brackets evaluate functions.  For example, to code $a+b$ in Clojure one
+would write {\small \lsi{(+ a b)}} where $+$ is a function taking two arguments (here $a$ and $b$) and the brackets cause the
+function to evaluate.  More generally, Clojure uses prefix notation such that 
+the first term in a bracket is always a function, with the other terms the arguments.
+Thus {\small \lsi{((+ a b))}} would be invalid syntax as the result of {\small \lsi{(+ a b)}}  is not a function so cannot be evaluated.
+Expressions are nested in a tree structure so to code $2(a+b)/c$ one would write {\small \lsi{(/ (* 2 (+ a b)) c)}} .  One can
+thus think about goes outwards in terms of execution order -- a function first evaluates its arguments before
+itself.  Functions in Clojure are first class (i.e. they can be variables) and can be declared either anonymously using
+{\small \lsi{(fn [args] body)}}, for example {\small \lsi{((fn [a b] (/ a b)) 10 5)}} evaluates to 2, or using the
+macro \defn to declare a named function in the namespace, for example {\small \lsi{(defn divide [a b] (/ a b))}}.
+Local bindings in closure are defined using \cllet blocks which are used to denote a number of name value
+pairs, with the bindings persisting to closure defined by the brackets of the let block.  Thus for example
+{\small \lsi{(let [a 2 b 3] (+ a b))}} says let $a$ be equal to $2$, $b$ be equal to $3$, and then evaluate $a+b$, thus
+returning $5$.  Note that $a$ and $b$ remain undefined outside of this let block.  Clojure does not generally use
+for loops, instead relying on recursive function calls or the constructs \map and \reduce to do looping calls.
+\map applies a function to every value in a list or vector so for example {\small \lsi{(map (fn [a] (* a 2)) [2.1 3])}}
+doubles each value in the vector of inputs returning a list {\small \lsi{(4.2 6)}}, where the brackets in the output
+now just represent a list rather than a function evaluation, just to be be confusing.  \reduce recursively applies
+a function and so for example to sum up a vector of elements in Clojure one writes for example
+{\small \lsi{(reduce + 0 [1.2 3.4 2])}} which returns $6.6$.
+
+\subsection{Writing Models in Anglican}
+\label{sec:probprog:anglican:models} 
+
+Compilation of an Anglican program, performed by the macro \lsi{query}, corresponds to transforming the code into a variant of continuation-passing style (CPS) code, which results in a function that can be executed using a particular inference algorithm.
+
+One such general purpose system, \emph{Anglican}, will be used as a reference in this paper.  In Anglican, models are defined using the inference macro \defquery. These models, which we refer to as queries \citep{goodman_uai_2008}, specify a joint distribution $p(Y,X)$ over data $Y$ and variables $X$. Inference on the model is performed using the macro \doquery, which produces a sequence of approximate samples from the conditional distribution $p(X|Y)$ and, for importance sampling based inference algorithms (e.g. sequential Monte Carlo), a marginal likelihood estimate $p(Y)$.  

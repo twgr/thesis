@@ -57,13 +57,8 @@ method(s) used.
 \input{probprog/sim.tex}
 \input{probprog/two.tex}
 \input{probprog/models.tex}
+\input{probprog/anglican.tex}
 
-\section{An Introduction to Anglican}
-\label{sec:probprog:anglican}
-
-One such general purpose system, \emph{Anglican}, will be used as a reference in this paper.  In Anglican, models are defined using the inference macro \defquery. These models, which we refer to as queries \citep{goodman_uai_2008}, specify a joint distribution $p(Y,X)$ over data $Y$ and variables $X$. Inference on the model is performed using the macro \doquery, which produces a sequence of approximate samples from the conditional distribution $p(X|Y)$ and, for importance sampling based inference algorithms (e.g. sequential Monte Carlo), a marginal likelihood estimate $p(Y)$.  
-
-Random variables in an Anglican program are specified using \sample statements, which can be thought of as terms in the prior. Conditioning is specified using \observe statements which can be thought of as likelihood terms.  Outputs of the program, taking the form of posterior samples, are indicated by the return values.  There is a finite set of \sample and \observe statements in a program source code, but the number of times each statement is called can vary between executions.  We refer the reader to  \href{http://www.robots.ox.ac.uk/~fwood/anglican/}{\small\url{http://www.robots.ox.ac.uk/~fwood/anglican/}} for more details.
 %
 %\section{Going Beyond Bayesian Inference}
 %\label{sec:probprog:limit}
