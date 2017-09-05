@@ -11,7 +11,7 @@ chapter, referring back as needed for clarification on any conventions undertake
 will hopefully find it to be a gentle introduction to the key concepts that will be needed to
 be understood to follow the rest of the thesis.  Notation has been chosen with accessibility 
 as the primary aim and we will avoid
-the use measure theory except were it is absolutely necessary.  Nonetheless, we note that a measure theoretic
+the use measure theory where possible.  Nonetheless, we note that a measure theoretic
 approach to probability is essential for a more rigorous understanding and refer
 the interested reader to~\cite{durrett2010probability}.
 
@@ -213,40 +213,83 @@ we denote as the outcome $X=\infty$.  As we
 have thus-far introduced them, neither the concept of a probability or a probability density
 seem to be suitable for this case: every outcome other than $X=\infty$ has zero probability,
 but $X=\infty$ seems to have infinite probability density.  To solve this conundrum we 
-have to briefly break our promise to avoid measure theory.  A measure can be thought of
+have to briefly break our promise to avoid measure theory.  A \emph{measure} can be thought of
 as something that assigns a size to a set of objects.  In the context of probability theory,
-measures are used to assign probabilities to events, remembering that events represent 
-sets of outcomes.  The measure assigned to event including all possible outcomes is thus $1$,
-the measure assigned to the empty set is $0$.  We can generalize the concept of a probability 
-density by defining if with respect to an appropriate measure.  In the context of~\eqref{eq:prob:density}, we can informally think of the $dx$ term as representing the measure.
-This will now allow us to
-deal with more complicated scenarios by setting up appropriate measures to the problem at hand.
+\emph{probability measures} assign probabilities to events, remembering that events represent 
+sets of outcomes, and thus are used to define a more formal notion of probability that we have
+previous discussed. 
+The measure assigned to event including all possible outcomes is thus $1$,
+while the measure assigned to the empty set is $0$.  
 
-In the continuous example
-we implicitly used (a scaled version of)\footnote{In more formal settings, one normally defines
-	 probability measures on the $\sigma$-algebra of the sample space so that the 
-	 Lebesgue measure is used exactly.  Here we are defining them on the 
-	 realizations of random variables themselves for exposition and so are used a scaled version
-	 of the Lebesgue measure.  The same reasoning applies to our use of the counting measure.}
-the \emph{Lebesgue measure} which corresponds to
+We can generalize the concept of a probability density to arbitrary random variables
+by formalizing its defining as being with respect to an appropriate \emph{reference measure}.  Somewhat confusingly,
+this reference measure  is typically not a probability measure.  Consider the case of the continuous densities examined
+in Section~\ref{sec:prob:den}.
+Here we have implicitly used the \emph{Lebesgue measure} as the reference measure, which corresponds to
 the standard euclidean notion of size, coinciding with the concepts of length, area, and
-volume in 1, 2, and 3 dimensions respectively.  In the discrete examples, we have implicitly
-used the notion of a counting measure which simply counts the number of outcomes which
-lead to a particular event.   For the example where the runner might not finish, we can
-use a \emph{mixed measure} that is some scaling of the counting measure for the outcome
-$X=\infty$ and a scaling of the Lebesgue measure everywhere else.  
+volume in 1, 2, and 3 dimensions respectively.  In~\eqref{eq:prob:density} then $dx$ represented
+the reference measure placed on an infinitesimally small interval in $x$, with $\int_{x\in\mathcal{A}} dx$ being equal
+to the hypervolume of $\mathcal{A}$ (e.g. area of $\mathcal{A}$ in two dimensions).  We thus
+clearly have that our reference measure is not a probability measure as $\int_{x\in\real} dx = \infty$.
+The probability measure assigned to our infinitesimally small interval in this scenario
+is in fact the density times the Lebesgue measure assigned to our interval, namely $p(x)dx$.
+In the discrete cases, we can define a probability density $p(x)=P(X=x)$ by
+using the notion of a \emph{counting measure} for reference which simply counts the number of outcomes which
+lead to a particular event.   Note that we were not free to choose an arbitrary measure for any given
+random variable.  
+We cannot use a counting measure as reference for continuous random variables
+or the Lebesgue measure for discrete random variables because, for example, the Lebesgue measure would assign zero
+measure to all possible events for the latter.  Nonetheless the reference measure we use is not necessarily
+unique either.  For example, we could apply a constant $c$ scaling the reference measure and
+then scale the density by $1/c$.  For notional convenience, we will refer to $dx$ (or equivalent) 
+as our reference measure elsewhere in the thesis.
 
-Because of this generalization, we will often use densities to represent both discrete
-and continuous probabilities throughout the thesis.  In particular, this will be convenient
-for representing results that apply to both cases.  The generalization also allows us
+For the example where the runner might not finish, we can
+use a \emph{mixed measure}.  Perhaps the easiest way to think about this is to think about
+the runner's time $X$ as being a deterministic function of two random variables: the first
+a discrete random variable $Y\in\{0,1\}$ that dictates where the runner finishes ($Y=1$) or not ($Y=0$) and the second 
+a continuous random $Z\in\real^+$ variable that dictates a distribution over run times assuming the
+runner finishes (such that $Z$ always existing but only equals $X$ if the runner finishes).  
+%We can now describe our joint density as $p(y=Y,z=Z) = p(Y=y)p(z=Z)$ where $p(Y=y)$
+%is defined with respect to a counting measure (such that $p(Y=y)=P(Y=y$) and $p(z=Z)$.
+Now $X$ is a function of $Y$ and $Z$ and we can define the probability of the event
+$X\in \mathcal{A}$ as follows
+\begin{align*}
+P(X \in \mathcal{A}) &= \sum_{y \in \{0,1\}} \int_{z\in \real} P(Y=y) p(z) \mathbb{I}(X(y,z) \in \mathcal{A}) dz \\
+&= P(Y=0) \mathbb{I}(\infty\in \mathcal{A})  + P(Y=1) \int_{z\in \mathcal{A}\backslash\infty} p(z) dz
+\end{align*}
+where $\mathbb{I}(\cdot)$ is the identity function evaluating to $1$ if its
+input holds true and $0$ otherwise, and we have used the independence between 
+$Y$ and $Z$.  By definition of a probability density, we also
+have that $P(X \in \mathcal{A}) = \int_{x\in\mathcal{A}} p(x) d\mu(x)$ for density $p(x)$
+with respect to measure $d\mu(x)$, where we switched notation form $dx$ to $d\mu(x)$ to express
+the fact that the measure now depends explicitly on the value of $x$, i.e. our measure
+is non-stationary in $x$.  For $x\neq\infty$ then is natural for $d\mu(x)$ to correspond to the
+Lebesgue measure, noting $\int_{x\in \real\backslash\infty} p(x) d\mu(x) = 1-P(X=\infty)$.
+For $x=\infty$ it is natural for $d\mu(x)$ to correspond to some scaling of the counting
+measure.  For discrete distributions it natural to use the counting measure (i.e. set the
+scaling to one), but here this could lead to a slightly misleading density given that $X=\infty$
+is infinitely times more probable than any other $X$.  For example, this could mean that
+$\argmax p(x) \neq \infty$ which could quickly lead to confusion.  A more illustrative
+choice might use the counting measure scaled by an arbitrarily small value (such that
+the density is scaled by large value), though strict speaking this scaling should not be $0$.
+
+For most applications,\footnote{An important
+	exception to this is optimization (see Chapter~\ref{chp:opt}).}
+the choice between valid measures will turn out to be
+inconsequential (provided we are consistent in our choice when considering multiple
+densities) as it does not effect the distribution of random variables themselves 
+or effect thinks such as expectations (see Section~\ref{sec:prob:expt}).  
+The key point we wish to instead make, is that regardless of variable type, we can
+(implicitly) always define a probability density function.  The generalization also allows us
 to put probability distributions of variables that are neither discrete or continuous type.
-For example we might want to put a distribution over the space of strings. \todo{Clean up}
+For example we might want to put a distribution over the space of strings.  
+Because of this generalization, we will talk mostly in terms of probability densities throughout
+this thesis, even though variables may often be discrete.
 
-It is important to note that when we define densities-measure pairs in this way, these 
-definitions are not in general not unique for an underlying random process.  For example, 
-in the case of the runner who might not finish the marathon, we could assign any density 
-we want to the event $T=\infty$ provided we adjust the respective measure accordingly.
-A particularly important case of this is in a so-called \emph{change of variables}.  Imagine
+We finish the section by considering the relationship between random variables which
+are deterministic functions of one another.  This important case is known as a change of
+\emph{change of variables}.  Imagine
 that a random variable $Y=g(X)$ is a deterministic function of another random variable $X$.
 Given a probability density function for $X$, we can define a probability density function
 on $Y$ using
@@ -255,7 +298,7 @@ on $Y$ using
 p(y)dy = p(x)dx = p(g^{-1}(y))dx
 \end{align} 
 where $p(y)$ and $p(x)$ are the respective probability densities for $Y$ and $X$
-respectively.  Rearranging we see that, for one dimensional problems, 
+respectively with measures $dx$ and $dy$.  Rearranging we see that, for one dimensional problems, 
 \begin{align}
 \label{eq:prob:change2}
 p(y) = \left|\frac{dg^{-1}(y))}{dy}\right|p(g^{-1}(y)).
@@ -265,7 +308,7 @@ Jacobian for the inverse mapping.  Note that by~\eqref{eq:prob:density}, changin
 variables does not change the value of actual probabilities or exceptions (see
  Section~\ref{sec:prob:expt}).  However,~\eqref{eq:prob:change}
 still has the importance consequence that the optimum of a probability distribution
-depends on the parameterization.  For example, if we parameterizing the same model with
+depends on the parameterization.  For example, parameterizing the same model with
 either $X$ or $\log X$ will lead to different value of the most likely value of the parameter
 $x^*$, i.e.
 \begin{align}
@@ -284,7 +327,7 @@ probability density notation
 \E [X] = \int x p(x)dx.
 \end{align}
 In the discrete case this leads to $\E [X] = \sum_{i} x_i P(X=x_i)$.  Because expectations are defined by a random
-variable (rather than a distribution), they
+variable (rather than a density), they
 average over all the contained randomness, e.g. $\E [f(X,Y)]=\iint f(x,y) p(x,y)dxdy$.  However, if we
 wish to average only with respect to part of the randomness in a system, we can instead use a conditional
 expectation for example
@@ -303,7 +346,7 @@ expectation for which we use the slightly loose notation
 where we have implicitly defined the random variables $Y \sim p(y)$ and $X \sim p(x | Y=y)$,
 we are calculating $\E \left[f(X,Y,z) | Y=y\right]$,
 and this resulting expectation is a function of $z$.  One can informally think about this
-as being the expectation of $f(x,y,z)$ with respect to $p(x|y)$:
+as being the expectation of $f(x,y,z)$ with respect to $p(x|y)dx$:
 our expectation is only over the randomness associated with drawing from $p(x|y)$.  Thus,
 for example, we are not taking an expectation over nor condition upon $z$ in this example
 -- it is treated as a fixed input, even if it is a random variable externally to this expectation.

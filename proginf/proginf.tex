@@ -3,6 +3,33 @@
 \chapter{General Purpose Inference for Probabilistic Programs}
 \label{chp:proginf}
 
+In Chapter~\ref{chp:probprog} we showed how probabilistic programming systems (PPSs) provide
+and expressive for specifying probabilistic models.  We now consider the other major component
+for PPSs: automating inference for any model the user is allowed to specify using general purpose
+inference engines.  For most PPSs this requires two things --  a compiler to convert the \emph{query} to an
+suitable form to provide as input the inference engine and the inference engine itself.  
+
+For the inference
+driven systems discussed in Section~\ref{sec:probprog:two:inf}, the inference engine typically comprises of
+a standard Bayesian inference method for graphical models such as those discussed in Chapters~\ref{chp:bayes}
+and~\ref{chp:part}.  Developing these in a way to robustly work for a wide range of problems typically
+requires careful engineering and algorithmic innovation -- e.g. because many inference methods require the definition of
+a proposal, upon which performance can critically depend -- but does not generally require development 
+of approaches distinct to those used outside a probabilistic programming context.  In these 
+systems the inference algorithm(s) is/are usually chosen first, with the language and its restrictions built around it.
+Therefore the challenges of the designing the system are generally rooted in generalizing and increasing the robustness of the 
+specific inference method(s) used.  Similarly, the language itself and associated compiler is generally built
+around providing the easiest representation to work with the target models, while the fact that most of
+these such systems to not support higher order functions usually substantially simplifies the compilation
+process.
+
+Because the design of these systems is very much driven by the particular inference algorithm used, it
+beyond the scope of this thesis to do the associated literature justice.  Our focus will instead be on 
+conducting inference for universal PPSs.  Nonetheless, we will find that there are very few (known) inference
+methods which can actually cope with the most general possible models as we introduced in
+Section~\ref{sec:probprog:models:general}, all of which suffer particularly badly from the curse of
+dimensionality.
+
 \section{Inference Toolboxes for Graphical Models}
 \label{sec:proginf:tool}
 
