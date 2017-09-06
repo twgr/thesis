@@ -1,0 +1,127 @@
+% !TEX root = ../main.tex
+
+\section{Compiling Queries}
+\label{sec:proginf:comp}
+
+Non-probabilistic languages can be either compiled, whereby high-level source code
+is converted to a lower level language (e.g. byte-code) before being evaluated, or interpreted,
+whereby an interpreter reads the program and directly evaluates it based on the language
+semantics.  Other than some earlier systems that were based around guess-and-check 
+type strategies, PPLs by construction tend to require some form compilation due to the fact that
+the original code will typically run many times and because they tend to be integrated
+with an existing language, such that they generally require compilation to the host language
+before anything can be run.  Rather than just being a technical hurdle, compilation is also 
+often an important tool in the ability of probabilistic programming systems to perform
+effective inference as it can often be used to establish helpful salient features in the model,
+such as dependency structures, variable types, and features of the model that can guide
+which inference algorithm is likely to be most successful or even elements of the model
+that can be calculated analytically.  Hakaru~\citep{narayanan2016probabilistic} is a good
+example of what can be achieved in probabilistic programming through compilation alone,
+as it, for example, uses the computer algebra system Maple to automatically simplify models
+when possible.
+
+\subsection{What do we want to Achieve through Compilation?}
+\label{sec:proginf:comp:want}
+
+So what are the aims of our PPL compiler?  First and foremost, we need to
+perform a source-to-source transformation of the program to
+produce some representation in the conventional programming language in which
+the inference engine is written so that execution of program is possible and inference
+can be carried out.  As a simple example, consider the case of an Anglican program where
+we wish only to run importance sampling using the generative model as a proposal 
+(i.e. the query with all the\observe statements removed).  Here we need only produce a Clojure program
+that samples directly from the generative model and accumulates weights from the
+\observe terms as a side-effect.  We can then rerun this program arbitrarily many
+times, each returning a sampled output and accompanying weight, to produce a sequence
+of importance samples which can then be used to make consistent Monte Carlo estimations.
+Such a strategy would be na\"{i}ve though as we would be able to use our Clojure program
+for little else than importance sampling with this particular proposal.  Clearly we want
+to compile to a more general purpose representation that permits a wider array inference algorithms
+and proposals, and which ideally allows features of the model, such as its dependency
+structure, to be exploited.
+
+One desirable feature of our compiled representation is an ability to make partial
+program evaluations.  This will allow us to re-evaluate elements of a the program in
+isolation in a Gibbs sampling style fashion and it will allow us to interrupt the execution
+of the program, giving us the ability to add in things such as the resampling step in SMC.
+Supporting partial evaluation can also allow us to avoid gratituitious re-executions of
+elements of the program whose result is already known by using databases to store and
+recall the effect of previous executions.
+
+Another desirable feature is to avoid being restricted to only directly sampling from \sample
+statements.  We may wish to sample from a different distribution as a proposal or to evaluate
+the probability density of the \sample statement producing a particular output, e.g. as part
+of an acceptance ratio calculation for an MCMC scheme.  The key requirement for both of these
+is the knowledge of density function associated with the \sample statement, rather than
+just access to a black-box sampling scheme.  This is the motivation behind why we defined
+the syntax of \sample as taking as input a distribution object which encodes both the density
+function and means of sampling from that density.
+
+It will also often be helpful for our compiler to delineate between probabilistic and deterministic
+elements of the code.  Other than potentially trying to make efficiency gain by avoiding
+repeated computation, we know that any deterministic parts of our code (namely code in between
+consecutive \sample and/or \observe statements) can be safely run without the need
+to worry about the implications this has on the inference.  The execution of these segments of
+the program in isolation can thus be per the language being compiled to, without needing to
+worry about the probabilistic semantics.  On the other hand, we will generally desire the identification
+of \emph{checkpoints} for positions in the program where \sample or \observe statements are
+made so that the behavior of the program at these points can be handed over to the inference
+engine.
+
+The compiler will in general also play an important role in the interaction between the PPL
+as its integrated language on the behalf of the user.  Any PPL that does not provide produce
+outputs in a helpful form that can be manipulated by the user will be somewhat impractical,
+while for general purpose systems it is essential to allow the user to link in external 
+deterministic code packages specific their particular problem.
+
+This example list of desirable features for our compiler is far from exhaustive.
+In particular, there will be many inference specific features required for some
+systems, such as the need to have a representation of the derivations, e.g. calculated
+through automatic differentiation~\cite{baydin2015automatic}, to carry out 
+Hamiltonian Monte Carlo inference~\cite{carpenter2015stan}
+or common variational inference methods~\citep{kucukelbir2015automatic}.  As we
+said earlier, we will often also want our compilation to, when possible,
+pick out salient features of the model, carry out simplifications, and even automatically 
+establish the most suitable inference algorithm for a particular problem.  The compiler
+is an integral part of any PPL and there is no one best approach for all situations. 
+One of the key distinguishing features between different PPLs is how they approach
+this compilation problem, and different design choices inevitably lead to systems
+geared towards different models or inference algorithms. 
+
+\subsection{Compilation of Anglican Queries}
+\label{sec:proginf:comp:ang}
+
+As it is inevitably infeasible to detail the inner workings of a PPL compiler in a general
+manner, we now provide a more in depth introduction to compilation method
+employed by Anglican.  As we explain in Section~\ref{sec:probprog:anglican:models},
+Anglican programs, or queries, are compiled use the macro \query which provides a
+Clojure function that can be passed to one of the provided inference algorithms.
+The key element of this compilation for providing the desirable properties discussed
+in the last section and a convenient interface for the inference algorithms, is that
+Anglican compiles queries to \emph{continuation passing style} (CPS)~\citep{appel1989continuation}
+Clojure functions.  At a high level, a continuation is a function that represents the rest of the
+program.  CPS is a style of functional programming that uses a series of continuations
+to represent the program through a series of nested function calls, where the program
+is run by evaluating each function and then passing the output to the current continuation
+which invokes the rest of the program to be run.  This is perhaps easiest to see through
+example.  Consider the simple function \clj{+}, which in Clojure has syntax \clj{(+ a b)}.  The
+CPS transformed version of \clj{+}, which we will call \clj{+&} takes an extra input
+of the continuation \clj{C} and invokes it after evaluation such that we have
+\clj{(defn +& [a b C] (C (+ a b)))}.  More generally, for any simple function \clj{f}, we have
+that its the CPS transformation is \clj{(defn f& [args C] (C (f args)))}.  Things can get a little
+tricky for not standard functions, e.g. \clj{let} blocks or loops, but the high level idea is the same.
+In CPS style code, functions never return (until the tail call) and every function takes an
+extra input corresponding to the continuation.  This would be a somewhat awkward method for
+writing programs, as the whole program must be written as a single nested function, but
+it can be a very useful form to compile to as the execution of the program becomes
+exceptionally simple and just involves evaluating functions and passing the output to the
+next continuation -- it explicitly linearizes the computation.  For our purposes, the fact
+that the computation left to do at the any point in the program is explicitly encoded by
+continuation will be particularly useful as it will make the problem of partial program
+evaluation relatively simple.  We will also be able to explicitly delineate the probabilistic
+components of our program, as they simple correspond to the points in our nested call
+structure that invoke a \sample or \observe statements -- the rest of the program is
+deterministic and we can run it as normal
+
+We note that WebPPL also does a CPS style transformation, namely to a purely functional
+subset of Javascript.

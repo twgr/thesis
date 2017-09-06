@@ -397,6 +397,8 @@ Z(\lambda) = \E \left[ \prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k) | \lambda \right]
 where the expectation is under running the query forwards (i.e. the distribution implied by simulating
 from an equivalent query with all the \observe statements removed) and 
 all terms in the integral are deterministically calculable for the query given $\lambda$ and $x_{1:n_x}$.
+Note that for our query to represent a well defined conditional distribution, it is necessary to have
+$0<Z(\lambda)<\infty$.
 
 We now see that we can draw a direct analogy to the Bayesian framework whereby the product of the
 \sample terms is analogous to the prior, the product of the \observe terms is analogous to the
@@ -408,6 +410,18 @@ later used for sampling), then this analogy becomes exact as per our simplified 
 beyond this framework to specify some models.  When we do, we still have an implicit Bayesian model, in the
 same way that Bayes' rule means that a prior and a likelihood implicitly define a posterior, but we may not
 actually have access to our implicitly defined prior and likelihood.
+
+Given our query is now defined to specify a unnormalized conditional distributions rather than a normalized
+joint distribution, it is natural to ask whether it is necessary for each \observe term to correspond to
+a correctly normalized density for its output, instead of just restricting it to be a positive semi-definite
+function representing an arbitrary soft constraint.  The answer is that it is not.  To this end, we define a 
+special distribution class, \boppfactor, which can only be used with \observe, takes no parameters, and 
+adds a factor to the trace probability equal to the exponentiation of the observed value.  Thus, for example, we could use
+\observe (\boppfactor$(),\log(g(\psi)))$ to factor the trace probability by the output of the function $g(\psi)$.
+The rationale for factoring by the exponentiation of the observed value rather than the observed value itself
+is firstly to ensure that the factor is positive and secondly because it will generally be beneficial for
+our system to work with log probabilities at its back-end for numerical underflow issues.  Similarly
+we will in practice specify distribution objects using there log densities.
 
 \todo[inline]{Don't forget
 	to add comments to the BOPP stuff etc about this as the marginal likelihood isn't really the marginal
