@@ -3,6 +3,9 @@
 \section{The Anglican Probabilistic Programming Language}
 \label{sec:probprog:anglican}
 
+\todo[inline]{Need a load more examples, particularly if going to keep the current structure of having
+	this before the introduction to inference.}
+
 To all for a more precise consideration of issues associated with designing and using a universal
 PPS, we now introduce the particular language \emph{Anglican}~\citep{wood2014new,tolpin2016design},
 while we will use for reference throughout the rest of the thesis.  
@@ -47,15 +50,28 @@ being the output of the last element in the \cllet block list.  Thus for example
 {\small \lsi{(let [a 2 b 3] (+ a b))}} says let $a$ be equal to $2$, $b$ be equal to $3$, and then evaluate $a+b$, thus
 returning $5$.  Note that $a$ and $b$ remain undefined outside of this let block.  
 
+Clojure allows various types of compound literals such as vectors, lists, hash maps and sets.
+In general, elements in these compound literals are not restricted in
+there type so it valid to write for example {\small \lsi{[1 "2" (fn [x] (inc x))]}} to construct a vector 
+whose component terms are different types.
+
 Clojure does not generally use
-for loops, instead relying on recursive function calls or the constructs \map and \reduce to do looping calls.
+for loops, instead relying the constructs \map and \reduce, or the \clj{loop}-\clj{recur} pairing.
 \map applies a function to every value in a list or vector so for example {\small \lsi{(map (fn [a] (* a 2)) [2.1 3])}}
 doubles each value in the vector of inputs returning a list {\small \lsi{(4.2 6)}}, where the brackets in the output
 now just represent a list rather than a function evaluation, just to be be confusing.  \reduce recursively applies
 a function and so for example to sum up a vector of elements in Clojure one writes for example
-{\small \lsi{(reduce + 0 [1.2 3.4 2])}} which returns $6.6$.  Note that vectors in Clojure are not restricted in
-there type so it valid to write for example {\small \lsi{(def a [1 "2" (fn [x] (inc x))])}} to define a variable 
-{\small \lsi{a}} whose component terms are different types.
+{\small \lsi{(reduce + 0 [1.2 3.4 2])}} which returns $6.6$.  The \clj{loop}-\clj{recur} pairing forms
+a syntax sugar for doing looping through tail recursion.  In essence, \clj{loop} defines a function and provides
+initial bindings for the input arguments.  Inside the \clj{loop} function block, \clj{recur} recursively calls the
+function defined by \clj{loop} with new bindings to the inputs.  In general, the \clj{recur} function should
+only be called depending on a condition holding true to prevent infinite recursion.  To give a concrete example,
+ \begin{lstlisting}[basicstyle=\ttfamily\small,frame=none]
+ (loop [x 1] (if (> x 10) nil (do (print x) (recur (+ x 1)))))
+ \end{lstlisting}\vspace{-5pt}
+will print out the numbers $1$ to $10$.  Here the syntax of \clj{if} is \clj{(if test then else)} so when \clj{x>10}
+it returns \clj{nil}.  Otherwise it calls the \clj{do} statement which evaluates each of its arguments in turn, in
+this case printing out $x$ before recalling the body of the \clj{loop} block with \clj{x}  reset to \clj{(+ x 1)}.
 
 A important feature of Clojure, particularly with regards to Anglican, is its support for (infinite) lazy sequences.
 Lazy sequences are sequences of terms that are only evaluated as an when they are required.  As such, it is 

@@ -93,7 +93,7 @@ geared towards different models or inference algorithms.
 
 As it is inevitably infeasible to detail the inner workings of a PPL compiler in a general
 manner, we now provide a more in depth introduction to compilation method
-employed by Anglican.  As we explain in Section~\ref{sec:probprog:anglican:models},
+employed by Anglican~\citep{tolpin2016design}.  As we explain in Section~\ref{sec:probprog:anglican:models},
 Anglican programs, or queries, are compiled use the macro \query which provides a
 Clojure function that can be passed to one of the provided inference algorithms.
 The key element of this compilation for providing the desirable properties discussed
@@ -102,26 +102,64 @@ Anglican compiles queries to \emph{continuation passing style} (CPS)~\citep{appe
 Clojure functions.  At a high level, a continuation is a function that represents the rest of the
 program.  CPS is a style of functional programming that uses a series of continuations
 to represent the program through a series of nested function calls, where the program
-is run by evaluating each function and then passing the output to the current continuation
-which invokes the rest of the program to be run.  This is perhaps easiest to see through
+is run by evaluating each function and then passing the output to the continuation
+which invokes the rest of the program.  This is perhaps easiest to see through
 example.  Consider the simple function \clj{+}, which in Clojure has syntax \clj{(+ a b)}.  The
 CPS transformed version of \clj{+}, which we will call \clj{+&} takes an extra input
-of the continuation \clj{C} and invokes it after evaluation such that we have
-\clj{(defn +& [a b C] (C (+ a b)))}.  More generally, for any simple function \clj{f}, we have
-that its the CPS transformation is \clj{(defn f& [args C] (C (f args)))}.  Things can get a little
-tricky for not standard functions, e.g. \clj{let} blocks or loops, but the high level idea is the same.
-In CPS style code, functions never return (until the tail call) and every function takes an
+of the continuation $\mP$ and invokes it after evaluation such that we have
+\clj{(defn +& [a b } ~$\mP$\clj{] (}$\mP$ \clj{(+ a b)))}.  More generally, for any simple function \clj{f}, we have
+that its the CPS transformation is \clj{(defn f& [args} ~$\mP$\clj{] (}$\mP$ \clj{(f args)))}.  We 
+will use this notation of adding an \clj{&} to an expression name to denote its CPS transformation throughout.
+To give a more detailed example, the CPS transform of the program \clj{(max 6 (* 4 (+ 2 3)))} would be
+\begin{lstlisting}[basicstyle=\ttfamily\small,frame=none]
+  (fn [$\mP$] (+& 2 3 (fn [x] (*& 4 x (fn [y] (max& 6 y $\mP$)))))
+\end{lstlisting}\vspace{-8pt}
+where \clj{*&} and
+\clj{max&} are analogous to \clj{+&} defined as before.
+Here our first continuation is \clj{(fn [x] (*& 4 x (fn [y] (max& 6 y))))} and our second continuation 
+is \clj{(fn [y] (max& 6 y))}.  Note that the CPS transformed code is itself a function because
+it itself takes a continuation.  
+
+Things are a little
+trickier for general expression that are neither literals nor simple first order functions, for example
+binding forms like \clj{let}, Anglican special forms like \sample, and branching statements like \clj{if}.
+For these expression, the high level idea is the same, but the CPS transformation is unfortunately 
+expression specific and must in general be implemented on a case by case basis.  
+For example, one can CPS transform \clj{let} by going from
+\clj{(let [x (foo1 1) y (foo2 2)] (foo3 x y))} to
+ \begin{lstlisting}[basicstyle=\ttfamily\small,frame=none]
+ (fn [$\mP$] (foo1& 1 (fn [x] (foo2& 2 (fn [y] (foo3& x y $\mP$)))))).
+ \end{lstlisting}\vspace{-8pt}
+noting that within the \clj{(fn [x] .)} closure, \clj{x} is
+effectively bound to the input of the function, giving behavior synonymous to the original
+\clj{let} block.  
+Another special case of particular note is \clj{loop}-\clj{recur} blocks.  These can be CPS
+transformed by explicitly redefining them as a self-recursive function which can then
+be transformed in the normal way.  For example,
+\clj{(loop [x 10] (if (> x 1) (recur (- x 2)) x))}
+becomes
+\begin{lstlisting}[basicstyle=\ttfamily\small,frame=none]
+ (fn [$\mP$] ((fn foo [x] (if (> x 1) (foo (- x 2)) ($\mP$ x))) 10))
+ \end{lstlisting}\vspace{-8pt}
+where we have exploited the fact that \clj{fn} allows the function to be named (in this case to
+\clj{foo}) so that it can call itself.
+ 
+In CPS style code, functions never return (until the final tail call) and every function takes an
 extra input corresponding to the continuation.  This would be a somewhat awkward method for
-writing programs, as the whole program must be written as a single nested function, but
+writing programs, as the whole program must be written as a single nested function.  However,
 it can be a very useful form to compile to as the execution of the program becomes
 exceptionally simple and just involves evaluating functions and passing the output to the
 next continuation -- it explicitly linearizes the computation.  For our purposes, the fact
 that the computation left to do at the any point in the program is explicitly encoded by
 continuation will be particularly useful as it will make the problem of partial program
 evaluation relatively simple.  We will also be able to explicitly delineate the probabilistic
-components of our program, as they simple correspond to the points in our nested call
+components of our program, as they simply correspond to the points in our nested call
 structure that invoke a \sample or \observe statements -- the rest of the program is
 deterministic and we can run it as normal
 
 We note that WebPPL also does a CPS style transformation, namely to a purely functional
 subset of Javascript.
+
+Trampolining
+
+Extra CPS argument
