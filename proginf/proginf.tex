@@ -5,8 +5,8 @@
 
 In Chapter~\ref{chp:probprog} we showed how probabilistic programming systems (PPSs) provide
 an expressive framework for specifying probabilistic models.  We now consider the other major component
-for PPSs: automating inference for any model the user is allowed to specify using general purpose
-inference engines.  For most PPSs this requires two things --  a compiler to convert the \emph{query} to an
+for PPSs: automating inference for any model the user is allowed to specify using general-purpose
+inference engines.  For most PPSs this requires two things --  a compiler to convert the \emph{query} to a
 suitable form for input to the inference engine and the inference engine itself.  
 
 For the inference
@@ -14,9 +14,9 @@ driven systems discussed in Section~\ref{sec:probprog:two:inf}, the inference en
 a standard Bayesian inference method for graphical models such as those discussed in Chapters~\ref{chp:bayes}
 and~\ref{chp:part}.  Developing these in a way to robustly work for a wide range of problems typically
 requires careful engineering and algorithmic innovation -- e.g. because many inference methods require the definition of
-a proposal, upon which performance can critically depend -- but does not generally require development 
+a proposal, upon which performance can critically depend -- but does not generally require the development 
 of approaches distinct to those used outside a probabilistic programming context.  In these 
-systems the inference algorithm(s) is/are usually chosen first, with the language and its restrictions built around it.
+systems, the inference algorithm(s) is/are usually chosen first, with the language and its restrictions built around it.
 Therefore the challenges of the designing the system are generally rooted in generalizing and increasing the robustness of the 
 specific inference method(s) used.  Similarly, the language itself and associated compiler is generally built
 around providing the easiest representation to work with the target model class, while the fact that most of
@@ -32,11 +32,12 @@ Section~\ref{sec:probprog:models:general}, all of which suffer particularly badl
 dimensionality.  Consequently, it will be necessary to make certain (mostly very small) concessions in 
 generality to achieve any reasonable performance on non-toy models.  We will focus on conducting
 inference in Anglican~\citep{wood2014new,tolpin2016design} to give us a basis for explanation, but much of
-what we discuss will be still be relevant to other universal systems, in particular those which
-are also based around \sample-\observe syntax, such as VentureScript~\citep{mansinghka2014venture}, 
+what we discuss will still be relevant to other universal systems, in particular, those which
+are also built around \sample-\observe syntaxes, such as VentureScript~\citep{mansinghka2014venture}, 
 WebPPL~\citep{goodman_book_2014}, and Probabilistic C~\citep{paige2014compilation}.
 
 \input{proginf/comp.tex}
+\input{proginf/basic.tex}
 
 \section{Particle Based Inference for Probabilistic Programs}
 \label{sec:proginf:part}

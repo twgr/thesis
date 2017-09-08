@@ -3,10 +3,25 @@
 \chapter{Probabilistic Programming -- the User's Perspective}
 \label{chp:probprog}
 
-Probabilistic programming systems (PPSs) allow users to define probabilistic models 
-using a domain-specific programming language or modeling library. A probabilistic program implicitly 
-defines a distribution on random variables, whilst the system back-end implements 
-general-purpose inference methods.  Two key challenges for a PPS are in providing the
+Probabilistic programming systems (PPSs) allow (Bayesian) probabilistic models to be represented in the 
+form of a generative model and statements for conditioning on data~\citep{gordon2014probabilistic,goodman2008church}.  
+Informally, one can think of the generative model as the definition of a prior, the conditioning 
+statements as the definition of a likelihood, and the output of the program as samples from a posterior distribution. 
+Their core philosophy is to decouple model specification and inference, the former 
+corresponding to the user-specified program code, which implicitly 
+defines a distribution on random variables, and the latter to an inference engine 
+capable of operating on arbitrary programs.  Removing the need for users to write 
+inference algorithms significantly reduces the burden of developing new models and 
+makes effective statistical methods accessible to non-experts.  The inference/model abstraction barrier 
+further means that some systems allow the definition of models that would be hard, or
+even impossible, to convey using conventional frameworks like graphical models.
+
+
+%Probabilistic programming systems (PPSs) allow users to define probabilistic models 
+%using a domain-specific programming language or modeling library. A probabilistic program implicitly 
+%defines a distribution on random variables, whilst the system back-end implements 
+%general-purpose inference methods.  
+Two key challenges for a PPS are in providing the
 syntax and semantics to allow easy definition of models, and in designing the solvers, i.e.
 inference engines, to provide effective inference for those models.
 In this chapter, we focus on the former of these, providing an introduction to 
