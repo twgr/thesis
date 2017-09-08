@@ -133,7 +133,7 @@ Things are a little
 trickier for general expression that are neither literals nor simple first order functions, for example,
 binding forms like \clj{let}, Anglican special forms like \sample, and branching statements like \clj{if}.
 For these expressions, the high-level idea is the same, but the CPS transformation is, unfortunately, 
-expression specific and must, in general, be implemented on a case by case basis.  
+expression specific and must, in general, be implemented on a case-by-case basis.  
 For example, one can CPS transform \clj{let} by going from
 \clj{(let [x (foo1 1) y (foo2 2)] (foo3 x y))} to
  \begin{lstlisting}[basicstyle=\ttfamily\small,frame=none]
