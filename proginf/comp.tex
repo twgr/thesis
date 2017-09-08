@@ -93,13 +93,19 @@ geared towards different models or inference algorithms.
 
 As it is inevitably infeasible to detail the inner workings of a PPL compiler in a general
 manner, we now provide a more in depth introduction to compilation method
-employed by Anglican~\citep{tolpin2016design}.  As we explain in Section~\ref{sec:probprog:anglican:models},
+employed by Anglican.  Our introduction is inevitably not exhaustive, focusing more on
+intuition than being exactly true to the implementation details; we refer the reader
+to~\citep{tolpin2016design} for a more complete and rigorous introduction.
+
+As we explain in Section~\ref{sec:probprog:anglican:models},
 Anglican programs, or queries, are compiled use the macro \query which provides a
 Clojure function that can be passed to one of the provided inference algorithms.
 The key element of this compilation for providing the desirable properties discussed
 in the last section and a convenient interface for the inference algorithms, is that
 Anglican compiles queries to \emph{continuation passing style} (CPS)~\citep{appel1989continuation}
-Clojure functions.  At a high level, a continuation is a function that represents the rest of the
+Clojure functions.\footnote{WebPPL also does a CPS style transformation, 
+	namely to a purely functional subset of Javascript.}
+At a high level, a continuation is a function that represents the rest of the
 program.  CPS is a style of functional programming that uses a series of continuations
 to represent the program through a series of nested function calls, where the program
 is run by evaluating each function and then passing the output to the continuation
@@ -108,7 +114,10 @@ example.  Consider the simple function \clj{+}, which in Clojure has syntax \clj
 CPS transformed version of \clj{+}, which we will call \clj{+&} takes an extra input
 of the continuation $\mP$ and invokes it after evaluation such that we have
 \clj{(defn +& [a b } ~$\mP$\clj{] (}$\mP$ \clj{(+ a b)))}.  More generally, for any simple function \clj{f}, we have
-that its the CPS transformation is \clj{(defn f& [args} ~$\mP$\clj{] (}$\mP$ \clj{(f args)))}.  We 
+that its the CPS transformation is \clj{(defn f& [args} ~$\mP$\clj{] (}$\mP$ \clj{(f args)))}.\footnote{Note that
+	in practice, the continuation is usually set to be the first argument in order to provide support
+	for functions with variable number of inputs.}
+  We 
 will use this notation of adding an \clj{&} to an expression name to denote its CPS transformation throughout.
 To give a more detailed example, the CPS transform of the program \clj{(max 6 (* 4 (+ 2 3)))} would be
 \begin{lstlisting}[basicstyle=\ttfamily\small,frame=none]
@@ -130,8 +139,8 @@ For example, one can CPS transform \clj{let} by going from
  \begin{lstlisting}[basicstyle=\ttfamily\small,frame=none]
  (fn [$\mP$] (foo1& 1 (fn [x] (foo2& 2 (fn [y] (foo3& x y $\mP$)))))).
  \end{lstlisting}\vspace{-8pt}
-noting that within the \clj{(fn [x] .)} closure, \clj{x} is
-effectively bound to the input of the function, giving behavior synonymous to the original
+noting that within the \clj{(fn [x] .)} closure, \clj{x} is bound to the input of the 
+function, giving behavior synonymous to the original
 \clj{let} block.  
 Another special case of particular note is \clj{loop}-\clj{recur} blocks.  These can be CPS
 transformed by explicitly redefining them as a self-recursive function which can then
@@ -149,17 +158,125 @@ extra input corresponding to the continuation.  This would be a somewhat awkward
 writing programs, as the whole program must be written as a single nested function.  However,
 it can be a very useful form to compile to as the execution of the program becomes
 exceptionally simple and just involves evaluating functions and passing the output to the
-next continuation -- it explicitly linearizes the computation.  For our purposes, the fact
-that the computation left to do at the any point in the program is explicitly encoded by
-continuation will be particularly useful as it will make the problem of partial program
-evaluation relatively simple.  We will also be able to explicitly delineate the probabilistic
-components of our program, as they simply correspond to the points in our nested call
-structure that invoke a \sample or \observe statements -- the rest of the program is
-deterministic and we can run it as normal
+next continuation -- it explicitly linearizes the computation.  For our purposes, having access
+to functions representing the rest of the program in the form of continuations will be
+particularly useful as it will allow for partial program evaluations.  It will also be convenient
+for adding checkpoints at particular points in the program -- namely at the \sample and
+\observe calls -- where control is handed over to the inference algorithm.
 
-We note that WebPPL also does a CPS style transformation, namely to a purely functional
-subset of Javascript.
+Compilation of an Anglican query, triggered through the \query macro, is done in recursively
+in a top down manner.  The key function in doing this, called \clj{cps-of-expression},
+dispatches to the individual CPS transformations by matching types of expression, or, if necessary,
+directly by key-word.  Individual CPS transformations then recursively call \clj{cps-of-expression}
+or themselves if necessary, e.g. if the top level call is a \clj{let} block, until the full query is
+is transformed.  
 
-Trampolining
+The individual CPS transformations in Anglican are marginally more complicated than the
+framework we have laid out thus far.  This is because it is necessary to not just run the
+program, but also track its state from a probabilistic perspective, storing things such
+as sample weights and other probabilistic side-effects.  To deal with this, the transformed Anglican
+continuations take as input an \emph{internal state}, which we will denote as \angstate,
+in additional to the computed value.
+Thus, for example, the transformation for a simple function becomes\footnote{As before, the original arguments
+	are actually last in the argument list for the true implementation.}
+\begin{lstlisting}[basicstyle=\ttfamily\small,frame=none]
+  (defn f& [args $\mP~\dollar$state] ($\mP$ (f args) $\dollar$state)).
+\end{lstlisting}\vspace{-8pt}
+More generally, we will simply pass on \angstate unchanged except for the Anglican
+special forms which can use and/or manipulate the internal state.  \angstate itself
+is defined to be a hash map, initialized as follows
+\begin{lstlisting}[basicstyle=\ttfamily\small,frame=none]
+  (def initial-state {:log-weight 0.0 :result nil ...})
+\end{lstlisting}\vspace{-8pt}
+where \clj{...} includes some fields we will not directly consider at the moment and some algorithm
+specific fields (e.g. information required to the retained particle in PMCMC methods).
+Here the field \clj{:log-weight} allows the program to be assigned a
+(relative) weight as accumulated by, for example, \observe statements or importance weights
+when sampling from a different distribution than that provided to the \sample statement.
+The return for each sample in our inference will be the \angstate, hence the inclusion
+of the \clj{:result} field which is set to the output of the query at its tail call.
 
-Extra CPS argument
+One of the key components of the Anglican compilation is the transformation applied to the
+the special forms and in particular the probabilistic forms \sample and \observe.  These
+are respective transformed to the Clojure record constructors \samplecps and \observecps 
+which have the call syntaxes of
+\clj{(->sample id dist} ~$\mP$ ~\angstate\clj{)} and \clj{(->observe id dist value} ~$\mP$ ~\angstate\clj{)},
+where \clj{id} is a unique checkpoint identifier (e.g. the $\{1,\dots,n_s\}$ and $\{1,\dots,n_o\}$ identifiers
+we used in~\ref{sec:probprog:models:general}) set at compilation time, and  \clj{dist} and \clj{value}
+are the original inputs to the \sample and \observe statements.  At a high level, one can
+think of a Clojure record as defining a new class type (here {\small \texttt{anglican.trap.sample}} and {\small \texttt{anglican.trap.observe}}
+respectively) with given fields (here \clj{:id}, \clj{:dist} etc).  Our constructors thus create
+an object of the given type with appropriately set fields.  The significance of this is that
+it allows definition of a multimethod, which we call \checkpoint, to provide a runtime polymorphism
+(i.e. single interface) for dispatching depending on the checkpoint
+type and the inference algorithm.  In other words, we will have one function, \checkpoint, whose
+behavior can be redefined for different checkpoint types and inference types.  There are many
+consequences of this.  Firstly, our compiler does not need to be inference algorithm specific
+because we can use \checkpoint to distribute the behavior to the required inference algorithm
+at run time.  Secondly, its creates an abstraction barrier for writing inference algorithms -- implementing
+an inference algorithm now only requires us to implement, along with a top level function \anginfer that
+we will discuss later, new methods describing the behavior of \checkpoint at \sample and \observe
+checkpoints.  Furthermore, these can be inherited from other inference algorithms, for example
+the \observe checkpoints for particle Gibbs are inherited from SMC in Anglican's implementation.
+
+A slightly more subtle consequence of compiling to a constructor with typed output is that
+we will use this to catch the checkpoints themselves.  Once compiled, individual instances of
+a program in the Anglican inference engines are run using the \clj{exec} function.  The role of
+\clj{exec} is to run the program until it reaches a checkpoint that requires control to be transferred
+to the top level inference function of a particular method, i.e. the \anginfer function, such as when
+a particular trace has finished running or when interaction is required between different samples, e.g. 
+the resampling step in SMC.  In Anglican this is achieved using \emph{trampolining}.  In functional
+programming languages, trampolining is a process of looping execution where if an iteration of
+a loop returns a function, that function is immediately evaluated without passing forward any arguments,
+with this process continuing until a non-functional output is returned.  The primary use of trampolining
+is for managing stack sizes by constructing a nested call structure of \emph{thunks} (i.e. functions which
+require no input arguments) that when called by the trampolining function (called \clj{trampoline} in Clojure)
+invoked the full set of nested calls without requiring a stack to be constructed or stored, as would be necessary
+for an ordinary nested function structure.  In the context of our CPS transformations, we can do this by simply
+wrapping each call with an anonymous function, namely converting \clj{(foo args }~$\mP$ ~\angstate\clj{)}
+to \clj{(fn [] (foo args }~$\mP$ ~\angstate\clj{))}, which will be carried out for all continuations
+except the checkpoints.  Though a large part of the motivation for doing this in
+Anglican is similarly to maintain the stack size, it is also highly useful for using the checkpoints to trigger
+control to be transferred to the \anginfer function.  To be precise, the \clj{exec} function is defined as
+\begin{lstlisting}[basicstyle=\ttfamily\small,frame=none]
+  (defn exec [algorithm prog value $\dollar$state]
+    (loop [step (trampoline prog value $\dollar$state)]
+      (let [next (checkpoint algorithm step)]
+       (if (fn? next) (recur (trampoline next)) next))))
+\end{lstlisting}\vspace{-8pt}
+where \clj{algorithm} specifies the inference algorithm; \clj{prog} is program to call, comprising of either the full
+CPS compiled program output by \query or a continuation representing the rest of the program; 
+\clj{value} is the input required by \clj{prog}, comprising of either the original program inputs or the value
+passed to the continuation; and \angstate is the program state as before.  Here we see that \clj{exec}
+first creates the variable \clj{step} by making a trampolined call to \clj{prog}.  As all continuations are now
+represented by anonymous functions with no inputs excepts for our checkpoints, this will run until it
+hits one of those checkpoints, returning the corresponding constructed checkpoint object.  In other words,
+this causes the program to run until it reaches a \sample or \observe statements, or it reaches the end of the
+program.  This is a highly desirable behavior, as it means the deterministic elements of our program
+are run as normal.  Once returned, our multimethod \checkpoint is called using \clj{algorithm} and
+\clj{step}, which distributes to the appropriate \checkpoint implementation based on the value of
+\clj{algorihtm} and the type of \clj{step} (e.g. calling to the \sample checkpoint method of an algorithm 
+if it is of type  {\small \texttt{anglican.trap.sample}}).  Invoking the appropriate checkpoint will cause
+inference algorithm specific behavior, e.g. updating a weight in \angstate, and provide a return value
+\clj{next}.  If \clj{next} is a function, the loop
+is recurred, with \clj{step} now replaced by the output of a trampolined call of \clj{next}.  If \clj{next} is
+not a function, the \clj{exec} function terminates, returning \clj{next}.  The reason for this looping is
+that it allows different inference algorithms to specify different occurrences for when control needs to
+be passed back to the \anginfer function in an algorithm specific way, by defining the checkpoint methods
+to either return a checkpoint object (for which the \clj{exec} call will terminate) or the continuation
+wrapped in a thunk (for which execution will continue).  For example, when running SMC,
+action distinct to running the program forwards only needs to be taken at the \observe statement 
+checkpoints.  As different traces may have a different number of \sample statements between observations,
+it is therefore convenient to a have a function that does not terminate at the \sample checkpoints, returning
+only once an \observe or the end of the program is reached.  On the other hand, for MCMC samplers, we
+will need to externally control the sampling behavior and so it may be necessary to return control at each
+\sample statement.
+
+We have now demonstrated how an Anglican query is compiled, an summarizing example for which
+is provided in Figure XX\todo{Add compilation example}.  We have also laid out a framework for
+writing inference algorithms in Anglican: we need to implement methods of the \checkpoint multimethod
+and a top level inference function \anginfer.  For the former, there are three possible \checkpoint methods
+we might have to re-implement for a particular inference algorithm, namely ones to dictate the behavior
+of \sample and \observe, and a ``\clj{result}'' checkpoint for controlling behavior at the termination of
+the query (for most methods this will simply provide the return value).  In the rest of this Chapter we will
+explain how this abstraction allows us to write inference algorithms suitable for arbitrary programs.

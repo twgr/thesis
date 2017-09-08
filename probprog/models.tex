@@ -326,9 +326,9 @@ We will further use the notation $f_i(x_j|\phi_j)$  to denote the probability de
 with distribution object $\phi_j$, which is itself a random variable but one which is fully determined by
 $x_{1:j-1}$ and $\lambda$.  Similarly, we use the notation $g_i(y_k|\psi_k)$ to express the density of
 using lexical \observe $g_i$ to observe output $y_k$ with distribution object $\psi_k$, which is a random
-variable fully determined by $x_{1:n_x}$ and $\lambda$.  Finally we define $a_j \in \{1,\dots,n_x\}, \; 
-\forall j\in\{1,\dots,n_x\}$ and $b_k \in \{1,\dots,n_x\}, \; \forall k\in\{1,\dots,n_y\}$ as the
-random variables respectively used to index which lexical \sample and lexical \observe statements
+variable fully determined by $x_{1:n_x}$ and $\lambda$.  Finally we define $a_j \in \{1,\dots,n_s\}, \; 
+\forall j\in\{1,\dots,n_x\}$ and $b_k \in \{1,\dots,n_o\}, \; \forall k\in\{1,\dots,n_y\}$ as the
+random variables respectively used to index which of the lexical \sample and \observe statements
 correspond to the $j^{\text{th}}$ and $k^{\text{th}}$ execution trace \sample and \observe statement.
 We can now finally define the conditional distribution implied by our query up to a normalization constant
 as
