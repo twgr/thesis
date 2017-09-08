@@ -11,6 +11,25 @@
 \chapter{Probabilistic Machine Learning}
 \label{chp:bayes}
 
+In this chapter we will provide a high-level introduction to  some of the core approaches to
+machine learning.  We will distinguish between discriminative and generative approaches,
+outlining some of the key features that indicate when problems are more suited to one approach
+or the other.  Our focus then switches to looking a probabilistic generative approaches that
+will be the main focus of this thesis.  We will explain how the \emph{Bayesian paradigm} provides
+a powerful framework for generative machine learning that allows us to combine data with existing
+expertise.  We will then go on to show how \emph{graphical models} can be used as a convenient
+framework to express Bayesian models and how they can be used to extract important features of the
+model.  We continue by introducing one of the main competitors to the Bayesian approach -- frequentist
+modeling -- and present arguments for why neither a Bayesian nor a frequentist approach is
+entirely satisfactory.  In particular, we will carefully outline the, oft forgotten, fundamental underlying
+assumptions made by each approach and demonstrate why the differing suitability of these assumptions
+to different tasks shows why both approaches are essential tools in the arsenal of machine learning
+methods, despite the fierce loyalty of many in the community to one approach or the other.
+Though the focus of this thesis will be on Bayesian approaches, understanding its limitations
+is essential for understanding when the methods we discuss should be used and critically when they
+should definitely not be.  We finish the chapter by discussing some of the key practical challenges
+for Bayesian modeling and how we will attempt to address a number of these with this work.
+
 \input{bayes/discrim.tex}
 \input{bayes/paradigm.tex}
 \input{bayes/graph.tex}

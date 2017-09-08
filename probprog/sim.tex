@@ -110,8 +110,8 @@ we can run inference.  Doing this will require introduction of means for \emph{c
 and of specially defined \emph{random primitives} whose behavior can be controlled at 
 run time, rather than just always sampling from
 the same predefined distribution as they would in an ordinary programming language, and primitives.  
-The former can be thought of as defining terms in the prior and the
-latter as terms in the likelihood as we will discuss in Section~\ref{sec:probprog:models}.
+The latter can be thought of as defining terms in the prior and the
+former as terms in the likelihood as we will discuss in Section~\ref{sec:probprog:models}.
 
 Secondly, our language needs a general purpose inference(s)
 engine capable of working on any program the user writes.  Bayesian models are fully defined
@@ -142,3 +142,7 @@ to the target source code of the simulator itself, rather than needing to treat 
 maybe we can have our cake an eat it by using the source code itself to guide our algorithms, such that
 they behave in problem specific ways.  We will discuss how this can be done at length in 
 Chapters~\ref{chp:proginf} and~\ref{chp:bopp}.
+
+\todo[inline]{Add something about hard / soft constraints and the equivalence between conditioning
+	and constraints.  In particular, link back to the fact we talk about deterministic simulators as well
+	as stochastic.}

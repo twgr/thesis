@@ -18,7 +18,7 @@
 
 %%%%% THESIS / TITLE PAGE INFORMATION
 % Everybody needs to complete the following:
-\title{Automating Inference, Learning, and Design}
+\title{Using Probabilistic Programming to Automate Inference, Learning, and Design}
 \author{Tom Rainforth}
 \college{Wolfson College}
 
@@ -107,19 +107,21 @@
 	alsoletter={:},
 	alsoletter={*},
 	alsoletter={<-},
+	alsoletter={->},
 	commentstyle=\em \color{gray}, 
 	frame=lines,
 	%float=tbph,
 	% captionpos=b,
 	showstringspaces=false, 
 	keywordstyle=[1]\bf\ttfamily\color{blue},
-	keywords=[1]{BO,theta-best,bo-acquire,sample-initial-points,sample,observe,observe*,observe<-,predict,store,retrieve,return,catch,throw},
+	keywords=[1]{BO,theta-best,bo-acquire,sample-initial-points,sample,observe,observe*,observe<-,predict,mem,store,retrieve,return,catch,throw,
+		->sample,->observe},
 	keywordstyle=[2]\bf\ttfamily\color{red},
-	keywords=[2]{defn,if,let,letfn,loop,looppredict,recur},
+	keywords=[2]{defn,def,if,let,letfn,loop,looppredict,recur},
 	keywordstyle=[3]\bf\ttfamily\color{cyan},
-	keywords=[3]{absorb,assoc,argmax,count,cons,conj,dirichlet-discrete,do,exponential,first,flip,fn,gamma,beta,get,keys,lazy-seq,map,mvn-niw,nth,mat/add,mat/div,normal,print,produce,reduce,repeat,repeatedly,rest,set,shape,take,uniform-continuous,vec,distribution,factor,simulate,abc-likelihood,when,max,student-t},
+	keywords=[3]{absorb,assoc,argmax,count,cons,conj,dirichlet-discrete,do,exponential,first,flip,fn,gamma,beta,get,keys,lazy-seq,map,mvn-niw,nth,mat/add,mat/div,normal,print,produce,reduce,repeat,repeatedly,rest,set,shape,take,uniform-continuous,vec,distribution,factor,simulate,abc-likelihood,when,max,student-t,trampoline},
 	keywordstyle=[4]\bf\ttfamily\color{purple},
-	keywords=[4]{defopt,defquery,doopt,doquery,query,defdist},
+	keywords=[4]{defopt,defquery,doopt,doquery,query,defdist,infer,checkpoint,exec},
 	keywordstyle=[5]\ttfamily\color{orange},
 	keywords=[5]{:nu,:alpha,:id},
 	mathescape=true,

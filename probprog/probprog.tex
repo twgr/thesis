@@ -3,10 +3,25 @@
 \chapter{Probabilistic Programming -- the User's Perspective}
 \label{chp:probprog}
 
-Probabilistic programming systems (PPSs) allow users to define probabilistic models 
-using a domain-specific programming language or modeling library. A probabilistic program implicitly 
-defines a distribution on random variables, whilst the system back-end implements 
-general-purpose inference methods.  Two key challenges for a PPS are in providing the
+Probabilistic programming systems (PPSs) allow (Bayesian) probabilistic models to be represented in the 
+form of a generative model and statements for conditioning on data~\citep{gordon2014probabilistic,goodman2008church}.  
+Informally, one can think of the generative model as the definition of a prior, the conditioning 
+statements as the definition of a likelihood, and the output of the program as samples from a posterior distribution. 
+Their core philosophy is to decouple model specification and inference, the former 
+corresponding to the user-specified program code, which implicitly 
+defines a distribution on random variables, and the latter to an inference engine 
+capable of operating on arbitrary programs.  Removing the need for users to write 
+inference algorithms significantly reduces the burden of developing new models and 
+makes effective statistical methods accessible to non-experts.  The inference/model abstraction barrier 
+further means that some systems allow the definition of models that would be hard, or
+even impossible, to convey using conventional frameworks like graphical models.
+
+
+%Probabilistic programming systems (PPSs) allow users to define probabilistic models 
+%using a domain-specific programming language or modeling library. A probabilistic program implicitly 
+%defines a distribution on random variables, whilst the system back-end implements 
+%general-purpose inference methods.  
+Two key challenges for a PPS are in providing the
 syntax and semantics to allow easy definition of models, and in designing the solvers, i.e.
 inference engines, to provide effective inference for those models.
 In this chapter, we focus on the former of these, providing an introduction to 
@@ -44,21 +59,27 @@ by removing many of the complications of one while developing the other.
 %issues which we return to later), in particular demonstrating how we can use them to go beyond
 %standard inference frameworks and why we would want to do so.
 
+We note that it will be necessary at times during this chapter to refer briefly to some Bayesian inference
+algorithms that will not be properly introduced until Chapters\ref{chp:inf} and~\ref{chp:part}.  
+We have situated this chapter before those partly in order to emphasize the point that one should not 
+need an intricate knowledge of inference methods to \emph{use} PPSs.  Though it is difficult
+to introduce PPSs while completely omitting reference to inference methods, readers who
+are not familiar with inference methods should be able to safely ignore which methods are referred to
+at a first pass, noting only that different inference algorithms have different requirements and sets 
+of problems they perform well on, and thus that the design of a PPS is intricately linked to the inference
+method(s) used.
+
+\todo[inline]{Avoiding bugs in code
+	
+	Relationship with ABC - Church pretty indistinguishable, while modern systems exploit program itself}
+
 \input{probprog/sim.tex}
 \input{probprog/two.tex}
 \input{probprog/models.tex}
+\input{probprog/anglican.tex}
 
-\section{An Introduction to Anglican}
-\label{sec:probprog:anglican}
-
-One such general purpose system, \emph{Anglican}, will be used as a reference in this paper.  In Anglican, models are defined using the inference macro \defquery. These models, which we refer to as queries \citep{goodman_uai_2008}, specify a joint distribution $p(Y,X)$ over data $Y$ and variables $X$. Inference on the model is performed using the macro \doquery, which produces a sequence of approximate samples from the conditional distribution $p(X|Y)$ and, for importance sampling based inference algorithms (e.g. sequential Monte Carlo), a marginal likelihood estimate $p(Y)$.  
-
-Random variables in an Anglican program are specified using \sample statements, which can be thought of as terms in the prior. Conditioning is specified using \observe statements which can be thought of as likelihood terms.  Outputs of the program, taking the form of posterior samples, are indicated by the return values.  There is a finite set of \sample and \observe statements in a program source code, but the number of times each statement is called can vary between executions.  We refer the reader to  \href{http://www.robots.ox.ac.uk/~fwood/anglican/}{\small\url{http://www.robots.ox.ac.uk/~fwood/anglican/}} for more details.
-
-\section{Going Beyond Bayesian Inference}
-\label{sec:probprog:limit}
-
-\todo[inline]{
-Interpreters rather than custom languages
-
-Avoiding bugs in code}
+%
+%\section{Going Beyond Bayesian Inference}
+%\label{sec:probprog:limit}
+%
+%\todo[inline]{Memoization?}

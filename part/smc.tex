@@ -227,7 +227,7 @@ ancestor variable $a_{t-1}^i$ (as per~\eqref{eq:inf:resampling}) and then using 
 variable for that particle, i.e. $x_t^i \sim q_t(x_t | x_{1:t-1}^{a_{t-1}^i})$.  The particle system is then
 re-weighted as
 \begin{align}
-\label{eq:smcweights}
+\label{eq:part:smcweights}
 w_t^i = \frac{g_t(y_t|x_{1:t}^i) f_t(x_t^i | x_{1:t-1}^{a_{t-1}^i})}{q_t(x_t^i|x_{1:t-1}^{a_{t-1}^i})},
 \end{align}
 where $x_{1:t}^i = (x_{1:t-1}^{a_{t-1}^i},x_t^i)$.   Note that after resampling,
@@ -435,10 +435,12 @@ However, it does cause some complications from a theoretical perspective~\citep{
 form for the resampling criteria is to only resample if the effective sample size falls below a certain threshold,
 for which $N/2$ is a common choice~\cite{doucet2009tutorial}.
 
-\subsubsection{Optimal Proposals}
+\subsubsection{Proposals}
 \label{sec:part:smc:prat:opt}
 
-We finish the section by considering what the optimal proposals are for SMC.  Unfortunately it is not generally
+The practical performance os SMC can be critically dependent on the choice of proposal and
+so we finish our introduction by considering what constitutes a good proposal.  We first
+consider the question of what the theoretically optimal proposal is. Unfortunately it is not generally
 possible to establish the optimal proposal for the variance of the final estimate in the finite $N$ case, but we can
 calculate the so-called \emph{one-step optimal proposal} by minimizing the variance of the individual weights (and
 by proxy the marginal likelihood estimate) at the next iteration.  The one-step optimal proposal is given by
@@ -473,3 +475,21 @@ the \emph{one-step optimal proposal} is optimal more generally for the whole SMC
 not usually possible to analytically calculate the required normalization for $q_t^*(x_t | x_{1:t-1})$, it is
 not generally tractable.  Nonetheless, it provides a good guide for designing, or adapting for, effective proposal
 distributions.
+
+Another proposal of note, at least for the state space model case, is the so-called bootstrap proposal which
+corresponds to sampling from the transition distribution $f_t(x_t | x_{1:t-1})$.  The significance of this proposal
+is that it means that the weight calculation given in~\eqref{eq:part:smcweights} cancel to
+\begin{align}
+\label{eq:part:bootstrap-weights}
+w_t^i = g_t (y_t | x_{1:t}^i).
+\end{align}
+Consequently, if we use the bootstrap proposal we no need to be able to evaluate the transition distribution
+at a particular point, only sample from it.  Obviously this can be helpful for computational reasons (though
+it is rare that the effect of this outweighs using a better proposal if one is known), but it is also important
+because it can be the case that one only has access to a sampler for the transition and not the ability to evaluate
+the transition probability at an arbitrary point, e.g. when our sampler takes the form of a stochastic simulator.
+In the absence of other information, the transition can also be a reasonable choice of proposal in its own right as
+it is almost always more diffuse the one step posterior.  Its efficiency will in general depend on how relatively
+peaked the emission distribution is and the dimensionality of $x_t$ -- after all, each step in SMC is in
+isolation importance sampling.  One can usually beneficially use the next observation $y_t$ to help guide the
+the proposal, but doing this in a general purpose manner can be challenging~\citep{gu2015neural}.
