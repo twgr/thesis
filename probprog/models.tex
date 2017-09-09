@@ -10,8 +10,10 @@ show how we can translate Bayesian modeling into the framework of program code.
 In Chapter~\ref{chp:bayes} we showed how a Bayesian model is defined by a prior over
 parameters and a likelihood function for those parameters given the data.  This viewpoint will
 mostly translate into the probabilistic programming setting by equating between the prior
-and sampling statements and between the likelihood and conditioning statements, though as
-we explain in Section~\ref{sec:probprog:models:general}, this is not always true.
+and sampling statements and between the likelihood and conditioning statements.  However,
+in Section~\ref{sec:probprog:models:general} we will why explain why this is not always true
+and suggest a formulation, distinct to that commonly used in the literature, for how the 
+density implied by a query can be correctly represented.
 %At the end
 %of the section we will explain why this is actually a slight approximation (in short because we
 %might condition on internally sampled variables) but for most purposes this viewpoint will suffice.
@@ -306,49 +308,77 @@ up to the next \sample statement.
 Consequently, we can evaluate the probability of any particular trace as we run it, even though it might
 be challenging to evaluate the probability of a predefined configuration of the variables.
 
-Using this idea of execution paths, we can define an expression for the joint probability a query defines,
+Using this idea of execution paths, we can define an expression for the conditional probability a query defines,
 albeit in a complex and somewhat abstract manner that only really retains meaning in our probability calculation through
-evaluation mindset, by define the probability of a particular trace.  First let $\lambda$ denote all the 
+evaluation mindset, by defining the probability of a particular trace.  First let $\lambda$ denote all the 
 inputs to the query (including both parameters and
 data as we will now have no explicit distinction between the two).  Further let
-$n_x$ and $n_y$ as the number of \sample and \observe statements
-respectively invoked by the trace, noting that $n_x$ and $n_y$ are themselves random variables.
+$n_x$ and $n_y$ be the number of \sample and \observe statements
+respectively invoked by the trace, noting that $n_x$ and $n_y$ can themselves be random variables.
 We can now define $x_{1:n_x} = x_1,\dots,x_{n_x}$ and $y_{1:n_y} = y_1,\dots,y_{n_y}$ respectively as the
 outputs of our $n_x$ \sample statements and observation inputs for our $n_y$ \observe statements.
-Each $x_{i}$ is obvious a random variable, but we note that each $y_i$ might also be a random variable.  However,
-for the reasons explained in the last paragraph, each $y_{1:n_y}$ is deterministically calculable given $x_{1:n_x}$ and
-$\lambda$.
-We continue by defining $f_{1},\dots,f_{n_s}$ and $g_{1},\dots,g_{n_o}$ respectively as the $n_s$ \sample 
+Each $x_{i}$ is obviously a random variable, but we note that each $y_i$ might also be a random variable.  However,
+for the reasons explained in the previous paragraph, each $y_{1:n_y}$ is deterministically calculable given 
+$x_{1:n_x}$ and $\lambda$.
+We continue by defining $f_{1},\dots,f_{n_s}$ and $g_{1},\dots,g_{n_o}$ respectively as the densities (with respect to
+an implicitly defined measure) associated with the $n_s$ \sample 
 and $n_o$ \observe statements defined lexically within a raw program code (i.e. the distinct \sample and \observe
 statements defined anywhere within the query), noting that $n_s$ and $n_o$ are \emph{not} random variables.
-We will further use the notation $f_i(x_j|\phi_j)$  to denote the probability density functions
-(with implicit measure) associated with lexical \sample statement $i$ returning outputs $x_j$ when provided
+To express these densities, we use the notation $f_i(x_j|\phi_j)$ 
+to indicate the density of lexical \sample statement $i$ returning outputs $x_j$ when provided
 with distribution object $\phi_j$, which is itself a random variable but one which is fully determined by
 $x_{1:j-1}$ and $\lambda$.  Similarly, we use the notation $g_i(y_k|\psi_k)$ to express the density of
 using lexical \observe $g_i$ to observe output $y_k$ with distribution object $\psi_k$, which is a random
-variable fully determined by $x_{1:n_x}$ and $\lambda$.  Finally we define $a_j \in \{1,\dots,n_s\}, \; 
+variable fully determined by $x_{1:n_x}$ and $\lambda$.  We define $a_j \in \{1,\dots,n_s\}, \; 
 \forall j\in\{1,\dots,n_x\}$ and $b_k \in \{1,\dots,n_o\}, \; \forall k\in\{1,\dots,n_y\}$ as the
 random variables respectively used to index which of the lexical \sample and \observe statements
 correspond to the $j^{\text{th}}$ and $k^{\text{th}}$ execution trace \sample and \observe statement.
-We can now finally define the conditional distribution implied by our query up to a normalization constant
-as
+
+To encapsulates the notion of a valid trace, we define the boolean function $\mathcal{B}(x_{1:n_x},\lambda)$
+which returns $1$ if the trace is valid and $0$ otherwise.   This is something we can do not need
+to worry about if we take an evaluation based inference approach, whereby
+we rely on methods that only simulate from the generative model, but it is necessary to ensure that the density
+is well defined if we try to evaluate it at a predetermined point, chosen externally to the program.
+For example, $\mathcal{B}(x_{1:n_x},\lambda)$ is necessary to
+ensure that $x_{1:n_x}$ is a ``complete'' trace: it may be that a certain $x_{1:n_x}$
+implies that further \sample statements are still to be invoked after the $n_x^{\text{th}}$ in which case the
+trace is not valid as these additional outputs are undefined.  For example, if the program defines the distribution
+$\mathcal{N}(x_1;0,1)\mathcal{N}(x_2;0,1)\mathcal{N}(4;x_2,x_1)$ then the trace $x_1=3.2$ is incomplete
+and although there is well defined marginal on $x_1$, its density in general not equal to that implied by
+partial evaluation of the trace.  
+Similarly, we can use  $\mathcal{B}(x_{1:n_x},\lambda)$ to encode that in our example $P(n_x>2)=0$.  Meanwhile,
+$\mathcal{B}(x_{1:n_x},\lambda)$ also ensures that  all terms within the
+trace probability are well defined.  For example, if $x_{1:j-1}$ implies that $x_j$ should be a real number but the provided
+$x_j$ is a string then $f_{a_j} (x_j | \phi_j)$ will, in general, be undefined. 
+
+We now finally define the conditional distribution on the trace $\mT$
+implied by our query as
 \begin{align}
 \label{eq:probprog:universal-cond}
-p(x_{1:n_x} | \lambda)
-&\propto
+p(\mT = x_{1:n_x} | \lambda)
+\propto \begin{cases}
 \prod_{j=1}^{n_x} 
 f_{a_j}(x_j | \phi_j)
 \prod_{k=1}^{n_y}
-g_{b_k}(y_k | \psi_k)
+g_{b_k}(y_k | \psi_k) \quad \text{if} \quad \mathcal{B}(x_{1:n_x},\lambda)=1 \\
+0 \quad \text{otherwise}
+\end{cases}
 \end{align}
 noting that although the $a_j$, $\phi_j$, etc are random variables, they are all deterministically
-calculable given $x_{1:n_x}$, $\lambda$, and our query.  As a consequence, our unnormalized
-target distribution is well defined and implies a ``posterior'' simply through its normalization.
+calculable given $x_{1:n_x}$, $\lambda$, and our query.  Similarly $\mathcal{B}(x_{1:n_x},\lambda)$
+is a deterministic function implied by the program. As a consequence, our program implies a well
+defined unnormalized target distribution (presuming the normalization constant is finite and non-zero),
+which in turn implies a ``posterior'' through its normalization.  Note that this definition is
+explicitly on outcomes of the trace and so, in general, $p(\mT = x_{1:j} | \lambda) \neq
+\int p(\mT = x_{1:n_x} | \lambda) dx_{j+1:n_x}$.  In fact, it is always necessary that at least one of
+$p(\mT = x_{1:j} | \lambda)$ and $p(\mT = x_{1:n_x} | \lambda)$ are equal to zero if they share the
+same $x_{1:j}$ as a particular value
+of $x_{1:j}$ deterministically implies whether $n_x=j$ or not.
  \todo[inline]{Give an example program}
 
 Note that the right hand side of~\eqref{eq:probprog:universal-cond} does not necessarily
-correspond to a valid joint distribution because the ability to observe sampled variables and
-condition the \sample statements on the observations.  Therefore, as a simple example, our model
+correspond to a normalized joint distribution because the ability to observe sampled variables and
+condition the \sample statements on the observations.  As a simple example, our model
 might consist of a $x_1 \leftarrow$\sample(\normal(0,1)) term followed by an \observe(\normal(-1,2),~$x_1$)
 term.  This does not directly define any properly normalized joint distribution on any particular variables
 (noting $\mathcal{N}(x_1;0,1) \mathcal{N}(x_1;0,2)$ is an unnormalized distribution with only the variable
@@ -383,16 +413,25 @@ can view the marginalization as being the probability of the event $y=\eta(x,\la
 For our previous example we have $x:=a$, $y:=b$, $\eta(a,\lambda):=a$, $f(a):=p(a)$, and $g(b=a):=p(b=a|a)$.
 The same intuition applies to continuous cases where we now have the density of the event $y=\eta(x,\lambda)$.
 We can also think of $f(x|\lambda)g(\eta(x,\lambda)|x,\lambda)$ as defining a unnormalized distribution on $x$ whose
-normalization constant is of course $\int f(x|\lambda)g(\eta(x,\lambda)|x,\lambda) dx$.  In general, our normalization
+normalization constant is $\int f(x|\lambda)g(\eta(x,\lambda)|x,\lambda) dx$.  In general, our normalization
 constant will be a combination of conventional marginal likelihood terms and terms from these ``doubly defined''
 terms. We coin this normalization constant the \emph{marginal observation density}\footnote{Note this is not a
-	term that has previously appeared in the literature, where it is dubiously usually just referred to as a marginal
-	likelihood, while the right hand side of~\eqref{eq:probprog:universal-cond} is similarly questionably
-	referred to as the joint distribution defined by the query.} and note that it is given by
+	term that has previously appeared in the literature, where it is usually just referred to as a marginal
+	likelihood.  Similarly, it is common in the literature to refer to a query as defining a ``normalized 
+	joint'' density of $p_{\theta}(x_{1:n_x},y_{1:n_y}) = \prod_{j=1}^{n_x} f_{a_j}(x_j | \phi_j)
+	\prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k)$.  We have deviated from both of these because, as our examples
+	demonstrate, this viewpoint is technically a little questionable.  For example, $p_{\theta}(x_{1:n_x},y_{1:n_y})$
+	defined in this way might not be a correctly normalized distribution and the normalization constant
+	for the conditional distribution might not be a true marginal likelihood.  These distinctions will be
+	important in Chapters~\ref{chp:bopp} and~\ref{chp:nest} where we step outside the standard inference
+	framework.  For an even more rigorous treatment of the distributions defined by PPSs using push-forward
+	measures, we refer the reader to~\cite{staton2016semantics}. 
+	} and note that it is given by
 \begin{align}
 \label{eq:probprog:mod}
-Z(\lambda) = \E \left[ \prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k) | \lambda \right]
-= \iint \prod_{j=1}^{n_x} f_{a_j}(x_j | \phi_j) \prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k) dx_{1:n_x} dn_x
+Z(\lambda) &= \E \left[ \prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k) | \lambda \right] \nonumber\\
+&= \int_{x_{1:n_x} \in \{x_{1:n_x} : \mathcal{B}(x_{1:n_x},\lambda)=1\}} 
+\prod_{j=1}^{n_x} f_{a_j}(x_j | \phi_j) \prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k) dx_{1:n_x}
 \end{align}
 where the expectation is under running the query forwards (i.e. the distribution implied by simulating
 from an equivalent query with all the \observe statements removed) and 
@@ -414,7 +453,14 @@ actually have access to our implicitly defined prior and likelihood.
 Given our query is now defined to specify a unnormalized conditional distributions rather than a normalized
 joint distribution, it is natural to ask whether it is necessary for each \observe term to correspond to
 a correctly normalized density for its output, instead of just restricting it to be a positive semi-definite
-function representing an arbitrary soft constraint.  The answer is that it is not.  To this end, we define a 
+function representing an arbitrary soft constraint.  The answer is that it is not.  In fact, from a theoretical perspective,
+it perhaps easier
+to think of the density for a query as being defined by the product of the density of a correctly normalized generative
+model and a positive semi-definite \emph{score function} that applies an unnormalized weighting to any possible
+sample the generative model can produce, rather than by a combination of sampling and conditioning terms.  This is
+exactly the approach taken by~\citep{staton2016semantics} and~\citep{goodman_book_2014} who explicitly use such
+score functions, calling them {\small \texttt{score}} and {\small \texttt{factor}} respectively.
+We can also allow such functionality in our setup by defining a
 special distribution class, \boppfactor, which can only be used with \observe, takes no parameters, and 
 adds a factor to the trace probability equal to the exponentiation of the observed value.  Thus, for example, we could use
 \observe (\boppfactor$(),\log(g(\psi)))$ to factor the trace probability by the output of the function $g(\psi)$.
