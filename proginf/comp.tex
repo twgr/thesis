@@ -204,7 +204,7 @@ which have the call syntaxes of
 where \clj{id} is a unique checkpoint identifier (e.g. the $\{1,\dots,n_s\}$ and $\{1,\dots,n_o\}$ identifiers
 we used in~\ref{sec:probprog:models:general}) set at compilation time, and  \clj{dist} and \clj{value}
 are the original inputs to the \sample and \observe statements.  At a high level, one can
-think of a Clojure record as defining a new class type (here {\small \texttt{anglican.trap.sample}} and {\small \texttt{anglican.trap.observe}}
+think of a Clojure record as defining a new class type (here {\small \texttt{trap.sample}} and {\small \texttt{trap.observe}}
 respectively) with given fields (here \clj{:id}, \clj{:dist} etc).  Our constructors thus create
 an object of the given type with appropriately set fields.  The significance of this is that
 it allows definition of a multimethod, which we call \checkpoint, to provide a runtime polymorphism
@@ -256,7 +256,10 @@ program.  This is a highly desirable behavior, as it means the deterministic ele
 are run as normal.  Once returned, our multimethod \checkpoint is called using \clj{algorithm} and
 \clj{step}, which distributes to the appropriate \checkpoint implementation based on the value of
 \clj{algorithm} and the type of \clj{step} (e.g. calling to the \sample checkpoint method of an algorithm 
-if it is of type  {\small \texttt{anglican.trap.sample}}).  Invoking the appropriate checkpoint will cause
+if it is of type  {\small \texttt{trap.sample}}).  Note that individual \checkpoint implementations
+are based on using \clj{step} as the only input of note, which, as we remember, is a Clojure record
+containing fields providing information on the distribution object, the state, etc.
+Invoking the appropriate checkpoint method will cause
 inference algorithm specific behavior, e.g. updating a weight in \angstate, and provide a return value
 \clj{next}.  If \clj{next} is a function, the loop
 is recurred, with \clj{step} now replaced by the output of a trampolined call of \clj{next}.  If \clj{next} is

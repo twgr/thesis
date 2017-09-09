@@ -36,8 +36,18 @@ what we discuss will still be relevant to other universal systems, in particular
 are also built around \sample-\observe syntaxes, such as VentureScript~\citep{mansinghka2014venture}, 
 WebPPL~\citep{goodman_book_2014}, and Probabilistic C~\citep{paige2014compilation}.
 
+\input{proginf/high.tex}
 \input{proginf/comp.tex}
 \input{proginf/basic.tex}
 
-\section{Particle Based Inference for Probabilistic Programs}
-\label{sec:proginf:part}
+\section{General Purpose Inference Strategies}
+\label{sec:proginf:str}
+
+Before jumping into describing some specific inference algorithms for
+Anglican, we first link our compilation back to the execution-based 
+definition of the conditional distribution specified by a program given in 
+Section~\ref{sec:probprog:models:general} and consider what classes of inference
+algorithms might be able to operate in such settings. 
+
+\subsection{Particle Based Inference for Probabilistic Programs}
+\label{sec:proginf:str:part}

@@ -216,25 +216,25 @@ along with the corresponding graphical models and joint distributions they defin
 Other than \sample and \observe statements, the rest of our query is by construction totally deterministic.  Therefore,
 though it may contain random variables other than $x_{1:T}$, these random variables are deterministic
 functions of the ``raw'' random draws $x_{1:T}$ and inputs $\theta$ and $y_{1:S}$.  We can therefore 
-define the outputs of our query as $z := h(x_{1:T},y_{1:S},\theta)$ for some deterministic function $h$.
-As we explained in Section~\ref{sec:prob:measure}, the change of variables means that the density function on $z$,
-$p(z | y_{1:S}, \theta) $
+define the outputs of our query as $\Omega := h(x_{1:T},y_{1:S},\theta)$ for some deterministic function $h$.
+As we explained in Section~\ref{sec:prob:measure}, the change of variables means that the density function on $\Omega$,
+$p(\Omega | y_{1:S}, \theta) $
 can have a different form to the posterior implied by our query, namely $p(x_{1:T} | y_{1:S}, \theta)$.
   Though this is a serious complication in the
-context of optimization (we may not in general be able to find $\argmax_z p(z|y_{1:S},\theta)$
-or even evaluate $p(z | y_{1:S}, \theta)$ exactly), it
+context of optimization (we may not in general be able to find $\argmax_{\Omega} p(\Omega|y_{1:S},\theta)$
+or even evaluate $p(\Omega | y_{1:S}, \theta)$ exactly), it
 is perfectly acceptable in the context of calculating expectations as
 \begin{align}
-\int f(z) p(z | y_{1:S}, \theta) dz = \int f(h(x_{1:T}, y_{1:S}, \theta)) p(x_{1:T} | y_{1:S}, \theta) dx_{1:T}
+\int f(\Omega) p(\Omega | y_{1:S}, \theta) d\Omega = \int f(h(x_{1:T}, y_{1:S}, \theta)) p(x_{1:T} | y_{1:S}, \theta) dx_{1:T}
 \end{align}
-for implicitly defined measures $dz$ and $dx_{1:T}$.  One consequence of this is that
+for implicitly defined measures $d\Omega$ and $dx_{1:T}$.  One consequence of this is that
 we can express any expectations calculated by our query as expectations over $p(x_{1:T} | y_{1:S}, \theta)$
 which was fully defined by the joint~\eqref{eq:probprog:simple-joint}.  Another is that, provided we are not worried
 about carrying out optimizations, we do not need to explicitly worry about the implicit measures defined
 by the definition of our query, other than any potential effects on the inference scheme.  In particular,
-if our aim is to generate samples from $p(z | y_{1:S}, \theta)$ then we can simply generate samples then
+if our aim is to generate samples from $p(\Omega | y_{1:S}, \theta)$ then we can simply generate samples then
 we can simply generate samples from $p(x_{1:T} | y_{1:S}, \theta)$ and then deterministically convert each
-sample to the space of $z$.  In other words, our inference engine does not need to worry about
+sample to the space of $\Omega$.  In other words, our inference engine does not need to worry about
 the consequences of changes of variables if our intended output is just a sequence of samples.
 
 An important point to note is that~\eqref{eq:probprog:simple-joint} shows that all of our \sample
@@ -314,11 +314,22 @@ evaluation mindset, by defining the probability of a particular trace.  First le
 inputs to the query (including both parameters and
 data as we will now have no explicit distinction between the two).  Further let
 $n_x$ and $n_y$ be the number of \sample and \observe statements
-respectively invoked by the trace, noting that $n_x$ and $n_y$ can themselves be random variables.
+respectively invoked by the trace, noting that $n_x$ and $n_y$ may themselves be random variables and could
+potentially be unbounded (e.g. $n_x$ could follow a Poisson distribution).
 We can now define $x_{1:n_x} = x_1,\dots,x_{n_x}$ and $y_{1:n_y} = y_1,\dots,y_{n_y}$ respectively as the
 outputs of our $n_x$ \sample statements and observation inputs for our $n_y$ \observe statements.
+Note the key point that each $x_j$ is not in general a variable in our program and so cannot be overwritten
+or edited.  It is perhaps easiest to think of each $x_j$ as being a new variable that is created whenever a sample
+statement is invoked.  We can use this variable, either directly or by assigning its value to another variable,
+but the $x_j$ is itself protected and cannot be changed.  For example, we can think of
+$a \leftarrow$\clj{sample(dist)} as creating a protected variable $x_j$ and then immediately assigning its
+value to $a$.  Because the rest of the program, including the outputs, is a deterministic function of \sample
+statement outputs, then, provided this constitutes a measurable function,\todo{might need to elaborate} we
+can produces samples of, or calculate expectations with respect to, any variable or output of the program
+by dealing probabilistically only with the $\xnx$.
+
 Each $x_{i}$ is obviously a random variable, but we note that each $y_i$ might also be a random variable.  However,
-for the reasons explained in the previous paragraph, each $y_{1:n_y}$ is deterministically calculable given 
+for the reasons already explained, each $y_{1:n_y}$ is deterministically calculable given 
 $x_{1:n_x}$ and $\lambda$.
 We continue by defining $f_{1},\dots,f_{n_s}$ and $g_{1},\dots,g_{n_o}$ respectively as the densities (with respect to
 an implicitly defined measure) associated with the $n_s$ \sample 
@@ -335,7 +346,7 @@ random variables respectively used to index which of the lexical \sample and \ob
 correspond to the $j^{\text{th}}$ and $k^{\text{th}}$ execution trace \sample and \observe statement.
 
 To encapsulates the notion of a valid trace, we define the boolean function $\mathcal{B}(x_{1:n_x},\lambda)$
-which returns $1$ if the trace is valid and $0$ otherwise.   This is something we can do not need
+which returns $1$ if the trace is valid and $0$ otherwise.   This is something we do not need
 to worry about if we take an evaluation based inference approach, whereby
 we rely on methods that only simulate from the generative model, but it is necessary to ensure that the density
 is well defined if we try to evaluate it at a predetermined point, chosen externally to the program.
@@ -352,11 +363,11 @@ trace probability are well defined.  For example, if $x_{1:j-1}$ implies that $x
 $x_j$ is a string then $f_{a_j} (x_j | \phi_j)$ will, in general, be undefined. 
 
 We now finally define the conditional distribution on the trace $\mT$
-implied by our query as
+implied by our query as $p(\mT = x_{1:n_x} | \lambda)
+\propto \gamma(x_{1:n_x}, \lambda)$ where
 \begin{align}
 \label{eq:probprog:universal-cond}
-p(\mT = x_{1:n_x} | \lambda)
-\propto \begin{cases}
+\gamma(x_{1:n_x}, \lambda) = \begin{cases}
 \prod_{j=1}^{n_x} 
 f_{a_j}(x_j | \phi_j)
 \prod_{k=1}^{n_y}
@@ -367,8 +378,9 @@ g_{b_k}(y_k | \psi_k) \quad \text{if} \quad \mathcal{B}(x_{1:n_x},\lambda)=1 \\
 noting that although the $a_j$, $\phi_j$, etc are random variables, they are all deterministically
 calculable given $x_{1:n_x}$, $\lambda$, and our query.  Similarly $\mathcal{B}(x_{1:n_x},\lambda)$
 is a deterministic function implied by the program. As a consequence, our program implies a well
-defined unnormalized target distribution (presuming the normalization constant is finite and non-zero),
-which in turn implies a ``posterior'' through its normalization.  Note that this definition is
+defined, normalized, conditional distribution, or ``posterior, on the produced traces
+(presuming the normalization constant is finite and non-zero). 
+Note that this definition is
 explicitly on outcomes of the trace and so, in general, $p(\mT = x_{1:j} | \lambda) \neq
 \int p(\mT = x_{1:n_x} | \lambda) dx_{j+1:n_x}$.  In fact, it is always necessary that at least one of
 $p(\mT = x_{1:j} | \lambda)$ and $p(\mT = x_{1:n_x} | \lambda)$ are equal to zero if they share the
@@ -376,8 +388,10 @@ same $x_{1:j}$ as a particular value
 of $x_{1:j}$ deterministically implies whether $n_x=j$ or not.
  \todo[inline]{Give an example program}
 
-Note that the right hand side of~\eqref{eq:probprog:universal-cond} does not necessarily
-correspond to a normalized joint distribution because the ability to observe sampled variables and
+Note that $\gamma(x_{1:n_x}, \lambda)$ is not in general a normalized joint distribution.  Firstly,
+and most obviously, $\lambda$ might contain terms, referred to as $\theta$ before, that are not
+observed and so have no implied density.  Secondly, and more critically, even if $\theta = \emptyset$,
+$\gamma(x_{1:n_x}, \lambda)$ is not necessarily correctly normalized, because of the ability to observe sampled variables and
 condition the \sample statements on the observations.  As a simple example, our model
 might consist of a $x_1 \leftarrow$\sample(\normal(0,1)) term followed by an \observe(\normal(-1,2),~$x_1$)
 term.  This does not directly define any properly normalized joint distribution on any particular variables
@@ -387,8 +401,8 @@ query in our universal PPL setup in closed form -- we might actually need to emp
 the normalization constant to evaluate the joint.  This actually steps outside the conventional Bayesian
 modeling framework and raises a number of interesting theoretical questions.  However, from a
 practical perspective, we can note that provided the implicitly define normalization constant is finite,
-the query also implicitly defines a correctly normalized conditional distribution (noting that the right
-hand side of ~\eqref{eq:probprog:universal-cond} is always $\ge0$).
+the query also implicitly defines a correctly normalized conditional distribution (noting that
+$\gamma(x_{1:n_x}, \lambda) \ge0$).
 This is analogous to knowing the joint but not the posterior in Bayesian inference, but not exactly
 equivalent because the normalization constant is no longer the marginal likelihood.
 
@@ -414,7 +428,7 @@ For our previous example we have $x:=a$, $y:=b$, $\eta(a,\lambda):=a$, $f(a):=p(
 The same intuition applies to continuous cases where we now have the density of the event $y=\eta(x,\lambda)$.
 We can also think of $f(x|\lambda)g(\eta(x,\lambda)|x,\lambda)$ as defining a unnormalized distribution on $x$ whose
 normalization constant is $\int f(x|\lambda)g(\eta(x,\lambda)|x,\lambda) dx$.  In general, our normalization
-constant will be a combination of conventional marginal likelihood terms and terms from these ``doubly defined''
+constant will be a combination of conventional marginal likelihood terms and contributions from these ``doubly defined''
 terms. We coin this normalization constant the \emph{marginal observation density}\footnote{Note this is not a
 	term that has previously appeared in the literature, where it is usually just referred to as a marginal
 	likelihood.  Similarly, it is common in the literature to refer to a query as defining a ``normalized 
@@ -429,7 +443,7 @@ terms. We coin this normalization constant the \emph{marginal observation densit
 	} and note that it is given by
 \begin{align}
 \label{eq:probprog:mod}
-Z(\lambda) &= \E \left[ \prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k) | \lambda \right] \nonumber\\
+Z(\lambda) &= \E \left[ \prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k) | \lambda \right] = \int \gamma(x_{1:n_x},\lambda) dx_{1:n_x}\nonumber\\
 &= \int_{x_{1:n_x} \in \{x_{1:n_x} : \mathcal{B}(x_{1:n_x},\lambda)=1\}} 
 \prod_{j=1}^{n_x} f_{a_j}(x_j | \phi_j) \prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k) dx_{1:n_x}
 \end{align}
@@ -450,14 +464,14 @@ beyond this framework to specify some models.  When we do, we still have an impl
 same way that Bayes' rule means that a prior and a likelihood implicitly define a posterior, but we may not
 actually have access to our implicitly defined prior and likelihood.
 
-Given our query is now defined to specify a unnormalized conditional distributions rather than a normalized
+Given our query is now defined to specify a unnormalized conditional distribution rather than a normalized
 joint distribution, it is natural to ask whether it is necessary for each \observe term to correspond to
 a correctly normalized density for its output, instead of just restricting it to be a positive semi-definite
 function representing an arbitrary soft constraint.  The answer is that it is not.  In fact, from a theoretical perspective,
-it perhaps easier
-to think of the density for a query as being defined by the product of the density of a correctly normalized generative
+it perhaps easier to not think of the distribution defined by the query as being a combination of sampling and conditioning terms,
+but instead the product of the density of a correctly normalized generative
 model and a positive semi-definite \emph{score function} that applies an unnormalized weighting to any possible
-sample the generative model can produce, rather than by a combination of sampling and conditioning terms.  This is
+sample the generative model can produce.  This is
 exactly the approach taken by~\citep{staton2016semantics} and~\citep{goodman_book_2014} who explicitly use such
 score functions, calling them {\small \texttt{score}} and {\small \texttt{factor}} respectively.
 We can also allow such functionality in our setup by defining a
