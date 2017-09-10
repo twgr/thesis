@@ -6,19 +6,28 @@
 Non-probabilistic languages can be either compiled, whereby high-level source code
 is converted to a lower level language (e.g. byte-code) before being evaluated, or interpreted,
 whereby an interpreter reads the program and directly evaluates it based on the language
-semantics.  Other than some earlier systems that were based around guess-and-check 
-type strategies, PPLs by construction tend to require some form compilation due to the fact that
-the original code will typically run many times and because they tend to be integrated
-with an existing language, such that they generally require compilation to the host language
-before anything can be run.  Rather than just being a technical hurdle, compilation is also 
+semantics.
+The same is true for PPLs, for which compilation using comprises of converting the
+query to a model artifact in a host language in which the inference algorithm itself is
+written.  Though its original implementation was interpreted, the current version of
+Anglican is compiled and our focus will be on this compiled approach.
+%Other than some earlier systems that were based around guess-and-check 
+%type strategies, PPLs by construction tend to require some form compilation due to the fact that
+%the original code will typically run many times and because they tend to be integrated
+%with an existing language, such that they generally require compilation to the host language
+%before anything can be run.  
+Rather than just being a technical hurdle, compilation is also 
 often an important tool in the ability of probabilistic programming systems to perform
-effective inference as it can often be used to establish helpful salient features in the model,
+effective inference as, in additional to offering potential speed improvements,
+it can often be used to establish helpful salient features in the model,
 such as dependency structures, variable types, and features of the model that can guide
 which inference algorithm is likely to be most successful or even elements of the model
 that can be calculated analytically.  Hakaru~\citep{narayanan2016probabilistic} is a good
 example of what can be achieved in probabilistic programming through compilation alone,
 as it, for example, uses the computer algebra system Maple to automatically simplify models
-when possible.
+when possible.  Once a compiler is written for a PPL, this often substantially simplifies
+the process of writing new inference algorithms by providing a common representation of
+models and allowing inheritance from existing algorithms.
 
 \subsection{What do we want to Achieve through Compilation?}
 \label{sec:proginf:comp:want}

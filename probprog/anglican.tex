@@ -3,9 +3,6 @@
 \section{The Anglican Probabilistic Programming Language}
 \label{sec:probprog:anglican}
 
-\todo[inline]{Need a load more examples, particularly if going to keep the current structure of having
-	this before the introduction to inference.}
-
 To allow for a more precise consideration of issues associated with designing and using a universal
 PPS, we now introduce the particular language \emph{Anglican}~\citep{wood2014new,tolpin2016design},
 which we will use for reference throughout the rest of the thesis.  
@@ -179,6 +176,112 @@ be called from inside queries, but must be provided with appropriate wrapping to
 this is done automatically (except when the function itself is higher order) using the macro
 {\small \lsi{with-primitive-procedures}} that takes as inputs Clojure functions and creates an environment where
 these functions have been converted to their appropriate CPS forms.
+
+\begin{figure}[p]
+	\centering
+	\begin{subfigure}[t]{0.45\textwidth}
+			\centering	
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize]
+(defquery lin-reg [xs ys]
+ (let [m (sample (normal 0 10))  
+       c (sample (normal 0 3))
+       s (sample (gamma (1 1)))
+       f (fn [x] (+ (* m x) c))]
+  (map (fn [x y]
+    (observe 
+      (normal (f x) s) y))
+   xs ys)
+ [m c s])
+\end{lstlisting}				
+			\caption{Linear regression model with unknown
+				observation variance.  Here \clj{xs} and
+	 \clj{ys} are the data comprising of the inputs and corresponding
+	 outputs of the regression.  The query returns estimates
+	 for the slope \clj{m}, the intercept \clj{c}, and the observation
+	 standard deviation (i.e. noise) \clj{s}. \label{fig:probprog:lregang}
+		}
+	\end{subfigure}
+~~
+	\begin{subfigure}[t]{0.52\textwidth}
+		\centering	
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize]
+(defquery discrete-hmm
+ [ys x0 trans obs]
+ (loop [xs x0 t 0]
+  (let 
+   [x (sample (nth trans (last xs)))]
+   (observe (nth obs x) 
+     (nth ys t))
+   (if (= (inc t) (count ys))
+    (conj xs x)
+    (recur (conj xs x) (inc t))))))
+\end{lstlisting}	
+		\caption{Hidden Markov model with discrete states.
+	Here \clj{ys} is the data, \clj{x0} is a starting state (which
+	has no associated observation), \clj{trans} is the collection of 
+	transition distribution objects for each of the $K$ possible states
+	(index by the value of $x_t$), and \clj{obs} are the matching
+	emission distributions.	Query returns
+	estimates for the latent states \clj{xs}.\label{fig:probprog:hmm}
+		 }
+	\end{subfigure}
+\begin{subfigure}[t]{\textwidth}
+		\centering	
+\vspace{5pt}		
+\rule{\linewidth}{0.4pt}
+\vspace{-28pt}		
+		\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,multicols=2,frame=none]
+(defdist nuke [volatility] []
+ (sample* [this] 
+   (if (sample* (flip volatility)) 
+        :boom :safe))
+ (observe* [this value] 
+  (observe* (flip volatility) 
+    (= value :boom))))
+  
+(declare don kim)
+
+(with-primitive-procedures [nuke]
+ (defm don [depth]
+  (let [don-nuke (nuke 0.1)
+        kim-nuke (kim (dec depth))]
+   (observe don-nuke kim-nuke)
+   kim-nuke))
+   
+(defm kim [depth]
+ (let [kim-nuke (nuke 0.2)]
+  (if (> depth 0)
+   (let [don-nuke (don depth)]
+    (observe kim-nuke don-nuke)
+    don-nuke)
+  (sample kim-nuke))))
+
+(defquery oblivion [depth]
+  (or (= (don depth) :boom)
+      (= (kim depth) :boom))))
+\end{lstlisting}	
+\vspace{-20pt}		
+\rule{\linewidth}{0.4pt}
+%\vspace{5pt}
+		\caption{Schelling co-ordination game~\citep{schelling1980strategy,stuhlmuller2014reasoning}
+			adapted from implementation in Anglican online examples developed by Brooks Paige and Frank Wood.
+See~\url{http://www.robots.ox.ac.uk/~fwood/anglican/examples/} for a wider array of examples an a more
+detailed introduction to this particular model.  Here we define a custom distribution for how trigger
+happy a country's leader might be.  We then construct Anglican functions using \defm for modeling two hypothetical
+leaders called \lsi{don} and \lsi{kim}.  Each has their own volatility but also the ability to reason about the
+other, for which we presume they have access to the exact behavior model.  
+			\label{fig:probprog:schell}
+		}
+\end{subfigure}
+	\caption{Example Anglican queries for some simple models. Here \defquery
+		binds a query to a variable, for which inference can be run using \doquery with syntax
+		{\footnotesize \lsi{(doquery inf-alg model inputs & options)}}. 
+		For example, we could call {\footnotesize \lsi{(doquery :ipmcmc
+		lin-reg [xs ys] :number-of-particles 1000)}}  for some
+        predefined \lsi{xs} and \lsi{ys} to run iPMCMC inference (see Section~\ref{sec:part:ipmcmc}))
+        on the \lsi{lin-reg} model with with 1000 particles.
+        \label{fig:probprog:example-ang}}
+\end{figure}
 
 We finish our introduction by noting the ability of Anglican to \emph{nest} queries within one another.  This
 is somewhat experimental and comes with a number of health warnings because, as we will explain in Chapter~\ref{chp:nest},
