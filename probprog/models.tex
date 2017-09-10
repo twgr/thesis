@@ -386,10 +386,87 @@ explicitly on outcomes of the trace and so, in general, $p(\mT = x_{1:j} | \lamb
 $p(\mT = x_{1:j} | \lambda)$ and $p(\mT = x_{1:n_x} | \lambda)$ are equal to zero if they share the
 same $x_{1:j}$ as a particular value
 of $x_{1:j}$ deterministically implies whether $n_x=j$ or not.
- \todo[inline]{Could do with an example figure}
 
-Note that $\gamma(x_{1:n_x}, \lambda)$ is not in general a normalized joint distribution.  Firstly,
-and most obviously, $\lambda$ might contain terms, referred to as $\theta$ before, that are not
+An illustrative example for calculating the probability of a program through execution traces
+for a problem that cannot not be expressed using our simplified PPL or a graphical model, but
+which is simple to write in our universal framework is shown in Figure~\ref{fig:probprog:poisson}.
+Imagine we want to calculate the unnormalized trace probability
+$\gamma(x_{1:n_x}=[0.2,0.07],\lambda=4)$ which we can do by stepping through the program and accumulating
+terms (for reference we will be following the cyan path
+in Figure~\ref{fig:probprog:poi-traces}).  
+On our path we first hit $f_1(x_1 | \phi_1) = \textsc{Uniform}(0.2;0,1) = 1$, we fix $u\leftarrow x_1$
+and $p\leftarrow 1\cdot u$, and test if $p=0.2\le \exp(-4) \approx 0.0183$.  This gives false
+and so we do not break the while loop, instead encountering
+$g_2(y_1 | \psi_1) = \textsc{Bernoulli}(1;0.2) = 0.2$ and so our running value for
+$\gamma(x_{1:n_x}=[0.2,0.07],\lambda=4)$ is $1\times0.2 = 0.2$.  Updating $k\leftarrow1$ and
+going back to the
+start of the while loop we encounter $f_1(x_2 | \phi_2) = \textsc{Uniform}(0.07;0,1) = 1$,
+so our running score is $1\times0.2\times1=0.2$.
+Reassigning $u$ and $p$ we see that  $p=0.014\le \exp(-4)$ is now true and so we take
+the opposite branch to before with our if statement, thus breaking the while loop.  To
+finish the program we pass through $g_1(y_2 | \psi_2) = \textsc{Bernoulli}(k>3;0.99) = 0.01$
+giving the final unnormalized density of $\gamma(x_{1:n_x}=[0.2,0.07],\lambda=4)=0.002$ and an output of $k=1$.
+We finish by checking that our trace was valid, which we can easily see is the case because
+no terms were undefined and we generated the correct number of sample outputs (i.e. $n_x=2$ as
+required).
+
+\begin{figure}[p]
+	\centering
+	\vspace{-10pt}
+	\begin{minipage}[t]{\textwidth}
+		\centering
+		\includegraphics[width=0.75\textwidth]{probprog/figures/traces.pdf}			
+					\subcaption{Possible traces for our query.  \sample statements are shown in red,
+						\observe statements are shown in shades of green, and deterministic
+						computations (given the outputs of the \sample statements) are shown in shades
+						of blue.  Subscripts for the sample and observe statements show the lexical index
+(i.e. $a_j \in \{1\}$ and $b_k\in\{1,2\}$), as do the different shades.  The cyan arrows correspond to
+a particular execution path which gives output $k=1$ and has $n_x=2$, $n_y=2$, $b_1=2$, and $b_2=1$.
+Valid traces for this path must have $x_1>\exp(-\lambda)$ and $x_2 \le \exp(-\lambda)/x_1$.
+						\label{fig:probprog:poi-traces}
+					}
+	\vspace{10pt}
+	\end{minipage}
+		\begin{minipage}[b]{0.49\textwidth}
+			\begin{algorithmic}[1]
+				\renewcommand{\algorithmicrequire}{\textbf{Inputs:}}
+				\renewcommand{\algorithmicensure}{\textbf{Outputs:}}			 
+				\Require Event rate $\lambda$ 
+				\State $L\leftarrow\exp(-\lambda)$, ~$k\leftarrow0$, ~$p\leftarrow1$
+				\While{$p>L$}
+				\State $u\leftarrow$\sample$(\textsc{Uniform}(0,1))$
+				\State $p\leftarrow pu$
+				\IIf{$p\le L$}; \textbf{break while}; \EndIIf
+				\State \observe(\textsc{Bernoulli}(0.2), 1)
+				\State $k\leftarrow k+1$
+				\EndWhile
+				\State \observe(\textsc{Bernoulli}(0.99),~$\mathbb{I}(k\text{>}3)$)
+				\State \Return $k$
+			\end{algorithmic}
+			\subcaption{Query code for warped Poisson sampler\label{fig:probprog:poi-code}}
+		\end{minipage}
+				\begin{minipage}[b]{0.49\textwidth}
+					\centering	~~
+					\includegraphics[width=0.95\textwidth]{probprog/figures/poisson_plot.pdf}			
+					\subcaption{Conditional distribution on $k$ for $\lambda=4$.\label{fig:probprog:poi-res}
+					}
+				\end{minipage}
+	\caption{Demonstration of execution stochastic execution traces using a warper
+		Poisson sampler.  The query defined in \textbf{(b)} would output $k$ as per a Poisson
+		distribution with event rate $\lambda$ if it were not for the \observe statements~\citep{paige2017thesis}.
+		As shown in \textbf{(c)} though, these \observe statements warp the distribution to
+		give a lighter tail while discouraging $k\le3$.   Here both $n_x \in \mathbb{N}^+$ and
+		$n_y \in \mathbb{N}^+$ depend on the trace and are unbounded.  Which
+		\observe we see first is also probabilistic, while it some traces will be invalid, e.g. $x_{1:n_x}=[1,0.5]$
+		as $x_1=1$ indicates there will be only a single \sample encountered.  Nonetheless, we can
+		calculate the probability of a trace by following its path to completion while
+		accumulating \sample and \observe factors.
+		\label{fig:probprog:poisson}}
+\end{figure}
+
+
+In general, $\gamma(x_{1:n_x}, \lambda)$ is not a normalized joint distribution.  This firstly,
+and most obviously, because $\lambda$ might contain terms, referred to as $\theta$ before, that are not
 observed and so have no implied density.  Secondly, and more critically, even if $\theta = \emptyset$,
 $\gamma(x_{1:n_x}, \lambda)$ is not necessarily correctly normalized, because of the ability to observe sampled variables and
 condition the \sample statements on the observations.  As a simple example, our model
