@@ -137,47 +137,10 @@ distribution given by
 p(\mu,\sigma,y_{1:S}) = \mathcal{N}(\mu ; 0,1) \; \textsc{Gamma}(\sigma ; 2, 2) \prod_{s=1}^{S} \mathcal{N}(y_s ; \mu, \sigma)
 \end{align}
 where we have defined $\mu:=${\small \lsi{mu}}, $sig:=${\small \lsi{sig}}, and $y_{1:S}:=${\small \lsi{data}}.
+Other more complicated example Anglican models are given in Figures~\ref{fig:probprog:example-ang}
+and~\ref{fig:probprog:schell}.
 
-Compilation of an Anglican program is performed by the macro \query.  Calling \query
-invokes a source-to-source compilation from an Anglican query to a continuation-passing 
-style (CPS) Clojure function that can be executed using a particular inference algorithm.  We
-leave discussing what this means in depth to Chapter~\ref{chp:proginf}, noting only that
-the inference algorithms associated with Anglican are written in pure Clojure (except for the odd
-bit of Java code) and the aim of the compilation is to product a model artifact which can be
-interpreted by that inference code.
-When \defquery is called, Anglican internally calls the \query and assigns the output to
-the symbol provided by the first argument of \defquery.  Therefore {\small \lsi{my-query}} in
-our example is Clojure function that can be read by the Anglican inference engines to produce
-approximate samples from the conditional distribution.  Note that, as a Clojure function, the
-inputs and body of {\small \lsi{my-query}} and not as per lexical definition of the Anglican program
-(e.g. in now takes multiple inputs).  It is instead a function that encodes all the information 
-required by the inference engine to perform inference and has the corresponding required call structure
-for the input required by the engine.
-
-Inference on the model is performed using the macro \doquery, which produces a lazy infinite sequence of 
-approximate samples from the conditional distribution and, for appropriate inference algorithms,
- an estimate of the marginal observation density.
-The syntax of \doquery is {\small \lsi{(doquery inf-alg model inputs & options)}} where {\small \lsi{inf-alg}}
-specifies an inference algorithm, e.g. {\small \lsi{:ipmcmc}}, {\small \lsi{model}} is our query, {\small \lsi{inputs}}
-is a vector if inputs to the query, the \& represents that there might be multiple additional inputs, and {\small \lsi{options}}
-are is a series of option-value pairs for the inference engine.  For example, to produce 100 samples from
-our {\small \lsi{my-query}} model with data {\small \lsi{[2.1 5.2 1.1]}} using the LMH inference algorithm with no
-additional options, we can write {\small \lsi{(take 100 (doquery :lmh my-query [2.1 5.2 1.1]))}}.
-
-Although Anglican mostly inherits Clojure syntax, some complications arise from the compilation to
-CPS-style Clojure functions.  It is thus not possible to na\"{i}vely use all Clojure functions inside Anglican
-without providing appropriate information to the compiler to perform the required transformation.
-The transformation for many core Clojure functions has been code manually such that they form
-part of the Anglican syntax and can be used directly.  Anglican further allows users to write functions externally
-to \defquery using the macro \defm, which is analogous to \defn in Clojure and has the same call syntax (except
-for being restricted input, though as this can be a vector, this places no restrictions on the functions that can be
-written), which can then be called from inside the query without restrictions.  Other deterministic Clojure functions can also
-be called from inside queries, but must be provided with appropriate wrapping to assist the compiler.  Thankfully
-this is done automatically (except when the function itself is higher order) using the macro
-{\small \lsi{with-primitive-procedures}} that takes as inputs Clojure functions and creates an environment where
-these functions have been converted to their appropriate CPS forms.
-
-\begin{figure}[p]
+\begin{figure}[t]
 	\centering
 	\begin{subfigure}[t]{0.45\textwidth}
 			\centering	
@@ -225,63 +188,129 @@ these functions have been converted to their appropriate CPS forms.
 	estimates for the latent states \clj{xs}.\label{fig:probprog:hmm}
 		 }
 	\end{subfigure}
-\begin{subfigure}[t]{\textwidth}
+		\caption{Example Anglican queries for some simple models. Here \defquery
+			binds a query to a variable, for which inference can be run using \doquery. 
+			with syntax
+			{\footnotesize \lsi{(doquery inf-alg model inputs & options)}}. 
+			For example, we could call {\footnotesize \lsi{(doquery :ipmcmc
+					lin-reg [xs ys] :number-of-particles 1000)}}  for some
+			predefined \lsi{xs} and \lsi{ys} to run iPMCMC inference (see Section~\ref{sec:part:ipmcmc}))
+			on the \lsi{lin-reg} model with with 1000 particles.
+			\label{fig:probprog:example-ang}}
+\end{figure}
+
+Compilation of an Anglican program is performed by the macro \query.  Calling \query
+invokes a source-to-source compilation from an Anglican query to a continuation-passing 
+style (CPS) Clojure function that can be executed using a particular inference algorithm.  We
+leave discussing what this means in depth to Chapter~\ref{chp:proginf}, noting only that
+the inference algorithms associated with Anglican are written in pure Clojure (except for the odd
+bit of Java code) and the aim of the compilation is to product a model artifact which can be
+interpreted by that inference code.
+When \defquery is called, Anglican internally calls the \query and assigns the output to
+the symbol provided by the first argument of \defquery.  Therefore {\small \lsi{my-query}} in
+our example is Clojure function that can be read by the Anglican inference engines to produce
+approximate samples from the conditional distribution.  Note that, as a Clojure function, the
+inputs and body of {\small \lsi{my-query}} and not as per lexical definition of the Anglican program
+(e.g. in now takes multiple inputs).  It is instead a function that encodes all the information 
+required by the inference engine to perform inference and has the corresponding required call structure
+for the input required by the engine.
+
+\begin{figure}[p]
 		\centering	
-\vspace{5pt}		
+		\vspace{-20pt}		
 \rule{\linewidth}{0.4pt}
 \vspace{-28pt}		
 		\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,multicols=2,frame=none]
-(defdist nuke [volatility] []
+(defdist strike [volatility] []
  (sample* [this] 
    (if (sample* (flip volatility)) 
-        :boom :safe))
+        :war :peace))
  (observe* [this value] 
   (observe* (flip volatility) 
-    (= value :boom))))
+    (= value :war))))
   
-(declare don kim)
+(declare A B)
 
-(with-primitive-procedures [nuke]
- (defm don [depth]
-  (let [don-nuke (nuke 0.1)
-        kim-nuke (kim (dec depth))]
-   (observe don-nuke kim-nuke)
-   kim-nuke))
+(with-primitive-procedures [strike]
+ (defm A [depth]
+  (let [B-strike (B (dec depth))
+        A-strike (strike 0.1)]
+   (observe A-strike B-strike)
+   B-strike))
    
-(defm kim [depth]
- (let [kim-nuke (nuke 0.2)]
-  (if (> depth 0)
-   (let [don-nuke (don depth)]
-    (observe kim-nuke don-nuke)
-    don-nuke)
-  (sample kim-nuke))))
+ (defm B [depth]
+  (let [B-strike (strike 0.2)]
+   (if (> depth 0)
+    (let [A-strike (A depth)]
+     (observe B-strike A-strike)
+     A-strike)
+   (sample B-strike))))
 
-(defquery oblivion [depth]
-  (or (= (don depth) :boom)
-      (= (kim depth) :boom))))
+ (defquery war [depth]
+   (or (= (A depth) :war)
+       (= (B depth) :war))))
 \end{lstlisting}	
 \vspace{-20pt}		
 \rule{\linewidth}{0.4pt}
 %\vspace{5pt}
-		\caption{Schelling co-ordination game~\citep{schelling1980strategy,stuhlmuller2014reasoning}
-			adapted from implementation in Anglican online examples developed by Brooks Paige and Frank Wood.
-See~\url{http://www.robots.ox.ac.uk/~fwood/anglican/examples/} for a wider array of examples an a more
-detailed introduction to this particular model.  Here we define a custom distribution for how trigger
-happy a country's leader might be.  We then construct Anglican functions using \defm for modeling two hypothetical
-leaders called \lsi{don} and \lsi{kim}.  Each has their own volatility but also the ability to reason about the
-other, for which we presume they have access to the exact behavior model.  
-			\label{fig:probprog:schell}
+		\caption{Anglican code for an example Schelling co-ordination game~\citep{schelling1980strategy,stuhlmuller2014reasoning}
+		modeling if a peace will hold between two volatile countries which we refer to as A and B.
+		This example is adapted from an online Anglican example developed by Brooks Paige and Frank Wood
+		which can be found at~\url{http://www.robots.ox.ac.uk/~fwood/anglican/examples/}, providing a more
+		detailed consideration along with other examples.
+		Our code first defines a custom distribution called \lsi{strike} for modeling whether one country will
+		attack the other if it does not reason about the other's actions.  
+It then constructs a Anglican function for each country using \defm.  
+Each country has their own volatility and the ability to reason about whether they think the other country will
+initiate a strike against them. We presume they have access to the exact model of the other country.  A's aim is to match
+the action it thinks B will do -- it would prefer there to be no war, but if there is, it wants to strike
+first.  Its model first samples a draw for B's action by simulating from B's model and then observes this action
+under its own distribution on whether to strike; this is equivalent to sampling both in isolation and constraining
+them to be the same.  However, B can also reason about A and
+A knows it.  It therefore provides the simulation of B's model with a \emph{meta-reasoning depth}.  If this depth
+is zero, B makes its decision in isolation, simply sampling from \lsi{B-strike}.  If the depth is greater 
+than zero though, it uses the same approach as A, simulating from A's model (with a depreciated meta-reasoning 
+depth) and then observing this 
+outcome under \lsi{B-strike}.  This creates a mutually recursive cycle of reasoning.  As an observer, we are
+interested in establishing the probability that one of the two will strike, as this event leads to a war,
+and so we define a query which outputs whether the two are the same.
+The expectation of the output from this query corresponds to the probability of war.
+Invoking inference using \lsi{(doquery :lmh war [depth])} we see that for a depth of $0$, there
+is roughly a $0.222$ chance of war, while depths of $1$, $2$, and $10$ give rough respective chances of $0.052$, $0.0021$,
+and $3\times10^-6$.  Thus the chance of war goes down the more each country thinks about the reasoning
+of the other.  It is interesting to note that if the volatilities are set to the same value then
+the critical tipping point, above which things escalate towards war with increased depth, is around $0.38$.
+The mutual recursion involved in the model and the fact that variables are both sampled and 
+observed means that it would be difficult to encode it using a graphical model.  It is not even clear how
+one would go about writing down a well defined joint distribution for the model, without having to empirically
+calculate a normalization constant.  Note though that this not correspond to a nested query example in the
+manner we discuss in Section XX as there is no inference going on between the nested function calls.
+\label{fig:probprog:schell}
 		}
-\end{subfigure}
-	\caption{Example Anglican queries for some simple models. Here \defquery
-		binds a query to a variable, for which inference can be run using \doquery with syntax
-		{\footnotesize \lsi{(doquery inf-alg model inputs & options)}}. 
-		For example, we could call {\footnotesize \lsi{(doquery :ipmcmc
-		lin-reg [xs ys] :number-of-particles 1000)}}  for some
-        predefined \lsi{xs} and \lsi{ys} to run iPMCMC inference (see Section~\ref{sec:part:ipmcmc}))
-        on the \lsi{lin-reg} model with with 1000 particles.
-        \label{fig:probprog:example-ang}}
 \end{figure}
+
+Inference on the model is performed using the macro \doquery, which produces a lazy infinite sequence of 
+approximate samples from the conditional distribution and, for appropriate inference algorithms,
+an estimate of the marginal observation density.
+The syntax of \doquery is {\small \lsi{(doquery inf-alg model inputs & options)}} where {\small \lsi{inf-alg}}
+specifies an inference algorithm, e.g. {\small \lsi{:ipmcmc}}, {\small \lsi{model}} is our query, {\small \lsi{inputs}}
+is a vector if inputs to the query, the \& represents that there might be multiple additional inputs, and {\small \lsi{options}}
+are is a series of option-value pairs for the inference engine.  For example, to produce 100 samples from
+our {\small \lsi{my-query}} model with data {\small \lsi{[2.1 5.2 1.1]}} using the LMH inference algorithm with no
+additional options, we can write {\small \lsi{(take 100 (doquery :lmh my-query [2.1 5.2 1.1]))}}.
+
+Although Anglican mostly inherits Clojure syntax, some complications arise from the compilation to
+CPS-style Clojure functions.  It is thus not possible to na\"{i}vely use all Clojure functions inside Anglican
+without providing appropriate information to the compiler to perform the required transformation.
+The transformation for many core Clojure functions has been code manually such that they form
+part of the Anglican syntax and can be used directly.  Anglican further allows users to write functions externally
+to \defquery using the macro \defm, which is analogous to \defn in Clojure and has the same call syntax (except
+for being restricted input, though as this can be a vector, this places no restrictions on the functions that can be
+written), which can then be called from inside the query without restrictions.  Other deterministic Clojure functions can also
+be called from inside queries, but must be provided with appropriate wrapping to assist the compiler.  Thankfully
+this is done automatically (except when the function itself is higher order) using the macro
+{\small \lsi{with-primitive-procedures}} that takes as inputs Clojure functions and creates an environment where
+these functions have been converted to their appropriate CPS forms.
 
 We finish our introduction by noting the ability of Anglican to \emph{nest} queries within one another.  This
 is somewhat experimental and comes with a number of health warnings because, as we will explain in Chapter~\ref{chp:nest},
