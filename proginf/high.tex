@@ -41,8 +41,9 @@ This convergence follows in the standard way for SNIS provided our program termi
 
 In practice, we will not sample a full $\hxnx$ before evaluating its weight in one go -- we will use
 sequential importance sampling strategy whereby we sample directly from any \sample statement as we encounter it
-and accumulate weights from \observe statements as we go.  A schematic of this is shown in
-Figure XX.  Another way of viewing this is that we will repeatedly run our query as if it were an ordinary
+and accumulate weights from \observe statements as we go (see Figure~\ref{fig:probprog:poisson} in
+Section~\ref{sec:probprog:models:general}).
+Another way of viewing this is that we will repeatedly run our query as if it were an ordinary
 program, except for the fact that we accumulate a weight as a side effect that is then returned with
 the produced sample.  Such a guess an check strategy will obviously be ineffective except in very low
 dimensions.  However, it will both be a go-to strategy for the most extreme possible problems that

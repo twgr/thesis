@@ -15,7 +15,7 @@ stop or restart the program at any one of our checkpoints and chose whether to d
 adaptively, for example, by killing of certain evaluations or duplicating others.  Once
 a program is run, we can test the effect of changing one or more of our sampled variables
 in an MCMC fashion, though it may be difficult to statically determine an appropriate global proposal
-as we can only establish the structure of the target through evaluation.  Though we might be
+as we can only establish the structure of the target through evaluation.  Although we might be
 able to do so with other code analysis, we do not directly have access to any information
 about independence relationships or even knowledge under what conditions a certain
 variable will exist.  We can transfer information from one sampling iteration to the next
@@ -36,8 +36,8 @@ as acting like a controller wrapping around the standard program
 execution (or potentially multiple simultaneous executions).  When the program hits a checkpoint,
 control is transferred to the inference engine, providing information about the current state through
 \angstate and about the current checkpoint command (i.e. checkpoint type, distribution object, etc).
-The inference engine then decides exactly how the checkpoint command should be executed, e.g. how to
-sample the new variable for a \sample statement, updates the \angstate appropriately, and decides if
+The inference engine then decides exactly how the checkpoint command should be executed (e.g. how to
+sample the new variable for a \sample statement), updates the \angstate appropriately, and decides if
 and how the execution should continue.  Once an execution is complete (i.e. the return checkpoint
 is reached), the inference controller decides what to run next, which could, for example, be an entirely new independent
 execution or an MCMC update to the current execution.  Two important things the inference controller
@@ -47,13 +47,15 @@ or do further analysis on the program source code itself.
 
 There are four functions required to define an Anglican inference algorithm more generally: a top level 
 \anginfer function and three \checkpoint implementations
-for checkpoint types \smalltt{trap.sample}, \smalltt{trap.observe}, and \smalltt{trap.return} .  The \anginfer
+for types \smalltt{trap.sample}, \smalltt{trap.observe}, and \smalltt{trap.return} .  The \anginfer
 implementation must always be written anew, but the \checkpoint implementations can be inherited from
 another inference algorithm of default behavior.  Other than some top level book keeping, the user
 inference command \doquery directly calls the \anginfer function of the specified inference algorithm, providing
 as input the CPS-transformed query, the fixed query inputs, and inference algorithm specific options.
 The \anginfer function is required to then return a lazy infinite sequence of samples, each in the form of
-a \angstate object.\todo{exec}
+a \angstate.  To carry out inference, \anginfer uses the \clj{exec} function introduced earlier
+to run (partial) executions of the program, which will run until they hit a checkpoint that returns something
+other than a thunk (see below).  
 
 All of the \checkpoint implementations
 take as their only input of note an instance of the relevant Clojure record.  Here \smalltt{trap.sample} has
@@ -61,8 +63,14 @@ fields \clj{:id} which is a unique identifier for the corresponding lexical \sam
 which is the distribution object input, \clj{:cont} which is the continuation function $\mP$, and \clj{:state}
 which is the current instance of \angstate.  Meanwhile, \smalltt{trap.observe} has the same fields and additionally
 a \clj{:value} field giving the observation and \smalltt{trap.result} has only the \clj{:state} field.  Each
-\checkpoint method such either return a thunk, in which case the \clj{exec} function will resume running,
+\checkpoint method should either return a thunk, in which case the \clj{exec} function will resume running,
 or an instance of the relevant Clojure record, in which case \clj{exec} terminates and returns control to the \anginfer
-function (or some intermediary function used by the \anginfer function).
-
-Default behaviors.
+function (or some intermediary function used by the \anginfer function).  For example, in SMC methods
+then we will want to return control to \anginfer at an \observe point to do the resampling, while all methods
+return control for a \clj{return} checkpoint.
+Default behaviors are provided for each checkpoint that dictate their behavior unless overwritten by
+a particular inference algorithm.  The default behavior of \sample is to sample from the distribution
+object and return a thunk that calls the continuation with this sample and \angstate as input arguments.
+The default behavior of \observe is to update the \clj{:log-weight} field in \angstate with the current
+observation term and then call the continuation with inputs \clj{nil} and \angstate.  The default behavior
+of \clj{return} simply returns the \clj{trap.result} object.

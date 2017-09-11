@@ -44,11 +44,125 @@ WebPPL~\citep{goodman_book_2014}, and Probabilistic C~\citep{paige2014compilatio
 \section{General Purpose Inference Strategies}
 \label{sec:proginf:str}
 
-Before jumping into describing some specific inference algorithms for
-Anglican, we first link our compilation back to the execution-based 
-definition of the conditional distribution specified by a program given in 
-Section~\ref{sec:probprog:models:general} and consider what classes of inference
-algorithms might be able to operate in such settings. 
+%Before jumping into describing some specific inference algorithms for
+%Anglican, we first link our compilation back to the execution-based 
+%definition of the conditional distribution specified by a program given in 
+%Section~\ref{sec:probprog:models:general} and consider what classes of inference
+%algorithms might be able to operate in such settings. 
 
-\subsection{Particle Based Inference for Probabilistic Programs}
+As we previously alluded to, the simplest inference strategy we can carry out is important
+sampling.  This is in fact so simple in a current framework that it uses the default behavior
+of all the checkpoints, while the \anginfer function only involves constructing a lazy infinite
+sequence of the output from independent calls of \clj{exec} on the full program.
+
+\subsection{MCMC Strategies}
+\label{sec:proginf:str:lmh}
+
+\todo[inline]{write}
+
+\subsection{Particle Based Inference Strategies}
 \label{sec:proginf:str:part}
+
+\subsubsection{Sequential Monte Carlo}
+\label{sec:proginf:str:part:smc}
+
+Going from importance sampling to SMC in our framework is remarkably simple
+from an implementation perspective~\citep{wood2014new}.  The behavior of the \sample and \clj{result} 
+checkpoints is kept as per the default.  Keeping the default behavior for the former implicitly means that our
+inference will use a bootstrap proposal (i.e. the generative model is taken as the proposal).
+Though not technical required, this is still a highly convenient choice of proposal as
+amongst other things, this ensures that we can always sample from the proposal and
+that the proposal is valid in terms of its tail behavior (presuming the conditional probabilities
+are bounded).
+The \observe checkpoints are redefined
+to carry out the same operations, but return a \clj{trap.observe} record rather
+than a thunk, returning control to the \anginfer function.  This means that 
+calling \clj{exec} for the SMC checkpoint setup will run the program up to and including
+the next \observe statement.  Consequently, if we run multiple threads of \clj{exec} at
+once, each corresponding to a separate particle, these will all stop exactly when
+the next resampling point is required for SMC.  Thus all the \anginfer function needs
+to do for SMC, other than some bookkeeping to e.g. check when the sweep is complete,
+is alternate between mapping an \clj{exec} call across all of the particles and
+performing resampling steps (remembering to reset the internal weights for the traces to
+be the same).  The marginal likelihood estimate can also be calculated in
+the standard way, therefore the SMC algorithm can produced the required lazy infinite sequence
+of output samples by running independent SMC sweeps and setting the weights in the returned
+samples to include the factor from both the sweep and the sample.
+
+From a theoretical perspective, running SMC in Anglican
+requires us to make one small model assumption -- that the value of $n_y$ is fixed.  In
+practice, this assumption is usually satisfied, particularly if their are no observations of
+internally samples variables.  Violations of the assumption are caught at run time.  Given
+a fixed $n_y$, then we are able to define the series of targets for SMC as being distributions
+induced by running the program up to the $t^{\text{th}}$ \observe statement for $t\in\{1,\dots,n_y\}$,
+namely
+\begin{align}
+\label{eq:proginf:smc-targ}
+\gamma_t(x_{1:n_x}, \lambda) = \begin{cases}
+\prod_{j=1}^{n_x} 
+f_{a_j}(x_j | \phi_j)
+\prod_{k=1}^{t}
+g_{b_k}(y_k | \psi_k) \;\; \text{if} \;\; \mathcal{B}_t(x_{1:n_x},\lambda)=1 \\
+0 \quad \text{otherwise}
+\end{cases}
+\end{align}
+where $\mathcal{B}_t(x_{1:n_x},\lambda)$ is a function establishing the validity of the 
+partial program trace.  More formally, we can define $\mathcal{B}_t(x_{1:n_x},\lambda)$ as
+being a function indicating validity of a trace for transformation of the original program
+that terminates after making its $t^{\text{th}}$ observe.
+It may be that executions corresponding to different particles have not gone through the 
+same \sample and \observe statements at any particular point, but this not a problem\footnote{A
+	least not a theoretic problem.  This could still be somewhat detrimental to practical performance}.
+as provided that $n_y$ is fixed,~\eqref{eq:proginf:smc-targ} still defines an appropriate
+series of targets for SMC inference.
+
+A point of note here is that although changing the position of the \observe statements in
+our program does not change the final distribution targeted by running SMC, it can change
+the intermediate target distributions, by adjusting at what point during the series of targets
+the \sample statements are introduced.  Consequently, changing the position of the \observe
+statements can have a dramatic effect on the practical performance of the inference, after all,
+placing all the \observe statements just before the program returns will cause the algorithm
+to reduce to basic importance sampling.  The earlier the \observe statements are in the program,
+or more precisely the later variables are sampled relative to the \observe statements, the
+better inference will performance as the better the information can be incorporated into
+the resampling.  Tricks such as lazily sampling variables (such that the \sample statement
+only gets invoked the when the variable is actually used) can, therefore, lead to substantial
+performance gains.
+
+\subsubsection{Particle Gibbs}
+\label{sec:proginf:str:part:pgibbs}
+
+Provide one does not try to support the special treatment of global variables that particle
+gibbs allows (i.e. restricting to the iterated CSMC case), extending SMC to particle gibbs
+is relatively straightforward in our framework.  From a theoretical perspective, the algorithm
+extends from the SMC case in the same way as outside of the probabilistic programming framework.
+From a practical perspective there are two distinct challenges.  Firstly, resampling for CSMC
+sweeps does not maintain the target distribution in the same way as SMC and so one has
+to be careful that there is no possibility for gratituitious resampling.  At first this would make it
+seem like one would need to take care not to resample after the $n_y^{\mathrm{th}}$ observe.
+However, as resampling and choosing the retained particle uniformly at random from the
+present particles turns out to be identical to the normal method for sampling the retained particle
+as so it turns out that this is actually fine.  Secondly, we need a method of retrieving the state
+of the retained particle...\todo{Finish}
+
+\todo[inline]{Initializiation}
+
+\subsubsection{Interacting PMCMC}
+\label{sec:proginf:str:part:ipmcmc}
+
+Given the particle Gibbs and SMC implementations, Interacting PMCMC can be implemented
+relatively simply by using those implementations for the CSMC and SMC sweeps respectively.
+All checkpoint implementations are inherited from particle Gibbs and the extension does
+not have any distinct challenges unique to probabilistic programming.  We note though that
+the Anglican implementation of iPMCMC exploits the algorithmic ability for parallelization 
+by creating a pool of threads to distribute computation of the different nodes.   Consequently,
+the implementation has substantial computational benefits over say particle Gibbs, in addition
+to the improved per-sample performance demonstrated in Section~\ref{sec:part:ipmcmc}.
+
+\subsection{Other Methods}
+\label{sec:proginf:str:part:other}
+
+\subsection{Which inference algorithm should I use?}
+\label{sec:proginf:str:which}
+
+\todo[inline]{Which inference algorithm should I use?}
