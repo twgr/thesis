@@ -73,10 +73,15 @@
 % Define text area of page and margin offsets
 %
 
+%\ifmc@nobind
+%\usepackage[includehead,hmargin={3.1cm, 3.1cm}, vmargin={2.5cm,2.7cm}, headsep=.8cm,footskip=1.2cm]{geometry}
+%\else
+%\usepackage[includehead,hmargin={3.6cm, 2.6cm}, vmargin={2.5cm,2.7cm}, headsep=.8cm,footskip=1.2cm]{geometry}
+%\fi
 \ifmc@nobind
-\usepackage[includehead,hmargin={3.1cm, 3.1cm}, vmargin={2.5cm,2.7cm}, headsep=.8cm,footskip=1.2cm]{geometry}
+\usepackage[includehead,hmargin={2.8cm, 2.8cm}, vmargin={2.3cm,2.5cm}, headsep=.8cm,footskip=1.2cm]{geometry}
 \else
-\usepackage[includehead,hmargin={3.6cm, 2.6cm}, vmargin={2.5cm,2.7cm}, headsep=.8cm,footskip=1.2cm]{geometry}
+\usepackage[includehead,hmargin={2.9cm, 2.1cm}, vmargin={2.3cm,2.5cm}, headsep=.8cm,footskip=1.2cm]{geometry}
 \fi
 
 \usepackage{xcolor}
@@ -435,9 +440,10 @@
 
 
 % JEM: adjust start-of-chapter spacing
-\renewcommand{\chapterheadstartvskip}{\vspace*{40pt}}
-\renewcommand{\chapterheadendvskip}{\vspace{30pt}}
-
+%\renewcommand{\chapterheadstartvskip}{\vspace*{40pt}}
+%\renewcommand{\chapterheadendvskip}{\vspace{30pt}}
+\renewcommand{\chapterheadstartvskip}{\vspace*{-30pt}}
+\renewcommand{\chapterheadendvskip}{\vspace{20pt}}
 
 % JEM: combine all of the commands you run before appendices start
 \newcommand{\startappendices}

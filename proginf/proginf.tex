@@ -142,8 +142,9 @@ to be careful that there is no possibility for gratituitious resampling.  At fir
 seem like one would need to take care not to resample after the $n_y^{\mathrm{th}}$ observe.
 However, as resampling and choosing the retained particle uniformly at random from the
 present particles turns out to be identical to the normal method for sampling the retained particle
-as so it turns out that this is actually fine.  Secondly, we need a method of retrieving the state
-of the retained particle...\todo{Finish}
+as so it turns out that this is actually fine.  Secondly, we need a method of storing and retrieving the
+state of the retained particle in a manner that allows other particles to inherit from this.  Given our
+inference methods do not use a stack, 
 
 \todo[inline]{Initializiation}
 
