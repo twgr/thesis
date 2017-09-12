@@ -19,14 +19,14 @@ we can always sample from because our \observe terms will only effect the probab
 the variables it generates.  Using the notation from Section~\ref{sec:probprog:models:general} 
 this approach leads to the following SNIS characterization of the posterior
 \begin{align}
-p(x_{1:n_x} | \lambda) &\approx \hat{p}(x_{1:n_x} | \lambda) := \sum_{n=1}^{N} \nw_n \delta_{\hxnx} (x_{1:n_x})
+p(x_{1:n_x} | \lambda) &\approx \hat{p}(x_{1:n_x} | \lambda) := \sum_{n=1}^{N} \nw_n \delta_{\hxnx^n} (x_{1:n_x})
 \quad \text{where}  \\
-\hxnx &\sim \prod_{j=1}^{n_x} f_{a_j}(x_j | \phi_j); \quad \nw_n = \frac{w_n}{\sum_{n=1}^{N} w_n}; \quad
+\hxnx^n &\sim \prod_{j=1}^{n_x} f_{a_j}(x_j | \phi_j); \quad \nw_n = \frac{w_n}{\sum_{n=1}^{N} w_n}; \quad
 w_n = \prod_{k=1}^{\hat{n}_{y}^n} g_{\hat{b}_{k}^n}(\hat{y}_{k}^n | \hat{\psi}_{k}^n);
 \end{align}
-$\delta_{\hxnx} (\cdot)$ is a delta function centered at $\hxnx$; $\phi_j$ and $a_j$ are deterministic functions of $\hxnx$ 
+$\delta_{\hxnx^n} (\cdot)$ is a delta function centered at $\hxnx^n$; $\phi_j$ and $a_j$ are deterministic functions of $\hxnx^n$ 
 and $\lambda$; and $\hat{n}_{y}^n$, $\hat{b}_{k}^n$, $\hat{y}_{k}^n$, and $\hat{\psi}_{k}^n$ are random variables
-that are deterministic functions of $\hxnx$ and $\lambda$.  Here we are sampling $\hxnx$ from
+that are deterministic functions of $\hxnx^n$ and $\lambda$.  Here we are sampling $\hxnx^n$ from
 the generative model defined by the program which is equivalent to a running the forward program
 ignoring all of the \observe statements.  Our unnormalized likelihood weights $w_n$ correspond to
 product of all the probabilities accumulated from the \observe terms.  We remind the reader that each 
@@ -35,11 +35,11 @@ with the program variables and outputs being deterministic functions of $x_{1:n_
 Section~\ref{sec:probprog:anglican:models}). In addition to providing a 
 characterization of the conditional distribution through $\hat{p}(x_{1:n_x} | \lambda)$, we can also
 use our samples to construct consistent estimates from the outputs of program $\Omega$, remembering
-that these are a deterministic function of $\hxnx$ and so an expectation over $\Omega$ can be
-represented as an expectation over $\hxnx$.
+that these are a deterministic function of $\xnx$ and so an expectation over $\Omega$ can be
+represented as an expectation over $\xnx$.
 This convergence follows in the standard way for SNIS provided our program terminates with probability $1$.
 
-In practice, we will not sample a full $\hxnx$ before evaluating its weight in one go -- we will use
+In practice, we will not sample a full $\hxnx^n$ before evaluating its weight in one go -- we will use
 sequential importance sampling strategy whereby we sample directly from any \sample statement as we encounter it
 and accumulate weights from \observe statements as we go (see Figure~\ref{fig:probprog:poisson} in
 Section~\ref{sec:probprog:models:general}).

@@ -1,0 +1,342 @@
+% !TEX root = ../main.tex
+
+\section{General Purpose Inference Strategies}
+\label{sec:proginf:str}
+
+%Before jumping into describing some specific inference algorithms for
+%Anglican, we first link our compilation back to the execution-based 
+%definition of the conditional distribution specified by a program given in 
+%Section~\ref{sec:probprog:models:general} and consider what classes of inference
+%algorithms might be able to operate in such settings. 
+
+As we previously alluded to, the simplest inference strategy we can carry out is important
+sampling.  This is in fact so simple in a current framework that it uses the default behavior
+of all the checkpoints, while the \anginfer function only involves constructing a lazy infinite
+sequence of the output from independent calls of \clj{exec} on the full program.
+
+\subsection{MCMC Strategies}
+\label{sec:proginf:str:lmh}
+
+We have already explained why it might be difficult to construct a global MH proposal for
+our program due to the difficulties in varying dimensionality and unknown variable supports.
+Once solution to this is to try and use compilation to establish this support so that
+a valid proposal can be specified.  However, doing this is general manner is a somewhat
+challenging and remains a open problem in field.  Another, more immediately viable,
+approach is to use a proposal that looks to update particular $x_j$ in the trace in a
+component-wise MH manner (see Section~\ref{sec:inf:foundation:gibbs}), potentially rerunning
+the rest of the program after that choice if necessary.  In the context of PPSs such
+approaches are generally known as either single-site MH, random database sampling, or lightweight MH (LMH) and were
+originally suggested by~\citep{wingate2011lightweight}.\footnote{The MH acceptance ratio in the original version of this work
+	is incorrect so we point the reader to the following updated version
+	\url{https://stuhlmueller.org/papers/lightweight-mcmc-aistats2011.pdf}.} There are two key factors
+that make such approaches viable.  Firstly, if we update term $x_j$ in our trace, there is
+no need to update any of the factors in our trace probability that occur before the sampling
+$x_j$, while we may be able to avoid evaluating many of those after as well by establishing
+conditional independence.  Secondly, the support for a particular $x_j$ is typically known (as 
+we have access to the appropriate distribution object) and so it is generally possible to specify
+an appropriate proposal for an individual $x_j$.  Even if that transpired not to be possible, 
+simply using the prior as the proposal is still often reasonable as individual $x_j$ will typically
+be low dimensional.  However, a key downside of this approach is that changing a particular $x_j$
+might lead to an invalid trace and checking might require revaluation of the entire rest of the
+trace, making it an $O(n_x+n_y)$.  Perhaps even more problematically, if $n_x$ is not fixed
+then, unless we make adjustments to the algorithm, the approach will not produce a 
+valid Markov chain.  Similarly, as we showed in Section~\ref{sec:inf:foundation:gibbs},
+there are models for which component-wise MH approaches lead to reducible Markov chains
+that no longer admit the correct target.  The emphasis on branching in universal PPSs further
+means that the chance of falling into this category of invalid models is relatively high.  As
+noted by~\citep{kiselyov2016problems}), this is a rather serious issue missed (or at least not
+acknowledged) by~\cite{wingate2011lightweight} and various follow-up implementations.
+See also issues highlighted by~\citep{hur2015provably} in other implementations.
+The problem is not shared by all implementations though, with the Anglican LMH method, amongst
+others, not suffering from the issue.
+More generally, there are means of potentially overcoming both the reducibility and computational
+issues of LMH as we will discuss later, but
+they still represent noticeable practical and theoretical hurdles.
+
+As a simple illustrative approach that avoids some of the theoretical pitfalls associated
+with LMH approaches~\citep{wood2014new}, consider an MH sampler whose proposal is simply to choose one
+of the \sample statements, $m$, uniformly at random from $\{1,\dots,n_x\}$, propose a new $x_m'$ using a local reversible
+MH kernel for that \sample statement $\kappa(x_m' | x_{m})$ (which can always be independently sampling
+from $f_m(x_m|\phi_m)$ if necessary) and then rerun the entire rest of the program
+from that point.  This equates to using the proposal (omitting our trace validity term on the
+basis that this always holds because we are sampling from the generative model)
+\begin{align}
+q(x_{1:n_x'}' | x_{1:n_x}) &= q(m|x_{1:n_x}) q(x_m' | x_{m}, m) q(x_{m+1:n_x}' | x_{1:m-1}, m, x_m') \mathbb{I}(x_{1:m-1}'=x_{1:m-1}) \nonumber \\
+&=\frac{1}{n_x} \kappa(x_m' | x_{m}) \mathbb{I}(x_{1:m-1}'=x_{1:m-1})  \prod_{j=m+1}^{n_x'} f_{a_{j}'} (x_{j}' | \phi_{j}')
+\end{align}
+which in turn gives an acceptance probability of
+\begin{align}
+P(\text{Accept}) &= \min\left(1, \frac{\gamma(x_{1:n_x'}',\lambda) q(x_{1:n_x} | x_{1:n_x'}') }
+{\gamma(x_{1:n_x},\lambda) q(x_{1:n_x'}' | x_{1:n_x}) }\right) \nonumber\\
+&= \min\left(1, \frac{\kappa(x_m | x_{m}') f_{a_m} (x_m' | \phi_m)} {\kappa(x_m' | x_{m}) f_{a_m} (x_m' | \phi_m)} \;
+\frac{n_x}{n_x'} \; \frac{\prod_{k=k_0(x_{1:m})+1}^{n_y'} g_{b_{k}'} (y_{k}' | \psi_{k}')}
+{\prod_{k=k_0(x_{1:m})+1}^{n_y} g_{b_{k}} (y_{k} | \psi_{k}) }\right) \label{eq:proginf:lmh-A}
+\end{align}
+where $k_0(x_{1:m})$ is equal to the number of \observe statements encountered by the partial
+trace $x_{1:m}$.  Here we have used the fact that the trace probability factors before $x_m$ cancel
+exactly, while the \sample terms for $m+1$ onwards cancel between the target and the proposal.
+We can intuitively break down the terms in~\eqref{eq:proginf:lmh-A} by first noting that the first
+ratio of terms is what we would get from
+doing MH targeting $f_{a_m}(x_m|\phi_m)$ (note also that these terms cancel if we propose ``from the 
+prior'' by just independently sampling a new $x_m'$ from the \sample statement).  The next ratio of terms,
+$n_x / n_x'$ reflect the fact that if our new trace is longer it is less likely that we would have chosen the
+point $m$ to resample and vice versa.  The final ratio of terms reflects the ratio of the likelihood weight
+for the new generated section of the trace over the existing section of the trace.
+
+This approach avoids the reducibility issues because it
+includes as a possible step generating a completely new trace from the generative model.  However,
+it will clearly be heavily limited in practical performance because, for modest typical $n_x$, each iteration
+is effectively using importance sampling in $n_x-m$ dimensions such that, once the sampler has burnt in,
+its acceptance rate will typically decrease dramatically with dimension.  Each iteration is also $O(n_x+n_y)$ as
+the complete new trace needs to be proposed each time.  To get around these issues, we would like
+to have some concept of whether we can update $x_m$ without invalidating the trace.  When possible,
+we could solve this problem using code analysis or compilation to establish the Markov blanket of $x_m$ in order to know
+immediately which terms will be unaffected and so do not need re-proposing or re-calculating.
+This can be an effective approach and is the underlying principle in a number of LMH 
+approaches ~\cite{yang2014generating,mansinghka2014venture,ritchie2016c3}.  One needs to be
+careful, however, not to reintroduce reducibility issues and, in general, correctness of LMH schemes is
+far from trivial and perhaps requires further consideration in the literature.
+
+Even if we do not have a convenient means of extract Markov blankets, we will still generally desire
+to reuse $x_{m+1:n_x}$ if it produces a valid trace, i.e. if $\mB ([x_{1:m-1},x_m',x_{m+1:n_x}],\lambda)=1$, and reducibility
+issues can be guarded against, in order to avoid the terrible scaling in the acceptance rate 
+of~\ref{eq:proginf:lmh-A}  with $n_x-m$.  One way to do this would be to propose
+a new $x_m'$ in the same way but then deterministically run the program forward with the old
+$x_{m+1:n_x}$ to evaluate whether the trace is valid, noting that if it is, it must also be the case that any 
+extension or reduction of this the (i.e. increasing or decreasing
+$n_x$) is invalid as the program is deterministic given $\xnx$ (remembering that we
+have defined $x_{1:n_x}$ as be the raw \sample outputs not program variables).  If $x_m \rightarrow x_m'$ gives
+a valid trace, then $\gamma([x_{1:m-1},x_m',x_{m+1:n_x}],\lambda)$ will be well defined (though not necessarily
+non-zero) and we can use the update as a proposal with needing to regenerate $x_{m+1:n_x}$.  Note though
+that as the $a_j$, $b_k$, $\phi_j$, and $\psi_k$ terms downstream of $m$ can change, the 
+probability of the new trace still needs recalculating.  In this scenario, our acceptance ratio becomes
+\begin{align}
+  P(\text{Accept}) &= \min\left(1, \frac{\gamma(x_{1:n_x}',\lambda) \kappa(x_m | x_{m}')  }
+  {\gamma(x_{1:n_x},\lambda) \kappa(x_m' | x_{m})  }\right)
+\end{align}
+where all terms in $\gamma(x_{1:n_x}',\lambda)$ (i.e. both \sample and \observe) will need
+to be evaluated for $j\ge m$, as will $\gamma(x_{1:n_x},\lambda)$ if these are not already known. 
+
+If, on the other hand, our trace becomes invalid
+at any point (noting that we can evaluate the validity of sub traces as we rerun them), we can resort to
+resampling the trace anew from the required point onwards.  Note that we can do this validity evaluation
+and regeneration during the same single forward pass through trace and that whether we do regeneration
+is deterministic for given $x_m$ - $x_m'$ pair (and thus does not affect the MH acceptance ratio by symmetry).
+If we regenerate from \sample $\ell$ onwards then we now have
+\begin{align}
+P(\text{Accept}) &= \min\left(1, \frac{\gamma(x_{1:n_x}',\lambda) \kappa(x_m | x_{m}') n_x \prod_{j=\ell}^{n_x} f_{a_{j}} (x_j | \phi_j)}
+{\gamma(x_{1:n_x},\lambda) \kappa(x_m' | x_{m})  n_x' \prod_{j=\ell}^{n_x'} f_{a_{j}'} (x_j' | \phi_j')}\right).
+\end{align}
+We can further overcome reducibility issues with such a scheme by forcing a fresh trace generation
+not only when we realize the trace is invalid, but also when we find a term in our trace with probability zero.
+Once this occurs, it is clear the that full trace probability must be zero, even if it produces a valid path.  We
+could just immediately reject the trace, but we would then fall foul of reducibility problems.  By instead
+regenerating the rest of the trace in this scenario, then at each iteration we can propose any value of $x_1$ that has non-zero marginal
+mass under $\gamma(x_{1:n_x},\lambda)$ regardless of our current state, so we clearly have mixing on $x_1$.
+For a given value of $x_1$, we can similarly propose any value of $x_2$ with non-zero density under the
+marginal conditional distribution of $x_2|x_1$.  As we have mixing of $x_1$, this now implies we have
+mixing on $x_{1:2}$ as well.  By induction, of method now leads to mixing on all of $x_{1:n_x}$, which
+coupled with detailed balance provides an informal demonstration of the consistency of the method.
+
+We can refine this process by using the concept of a database.  To do this we mark each \sample
+statement in the trace with a unique identifier that is common for all traces that evaluate the same \sample
+statement at the same point, i.e. points in the trace for which both the \sample number $j$ and 
+the lexical \sample identifier $a_j$ are the same.  In our database then we can store previous
+sample and deterministically return when returning to the \sample statement with the same identifier, keeping
+the sample if it still produces a valid partial trace with non-zero probability,
+regenerating it if not.  Thus triggering regeneration of $x_j$ no longer necessarily requires regeneration of $x_{j+1}$.
+Note the importance of points in the database being defined by both $j$ and $a_j$ -- if we hit the same sample
+lexical sample statement at a different point in the program, we always need to redraw it.
+Care is needed to ensure superfluous terms are removed from the database at each iteration -- it should
+contain only terms from the current trace.  If we use $\mathbb{D}(j)=0$ to denote terms taken from
+the database and $\mathbb{D}(j)=1$ to indicate terms that are redrawn, then our acceptance ratio now becomes
+\begin{align}
+P(\text{Accept}) &= \min\left(1, \frac{\gamma(x_{1:n_x}',\lambda) \kappa(x_m | x_{m}') n_x \prod_{j=m+1}^{n_x} 
+	\left(f_{a_{j}} (x_j | \phi_j)\right)^{\mathbb{D}(j)}}
+{\gamma(x_{1:n_x},\lambda) \kappa(x_m' | x_{m})  n_x' \prod_{j=m+1}^{n_x'} \left(f_{a_{j}'} (x_j' | \phi_j')\right)^{\mathbb{D}(j)}}\right).
+\end{align}
+
+We finish by noting that our identifies for points in the database, namely both $j$ and $a_j$ being the same, is
+potentially stronger than necessary and there may be more useful addressing schemes.  Remembering back
+to Section~\ref{sec:probprog:models:general}, each of \sample and \observe statements is exchangeable up to
+the required inputs being in scope.  Now consider the case where the update $x_m'\leftarrow x_m$ triggers an
+inconsequential extra \sample to be invoked between points $j$ and $j+1$, with everything else staying the same.
+Under our current system then all points after $j$ would need to be resampled.  However, our program would
+define the same distribution if this superfluous \sample statement came at the end of the program, in which case
+our method would mean that $x_{j+1:n_x}$ no longer necessarily need updating.  From a more practical perspective,
+we can consider using more useful naming strategies for our database entries that exploit this exchangeability such
+that $x_{j+2}'$ could, for example, inherit from $x_{j+1}$~\citep{wingate2011lightweight}.  Though this should
+intuitively not effect the convergence of estimates based on the program output, the formal proof is not immediately
+trivial and is perhaps missing from the literature.\todo{Should be able to do better here.}
+
+\todo[inline]{Anglican's implementations including RMH and ALMH}
+
+\subsection{Particle Based Inference Strategies}
+\label{sec:proginf:str:part}
+
+\subsubsection{Sequential Monte Carlo}
+\label{sec:proginf:str:part:smc}
+
+Going from importance sampling to SMC in our framework is remarkably simple
+from an implementation perspective~\citep{wood2014new}.  The behavior of the \sample and \clj{result} 
+checkpoints is kept as per the default.  Keeping the default behavior for the former implicitly means that our
+inference will use a bootstrap proposal (i.e. the generative model is taken as the proposal).
+Though not technical required, this is still a highly convenient choice of proposal as
+amongst other things, this ensures that we can always sample from the proposal and
+that the proposal is valid in terms of its tail behavior (presuming the conditional probabilities
+are bounded).
+The \observe checkpoints are redefined
+to carry out the same operations, but return a \clj{trap.observe} record rather
+than a thunk, returning control to the \anginfer function.  This means that 
+calling \clj{exec} for the SMC checkpoint setup will run the program up to and including
+the next \observe statement.  Consequently, if we run multiple threads of \clj{exec} at
+once, each corresponding to a separate particle, these will all stop exactly when
+the next resampling point is required for SMC.  Thus all the \anginfer function needs
+to do for SMC, other than some bookkeeping to e.g. check when the sweep is complete,
+is alternate between mapping an \clj{exec} call across all of the particles and
+performing resampling steps (remembering to reset the internal weights for the traces to
+be the same).  The marginal likelihood estimate can also be calculated in
+the standard way, therefore the SMC algorithm can produced the required lazy infinite sequence
+of output samples by running independent SMC sweeps and setting the weights in the returned
+samples to include the factor from both the sweep and the sample.
+
+From a theoretical perspective, running SMC in Anglican
+requires us to make one small model assumption -- that the value of $n_y$ is fixed.  In
+practice, this assumption is usually satisfied, particularly if their are no observations of
+internally samples variables.  Violations of the assumption are caught at run time.  Given
+a fixed $n_y$, then we are able to define the series of targets for SMC as being distributions
+induced by running the program up to the $t^{\text{th}}$ \observe statement for $t\in\{1,\dots,n_y\}$,
+namely
+\begin{align}
+\label{eq:proginf:smc-targ}
+\gamma_t(x_{1:n_x}, \lambda) = \begin{cases}
+\prod_{j=1}^{n_x} 
+f_{a_j}(x_j | \phi_j)
+\prod_{k=1}^{t}
+g_{b_k}(y_k | \psi_k) \;\; \text{if} \;\; \mathcal{B}_t(x_{1:n_x},\lambda)=1 \\
+0 \quad \text{otherwise}
+\end{cases}
+\end{align}
+where $\mathcal{B}_t(x_{1:n_x},\lambda)$ is a function establishing the validity of the 
+partial program trace.  More formally, we can define $\mathcal{B}_t(x_{1:n_x},\lambda)$ as
+being a function indicating validity of a trace for transformation of the original program
+that terminates after making its $t^{\text{th}}$ observe.
+It may be that executions corresponding to different particles have not gone through the 
+same \sample and \observe statements at any particular point, but this not a problem\footnote{A
+	least not a theoretic problem.  This could still be somewhat detrimental to practical performance}.
+as provided that $n_y$ is fixed,~\eqref{eq:proginf:smc-targ} still defines an appropriate
+series of targets for SMC inference.
+
+A point of note here is that although changing the position of the \observe statements in
+our program does not change the final distribution targeted by running SMC, it can change
+the intermediate target distributions, by adjusting at what point during the series of targets
+the \sample statements are introduced.  Consequently, changing the position of the \observe
+statements can have a dramatic effect on the practical performance of the inference, after all,
+placing all the \observe statements just before the program returns will cause the algorithm
+to reduce to basic importance sampling.  The earlier the \observe statements are in the program,
+or more precisely the later variables are sampled relative to the \observe statements, the
+better inference will performance as the better the information can be incorporated into
+the resampling.  Tricks such as lazily sampling variables (such that the \sample statement
+only gets invoked the when the variable is actually used) can, therefore, lead to substantial
+performance gains.
+
+\subsubsection{Particle Gibbs}
+\label{sec:proginf:str:part:pgibbs}
+
+Provide one does not try to support the special treatment of global variables that particle
+gibbs allows (i.e. restricting to the iterated CSMC case), extending SMC to particle gibbs
+is relatively straightforward in our framework.  From a theoretical perspective, the algorithm
+extends from the SMC case in the same way as outside of the probabilistic programming framework.
+From a practical perspective there are two distinct challenges. Firstly, resampling for CSMC
+sweeps does not maintain the target distribution in the same way as SMC and so one has
+to be careful that there is no possibility for gratituitious resampling.  At first this would make it
+seem like one would need to take care not to resample after the $n_y^{\mathrm{th}}$ observe.
+However, as resampling and choosing the retained particle uniformly at random from the
+present particles turns out to be identical to sampling the retained particle in proportion to weight and
+as so it turns out that this is actually fine.  Secondly, we need a method of storing and retrieving the
+state of the retained particle in a manner that allows other particles to inherit from it.  Given our
+inference methods do not use a stack, this is done by storing the raw $x_{1:n_x}$ samples within
+\angstate for each particle and then retrieving them for the retained particle.  The retained
+particle is thus re-run in a deterministic fashion from a stored $x_{1:n_x}$, regenerating
+all the variables in the program and the continuation.  This is achieved by
+editing the \sample checkpoint so that it deterministically retrieves the $x_j$ for the 
+retained particle, but samples normally for other particles.  For both it is also stores the current
+$x_j$ for each particle in case this particle becomes the retained particle at the next sweep.
+Provided one is running a reasonably large number of particles the extra computational cost for
+re-running the retained particle is negligible, but the need to store all the $\{\hxnx^n\}_{n=1}^{N}$
+can noticeably increase the memory requirements.  Other than these minor complications, the
+extension from SMC to particles Gibbs in the probabilistic programming setting is identical to
+that for conventional settings as disucssed in Section~\ref{sec:part:pmcmc:pgibbs}.
+
+\subsubsection{Interacting PMCMC}
+\label{sec:proginf:str:part:ipmcmc}
+
+Given the particle Gibbs and SMC implementations, Interacting PMCMC can be implemented
+relatively simply by using those implementations for the CSMC and SMC sweeps respectively.
+All checkpoint implementations are inherited from particle Gibbs and the extension does
+not have any distinct challenges unique to probabilistic programming.  We note though that
+the Anglican implementation of iPMCMC exploits the algorithmic ability for parallelization 
+by creating a pool of threads to distribute computation of the different nodes.   Consequently,
+the implementation has substantial computational benefits over say particle Gibbs, in addition
+to the improved per-sample performance demonstrated in Section~\ref{sec:part:ipmcmc}.
+
+\subsection{Other Methods}
+\label{sec:proginf:str:part:other}
+
+Though it would be impractical to do justice to all of the methods one can use for general
+purpose in universal PPSs, some other algorithms of particular note include.
+
+\begin{itemize}
+	\item The particle cascade~\citep{paige2014asynchronous} is an asynchronous and anytime
+	variant of SMC.  This can provide improved in-sweep parallelization compared to SMC / PMCMC
+	methods and provides an alternative to PMCMC methods for overcoming memory restrictions in
+	SMC.  It has the crucial advantage over PMCMC methods of maintaining an unbiased estimate
+	of the marginal likelihood, but can suffer issues in instability in the number of particles produced
+	by the schedule strategy during a sweep and it does not permit any distinct treatment of global
+	variables.
+	\item Particle Gibbs with ancestor sampling (PGAS)~\citep{lindstenJS2014,vandemeent_aistats_2015}
+	looks to alleviate degeneracy for the particle Gibbs algorithm by performing ancestor sampling
+	for the retained particle.  This can substantially improve mixing for the early samples, but can
+	result in very large computational overheads, sometimes requiring $O(Nn_y^2)$ computation
+	(compared to $O(Nn_y)$).  This can be partly 
+	mitigated by using database techniques~\cite{vandemeent_aistats_2015} to avoid unnecessary
+	repeated computation, but still typically is substantially more computationally intensive that
+	standard particle Gibbs.  
+	%Nonetheless, this extra computation is sometimes justified for challenging
+	%problems with severe degeneracy.
+	\item Some black-box variational methods~\citep{ranganath_aistats_2014,kucukelbir2015automatic} 
+	have been developed for general purpose PPSs~\citep{wingate2013automated} including Anglican~\cite{vandemeent2016black,paige2017thesis}.  Though these can suffer from difficulties
+	in finding effective addressing schemes and or high variance of the ELBO gradients, they can still
+	form an effective approximate approach for certain problems, see e.g.~\citep{paige2017thesis}.
+\end{itemize}
+
+\subsection{Which inference algorithm should I use?}
+\label{sec:proginf:str:which}
+
+The question of which algorithm one should use is a critical, but somewhat subjective and
+problem dependent question.  We now provide some (inevitably biased) recommendations for which
+inference algorithms to use in Anglican that should be taken as a very rough guide rather than clear cut truth.
+
+Firstly, except for very low dimensional problems, importance sampling should
+be avoid as it is almost universally worse than, e.g. SMC.  Similarly, there is very little reason to use PIMH
+or vanilla LMH over more advanced approaches.  The relative performance of the MCMC
+based and particle based (including PMCMC) methods will depend on the amount of structure that can
+be exploited in the system by the respective approaches.  The particle based approaches will generally be substantially
+preferable when the \observe statements are interlaced with the \sample statements so that the intermediate
+information can be exploited.  However, if all the variables need to be sampled before making observations or if
+all the variables are completely independent of one another given the data, SMC will reduce to importance sampling,
+while the MCMC methods can still take advantage of hill-climbing effects.
+
+If using SMC or PMCMC based methods, then, as per Section~\ref{sec:part:smc:prat:part}, the most important
+thing is not the exact algorithm, but ensuring that sufficient particles are used.  Because PMCMC methods
+in probabilistic programming do not use separate updates for global parameters, using enough particles
+can be even more important then in conventional settings.  Presume that your computational budget is $M$
+particles and your memory budget is $N$ particles.  Our recommendation is that If $M<N$, you should
+just run a single SMC sweep with $M$ particles -- all the more advanced algorithms are mostly setup to avoid
+issues that are easily solved by running more particles when you can.  For larger values of $M$, then you should
+keep the number of particles as high as possible (ideally $N$).  If $M$ is less then around $20 N$, most methods
+will give similar per sample performance.  For larger values of $M$, then our recommendation is to use iPMCMC
+as the go-to algorithm as this will rarely be noticeably worse than other PMCMC approaches and sometimes
+substantially better.  Two possible exceptions to this are that PGAS and the particle cascade can sometimes still be better
+in such settings.  For example, PGAS can be relatively very effective in models whether there is very extreme restriction on
+the number of particles that can be run.
