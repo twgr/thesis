@@ -6,7 +6,7 @@
 \subsection{Non-Markovian State-Space Models}
 \label{sec:part:smc:nmssm}
 
-Although SMC can be used for for an arbitrary series of targets as we will explain
+Although SMC can be used for an arbitrary series of targets as we will explain
 in Section~\ref{sec:part:smc:arb}, we will mostly introduce it in the context of non-Markovian state-space
 models (NMSSMs).  NMSSMs are probabilistic models over a set of latent variables 
 $x_t \in \mathcal{X}_t, \; \forall t = 1:T$
@@ -292,7 +292,7 @@ its local, self-normalized, weight $\nw_T^i$, giving the estimator
 \E_{\pi (x_{1:T})} \left[f(x_{1:T})\right] \approx \frac{1}{RN} \sum_{r=1}^{R}\sum_{i=1}^{N} \hat{Z}[r] \nw_T^i[r] f(x_{1:T}^i[r]).
 \end{align}
 where the notation $[r]$ is used to indicates samples from sweep $r$.
- The ability to do this is known as \emph{proper weighting} and we can justify it by
+ The ability to do this is known as \emph{proper weighting}~\citep{andersson2015nested} and we can justify it by
 thinking in terms of using a proposal that first samples a full particle set, giving importance weight $\hat Z$, and then sampling a particle
 from this set, giving importance weight $\nw_T^i$.  The product of these separate weights thus gives the weight of
 each sample.  
@@ -454,7 +454,7 @@ to be correctly normalized) we get weights of
 \begin{align}
 w_t(x_{1:t}) &= \int_{\mathcal{X}_t} \frac{\gamma_t({x}_{1:t})}{\gamma_{t - 1}({x}_{1:t - 1})} dx_t
 \end{align}
-$=p(y_t | x_{1:t-1})$ for the NMSSM formulation.  Consequently, the weights in the this case care no longer
+$=p(y_t | x_{1:t-1})$ for the NMSSM formulation.  Consequently, the weights in the this case are no longer
 functions of the sampled value and so the marginal likelihood and effective sample size are deterministic
 functions of the particle system before proposing the $x_{t}$, namely of $\{x_{1:t-1}^i,a_{t-1}^i\}_{i=1}^N$.
 This also means that we can switch the order of sampling from the proposal and doing the resampling when
@@ -470,7 +470,7 @@ instead of $p(x_{t} |x_{1:t-1},y_{1:t})$) because the resampling step will corre
 most likely kill off the ``good'' samples we generated, simply giving us few distinct samples than if we had
 used the one-step optimal proposal instead.\footnote{Note that lookahead in the proposal is distinct from
 	lookahead using auxiliary weights, thus things like block sampling are still useful.}
-In both the case were the optimal series of targets~\eqref{eq:part:opt-target} is used and in the large $N$ case then
+In both the case where the optimal series of targets~\eqref{eq:part:opt-target} is used and in the large $N$ case then
 the \emph{one-step optimal proposal} is optimal more generally for the whole SMC sweep.  However, because it is
 not usually possible to analytically calculate the required normalization for $q_t^*(x_t | x_{1:t-1})$, it is
 not generally tractable.  Nonetheless, it provides a good guide for designing, or adapting for, effective proposal

@@ -135,26 +135,34 @@ sample set is
 q_{\text{PIMH}}(\xib,b) = \bar{w}_T^b q_{\text{SMC}}(\xib) \quad \text{where} \quad \bar{w}_t^i = \frac{{w}_t^i}{\sum_{\ell=1}^{N}w_t^{\ell}}.
 \end{align}
 The proof for the validity of the PIMH
-algorithm is now demonstrated by showing that it a valid MH sampler for an \emph{extended target distribution}
+algorithm is now demonstrated by showing that it is a valid MH sampler for an \emph{extended target distribution}
 whose marginal distribution on $\xb^b$ is the distribution of interest $\pi(\xb^b)$.  To construct our
 extended target distribution, we consider the following hypothetical sampling process
 \begin{enumerate}
 	\item Sample a particle exactly from the target $\xb^b \sim \pi(\xb^b)$,
-	\item Sample a path for the particle uniformly at random path by independently sampling each $\beta_t \sim \textsc{UniformDiscrete}(1,N)$,
-	\item Sample all of the other particles and trajectories conditioned on $\{\xb^{b},\bb\}$ using \begin{align}
+	\item Sample an ancestral path for the retained particle uniformly at random by independently sampling each $\beta_t \sim \textsc{UniformDiscrete}(1,N)$ and setting $\bb = (\beta_1,\dots,\beta_T)$,
+	\item Sample all of the other particles and ancestor indices conditioned on $\{\xb^{b},\bb\}$ using \begin{align}
 	\label{eq:part:csmc}
 	q_{\text{CSMC}}\left(\xib \backslash \{\xb^b, \bb\} \mid \xb^b, \bb \right) = 
 	\prod_{\substack{i=1\\i\neq b_{1}}}^N  q_1(x_{1}^i) \cdot \prod_{t=2}^T \prod_{\substack{i=1\\i\neq b_{t}}}^N \left[
-	\nw_{t-1}^{a_{t-1}^i}q_t(x_{t}^i|x_{1:t-1}^{a_{t-1}^i})\right].
+	\nw_{t-1}^{a_{t-1}^i}q_t(x_{t}^i|x_{1:t-1}^{a_{t-1}^i})\right],
 	\end{align}
+	which corresponds to $q_{\text{SMC}}(\xib)$ as per~\eqref{eq:part:smc:proposal}
+	except for having one particle and path, $\{\xb^{b},\bb\}$, already predefined.
 \end{enumerate}
+We can informally think of this as doing the PIMH process in reverse.  Rather than
+running an SMC sweep and sample one of the produced particles to produce $\{\xb^{b},\bb\}$, we
+first sample the $\{\xb^{b},\bb\}$ and then the rest of the variables in the SMC sweep conditioned
+on this particle and accompanying ancestral path.
 Together these steps induce the distribution
 \begin{align}
 \label{eq:part:pimh-target}
 \tilde{\pi}(\xi,b) = \frac{\pi(\xb^{b})}{N^T} \prod_{i=1, i\neq\beta_1}^N q_1(x_{1}^i) \cdot \prod_{t=2}^T \prod_{i=1, i\neq\beta_t}^N \left[ 
 \nw_{t-1}^{a_{t-1}^i}
-q_t(x_{t}^i|x_{1:t-1}^{a_{t-1}^i}) \right].
+q_t(x_{t}^i|x_{1:t-1}^{a_{t-1}^i}) \right]
 \end{align}
+remembering that as $\xi$ includes all the particles and ancestral paths, sampling $\xi$
+and choosing one particle $b$ implies a particular $\{\xb^{b},\bb\}$.
 By construction, the marginal of this distribution is $\pi(\xb^{b})$.
 Therefore, although it is not possible to actually
 sample from $\tilde{\pi}(\xi,b)$ directly (we started the definition by sampling exactly
