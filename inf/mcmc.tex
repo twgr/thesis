@@ -58,7 +58,7 @@ $T(x_{n+1} \leftarrow x_n)$.
 
 The marginal probability density of any particular point in a homogenous Markov chain is given by
 \begin{align}
-p(x_n) = \int_{x_1,\dots,x_{n-1}} p(x_1) \prod_{i=2}^{n} T(x_{i=1} \leftarrow x_{i}) dx_1\dots dx_{n-1}.
+p(x_n) = \int_{x_1,\dots,x_{n-1}} p(x_1) \prod_{i=2}^{n} T(x_{i-1} \leftarrow x_{i}) dx_1\dots dx_{n-1}.
 \end{align}
  For a Markov chain to converge to a target distribution $\pi (x)$, we will need that
 $\lim\limits_{n\rightarrow\infty} p(X_n=x) = \pi(x)$ for any possible starting position $x_1$, i.e.

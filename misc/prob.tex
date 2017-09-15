@@ -227,12 +227,14 @@ this reference measure  is typically not a probability measure.  Consider the ca
 in Section~\ref{sec:prob:den}.
 Here we have implicitly used the \emph{Lebesgue measure} as the reference measure, which corresponds to
 the standard Euclidean notion of size, coinciding with the concepts of length, area, and
-volume in 1, 2, and 3 dimensions respectively.  In~\eqref{eq:prob:density} then $dx$ represented
-the reference measure placed on an infinitesimally small interval in $x$, with $\int_{x\in\mathcal{A}} dx$ being equal
+volume in 1, 2, and 3 dimensions respectively.  In~\eqref{eq:prob:density} then $dx$ indicated 
+integration with respect to a Lebesgue measure, with $\int_{x\in\mathcal{A}} dx$ being equal
 to the hypervolume of $\mathcal{A}$ (e.g. area of $\mathcal{A}$ in two dimensions).  We thus
 clearly have that our reference measure is not a probability measure as $\int_{x\in\real} dx = \infty$.
-The probability measure assigned to our infinitesimally small interval in this scenario
-is, in fact, the density times the Lebesgue measure assigned to our interval, namely $p(x)dx$.
+Our probability measure here can be informally thought of as $p(x)dx$, so that  
+$\int_{x\in\mathcal{A}} p(x)dx = P(x\in\mathcal{A})$.\footnote{More formally, the density is derived
+	from the probability measure and reference measure rather than the other way around:
+	it is the Radon-Nikodym derivative of the probability measure with respect to the reference measure.}
 In the discrete cases, we can define a probability density $p(x)=P(X=x)$ by
 using the notion of a \emph{counting measure} for reference which simply counts the number of outcomes which
 lead to a particular event.   Note that we were not free to choose an arbitrary measure for any given
@@ -276,12 +278,14 @@ the density is scaled by large value), though strict speaking this scaling shoul
 
 For most applications,\footnote{An important
 	exception to this is optimization (see Chapter~\ref{chp:opt}).}
-the choice between valid measures will turn out to be
+the choice between valid reference measures will turn out to be
 inconsequential (provided we are consistent in our choice when considering multiple
 densities) as it does not affect the distribution of random variables themselves 
 or effect things such as expectations (see Section~\ref{sec:prob:expt}).  
 The key point we wish to instead make, is that regardless of variable type, we can
-(implicitly) always define a probability density function.  The generalization also allows us
+(implicitly) always define a probability density function.\footnote{Well, almost always.  But we
+	are not going to open that can of worms, see e.g.~\cite{durrett2010probability}.}  
+The generalization also allows us
 to put probability distributions of variables that are neither discrete or continuous type.
 For example, we might want to put a distribution over the space of strings.  
 Because of this generalization, we will talk mostly in terms of probability densities throughout
@@ -298,7 +302,8 @@ on $Y$ using
 p(y)dy = p(x)dx = p(g^{-1}(y))dx
 \end{align} 
 where $p(y)$ and $p(x)$ are the respective probability densities for $Y$ and $X$
-respectively with measures $dx$ and $dy$.  Rearranging we see that, for one-dimensional problems, 
+respectively with measures $dx$ and $dy$,  the latter of which is known as a \emph{push-forward} measure.
+Rearranging we see that, for one-dimensional problems, 
 \begin{align}
 \label{eq:prob:change2}
 p(y) = \left|\frac{dg^{-1}(y))}{dy}\right|p(g^{-1}(y)).
