@@ -58,34 +58,6 @@ also two slight variations.  The first keeps everything the same as~\eqref{eq:re
 while the second instead replaces $y^{(0)}$ with $y^{(0)}/10$ in the definitions of $f_1$ and $f_2$.  The two
 respectively have analytic solutions of $I=11/32$ and $I=39/160$.
 
-
-\begin{figure}[t]
-	\centering
-	\begin{subfigure}[b]{0.32\textwidth}
-		\centering
-		\includegraphics[height=0.88\textwidth]{tmax_1e6_model_3_contour_plot.pdf}
-		\caption{Original}
-	\end{subfigure}
-	~\hspace{4pt}
-	\begin{subfigure}[b]{0.32\textwidth}
-		\centering
-		\includegraphics[height=0.88\textwidth]{tmax_1e6_model_2_contour_plot.pdf}
-		\caption{First modification}
-	\end{subfigure}
-	~\hspace{-2pt}
-	\begin{subfigure}[b]{0.32\textwidth}
-		\centering
-		\includegraphics[height=0.88\textwidth]{tmax_1e6_model_4_contour_plot.pdf}
-		\caption{Second modification}
-	\end{subfigure}
-	\caption{Contour plots of $\log_{10} \left(\E \left[(I_0-\gamma_0)^2\right]\right)$ (i.e. $\log_{10}$ MSE, estimated
-		by averaging over $1000$ individual estimations)
-		for different allocations of the sample budget $T=10^6$ between $N_0$, $N_1$,
-		and $N_2$ for problem shown in~\eqref{eq:repeat-nest} and two modifications explained in
-		the text.
-		\label{fig:multi-tau}}
-\end{figure}	
-
 To 
 try and find the optimal $(\alpha_1,\alpha_2)$ and establish the variation of the MSE more generally,
 we ran a Bayesian optimization
@@ -109,3 +81,30 @@ in $f_1$ and $f_2$.  However, further work is required to
 establish for concrete empirical guidelines or to investigate whether methods that adaptively allocate the number of
 samples might be feasible.  In the meantime, the asymptotically optimal choice (presuming continuous differentiability) 
 of $N_0 \propto N_1^2 \propto \dots \propto N_D^2$ seems to a reasonable practical choice on average.
+
+\begin{figure}[t]
+	\centering
+	\begin{subfigure}[b]{0.32\textwidth}
+		\centering
+		\includegraphics[height=0.88\textwidth]{tmax_1e6_model_3_contour_plot.pdf}
+		\caption{Original}
+	\end{subfigure}
+	~\hspace{4pt}
+	\begin{subfigure}[b]{0.32\textwidth}
+		\centering
+		\includegraphics[height=0.88\textwidth]{tmax_1e6_model_2_contour_plot.pdf}
+		\caption{First modification}
+	\end{subfigure}
+	~\hspace{-3pt}
+	\begin{subfigure}[b]{0.32\textwidth}
+		\centering
+		\includegraphics[height=0.88\textwidth]{tmax_1e6_model_4_contour_plot.pdf}
+		\caption{Second modification}
+	\end{subfigure}
+	\caption{Contour plots of $\log_{10} \left(\E \left[(I_0-\gamma_0)^2\right]\right)$ (i.e. $\log_{10}$ MSE, estimated
+		by averaging over $1000$ individual estimations)
+		for different allocations of the sample budget $T=10^6$ between $N_0$, $N_1$,
+		and $N_2$ for problem shown in~\eqref{eq:repeat-nest} and two modifications explained in
+		the text.
+		\label{fig:multi-tau}}
+\end{figure}	

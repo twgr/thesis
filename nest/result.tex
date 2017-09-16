@@ -18,7 +18,7 @@ quadrature~\citep{o1991bayes}.
     $\mathbb{P}(\hat{\zeta}_n \neq \gamma(y_n)) > 0$.
   Then we can choose $f$ such that if $y_n \sim p(y)$,
     $\E\left[\frac{1}{N} \sum_{n=1}^N f(y_n, \hat{\zeta}_n)\right] \neq I(f)$ for any
-    $N$ (including the limit $N\rightarrow\infty$).
+    $N$ (including $N\rightarrow\infty$).
 \end{theorem}
 \begin{proof}
 	Take $f(y, w) = (\gamma(y) - w)^2$. Then $f(y, \gamma(y)) = 0$, so that $I(f) = 0$.  On
@@ -60,17 +60,12 @@ case where $\hat{\zeta}_n$ is a MC estimate.
   $\mathcal{A} = \left\{y \in \mathcal{Y} \;\middle|\; \mathrm{Var}\left(\hat{\zeta}_n \middle| y_n=y \right)>0\right\}$
   and assume that ~$\mathbb{P}(y_n \in \mathcal{A}) > 0$.
   Then for any $f$ that is strictly convex in its second argument,
-	\[ 
-	\E\left[\frac{1}{N} \sum_{n=1}^N f(y_n, \hat{\zeta}_n)\right] > I(f).
-	\]
+	$\E\left[\frac{1}{N} \sum_{n=1}^N f(y_n, \hat{\zeta}_n)\right] > I(f)$.
   Similarly for any $f$ that is strictly concave in its second argument, 
-	\[
-		\E\left[\frac{1}{N} \sum_{n=1}^N f(y_n, \hat{\zeta}_n)\right] < I(f).
-	\]
+		$\E\left[\frac{1}{N} \sum_{n=1}^N f(y_n, \hat{\zeta}_n)\right] < I(f)$.
 \end{theorem}
 \begin{proof}
-	We prove our claim for the case that $f$ is strictly convex; our proof for the other concave case  
-	is symmetrical. We have
+	If $f$ is strictly convex (the concave case follows by the same argument) we have
 	\begin{align*}
 	\E\left[\frac{1}{N} \sum_{n=1}^N f(y_n, \hat{\zeta}_n)\right] = \E\left[f(y_1, \hat{\zeta}_1)\right] 
 	= \E\left[\E\left[f(y_1, \hat{\zeta}_1) \middle| y_1\right]\right] 

@@ -21,11 +21,12 @@ z \sim \mathcal{N}(0,1), \\
 f(y,\gamma(y)) = \log (\gamma (y)) = \log(\E_z[\phi(y,z)]).
 \end{aligned}
 \end{equation}
-for which $I = \mathbb{E}_{y \sim p(y)}\left[f\left(y,\mathbb{E}_{z\sim p(z|y)}\left[\phi(y,z)\right]\right)\right]=\frac{1}{2}\left(\log(2)-\log(5)-\log(\pi)\right)-\frac{2}{15}$.
+for which $I = \mathbb{E}_{p(y)}\left[f\left(y,\mathbb{E}_{p(z|y)}
+\left[\phi(y,z)\right]\right)\right]=\frac{1}{2}\left(\log(2)-\log(5)-\log(\pi)\right)-\frac{2}{15}$.
 Figure~\ref{fig:emprical-conv} shows the corresponding empirical convergence obtained by
 applying~\eqref{eq:nested-mc} to~\eqref{eq:model} directly. It shows that for this
 problem the theoretical convergence rates from Theorem~\ref{the:Repeat} are indeed
-realized.\footnote{Note this the continuous differentiability assumption is satisfied as $\gamma(y)\neq0$
+realized.\footnote{Note the continuous differentiability assumption is satisfied as $\gamma(y)\neq0$
 or $\infty$ for any $y\in[-1,1]$.}
 The figure also demonstrates the danger of not increasing
 $M$ with $N$, showing that the NMC estimator converges to an incorrect solution when $M$
@@ -73,7 +74,7 @@ The clinicians have at their disposal a simulator for the evolution of tumors wi
 parameterized by both observable values, $y$, such as tumor size, and unobservable values, $z$, such as the patient-specific response to treatment.
 Given a set of input parameters, the simulator deterministically returns a binary response $\phi(y,z)\in\left\lbrace 0,1\right\rbrace $, with $\phi(y,z) = 1$ indicating a successful treatment.
 To estimate the probability of a successful treatment for a given patient, the clinician must calculate the expected
-success over these unobserved variables, namely $\E_{z\sim p(z|y)} [\phi(y,z)]$ where $p(z|y)$ represents a probabilistic
+success over these unobserved variables, namely $\E_{p(z|y)} [\phi(y,z)]$ where $p(z|y)$ represents a probabilistic
 model for the unobserved variables, which could, for example, be constructed based on empirical data.
 The clinician then decides whether to go ahead with the treatment for that
 patient based on whether the calculated probability of success exceeds a certain threshold $T_{\mathrm{treat}}$.
@@ -83,11 +84,11 @@ To do this, it needs to calculate the expectation of the clinician's decisions t
 treatment, giving the complete nested expectation for calculating the number of treated patients as
 \begin{equation}
 	\label{eq:cancer}
-I(T_{\mathrm{treat}}) = \E_{y \sim p(y)} \left[\mathbb{I}\left(\E_{z\sim p(z|y)} [\phi(y,z)]>T_{\mathrm{treat}}\right)\right],
+I(T_{\mathrm{treat}}) = \E_{p(y)} \left[\mathbb{I}\left(\E_{p(z|y)} [\phi(y,z)]>T_{\mathrm{treat}}\right)\right],
 \end{equation}
 where the identity function $\mathbb{I}(\cdot > T_{\mathrm{treat}})$ imposes a non-linear
 mapping, such that conventional Monte Carlo estimation is not possible. Full details on $\phi$, $p(y)$, and $p(z|y)$ are 
-provided in Appendix~\ref{sec:cancer_sim_app}.
+provided in~\cite{rainforth2017pitfalls}.
 
 To verify the convergence rate, we repeat the analysis from Section~\ref{sec:simple} for the problem defined 
 by~\eqref{eq:cancer} at a fixed value of $T_{\mathrm{treat}}=0.35$. 

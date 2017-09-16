@@ -49,8 +49,8 @@ $f$ to be Lipschitz continuous, at the expense of weakening this bound to $O(1/N
 \end{restatable}
 \begin{proof}
 The Theorem follows as a special case of Theorem~\ref{the:Repeat} which,
-amongst other things, provides an exact form for this bound along with a tighter bound
-that holds when $f$ is continuously differentiable.  See also Appendix~\ref{sec:app:rate_single}
+amongst other things, provides an exact form for this bound and a tighter bound
+that holds when $f$ is continuously differentiable.  See also~\cite{rainforth2017pitfalls}
 for a more accessible proof of this particular result.
 \end{proof}
 \begin{remark}
@@ -60,7 +60,7 @@ per~\cite{hong2009estimating}.
 \end{remark}
 Inspection of the convergence rate above shows that, given a total number of samples
 $T=MN$, our bound is tightest when $N\propto M$, with a
-corresponding rate $O(1/\sqrt{T})$ (see Appendix~\ref{sec:app:opt-conv}). 
+corresponding rate $O(1/\sqrt{T})$ (see~\cite{rainforth2017pitfalls}). 
 When the additional assumptions of~\citet{hong2009estimating}
 apply, this rate can be lowered to $O(1/T^{2/3})$ by setting $N \propto M^2$.  
 We note that
@@ -85,10 +85,8 @@ requirement is weaker than uniform continuity (and much weaker than Lipschitz co
 because it does allow (potentially infinitely
 many) discontinuities in $f$.  More formally we have the following result.
 \begin{restatable}{theorem}{theConsistent} \label{the:Consistent}
-	For $n \in \N$, let 
-	\[
-	(\epsilon_M)_n = \left|f(y_n, (\hat{\gamma}_M)_n) - f(y_n, \gamma(y_n))\right|.
-	\]
+	For $n \in \N$, let $
+	(\epsilon_M)_n = \left|f(y_n, (\hat{\gamma}_M)_n) - f(y_n, \gamma(y_n))\right|.$
   Assume that $\E\left[(\epsilon_M)_1\right] \to 0$  as $M \to \infty$. Denote by $\Omega$
   the sample space of our underlying probability space, so that $I_{\tau_\delta(M),M}$ can
   be thought of as a map from $\Omega$ to $\mathbb{R}$. Then, for every $\delta > 0$,
@@ -99,9 +97,6 @@ many) discontinuities in $f$.  More formally we have the following result.
 		I_{\tau_\delta(M),M}(\omega) \to I\quad\mbox{as}\quad M \to \infty.
 	\]
 \end{restatable}
-\begin{proof}
-	See Appendix~\ref{sec:app:consistent}
-\end{proof}
 As well as providing proof of a different form of convergence to any existing results, this
 result is particularly important because many, if not most, functions are not Lipschitz
 continuous due to the their behavior in the limits.  For example, even the function $f(y,\gamma(y)) = \left(\gamma(y)\right)^2$
@@ -175,13 +170,12 @@ there are no higher-order terms that are only dominated asymptotically.
 %\end{restatable}
 \begin{restatable}{theorem}{theRepeat}
 	\label{the:Repeat} %\label{the:biggie}
-	If $f_0, \cdots, f_D$ are all Lipschitz continuous in their second input with Lipschitz 
-	constants\footnote{Note that these are the Lipschitz constants and must exist by definition,
-		rather than being an extra requirement.}
+	If $f_0, \cdots, f_D$ are all Lipschitz continuous with associated Lipschitz 
+	constants
 	\[K_k = \sup_{y^{(0:k)}} \left| \frac{\partial f_k\left(y^{(0:k)},\gamma_{k+1}(y^{(0:k)})\right)}{\partial \gamma_{k+1}}\right|, \quad \forall k
 	\in 0,\dots,D-1
 	\]
-	and if 
+	and if
 	\[
 	\varsigma_{k}^2  
 	=\E \left[\left(f_k\left(y^{(0:k)},\gamma_{k+1}
@@ -223,15 +217,12 @@ there are no higher-order terms that are only dominated asymptotically.
 	for when the continuous differentiability assumption does not hold and 
 	holds respectively.
 \end{restatable}
-\begin{proof}
-	See Appendix~\ref{sec:app:repeat}
-\end{proof}
 At a high level, the key points of these results are a convergence rate of $O(\sum_{k=0}^{D} 1/N_k)$
 when only Lipschitz continuity holds and $O(1/N_0 +(\sum_{k=1}^{D} 1/N_k)^2)$ when
 all the $f_k$ are also continuously differentiable.  
 As estimation requires drawing $T = \prod_{k=0}^{D} N_k$ samples, 
-the convergence rate will rapidly diminish with repeated nesting.  More precisely,
-as shown in Appendix~\ref{sec:app:opt-conv}, then the optimal convergence rates are
+the convergence rate will rapidly diminish with repeated nesting.  More precisely then the optimal convergence rates,
+as shown~\cite{rainforth2017pitfalls}, are
 $O(T^{\frac{-1}{D}})$ and $O(T^{\frac{-2}{D+1}})$ respectively for the two cases (note the single nesting case 
 is $D=2$), both of which
 imply that exponentially more samples are required to achieve a given error as $D$ is increased.
