@@ -1,0 +1,66 @@
+% !TEX root = ../main.tex
+
+\section{Bayesian Experimental Design}
+\label{sec:design:bed}
+
+In this section we will introduce the BED equations more formally.
+Let the parameters of interest be denoted by $\theta \in \Theta$ for which we define a prior distribution $p(\theta)$.
+Let the probability of achieving outcome $y\in\mathcal{Y}$, given parameters $\theta$ 
+and a design $d \in \mathcal{D}$, be defined by likelihood model $p(y | \theta, d)$.
+Under our model, the outcome of the experiment given a chosen $d$ is distributed according to
+\begin{equation}
+\label{eq:marginal_def}
+p(y | d) = \int_{\Theta} p(y,\theta | d) d\theta = \int_{\Theta} p(y | \theta, d) p(\theta) d\theta.
+\end{equation}
+where we have used the fact that $p(\theta)=p(\theta|d)$ because $\theta$ is independent of the design.
+Our aim is to choose the optimal design $d$ under some criterion. 
+We, therefore, define a utility function, $U(y,d)$, representing the utility of choosing a design $d$ 
+and getting a response $y$.
+Typically our aim is to maximize information gathered from the experiment, and so we set 
+$U(y,d)$ to be the gain in Shannon information between the prior and the posterior:
+\begin{align}
+\label{eq:shannon_inf}
+U(y,d) &= \int_{\Theta} p(\theta |y, d) \log(p(\theta |y, d)) d\theta -\int_{\Theta} p(\theta) \log(p(\theta))d\theta
+\end{align}
+However, we are still uncertain about the outcome. Thus, we use the expectation of $U(y,d)$ with respect to $p(y | d)$
+as our target:
+\begin{align}
+\bar{U}(d) 
+&=\int_{\mathcal{Y}} p(y|d) \left(
+\int_{\Theta} p(\theta | y, d)\log(p(\theta |y, d)) d\theta - 
+\int_{\Theta} p(\theta) \log(p(\theta)) d\theta \right) dy \nonumber\\
+&=\int_{\mathcal{Y}}\int_{\Theta} p(y,\theta | d)\log\left(\frac{p(\theta |y, d)}{p(\theta)}\right)d\theta dy. 
+\label{eq:u_bar_1}
+\end{align}
+noting that this corresponds to the mutual information between the parameters $\theta$ and
+the observations $y$.  The Bayesian-optimal design is then given by
+\begin{equation}
+\label{eq:d_star}
+d^* = \argmax_{d \in \mathcal{D}} \bar{U}(d).
+\end{equation}
+
+We can intuitively interpret $d^*$ as being the design that most reduces the uncertainty in $\theta$
+on average over possible experimental results.  If our likelihood model is correct, i.e. if experimental outcomes
+are truly distributed according to $p(y | \theta, d)$ for a given $\theta$ and $d$, then it is easy to see 
+from the above definition that
+$d^*$ is the true optimal design, in terms of information gain, given our current information about
+the parameters $p\left(\theta \right)$.  
+
+In practice, our likelihood model is an approximation of
+human behaviour, while the fact that we have a series of design problems will also change the
+relative optimality of each design (see Section~\ref{sec:design:seq}).  The former is unavoidable due
+to the obvious fact that it is impossible to construct a perfect model for human behaviour.  The latter
+can at least in theory be mitigated by incorporating the effect of future possible designs on the
+current design (see for example~\cite{gonzalez2016glasses}), but in practice this will generally be
+intractable as it requires multiple levels of estimation nesting with the associated problematic convergence
+rates shown in Chapter~\ref{chp:nest}. 
+
+Despite these approximations, myopic Bayesian experimental design remains a very powerful and
+statistically principled approach that is typically significantly superior to other, more heuristic based,
+alternatives.  For example, the state-of-the-art entropy based Bayesian optimization acquisition strategies we 
+discussed in Section~\ref{sec:opt:BO:acq:inf} are particular cases of BED.
+The main draw back to the Bayesian experimental design 
+approach is, in fact, that it is typically difficult and computationally intensive to carry out.  
+Not only does it represent an optimisation 
+of an intractable expectation, this expectation is itself a nested estimation because
+the integrand is itself intractable (due to the $p\left(\theta | y, d\right)$ term).

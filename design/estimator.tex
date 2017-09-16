@@ -1,0 +1,90 @@
+% !TEX root =  main.tex
+
+\section{An Improved Estimator for Discrete Problems}
+\label{sec:bo-design}
+
+As we explained in the last section, estimating $d^*$ is in general challenging
+because the posterior $p(\theta |y, d)$ is rarely known in closed form.  
+One popular method within the psychology literature is to use a grid-search approach 
+to the required inference~\citep{PSImethod:1999, Prins:2013gr}, 
+which subsequently provides (biased) estimates for $p(\theta |y, d)$.
+However, this is highly unsatisfactory for a host of obvious reasons such as the generally
+poor performance of grid-search for inference, the use of a nested estimation procedure
+with accompanying poor performance as shown in Chapter~\ref{chp:nest}, and the need for careful, problem specific,
+human input in the form of the grid.
+
+To address these issues, we instead derive a nested Monte Carlo estimator and further
+show how, when $y$ can only take a finite number of values,
+a substantially improved, non-nested, Monte Carlo estimator can be derived using the
+results from Chapter~\ref{chp:nest}.
+Out first step is to rearrange~\eqref{eq:u_bar_1} using Bayes' rule (remembering
+$p(\theta)=p(\theta|d)$)
+\begin{align}
+\label{eq:u_bar_2}
+\begin{split}
+\bar{U}(d)
+=& \int_{\mathcal{Y}}\int_{\Theta} p(y,\theta | d) \log\left(\frac{p(y | \theta, d)}{p(y |d)}\right) d\theta dy \\
+=&\int_{\mathcal{Y}}\int_{\Theta} p(y,\theta | d) \log(p(y | \theta, d)) d\theta dy - \int_{\mathcal{Y}} p(y | d) \log(p(y | d))dy.
+\end{split}
+\end{align}
+The first of these terms can now be evaluated using standard MC approaches as the integrand is analytic,
+namely we can use
+\begin{align}
+\bar{U}_1(d) = &\int_{\mathcal{Y}}\int_{\Theta} p(y,\theta | d) \log(p(y | \theta, d)) d\theta dy
+\approx \frac{1}{N} \sum_{n=1}^{N} \log(p(y_n | \theta_n, d)) \label{eq:U1_MC}
+\end{align}
+where $\theta_n \sim p(\theta)$ and $y_n \sim p(y|\theta=\theta_n, d)$.\footnote{Note 
+	that evaluating~\eqref{eq:U1_MC} involves both
+sampling from $p(y | \theta, d)$ and directly evaluating it point-wise.
+The latter of these cannot easily be avoided, but in the scenario where we
+do not have direct access to a sampler for $p(y | \theta, d)$, we can
+use the standard importance sampling trick, sampling instead
+$y_n \sim q(y|\theta=\theta_n, d)$ and weighting the samples in~\eqref{eq:U1_MC}
+by $w_n = \frac{p(y_n|\theta_n, d)}{q(y_n|\theta_n, d)}$.}
+In contrast, the second term of~\eqref{eq:u_bar_2} is not directly amenable to standard MC estimation
+as the marginal $p(y|d)$ represents an expectation
+and taking its logarithm represents a nonlinear functional mapping.  
+Here we have
+\begin{align}
+\bar{U}_2(d) = &\int_{\mathcal{Y}} p(y | d) \log(p(y | d))dy
+\approx \frac{1}{N} \sum_{n=1}^{N} \log \left(\frac{1}{M} \sum_{m=1}^{M} p(y_n | \theta_{n,m}, d)\right) \label{eq:U2_MC}
+\end{align}
+where $\theta_{n,m} \sim p(\theta)$ and $y_n \sim p(y | d)$.  We can sample the latter by first sampling an otherwise unused $\theta_{n,0} \sim p(\theta)$ and 
+then sampling a single corresponding $y_n \sim p(y | \theta_{n,0}, d)$.
+
+Putting~\eqref{eq:U1_MC} and~\eqref{eq:U2_MC} together (and renaming
+$\theta_n$ from~\eqref{eq:U1_MC} as $\theta_{n,0}$ for notational
+consistency with ~\eqref{eq:U2_MC})  we now have the following complete estimator,
+implicitly used by \cite{myung2013tutorial} 
+and \cite{ouyang2016practical} amongst others
+\begin{align}
+\label{eq:exp-des-nmc}
+\bar{U}(d) 
+& \approx  
+\frac{1}{N} \sum_{n=1}^{N} \left[ \log(p(y_n | \theta_{n,0},d)) 
+- \log \left(\frac{1}{M} \sum_{m=1}^{M}p(y_n | \theta_{n,m},d)\right) \right]
+\end{align}
+where $\theta_{n,m} \sim p(\theta) \; \forall m \in 0:M, \;n \in 1:N$ and $y_n \sim p(y|\theta=\theta_{n,0}, d) \; \forall n \in 1:N$.
+This na\"{i}ve NMC estimator gives a convergence
+rate of $O(1/N+1/M^2)$ as per Theorem~\ref{the:Repeat}.
+
+We now show that if $y$ can only take on one of $C$ possible values ($y_1, \ldots, y_C$), 
+we can achieve significant improvements in the convergence rate by using a similar to that
+introduced in Section~\ref{sec:app:finite-res} to derive the following non-nested estimator for~\eqref{eq:u_bar_2}
+\begin{align}
+&\bar{U}(d)=\int_{\mathcal{Y}}\int_{\Theta} p(y,\theta | d) \log(p(y | \theta, d)) d\theta dy - \int_{\mathcal{Y}} p(y | d) \log(p(y | d))dy 
+\nonumber \\
+&= \int_{\Theta} \left[\sum_{c=1}^{C} p(\theta) p(y_c|\theta, d) \log(p(y_c | \theta, d)) \right] d\theta
+-\sum_{c=1}^{C} p(y_c | d)\log(p(y_c | d))  \label{eq:u_bar_MC} \\
+&\approx 
+\frac{1}{N} \sum_{n=1}^{N} \sum_{c=1}^{C} p(y_c | \theta_n, d) \log\left(p(y_c | \theta_n, d)\right)
+- \sum_{c=1}^{C} \left[\left(\frac{1}{N}\sum_{n=1}^{N} p(y_c | \theta_n, d)\right) \log \left(\frac{1}{N} \sum_{n=1}^{N} p(y_c | \theta_n, d)\right) \right] \nonumber
+\end{align}
+where $\theta_n \sim p(\theta) \quad \forall n \in 1,\dots,N$ and $y_c$ are fixed constants.
+Here our estimate is a deterministic function of a number of separate Monte Carlo estimators.  
+Because there is no trivial canceling of terms, $x\log(x)=0$, and each $p(y_c | \theta_n, d)\le1$,
+no complications originate from this function application and the MSE of our estimator will
+converge at the standard MC error rate of $O(1/N)$. This requires $T=O(NC)$ calculations and
+so we can express the per evaluation convergence rate as $O(C/T)$.  This compares to 
+an optimal rate of $O(1/T^{2/3})$ for~\eqref{eq:exp-des-nmc}.
+To the best of our knowledge, this is the first introduction of this superior estimator in the literature.

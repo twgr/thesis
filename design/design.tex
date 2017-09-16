@@ -1,0 +1,35 @@
+% !TEX root = ../main.tex
+
+\chapter{Automated Bayesian Experimental Design}
+\label{chp:design}
+
+From tuning microscopes to designing surveys on politics, all problems of 
+experimental design can be reduced to the same mathematical abstraction:
+choosing a design that maximizes the expected information gained from the 
+experiment.
+Bayesian experimental design (BED)~\citep{chaloner1995bayesian,sebastiani2000maximum} 
+provides an appropriate and powerful framework for this abstraction.  In BED
+one constructs a likelihood model for the experiment outcome and then uses this, along
+with a prior on the parameters one wishes to learn about, to find the experimental setup
+that maximizes the expected information gathered by the experiment.  
+If the model is correct, this forms a design strategy that is optimal from
+an information-theoretic viewpoint \citep{sebastiani2000maximum}.  
+The general nature of its formulation means that BED can, at least in principle, be applied
+to almost any experimental design situation and it has been successfully applied to a wide
+array of fields such as psychology~\citep{myung2013tutorial,vincent2017darc,Cavagnaro:discounting},
+Bayesian optimization~\citep{hennig2012entropy,hernandez2014predictive}, and
+bioinformatics~\citep{vanlier2012bayesian}.
+
+Unfortunately, as we alluded to in the previous chapter, BED problems require, in
+general, the calculation of a nested estimation.
+In this section we will provide a brief introduction to BED and show how our results
+from the last chapter can be used to derive a new estimator for BED equations 
+which has a better convergence rate for discrete output problems than the na\"{i}ve
+methods typically currently used.  We will introduce a framework for automating the
+design of \emph{sequential} experiments and demonstrate how this can be
+effectively applied to automating psychological trials~\citep{vincent2017darc}.  
+
+\input{design/bed.tex}
+\input{design/estimator.tex}
+\input{design/auto.tex}
+\input{design/darc.tex}
