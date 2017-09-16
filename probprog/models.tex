@@ -506,8 +506,8 @@ The same intuition applies to continuous cases where we now have the density of 
 We can also think of $f(x|\lambda)g(\eta(x,\lambda)|x,\lambda)$ as defining a unnormalized distribution on $x$ whose
 normalization constant is $\int f(x|\lambda)g(\eta(x,\lambda)|x,\lambda) dx$.  In general, our normalization
 constant will be a combination of conventional marginal likelihood terms and contributions from these ``doubly defined''
-terms. We coin this normalization constant the \emph{marginal observation density}\footnote{Note this is not a
-	term that has previously appeared in the literature, where it is usually just referred to as a marginal
+terms. We refer to this normalization constant the \emph{partition function}\footnote{Note this is not a
+	term that is usually used in the probabilistic programming literature, where it is usually just referred to as a marginal
 	likelihood.  Similarly, it is common in the literature to refer to a query as defining a ``normalized 
 	joint'' density of $p_{\theta}(x_{1:n_x},y_{1:n_y}) = \prod_{j=1}^{n_x} f_{a_j}(x_j | \phi_j)
 	\prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k)$.  We have deviated from both of these because, as our examples
@@ -531,7 +531,7 @@ $0<Z(\lambda)<\infty$.
 
 We now see that we can draw a direct analogy to the Bayesian framework whereby the product of the
 \sample terms is analogous to the prior, the product of the \observe terms is analogous to the
-likelihood, and the marginal observation density is analogous to the marginal likelihood.  If observed variables
+likelihood, and the partition function is analogous to the marginal likelihood.  If observed variables
 are not sampled within or used elsewhere in the query (e.g. being used a parameters in distribution objects
 later used for sampling), then this analogy becomes exact as per our simplified setup.\footnote{Note that the
 	observed variables should not be used in deterministic elements of the code for this to hold so that they

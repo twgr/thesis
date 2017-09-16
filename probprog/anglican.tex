@@ -291,7 +291,7 @@ manner we discuss in Section XX as there is no inference going on between the ne
 
 Inference on the model is performed using the macro \doquery, which produces a lazy infinite sequence of 
 approximate samples from the conditional distribution and, for appropriate inference algorithms,
-an estimate of the marginal observation density.
+an estimate of the partition function.
 The syntax of \doquery is {\small \lsi{(doquery inf-alg model inputs & options)}} where {\small \lsi{inf-alg}}
 specifies an inference algorithm, e.g. {\small \lsi{:ipmcmc}}, {\small \lsi{model}} is our query, {\small \lsi{inputs}}
 is a vector if inputs to the query, the \& represents that there might be multiple additional inputs, and {\small \lsi{options}}

@@ -1,14 +1,20 @@
-% !TEX root =  ../main.tex
+% !TEX root =  main.tex
 
 \section{Optimizing the Convergence Rates}
 \label{sec:app:opt-conv}
 
-We have shown that the mean squared error converges at a rate $O(1/N + 1/M)$ or
-$O(1/N + 1/M^2)$ depending on the smoothness assumptions that can be made about
-$f$.  Here we show that given a sample budget $T=MN$, then these bounds are
-optimized by setting $N \propto M$ and $N \propto M^2$ respectively and that this
-gives bounds of $O(1/\sqrt{T})$ and $O(1/T^{2/3})$ respectively.
+We have shown that the mean squared error converges at a rate \[
+O\left(\sum_{k=0}^{D} \frac{1}{N_k}\right) \quad \mathrm{or} \quad 
+O\left(\frac{1}{N_0} +\left(\sum_{k=1}^{D} \frac{1}{N_k}\right)^2\right)
+\]
+ depending on the smoothness assumptions that can be made about
+$f$.  Here we show that given a sample budget $T=\prod_{k=0}^{D} N_k$, then these bounds are
+optimized by setting $N_0 \propto N_1 \propto \dots \propto N_D$ and 
+$N_0 \propto N_1^2 \propto \dots \propto N_D^2$ respectively for the two cases and that this
+gives bounds of $O(T^{\frac{-1}{D}})$ and $O(T^{\frac{-2}{D+1}})$respectively.  For the single
+nested case, this gives bounds of $O(1/\sqrt{T})$ and $O(1/T^{2/3})$ respectively.
 
+We first consider the single nested case where $D=2$, $N_0=N$, and $N_1=M$.
 Consider setting $N = \tau(M)$ then $T = \tau(M) \cdot M$ and our bounds become $O(R)$, where
 \[
   R = 1/\tau(M) + 1/M \quad \text{and} \quad R = 1/\tau(M) + 1/M^2.
@@ -58,3 +64,18 @@ R = O\left(\frac{1}{\tau(M)}\right) \gg \frac{1}{M^{2/3}} \frac{1}{\tau(M)^{2/3}
 \]
 Both of these cases lead to weaker bounds and so we see that the $O(1/N + 1/M^2)$ bound
 is tightest when $N \propto M^2$, giving a convergence rate of $O(1/T^{2/3})$.
+
+We now consider the repeated nesting case without continuously differentiability such that our
+bound is $O\left(\sum_{k=0}^{D} \frac{1}{N_k}\right)$.  Here we can immediately see that
+$N_0 \propto N_1 \propto \dots \propto N_D$ leads to $N_k \propto T^{1/D}$ and thus
+ $O(1/T^{D})$ convergence.  If we were to set any $N_k \ll T^{1/D}$ then this term would
+ dominate the sum and lead to a worse converge.  Thus the result from the single nested case
+ trivially extends to the multiple nested case, giving the required result.
+ 
+ Finally considering repeated nesting for the bound $O\left(\frac{1}{N_0} +\left(\sum_{k=1}^{D} \frac{1}{N_k}\right)^2\right)$
+ then we have from the previous result that $N_1 \propto N_2 \propto \dots \propto N_D$
+ is required for optimality as otherwise one of the terms in the summation dominates the
+ other terms.  If we now define $M=\prod_{k=1}^{D} N_k = T/N_0$ then we get a convergence
+ rate of $O(1/N_0+1/M^2)$ which is identical to the single nesting case for this tighter
+ bound.  We, therefore, have that the optimal configuration must be
+ $N_0 \propto N_1^2 \propto \dots \propto N_D^2$ giving a bound of $O(1/T^{\frac{2}{D+1}})$.

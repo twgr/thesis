@@ -1,37 +1,34 @@
-% !TEX root =  ../main.tex
+% !TEX root =  main.tex
 
-\subsection{Proof of Theorem~\ref{the:Consistent} - ``Almost almost sure'' convergence}
+\subsection{`Almost Almost Sure'' Convergence}
 \label{sec:app:consistent}
 
 \theConsistent*
 
 \begin{proof}
 	For all $N, M$, we have by the triangle inequality that
-	\[
-	\left|I_{N,M} - I\right| \leq V_{N,M} + U_N, \quad \text{where}
-	\]
-	\begin{eqnarray*}
+		\begin{align*}
+	\left|I_{N,M} - I\right| \leq V_{N,M} + U_N, &\quad \text{where} \\
 		V_{N,M} = \left|\frac{1}{N} \sum_{n=1}^N f(y_n, \gamma(y_n)) - I_{N,M} \right| 
-		\quad \text{and} \quad
+		\quad \text{and}& \quad
 		U_N = \left|I - \frac{1}{N} \sum_{n=1}^N f(y_n, \gamma(y_n)) \right|.
-	\end{eqnarray*}
+	\end{align*}
 	A second application of the triangle inequality then allows us to write
-	\begin{align} \label{eq:vnm}
+	\[
     V_{N,M} \leq \frac{1}{N} \sum_{n=1}^N (\epsilon_M)_n
-	\end{align}
+	\]
 	where we recall that $(\epsilon_M)_n = |f(y_n, \gamma(y_n)) - f(y_n, \hat{\gamma}_n)|$.
 	Now, for all fixed $M$, each $(\epsilon_M)_n$ is i.i.d. Furthermore, since
         $\E
 	\left[(\epsilon_M)_1\right] \to 0$ as $M \to \infty$ by our assumption and 
 	$(\epsilon_M)_n$ is nonnegative, there exists some $L \in \N$
 	such that $\E\left[\left|(\epsilon_M)_n \right|\right] < \infty$ for all $M \geq L$.
-	Consequently, the strong law of large numbers means that for all $M \geq L$,
-	\[ 
-	\frac{1}{N} \sum_{n=1}^N (\epsilon_M)_n \asto \E\left[(\epsilon_M)_1\right]
-	\] 
-	as $N \to \infty$. 
-        
-        Fix $\delta > 0$. By repeatedly applying Ergorov's theorem to each $M \geq L$,
+	Consequently, the strong law of large numbers means that as $N \to \infty$ then for all $M \geq L$
+	\begin{align}
+	\label{eq:epas}
+	\frac{1}{N} \sum_{n=1}^N (\epsilon_M)_n \asto \E\left[(\epsilon_M)_1\right].
+	\end{align}      
+        For any fixed $\delta > 0$ then by repeatedly applying Egorov's theorem to each $M \geq L$,
         we can find a sequence of events 
         \[
                 B_{L}, B_{L+1}, B_{L+2}, \ldots
@@ -41,20 +38,24 @@
                 \mathbb{P}(B_{M}) < \frac{\delta}{4} \cdot \frac{1}{2^{M-L}}
         \]
         and outside of $B_{M}$, the sequence $\frac{1}{N} \sum_{n=1}^N (\epsilon_M)_n$
-        converges uniformly to $\E\left[(\epsilon_M)_1\right]$. Pick a function 
+        converges \emph{uniformly} to $\E\left[(\epsilon_M)_1\right]$. 
+        This uniform convergence (as opposed to just the piecewise convergence implied
+        by~\eqref{eq:epas}) now guarantees that we can define some function
         $\tau^1_\delta : \N \to \N$ such that 
-	\[ 
+	\begin{align}
+	\label{eq:ombo}
                 \left|\frac{1}{M'} \sum_{n=1}^{M'} (\epsilon_M)_n(\omega) - \E\left[(\epsilon_M)_1\right]\right| < \frac{1}{M} 
-        \]
-        for all $M \geq L$, $M' \geq \tau^1_\delta(M)$, and $\omega \not\in B_M$. Such a $\tau^1_\delta$ exists
-        because of the uniform convergence guarantee that we just mentioned. Let 
-        \[
-                B_\delta = \bigcup_{M \geq L} B_M.
-        \]
-        Then, for all $M \geq M_0$, $M' \geq \tau^1_\delta(M)$, and $\omega \not\in B_\delta$, 
-	\[ 
-                \left|\frac{1}{M'} \sum_{n=1}^{M'} (\epsilon_M)_n(\omega) - \E\left[(\epsilon_M)_1\right]\right| < \frac{1}{M}.
-        \]
+        \end{align}
+        for all $M \geq L$, $M' \geq \tau^1_\delta(M)$, and $\omega \not\in B_M$, remembering that $\omega$ is
+        a point in our sample space.  We further have that~\eqref{eq:ombo} holds for all 
+        $M \geq M_0$, $M' \geq \tau^1_\delta(M)$, and $\omega \not\in B_\delta := \bigcup_{M \geq L} B_M$.
+%        Such a $\tau^1_\delta$ exists
+%        because of the uniform convergence guarantee that we just mentioned. 
+%        Defining 
+%        \[
+%                B_\delta := \bigcup_{M \geq L} B_M,
+%        \]
+%        then~\eqref{eq:ombo} hold for all $M \geq M_0$, $M' \geq \tau^1_\delta(M)$, and $\omega \not\in B_\delta$.
         Consequently, for all such $M$, $M'$ and $\omega$,
         \begin{equation} 
                 \label{eqn:almostsure:1}
@@ -62,23 +63,21 @@
                 \leq
                 \frac{1}{M'} \sum_{n=1}^{M'} (\epsilon_M)_n(\omega) 
                 < 
-                \frac{1}{M} + \E\left[(\epsilon_M)_1\right].
+                \frac{1}{M} + \E\left[(\epsilon_M)_1\right],
         \end{equation}
-        Furthermore, 
+        while we also have
         \begin{equation} 
                 \label{eqn:almostsure:2}
-                \mathbb{P}(B_\delta) =
-                \mathbb{P}\left(\bigcup_{M \geq L} B_M\right)
+                \mathbb{P}(B_\delta) 
+                %=\mathbb{P}\left(\bigcup_{M \geq L} B_M\right)
                 \leq 
                 \sum_{M \geq L} \mathbb{P}\left(B_M\right)
                 < \sum_{M \geq L} \frac{\delta}{4} \cdot \frac{1}{2^{M-L}}
                 = \frac{\delta}{2}.
         \end{equation}
-
-
-	To complete the proof, we must remove the dependence of $U_N$ on $N$ as well. This is
+      To complete the proof, we must remove the dependence of $U_N$ on $N$ as well. This is
 	straightforward once we observe that $U_N \asto 0$ as $N \to \infty$ by the strong law of 
-        large numbers. So, by Ergorov's theorem again, there exists an event $C_\delta$ such that
+        large numbers. So, by Egorov's theorem again, there exists an event $C_\delta$ such that
         \begin{equation} 
                 \label{eqn:almostsure:3}
                 \mathbb{P}(C_\delta) < \frac{\delta}{2}

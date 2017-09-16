@@ -1,436 +1,485 @@
-% !TEX root =  ../main.tex
+% !TEX root =  main.tex
+%
+%\section{Proof of Theorem~\ref{the:Repeat} - Convergence for Repeated Nesting (Simple From)}
+%\label{sec:app:repeat}
+%
+%Below we provide a proof of Theorem~\ref{the:Repeat} from the main paper.  We note that this covers 
+%Theorem~\ref{the:Rate} as a special case and is itself covered by Theorem~\ref{the:biggie} which
+%is more general and also provides the constants associated with the bound.  
+%Although only the third Theorem and proof is technically necessary, we provide all three 
+%in the interest of exposition, with each theorem and proof somewhat more involved than the last.  
+%The proofs for Theorems~\ref{the:Rate} 
+%and~\ref{the:Repeat} are based on the same techniques so the former provides a stepping stone
+%for understanding the latter.  Theorem~\ref{the:biggie} has a completely different proof (based
+%on bias-variance decompositions) but is particularly involved.  The early two are thus provided
+%to give insight without requiring understanding of this more challenging proof.
+%
+%\theRepeat*
+%
+%\begin{proof}
+%  To establish this claim, we show that for \emph{all} $0 \leq k \leq D$, the mean squared
+%  error
+%  \begin{equation} \label{eq:mse-rate-goal}
+%    \norm{\gamma_k\left(y^{(0:k-1)}\right) - I_k\left(y^{(0:k-1)}\right)}^2_2
+%    = O\left(\sum_{\ell=k}^D \frac{1}{N_\ell}\right).
+%  \end{equation}
+%  Our theorem corresponds to the case that $k = 0$.
+%  
+%  We proceed by applying Minkowski's inequality, which allows us to bound
+%  \[
+%    \norm{\gamma_k\left(y^{(0:k-1)}\right) - I_k\left(y^{(0:k-1)}\right)}_2^2
+%    \leq U_k^2 + V_k^2 + 2U_kV_k \leq 2(U_k^2 + V_k^2),
+%  \]
+%  where
+%  \begin{eqnarray*}
+%    U_k &=& \norm{\gamma_k\left(y^{(0:k-1)}\right) - J_k\left(y^{(0:k-1)}\right)}_2 \\
+%    V_k &=& \norm{J_k\left(y^{(0:k-1)}\right) - I_k\left(y^{(0:k-1)}\right)}_2
+%  \end{eqnarray*}
+%  and we define
+%  \[
+%    J_k\left(y^{(0:k-1)}\right) = \frac{1}{N_k} \sum_{n=1}^{N_k} f_k\left(y^{(0:k-1)}, y^{(k)}_n, \gamma_{k+1}\left(y^{(0:k-1)}, y^{(k)}_n\right)\right)
+%  \]
+%  for $0 \leq k < D$, and
+%  \[
+%    J_D\left(y^{(0:D-1)}\right) = I_D\left(y^{(0:D-1)}\right).
+%  \]
+%  Intuitively, $J_k\left(y^{(0:k-1)}\right)$ corresponds to applying an MC approximation
+%  to $\gamma_k\left(y^{(0:k-1)}\right)$ only to the outermost expectation, and exactly
+%  computing the expectations nested within.
+%
+%  We show below that
+%  \begin{equation} \label{eq:mse-Uk-goal}
+%    U_k^2 = O\left(\frac{1}{N_k}\right)
+%  \end{equation}
+%  for all $k$, which, since $V_D = 0$, establishes \eqref{eq:mse-rate-goal} for the case
+%  $k = D$. For the remaining $k$, we note that
+%  \begin{eqnarray*}
+%    V_k &\leq& \frac{1}{N_k} \sum_{n=1}^{N_k}
+%      \bigg\Vert f_k\left(y^{(0:k-1)}, y^{(k)}_n, \gamma_{k+1}\left(y^{(0:k-1)}, y^{(k)}_n\right)\right) \\
+%    &\phantom{\leq}& \phantom{\frac{1}{N_k} \sum_{n=1}^{N_k}\bigg\Vert} 
+%    - f_k\left(y^{(0:k-1)}, y^{(k)}_n, I_{k+1}\left(y^{(0:k-1)}, y^{(k)}_n\right)\right) \bigg\Vert_2 \\
+%    &\leq& \frac{K}{N_k} \sum_{n=1}^{N_k} \norm{\gamma_{k+1}\left(y^{(0:k-1)}, y^{(k)}_n\right) - I_{k+1}\left(y^{(0:k-1)}, y^{(k)}_n\right)}_2,
+%  \end{eqnarray*}
+%  for some $K > 0$, by Minkowski's inequality and using the assumption that $f_k$ is
+%  Lipschitz. Since the $y_n^{(k)} \sim p(y^{(k)}|y^{(0:k-1)})$ are i.i.d., we can rewrite
+%  this inequality as
+%  \[
+%    V_k \leq K \norm{\gamma_{k+1}\left(y^{(0:k)}\right) - I_{k+1}\left(y^{(0:k)}\right)}_2
+%  \]
+%  so that
+%  \[
+%    V_k^2 \leq K^2 \norm{\gamma_{k+1}\left(y^{(0:k)}\right) - I_{k+1}\left(y^{(0:k)}\right)}_2^2.
+%  \]
+%  We see that the second term on the right-hand side has the same form as
+%  \eqref{eq:mse-rate-goal}, and so recursing on $k$ (until the base case $k = D$) allows
+%  us to bound
+%  \[
+%    V_k^2 \leq K^2 \, O\left(\sum_{\ell=k+1}^N \frac{1}{N_\ell} \right).
+%  \]
+%  This then yields
+%  \[
+%    \norm{\gamma_k\left(y^{(0:k-1)}\right) - I_k\left(y^{(0:k-1)}\right)}^2_2
+%    \leq 2 \left(O\left(\frac{1}{N_k}\right) + K^2 \, O\left(\sum_{\ell=k+1}^N \frac{1}{N_\ell} \right) \right)
+%    = O\left(\sum_{\ell=k}^D \frac{1}{N_\ell}\right)
+%  \]
+%  as desired.
+%
+%  It remains to show \eqref{eq:mse-Uk-goal}. To do so, we first observe that
+%  \[
+%    U_k^2 = \E\left[ \E\left[ \left(\gamma_k\left(y^{(0:k-1)}\right) - J_k\left(y^{(0:k-1)}\right)\right)^2 \middle| y^{(0:k-1)} \right] \right]
+%  \]
+%  by the tower property of conditional expectation. Now, 
+%  \begin{align*}
+%    \E\left[ \left(\gamma_k\left(y^{(0:k-1)}\right) - J_k\left(y^{(0:k-1)}\right)\right)^2 \middle| y^{(0:k-1)} \right]
+%    &= \var \left[J_k\left(y^{(0:k-1)}\right) \middle| y^{(0:k-1)} \right] \\
+%    = \frac{1}{N_k} \var &\left[f_k\left(y^{(0:k)}, \gamma_{k+1}\left(y^{(0:k)}\right)\right) \middle| y^{(0:k-1)} \right]
+%  \end{align*}
+%  (omitting the $\gamma_{k+1}$ term when $k = D$), since each $y^{(k)}_n$ in
+%  $J_k\left(y^{(0:k-1)}\right)$ is conditionally independent given $y^{(0:k-1)}$.
+%  Consequently,
+%  \[
+%    U_k^2 = \frac{1}{N_k} \E \left[ \var \left[f_k\left(y^{(0:k)}, \gamma_{k+1}\left(y^{(0:k)}\right)\right) \middle| y^{(0:k-1)} \right] \right]
+%    = O\left(\frac{1}{N_k}\right),
+%  \]
+%  noting that $\E \left[ \var \left[f_k\left(y^{(0:k)},
+%  \gamma_{k+1}\left(y^{(0:k)}\right)\right) \middle| y^{(0:k-1)} \right] \right]$ is a
+%  finite constant by our assumption that $f_k\left(y^{(0:k)},
+%  \gamma_{k+1}\left(y^{(0:k)}\right)\right) \in L^2$ (and where once again we omit the
+%  $\gamma_{k+1}$ terms when $k = D$).
+%\end{proof}
 
-\subsection{Proof of Theorem~\ref{the:Repeat} - Convergence for Repeated Nesting}
+\subsection{General Convergence Rate}
 \label{sec:app:repeat}
-
-Below we provide a proof of Theorem~\ref{the:Repeat} from the main paper.  We note that this covers 
-Theorem~\ref{the:Rate} as a special case.  A separate proof for Theorem~\ref{the:Rate} was provided in
-Appendix~\ref{sec:app:rate_single}.  This may make easier reading on a first pass as 
-it constitutes a simplified version of the following proof.
+%
+%Below we provide a proof of Theorem~\ref{the:Repeat} from the main paper.  We note that this covers 
+%Theorem~\ref{the:Rate} as a special case.  A separate proof for Theorem~\ref{the:Rate} was provided in
+%Appendix~\ref{sec:app:rate_single}.  This may make easier reading on a first pass as 
+%it is substantially less involved that the following, more general case.
 
 \theRepeat*
-
 \begin{proof}
-  To establish this claim, we show that for \emph{all} $0 \leq k \leq D$, the mean squared
-  error
-  \begin{equation} \label{eq:mse-rate-goal}
-    \norm{\gamma_k\left(y^{(0:k-1)}\right) - I_k\left(y^{(0:k-1)}\right)}^2_2
-    = O\left(\sum_{\ell=k}^D \frac{1}{N_\ell}\right).
-  \end{equation}
-  Our theorem corresponds to the case that $k = 0$.
-  
-  We proceed by applying Minkowski's inequality, which allows us to bound
-  \[
-    \norm{\gamma_k\left(y^{(0:k-1)}\right) - I_k\left(y^{(0:k-1)}\right)}_2^2
-    \leq U_k^2 + V_k^2 + 2U_kV_k \leq 2(U_k^2 + V_k^2),
-  \]
-  where
-  \begin{eqnarray*}
-    U_k &=& \norm{\gamma_k\left(y^{(0:k-1)}\right) - J_k\left(y^{(0:k-1)}\right)}_2 \\
-    V_k &=& \norm{J_k\left(y^{(0:k-1)}\right) - I_k\left(y^{(0:k-1)}\right)}_2
-  \end{eqnarray*}
-  and we define
-  \[
-    J_k\left(y^{(0:k-1)}\right) = \frac{1}{N_k} \sum_{n=1}^{N_k} f_k\left(y^{(0:k-1)}, y^{(k)}_n, \gamma_{k+1}\left(y^{(0:k-1)}, y^{(k)}_n\right)\right)
-  \]
-  for $0 \leq k < D$, and
-  \[
-    J_D\left(y^{(0:D-1)}\right) = I_D\left(y^{(0:D-1)}\right).
-  \]
-  Intuitively, $J_k\left(y^{(0:k-1)}\right)$ corresponds to applying an MC approximation
-  to $\gamma_k\left(y^{(0:k-1)}\right)$ only to the outermost expectation, and exactly
-  computing the expectations nested within.
-
-  We show below that
-  \begin{equation} \label{eq:mse-Uk-goal}
-    U_k^2 = O\left(\frac{1}{N_k}\right)
-  \end{equation}
-  for all $k$, which, since $V_D = 0$, establishes \eqref{eq:mse-rate-goal} for the case
-  $k = D$. For the remaining $k$, we note that
-  \begin{eqnarray*}
-    V_k &\leq& \frac{1}{N_k} \sum_{n=1}^{N_k}
-      \bigg\Vert f_k\left(y^{(0:k-1)}, y^{(k)}_n, \gamma_{k+1}\left(y^{(0:k-1)}, y^{(k)}_n\right)\right) \\
-    &\phantom{\leq}& \phantom{\frac{1}{N_k} \sum_{n=1}^{N_k}\bigg\Vert} 
-    - f_k\left(y^{(0:k-1)}, y^{(k)}_n, I_{k+1}\left(y^{(0:k-1)}, y^{(k)}_n\right)\right) \bigg\Vert_2 \\
-    &\leq& \frac{K}{N_k} \sum_{n=1}^{N_k} \norm{\gamma_{k+1}\left(y^{(0:k-1)}, y^{(k)}_n\right) - I_{k+1}\left(y^{(0:k-1)}, y^{(k)}_n\right)}_2,
-  \end{eqnarray*}
-  for some $K > 0$, by Minkowski's inequality and using the assumption that $f_k$ is
-  Lipschitz. Since the $y_n^{(k)} \sim p(y^{(k)}|y^{(0:k-1)})$ are i.i.d., we can rewrite
-  this inequality as
-  \[
-    V_k \leq K \norm{\gamma_{k+1}\left(y^{(0:k)}\right) - I_{k+1}\left(y^{(0:k)}\right)}_2
-  \]
-  so that
-  \[
-    V_k^2 \leq K^2 \norm{\gamma_{k+1}\left(y^{(0:k)}\right) - I_{k+1}\left(y^{(0:k)}\right)}_2^2.
-  \]
-  We see that the second term on the right-hand side has the same form as
-  \eqref{eq:mse-rate-goal}, and so recursing on $k$ (until the base case $k = D$) allows
-  us to bound
-  \[
-    V_k^2 \leq K^2 \, O\left(\sum_{\ell=k+1}^N \frac{1}{N_\ell} \right).
-  \]
-  This then yields
-  \[
-    \norm{\gamma_k\left(y^{(0:k-1)}\right) - I_k\left(y^{(0:k-1)}\right)}^2_2
-    \leq 2 \left(O\left(\frac{1}{N_k}\right) + K^2 \, O\left(\sum_{\ell=k+1}^N \frac{1}{N_\ell} \right) \right)
-    = O\left(\sum_{\ell=k}^D \frac{1}{N_\ell}\right)
-  \]
-  as desired.
-
-  It remains to show \eqref{eq:mse-Uk-goal}. To do so, we first observe that
-  \[
-    U_k^2 = \E\left[ \E\left[ \left(\gamma_k\left(y^{(0:k-1)}\right) - J_k\left(y^{(0:k-1)}\right)\right)^2 \middle| y^{(0:k-1)} \right] \right]
-  \]
-  by the tower property of conditional expectation. Now, 
-  \begin{align*}
-    \E\left[ \left(\gamma_k\left(y^{(0:k-1)}\right) - J_k\left(y^{(0:k-1)}\right)\right)^2 \middle| y^{(0:k-1)} \right]
-    &= \var \left[J_k\left(y^{(0:k-1)}\right) \middle| y^{(0:k-1)} \right] \\
-    = \frac{1}{N_k} \var &\left[f_k\left(y^{(0:k)}, \gamma_{k+1}\left(y^{(0:k)}\right)\right) \middle| y^{(0:k-1)} \right]
-  \end{align*}
-  (omitting the $\gamma_{k+1}$ term when $k = D$), since each $y^{(k)}_n$ in
-  $J_k\left(y^{(0:k-1)}\right)$ is conditionally independent given $y^{(0:k-1)}$.
-  Consequently,
-  \[
-    U_k^2 = \frac{1}{N_k} \E \left[ \var \left[f_k\left(y^{(0:k)}, \gamma_{k+1}\left(y^{(0:k)}\right)\right) \middle| y^{(0:k-1)} \right] \right]
-    = O\left(\frac{1}{N_k}\right),
-  \]
-  noting that $\E \left[ \var \left[f_k\left(y^{(0:k)},
-  \gamma_{k+1}\left(y^{(0:k)}\right)\right) \middle| y^{(0:k-1)} \right] \right]$ is a
-  finite constant by our assumption that $f_k\left(y^{(0:k)},
-  \gamma_{k+1}\left(y^{(0:k)}\right)\right) \in L^2$ (and where once again we omit the
-  $\gamma_{k+1}$ terms when $k = D$).
-\end{proof}
-
-\begin{theorem}
-  If $f_0, \cdots, f_D$ are all Lipschitz continuous with Lipschitz 
-  constants\footnote{Note that these are the Lipschitz constants corresponding to
-  	the definition of Lipschitz continuity and not an extra requirement.}
-  \[K_k = \sup_{y^{(0:k)}} \left| \frac{\partial f_k\left(y^{(0:k)},\gamma_{k+1}(y^{(0:k)})\right)}{\partial \gamma_{k+1}}\right|, \quad \forall k
-  \in 0,\dots,D-1
-  \]
-  and if 
-    \[
-    \varsigma_{k}^2  
-    =\E \left[\left(f_k\left(y_1^{(0:k)},\gamma_{k+1}
-    \left(y_1^{(0:k)}\right) \right)-\gamma_k\left(y_1^{(0:k-1)}\right)\right)^2\right] \le \infty \quad \forall k\in 0,\dots,D
-    \]
-  then the mean squared error converges to $0$ with the following rate
-  \begin{align}
-  \label{eq:bound-lip}
-  \E \left[\left(I_0 - \gamma_0\right)^2\right] \le
-  \frac{\varsigma_{0}^2}{N_0} +
-  \sum_{k=1}^{D} \left(\prod_{\ell=0}^{k-1} K_{\ell}^2\right)
-  \frac{\varsigma_{k}^2}{N_{k}}+ O(\epsilon)
-  \end{align}
-  where $O(\epsilon)$ represents terms that become dominated as $N_0,\dots,N_D
-  \rightarrow \infty$.
-  If $f_0, \cdots, f_D$ are also continuously differentiable with first derivative bounds
-  $K_0, \dots, K_D$ and second derivative bounds 
-  $C_k = \sup_{y^{(0:k)}} \left|\frac{\partial^2 f_k\left(y^{(0:k)},\gamma_{k+1}(y^{(0:k)})\right)}{\partial \gamma^2_{k+1}}\right|, \forall k
-  \in 0,\dots,D-1$, then this mean square error bound can be tightened to
-  \begin{align}
-  \label{eq:bound-cont}
-  \E \left[\left(I_0 - \gamma_0\right)^2\right] \le 
-  \frac{\varsigma_0^2}{N_0}
-  +\frac{1}{4}\left(
-  \frac{C_0 \varsigma_{1}^2}{N_{1}}
-  +\sum_{k=0}^{D-2}  \left(\prod_{d=0}^{k} K_{d}\right)
-  \frac{C_{k+1} \varsigma^2_{k+2}}{N_{k+2}}
-  \right)^2 + O(\epsilon).
-  \end{align}
-  In the case of a single nesting we can further characterize $O(\epsilon)$ to give
-  \begin{align}
-  \E \left[\left(I_0 - \gamma_0\right)^2\right]  &\le \frac{\varsigma^2_0}{N_0}+\frac{4 K_{0}^2 \varsigma_1^2}{N_0 N_{1}}
-  +\frac{2 K_{0}\varsigma_{0} \varsigma_1}{N_{0} \sqrt{N_1}}+\frac{K_0 ^2 \varsigma_1^2}{N_1} \\
-  \E \left[\left(I_0 - \gamma_0\right)^2\right]  &\le \frac{\varsigma^2_0}{N_0}+\frac{4 K_{0}^2 \varsigma_1^2}{N_0 N_{1}}
-  +\frac{2 K_{0}\varsigma_{0} \varsigma_1}{N_{0} \sqrt{N_1}}+\frac{C_0 ^2 \varsigma_1^4}{4 N_1^2}
-  + O\left(\frac{1}{N_1^{3}}\right).
-  \end{align}
-  for when the continuous differentiable assumption does not hold and 
-  holds respectively.
-\end{theorem}
-\begin{proof}
-As this is a long and involved proof, we start by defining a number of terms that will be useful throughout the proof.  Unless otherwise stated, these definitions hold for all $k \in \left\{0,\dots,D\right\}$.
+As this is a long and involved proof, we start by defining a number of useful terms that will be 
+used throughout.  Unless otherwise stated, these definitions hold for all $k \in \left\{0,\dots,D\right\}$.
+Note that most of these terms implicitly depend on the number of
+samples $N_0,N_1,\dots,N_D$.  However, $s_k$, $\zeta_{d,k}$, and $\varsigma_k$ do not
+and are thus constants for a particular problem.
 \begin{align}
-\displaybreak[0]
-E_k \left(y_1^{(0:k-1)}\right) &:= \E \left[\left(I_{k}\left(y^{(0:k-1)}_1\right)-
-\gamma_{k}\left(y^{(0:k-1)}_1\right)\right)^2 \middle| y^{(0:k-1)}_1\right]
-\\\displaybreak[0]
-A_k \left(y_1^{(0:k-1)}\right)&:= \E \left[\left(f_k\left(y^{(0:k)}_1, I_{k+1}\left(y^{(0:k)}_1\right)\right)
-- f_k\left(y^{(0:k)}_1, \gamma_{k+1}\left(y^{(0:k)}_1\right)\right)\right)^2
-\middle|  y_1^{(0:k-1)} \right] 
-\\\displaybreak[0]
-A_D &:=0 
-\\\displaybreak[0]
-s_k^2 \left(y_1^{(0:k-1)}\right) &:= \E \left[\left(f_k\left(y_1^{(0:k)},\gamma_{k+1}
-\left(y_1^{(0:k)}\right) \right)-\gamma_k\left(y_1^{(0:k-1)}\right)\right)^2 \middle|
-y_1^{(0:k-1)}	\right]
-\\ \displaybreak[0]
-s_D^2 \left(y_1^{(0:D-1)}\right) &:= \E \left[\left(f_D\left(y_1^{(0:D)}\right)-\gamma_D\left(y_1^{(0:D)}\right)\right)^2 \middle| y_1^{(0:D-1)}	\right]
-\\ \displaybreak[0]
+\intertext{$E_k \left(y^{(0:k-1)}\right)$ is the MSE of the estimator at depth $k$ given $y^{(0:k-1)}$}
+E_k \left(y^{(0:k-1)}\right) &:= \E \left[\left(I_{k}\left(y^{(0:k-1)}\right)-
+\gamma_{k}\left(y^{(0:k-1)}\right)\right)^2 \middle| y^{(0:k-1)}\right]
+\displaybreak[0] \\
+\intertext{$\bar{f}_{k} \left(y^{(0:k-1)}\right)$ is the expected value of the estimate at depth
+	$k$, or equivalently the expected function output using the estimate of the layer below}
 \begin{split}
-\zeta_{d,k}^2\left(y_1^{(0:k-1)}\right) &:= 
-\E \left[ s_{d}^2 \left(y_1^{(0:d-1)}\right) \middle|
-y_1^{(0:k-1)}\right] \\
-&=\E \left[\left(f_d\left(y_1^{(0:d)},\gamma_{d+1}
-\left(y_1^{(0:d)}\right) \right)-\gamma_d\left(y_1^{(0:d-1)}\right)\right)^2 \middle|
-y_1^{(0:k-1)}	\right]
+\bar{f}_{k} \left(y^{(0:k-1)}\right) &:=\E\left[I_{k}\left(y^{(0:k-1)}\right) \middle| y^{(0:k-1)}\right] \;\; \forall k\in\{1,\dots,D-1\} \\
+&=\E\left[f_k\left(y^{(0:k)},I_{k+1}\left(y^{(0:k)}\right)\right)
+\middle|  y^{(0:k-1)}\right] 
 \end{split}
-\\ \displaybreak[0]
-\varsigma_{k}^2  
-&:=\zeta_{k,0}^2=\E \left[\left(f_k\left(y_1^{(0:k)},\gamma_{k+1}
-\left(y_1^{(0:k)}\right) \right)-\gamma_k\left(y_1^{(0:k-1)}\right)\right)^2\right]
-\\ \displaybreak[0]
- \bar{f}_{k,N_{k+1:D}} \left(y_1^{(0:k-1)}\right) &:=
- \E\left[f_k\left(y_1^{(0:k)},I_{k+1}\left(y_1^{(0:k)}\right)\right)
- \middle|  y_1^{(0:k-1)}\right] \quad \forall k\in \left\{0,\dots,D-1\right\}
-    \\ \displaybreak[0]
+\displaybreak[0] \\ 
+\intertext{$v_k^2 \left(y^{(0:k-1)} \right)$ is the variance of the estimator at depth $k$}
     \begin{split}
-    v_k^2 \left(y_1^{(0:k-1)} \right) &:= 
-    \text{Var}\left[I_{k}\left(y_1^{(0:k-1)}\right) \middle| y_1^{(0:k-1)}\right] \\
-    &= \E\left[\left(I_{k}\left(y_1^{(0:k-1)}\right)- \bar{f}_{k,N_{k+1:D}} 
-    \left(y_1^{(0:k-1)}\right) \right)^2 \middle| y_1^{(0:k-1)}\right]
+    	v_k^2 \left(y^{(0:k-1)} \right) &:= 
+    	\text{Var}\left[I_{k}\left(y^{(0:k-1)}\right) \middle| y^{(0:k-1)}\right] \\
+    	&= \E\left[\left(I_{k}\left(y^{(0:k-1)}\right)- \bar{f}_k 
+    	\left(y^{(0:k-1)}\right) \right)^2 \middle| y^{(0:k-1)}\right]
     \end{split}
- \\ \displaybreak[0]
- \begin{split}
- \sigma_k^2 \left(y_1^{(0:k-1)}\right) &:= 
- \text{Var}\left[f_k\left(y_1^{(0:k)},I_{k+1}\left(y_1^{(0:k)}\right)\right) \middle| y_1^{(0:k-1)}\right] \\
- &= \E\left[\left(f_k\left(y_1^{(0:k)},I_{k+1}\left(y_1^{(0:k)}\right)\right)
- - \bar{f}_{k,N_{k+1:D}} 
- \left(y_1^{(0:k-1)}\right) \right)^2 \middle| y_1^{(0:k-1)}\right]
- \end{split}
-  \\ \displaybreak[0]
-  \sigma_D^2 \left(y_1^{0:D-1}\right) &:= s_D^2 \left(y_1^{0:D-1}\right)
-   \\ \displaybreak[0]
+\displaybreak[0]   \\ 
+\intertext{$\beta_k \left(y^{(0:k-1)} \right)$ is the bias of the estimator at depth $k$}
    \begin{split}
-   \label{eq:bias-def}
-   \beta_k \left(y_1^{(0:k-1)} \right) &:= 
-   \E  \left[I_{k}\left(y^{(0:k-1)}_1\right)-
-   \gamma_{k}\left(y^{(0:k-1)}_1\right) \middle| y^{(0:k-1)}_1\right] \\
-   &=
-   \E \left[f_k\left(y^{(0:k)}_1, I_{k+1}\left(y^{(0:k)}_1\right)\right)
-   - f_k\left(y^{(0:k)}_1, \gamma_{k+1}\left(y^{(0:k)}_1\right)\right)
-   \middle|  y_1^{(0:k-1)} \right]
+   	\label{eq:bias-def}
+   	\beta_k \left(y^{(0:k-1)} \right) &:= 
+   	\E  \left[I_{k}\left(y^{(0:k-1)}\right)-
+   	\gamma_{k}\left(y^{(0:k-1)}\right) \middle| y^{(0:k-1)}\right] \\
+   	&=\bar{f}_{k} \left(y^{(0:k-1)}\right)-\gamma_{k}\left(y^{(0:k-1)}\right) \\
+   	&=
+   	\E \left[f_k\left(y^{(0:k)}, I_{k+1}\left(y^{(0:k)}\right)\right)
+   	- f_k\left(y^{(0:k)}, \gamma_{k+1}\left(y^{(0:k)}\right)\right)
+   	\middle|  y^{(0:k-1)} \right]
    \end{split}
-      \\ \displaybreak[0]
+\displaybreak[0] \\ 
+\intertext{$s_k^2 \left(y^{(0:k-1)}\right)$ is the variance at depth $k$ of the true function output}
+s_k^2 \left(y^{(0:k-1)}\right) &:= \E \left[\left(f_k\left(y^{(0:k)},\gamma_{k+1}
+\left(y^{(0:k)}\right) \right)-\gamma_k\left(y^{(0:k-1)}\right)\right)^2 \middle|
+y^{(0:k-1)}	\right]
+\\ \displaybreak[0]
+s_D^2 \left(y^{(0:D-1)}\right) &:= \E \left[\left(f_D\left(y^{(0:D)}\right)-\gamma_D\left(y^{(0:D)}\right)\right)^2 \middle| y^{(0:D-1)}	\right]
+\\
+\intertext{$\zeta_{d,k}^2\left(y^{(0:k-1)}\right)$ is expectation of $s_d^2 \left(y^{(0:d-1)}\right)$ over 
+	$y^{(k:d-1)}$}
+\begin{split}
+	\zeta_{d,k}^2\left(y^{(0:k-1)}\right) &:= 
+	\E \left[ s_{d}^2 \left(y^{(0:d-1)}\right) \middle|
+	y^{(0:k-1)}\right] \\
+	&=\E \left[\left(f_d\left(y^{(0:d)},\gamma_{d+1}
+	\left(y^{(0:d)}\right) \right)-\gamma_d\left(y^{(0:d-1)}\right)\right)^2 \middle|
+	y^{(0:k-1)}	\right]
+\end{split}
+\displaybreak[0] \\
+\intertext{$\varsigma_{k}^2 $ is expectation of $s_k^2 \left(y^{(0:k-1)}\right)$
+	over all $y^{(0:k-1)}$}
+\varsigma_{k}^2  
+&:=\zeta_{k,0}^2=\E \left[\left(f_k\left(y^{(0:k)},\gamma_{k+1}
+\left(y^{(0:k)}\right) \right)-\gamma_k\left(y^{(0:k-1)}\right)\right)^2\right]
+ \displaybreak[0] \\
+ \intertext{$A_k \left(y^{(0:k-1)}\right)$ is the MSE in the function output from
+ 	using the estimate of the next layer, rather than the true value $\gamma_{k+1}\left(y^{(0:k)}\right)$,
+ 	we fix $A_D:=0$}
+A_k \left(y^{(0:k-1)}\right):=& \E \left[\left(f_k\left(y^{(0:k)}, I_{k+1}\left(y^{(0:k)}\right)\right)
+- f_k\left(y^{(0:k)}, \gamma_{k+1}\left(y^{(0:k)}\right)\right)\right)^2
+\middle|  y^{(0:k-1)} \right] 
+%\\\displaybreak[0]
+%A_D &:=0 
+\displaybreak[0]\\
+ \intertext{$\sigma_k^2 \left(y^{(0:k-1)}\right)$
+ 	is the variance in the function output from using the estimate of the next layer,
+ 	we fix $\sigma_D^2 \left(y^{0:D-1}\right) := s_D^2 \left(y^{0:D-1}\right)$ }
+ \begin{split}
+ \sigma_k^2 \left(y^{(0:k-1)}\right) &:= 
+ \text{Var}\left[f_k\left(y^{(0:k)},I_{k+1}\left(y^{(0:k)}\right)\right) \middle| y^{(0:k-1)}\right] \\
+ &= \E\left[\left(f_k\left(y^{(0:k)},I_{k+1}\left(y^{(0:k)}\right)\right)
+ - \bar{f}_k 
+ \left(y^{(0:k-1)}\right) \right)^2 \middle| y^{(0:k-1)}\right]
+ \end{split}
+\displaybreak[0]  \\ 
+ \intertext{$\omega_k\left(y^{(0:k-1)} \right)$ is the expectation over $y^{(k)}$ of the MSE for the next layer,
+ 	we fix $\omega_D \left(y^{(0:D-1)}\right) := 0$}
       \begin{split}
-      \omega_k\left(y_1^{(0:k-1)} \right) &:=  \E \left[E_{k+1} 
-      \left(y_1^{(0:k)}\right) \middle|  y_1^{(0:k-1)} \right] \\
+      \omega_k\left(y^{(0:k-1)} \right) &:=  \E \left[E_{k+1} 
+      \left(y^{(0:k)}\right) \middle|  y^{(0:k-1)} \right] \\
       &=\E \left[
-      \left(I_{k+1}\left(y^{(0:k)}_1\right) - \gamma_{k+1}\left(y^{(0:k)}_1\right)\right)^2
-      \middle|  y_1^{(0:k-1)} \right] 
+      \left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)^2
+      \middle|  y^{(0:k-1)} \right] 
       \end{split}
-    \\ \displaybreak[0]
-    \omega_D \left(y_1^{(0:D-1)}\right) &:= 0
-    \\ \displaybreak[0]
+  \displaybreak[0]
+ \\
+  \intertext{$\lambda_k \left(y^{(0:k-1)} \right)$ is the expectation over $y^{(k)}$ of the magnitude of the bias for the next layer,
+  	we fix $\lambda_D \left(y^{(0:D-1)}\right) := 0$ and note that $\lambda_{D-1} \left(y^{(0:D-2)}\right) := 0$ also
+  	as the innermost layer is an unbiased}
     \begin{split}
-   \lambda_k \left(y_1^{(0:k-1)} \right) &:= \E \left[\left|\beta_{k+1} 
-   \left(y_1^{(0:k)}\right) \right| \Bigg|   y_1^{(0:k-1)} \right]\\
+   \lambda_k \left(y^{(0:k-1)} \right) &:= \E \left[\left|\beta_{k+1} 
+   \left(y^{(0:k)}\right) \right| \Bigg|   y^{(0:k-1)} \right]\\
    &=
    \E \left[ \left|\E \left[
-   \left(I_{k+1}\left(y^{(0:k)}_1\right) - \gamma_{k+1}\left(y^{(0:k)}_1\right)\right)
-   \middle|  y_1^{(0:k)} \right] \right| \Bigg|  y_1^{(0:k-1)} \right]
+   \left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)
+   \middle|  y^{(0:k)} \right] \right| \Bigg|  y^{(0:k-1)} \right]
    \end{split}
-    \\ \displaybreak[0]
-     \lambda_D \left(y_1^{(0:D-1)}\right) &:= 0
 \end{align}
-We note that $s_k$, $\zeta_{d,k}$, and $\varsigma_d$ are independent of the
-number of samples used and are thus constants for a particular problem.
 
-Given these definitions, we start by breaking the error down into a variance and bias term.  Using the standard bias-variance decomposition we have
+\vspace{5pt}
+\noindent\textbf{\large Lipschitz Continuous Case}
+\vspace{5pt}
+
+\noindent Given these definitions, we start by breaking the error down into a variance and bias term.  
+Using the standard bias-variance decomposition we have
 \begin{align}
-\label{eq:bias-var-decomp}
-E_k \left(y_1^{(0:k-1)}\right) &= \E \left[\left(I_{k}\left(y^{(0:k-1)}_1\right)-
-\gamma_{k}\left(y^{(0:k-1)}_1\right)\right)^2 \middle| y^{(0:k-1)}_1\right]
+E_k \left(y^{(0:k-1)}\right) &= \E \left[\left(I_{k}\left(y^{(0:k-1)}\right)-
+\gamma_{k}\left(y^{(0:k-1)}\right)\right)^2 \middle| y^{(0:k-1)}\right]
 \nonumber \\
-&=v_k^2 \left(y_1^{(0:k-1)} \right)
-+\left(\beta_k \left(y_1^{(0:k-1)} \right)\right)^2 
+&=v_k^2 \left(y^{(0:k-1)} \right)
++\left(\beta_k \left(y^{(0:k-1)} \right)\right)^2 \label{eq:bias-var-decomp}
 \end{align}
 It is immediately clear from its definition in \eqref{eq:bias-def} that the bias term
-$\left(\beta_k \left(y_1^{(0:k-1)} \right)\right)^2$ is independent of 
-$N_0$.  On the other hand we will show later that the
+$\left(\beta_k \left(y^{(0:k-1)} \right)\right)^2$ is independent of 
+$N_0$.  On the other hand, we will show later that the
 dominant components of the variance term for large $N_{0:D}$ depend only
 on $N_0$.  We can thus think of increasing $N_0$ as reducing the variance of
 the estimator and increasing $N_{1:D}$ as reducing the bias.
 
 We first consider the variance term
 \begin{align*}
-v_k^2 \left(y_1^{(0:k-1)} \right) &= \E \left[\left(
+v_k^2 \left(y^{(0:k-1)} \right) &= \E \left[\left(
 \frac{1}{N_k} \sum_{n=1}^{N_k} f_k\left(y^{(0:k)}_n, I_{k+1}\left(y^{(0:k)}_n\right)\right)-
-\bar{f}_{k,N_{k+1:D}} 
-\left(y_1^{(0:k-1)}\right) \right)^2 \middle| y_1^{(0:k-1)}\right] \\
-&= \E \left[\frac{1}{N_k^2} \sum_{n=1}^{N_k} \left(
- f_k\left(y^{(0:k)}_n, I_{k+1}\left(y^{(0:k)}_n\right)\right)-
-\bar{f}_{k,N_{k+1:D}} 
-\left(y_1^{(0:k-1)}\right) \right)^2 \middle| y_1^{(0:k-1)}\right] \\
-&\phantom{=} +\E \left[\frac{1}{N_k^2} \sum_{n=1}^{N_k} \sum_{m=1, m\neq n}^{N_k}\left(
-f_k\left(y^{(0:k)}_n, I_{k+1}\left(y^{(0:k)}_n\right)\right)-
-\bar{f}_{k,N_{k+1:D}} 
-\left(y_1^{(0:k-1)}\right) \right) \right.\\
-&\quad\quad\quad\quad\quad\quad
-\cdot\left(
-f_k\left(y^{(0:k)}_m, I_{k+1}\left(y^{(0:k)}_m\right)\right)-
-\bar{f}_{k,N_{k+1:D}} 
-\left(y_1^{(0:k-1)}\right) \right)
- \Bigg| y_1^{(0:k-1)}\Bigg]
+\bar{f}_k 
+\left(y^{(0:k-1)}\right) \right)^2 \middle| y^{(0:k-1)}\right]   \displaybreak[0] \\
+&=\frac{1}{N_k} \E \left[\left(
+f_k\left(y^{(0:k)}, I_{k+1}\left(y^{(0:k)}\right)\right)-
+\bar{f}_k 
+\left(y^{(0:k-1)}\right) \right)^2 \middle| y^{(0:k-1)}\right]
 \end{align*}
-Now noting that each $y_n^{(0:k)}$ are drawn i.i.d., the cross terms are
-independent and the distribution is the same for each $m$ and $n$
- and so we have
-\begin{align*}
-v_k^2 \left(y_1^{(0:k-1)} \right) &= 
-\frac{1}{N_k} \E \left[\left(
-f_k\left(y^{(0:k)}_1, I_{k+1}\left(y^{(0:k)}_1\right)\right)-
-\bar{f}_{k,N_{k+1:D}} 
-\left(y_1^{(0:k-1)}\right) \right)^2 \middle| y_1^{(0:k-1)}\right]\\
-&\phantom{=}+\frac{N_k-1}{N_k}
-\left(\E \left[
-f_k\left(y^{(0:k)}_1, I_{k+1}\left(y^{(0:k)}_1\right)\right)-
-\bar{f}_{k,N_{k+1:D}} 
-\left(y_1^{(0:k-1)}\right)\middle| y_1^{(0:k-1)}\right] \right)^2 \\
-&= \frac{\sigma_k^2 \left(y_1^{(0:k-1)} \right)}{N_k}
-\end{align*}
-where the second equality follows directly from the definitions of
-$\sigma_k$ and $\bar{f}_{k,N_{k+1:D}}$.
-We have now have using Minkowski's inequality
-\begin{align*}
-\sigma_k^2 \left(y_1^{(0:k-1)} \right) &\le 
-\left(A_k \left(y_1^{(0:k-1)}\right)\right)^{\frac{1}{2}} +
+with the equality following because the $y_n^{(0:k)}$ being drawn i.i.d. and the
+expectation of each
+$f_k\left(y^{(0:k)}, I_{k+1}\left(y^{(0:k)}\right)\right)$ equaling $\bar{f}_k 
+\left(y^{(0:k-1)}\right)$ means that all the cross terms are zero.
+%&= \E \left[\frac{1}{N_k^2} \sum_{n=1}^{N_k} \left(
+% f_k\left(y^{(0:k)}_n, I_{k+1}\left(y^{(0:k)}_n\right)\right)-
+%\bar{f}_k 
+%\left(y^{(0:k-1)}\right) \right)^2 \middle| y^{(0:k-1)}\right] \\
+%&\phantom{=} +\E \left[\frac{1}{N_k^2} \sum_{n=1}^{N_k} \sum_{m=1, m\neq n}^{N_k}\left(
+%f_k\left(y^{(0:k)}_n, I_{k+1}\left(y^{(0:k)}_n\right)\right)-
+%\bar{f}_k 
+%\left(y^{(0:k-1)}\right) \right) \right.\\
+%&\quad\quad\quad\quad\quad\quad
+%\cdot\left(
+%f_k\left(y^{(0:k)}_m, I_{k+1}\left(y^{(0:k)}_m\right)\right)-
+%\bar{f}_k 
+%\left(y^{(0:k-1)}\right) \right)
+% \Bigg| y^{(0:k-1)}\Bigg]
+%\end{align*}
+%Now noting that each $y_n^{(0:k)}$ are drawn i.i.d., the cross terms are
+%independent and the distribution is the same for each $m$ and $n$
+% and so we have
+%\begin{align*}
+%v_k^2 \left(y^{(0:k-1)} \right) &= 
+%\frac{1}{N_k} \E \left[\left(
+%f_k\left(y^{(0:k)}, I_{k+1}\left(y^{(0:k)}\right)\right)-
+%\bar{f}_k 
+%\left(y^{(0:k-1)}\right) \right)^2 \middle| y^{(0:k-1)}\right]\\
+%&\phantom{=}+\frac{N_k-1}{N_k}
+%\left(\E \left[
+%f_k\left(y^{(0:k)}, I_{k+1}\left(y^{(0:k)}\right)\right)-
+%\bar{f}_k 
+%\left(y^{(0:k-1)}\right)\middle| y^{(0:k-1)}\right]\right)^2,
+%\end{align*}
+%where the second term is zero by the definition of $\bar{f}_k$ and so
+By the definition of $\sigma_k^2$ we now have
+\begin{align}
+	\label{eq:lln}
+v_k^2 \left(y^{(0:k-1)} \right)  &= \frac{\sigma_k^2 \left(y^{(0:k-1)} \right)}{N_k}.
+\end{align}
+By using Minkowski's inequality and the definition of $A_k$ it also follows that
+\begin{align}
+	\begin{split}
+\sigma_k & \left(y^{(0:k-1)} \right) \le 
+ \\
+&\left(A_k \left(y^{(0:k-1)}\right)\right)^{\frac{1}{2}}+
 \left(\E \left[\left(
-f_k\left(y^{(0:k)}_1, \gamma_{k+1}\left(y^{(0:k)}_1\right)\right)
--\bar{f}_{k,N_{k+1:D}}\right)^2\right] \right)^{\frac{1}{2}} \\
-&=\left(A_k \left(y_1^{(0:k-1)}\right)\right)^{\frac{1}{2}}
-+\left(s_k^2 \left(y_1^{(0:k-1)} \right) +
-\left(\beta_k \left(y_1^{(0:k-1)} \right)\right)^2 
- \right)^{\frac{1}{2}}
-\end{align*}
-where the equality stems from using another bias-variance decomposition.
-The first thing to now notice is that $s_0^2$ is
-independent of the number of samples used at any level of the estimate,
+f_k\left(y^{(0:k)}, \gamma_{k+1}\left(y^{(0:k)}\right)\right)
+-\bar{f}_k\left(y^{(0:k-1)}\right)\right)^2 \middle| y^{(0:k-1)} \right] \right)^{\frac{1}{2}}.\label{eq:sigle1}
+\end{split}
+\end{align}
+Using a bias-variance decomposition on the second term above and noting that 
+$s_k^2 \left(y^{(0:k-1)} \right)$ and $\bar{f}_k\left(y^{(0:k-1)}\right)-\beta_k \left(y^{(0:k-1)} \right)$
+are respectively the variance and expectation of $f_k\left(y^{(0:k)}, \gamma_{k+1}\left(y^{(0:k)}\right)\right)$,
+%	and by substituting $\bar{f}_k=\gamma_k\left(y^{(0:k-1)}\right)-\beta_k \left(y^{(0:k-1)} \right)$,
+%expanding the square, and noting that 
+%$\E \left[f_k\left(y^{(0:k)},\gamma_{k+1}
+%\left(y^{(0:k)}\right) \right)-\gamma_k\left(y^{(0:k-1)}\right) \middle| y^{(0:k-1)} \right]=0$ 
+we can rearrange the right-hand size of~\eqref{eq:sigle1} to give
+%&=
+%\left(A_k \left(y^{(0:k-1)}\right)\right)^{\frac{1}{2}} +
+%\left( \E \left[\left(f_k\left(y^{(0:k)},\gamma_{k+1}
+%\left(y^{(0:k)}\right) \right)-\gamma_k\left(y^{(0:k-1)}\right)+\beta_k \left(y^{(0:k-1)} \right)\right)^2 \middle|
+%y^{(0:k-1)}	\right]\right)^{\frac{1}{2}} \nonumber \\
+\begin{align}
+\sigma_k \left(y^{(0:k-1)} \right) &\le\left(A_k \left(y^{(0:k-1)}\right)\right)^{\frac{1}{2}}
++\left(s_k^2 \left(y^{(0:k-1)} \right) +
+\left(\beta_k \left(y^{(0:k-1)} \right)\right)^2 
+ \right)^{\frac{1}{2}}. \label{eq:sigma_bound}
+\end{align}
+Here $s_k^2$ is independent of the number of samples used at any level of the estimate,
 while $A_k$ and $\beta_k^2$ are independent of $N_d \; \forall d\le k$.
-  Therefore, presuming
-that $A_k$ and $\beta_k^2$ ($\le A_k$ by Jensen's inequality)
-do not increase with $N_d  \; \forall d>k$, 
+Now by Jensen's inequality, we have that
+\begin{align}
+\label{eq:AleB}
+\left(\beta_k \left(y^{(0:k-1)}\right)\right)^2 \le
+A_k \left(y^{(0:k-1)}\right)
+\end{align}
+noting that the only difference in the definition of $\left(\beta_k \left(y^{(0:k-1)}\right)\right)^2$
+and $A_k \left(y^{(0:k-1)}\right)$ is
+whether the squaring occurs inside or outside the expectation.
+Therefore, presuming that $A_k$
+does not increase with $N_d  \; \forall d>k$, neither will $\sigma_k^2 \left(y^{(0:k-1)} \right)$, and so
 the variance term will converge to zero with rate $O(1/N_k)$.  
 Further, if ${A_k}\rightarrow 0$ as $N_{k+1},\dots,N_D \rightarrow \infty$,
 then for a large number of inner samples $\sigma_k^2 \rightarrow s_k^2$ and thus we will have
-$ v_k^2 \left(y_1^{(0:k-1)} \right) \le \frac{s_0^2}{N_0} +
+$ v_k^2 \left(y^{(0:k-1)} \right) \le \frac{s_k^2}{N_k} +
 O\left(\epsilon\right)$ where $O\left(\epsilon\right)$ represents higher order
 terms that are dominated in the limit $N_k,\dots,N_D \rightarrow \infty$.
+Provided this holds, we will also, therefore, have that
+\begin{align}
+\label{eq:E_decomp}
+E_k \left(y^{(0:k-1)}\right) 
+=\frac{\sigma_k^2 \left(y^{(0:k-1)}\right)}{N_k}+ \beta_k^2 \left(y^{(0:k-1)} \right)
+&=\frac{s_k^2 \left(y^{(0:k-1)}\right)}{N_k}+ \beta_k^2 \left(y^{(0:k-1)} \right) +O(\epsilon).
+\end{align}
 
 We now show that Lipschitz continuity is sufficient for ${A_k}\rightarrow0$ and derive a
 concrete bound on the variance by bounding ${A_k}$.  We found that there was no
 noticeably tighter bound to be found for $A_k$ using the continuity assumption and
 therefore this result will be used for both cases \eqref{eq:bound-lip} 
 and~\eqref{eq:bound-cont}.
-First by definition of Lipschitz continuity
+By definition of Lipschitz continuity,
 we have that
-\begin{align*}
-\left(A_k \left(y_1^{(0:k-1)}\right)\right)^{\frac{1}{2}} &\le
-K_k \left(\E \left[\left(I_{k+1}\left(y^{(0:k)}_1\right)-
- \gamma_{k+1}\left(y^{(0:k)}_1\right)\right)^2\middle| y_1^{(0:k-1)}
- \right] \right)^{\frac{1}{2}} \\
- &= K_k \left(\omega_k \left(y_1^{(0:k-1)}\right)\right)^{\frac{1}{2}}
-\end{align*}
-where we remember that $\omega_k \left(y_1^{(0:k-1)}\right) 
-=\E \left[E_{k+1} 
-\left(y_1^{(0:k)}\right) \middle|  y_1^{(0:k-1)} \right]$ is the expected error
-of the next level estimator.  Once we also have an expression for the 
-bias, we will thus be able to use this bound on $A_k$ to inductively derive
-a bound on the variance.
-
-For the case were we only assume Lipschitz continuity then we will simply
-use Jensen's inequality to bound the bias
-\begin{align*}
-\left(\beta_k \left(y_1^{(0:k-1)}\right)\right)^2 \le
-A_k \left(y_1^{(0:k-1)}\right)
-\end{align*}
-noting that the only difference in the definition of $\left(\beta_k \left(y_1^{(0:k-1)}\right)\right)^2$ and $A_k \left(y_1^{(0:k-1)}\right)$ is
-whether the squaring occurs inside or outside the expectation.
-Putting this together we now have that 
 \begin{align}
-&E_k \left(y_1^{(0:k-1)}\right) 
-\le \frac{\sigma_k^2 \left(y_1^{(0:k-1)}\right)}{N_k} + A_k \left(y_1^{(0:k-1)}\right). \\
-&\le \frac{s_k^2 \left(y_1^{(0:k-1)}\right) +
-2A_k \left(y_1^{(0:k-1)}\right)
-+2\left(A_k \left(y_1^{(0:k-1)}\right)\right)^{\frac{1}{2}}
-\left(s_k^2 \left(y_1^{(0:k-1)}\right) + A_k \left(y_1^{(0:k-1)}\right)\right)^{\frac{1}{2}}}
+\left(A_k \left(y^{(0:k-1)}\right)\right)^{\frac{1}{2}} &\le
+\left(\E \left[K_k^2 \left(I_{k+1}\left(y^{(0:k)}\right)-
+ \gamma_{k+1}\left(y^{(0:k)}\right)\right)^2\middle| y^{(0:k-1)}
+ \right] \right)^{\frac{1}{2}} \nonumber \\
+ &= K_k \left(\omega_k \left(y^{(0:k-1)}\right)\right)^{\frac{1}{2}}
+\end{align}
+where we remember that $\omega_k \left(y^{(0:k-1)}\right) 
+=\E \left[E_{k+1} 
+\left(y^{(0:k)}\right) \middle|  y^{(0:k-1)} \right]$ is the expected MSE
+of the next level estimator.  Once we also have an expression for the 
+bias, we will thus be able to use this bound on $A_k$ along with~\eqref{eq:bias-var-decomp},~\eqref{eq:lln},
+and~\eqref{eq:sigma_bound} to inductively derive a bound on the error.
+
+For the case where we only assume Lipschitz continuity then we will simply
+use the bound on the bias given by~\eqref{eq:AleB} leading to
+\begin{align}
+&E_k \left(y^{(0:k-1)}\right) 
+\le \frac{\sigma_k^2 \left(y^{(0:k-1)}\right)}{N_k} + A_k \left(y^{(0:k-1)}\right). \\
+&\le \frac{s_k^2 \left(y^{(0:k-1)}\right) +
+2A_k \left(y^{(0:k-1)}\right)
++2\left(A_k \left(y^{(0:k-1)}\right)\right)^{\frac{1}{2}}
+\left(s_k^2 \left(y^{(0:k-1)}\right) + A_k \left(y^{(0:k-1)}\right)\right)^{\frac{1}{2}}}
 {N_k} \nonumber\\
-&\phantom{\le} +A_k \left(y_1^{(0:k-1)}\right)\nonumber\\
-&\le \frac{s_k^2 \left(y_1^{(0:k-1)}\right) +
-	4 K_k^2 \omega_k \left(y_1^{(0:k-1)}\right)
-	+2 K_k \left(\omega_k \left(y_1^{(0:k-1)}\right)\right)^{\frac{1}{2}}
-	s_k \left(y_1^{(0:k-1)}\right)}{N_k}+K_k^2 \omega_k \left(y_1^{(0:k-1)}\right)
+&\phantom{\le\le} +A_k \left(y^{(0:k-1)}\right)\nonumber\\
+&= \frac{s_k^2 \left(y^{(0:k-1)}\right) +
+	2K_k^2 \omega_k \left(y^{(0:k-1)}\right)}{N_k} +K_k^2 \omega_k \left(y^{(0:k-1)}\right)\nonumber\\
+&\phantom{==} 	+\frac{2K_k\left(\omega_k \left(y^{(0:k-1)}\right)\right)^{\frac{1}{2}}
+\left(s_k^2 \left(y^{(0:k-1)}\right) +  K_k^2 \omega_k \left(y^{(0:k-1)}\right)\right)^{\frac{1}{2}}}
+{N_k}\nonumber \displaybreak[0]\\
+\begin{split}
+&\le \frac{s_k^2 \left(y^{(0:k-1)}\right) +
+	4 K_k^2 \omega_k \left(y^{(0:k-1)}\right)
+	+2 K_k \left(\omega_k \left(y^{(0:k-1)}\right)\right)^{\frac{1}{2}}
+	s_k \left(y^{(0:k-1)}\right)}{N_k}\\
+&\phantom{\le\le} +K_k^2 \omega_k \left(y^{(0:k-1)}\right)
 \label{eq:general-bound-lip}
+\end{split}
 \end{align}
 which fully defines a bound on conditional the variance of one layer given the mean squared error of the layer below.
-In particular as $\omega_D \left(y_1^{(0:D-1)}\right) = 0$ we now have
+In particular as $\omega_D \left(y^{(0:D-1)}\right) = 0$ we now have
 \[
-E_D \left(y_1^{(0:D-1)}\right) \le \frac{s_D^2 \left(y_1^{(0:D-1)}\right)}{N_D} = 
-\frac{\E \left[\left(f_D\left(y_1^{(0:D)}\right)-\gamma_D\left(y_1^{(0:D)}\right)\right)^2 \middle| y_1^{(0:D-1)}	\right]}{N_D}
+E_D \left(y^{(0:D-1)}\right) \le \frac{s_D^2 \left(y^{(0:D-1)}\right)}{N_D} = 
+\frac{\E \left[\left(f_D\left(y^{(0:D)}\right)-\gamma_D\left(y^{(0:D)}\right)\right)^2 \middle| y^{(0:D-1)}	\right]}{N_D}
 \]
 which is the standard error for Monte Carlo convergence.  
 We
 further have 
 \[
-\omega_{D-1} \left(y_1^{(0:D-2)}\right) = 
+\omega_{D-1} \left(y^{(0:D-2)}\right) = 
 \E \left[E_{D} 
-\left(y_1^{(0:D-1)}\right) \middle|  y_1^{(0:D-2)} \right]
+\left(y^{(0:D-1)}\right) \middle|  y^{(0:D-2)} \right]
 =
 \frac{\zeta^2_{D,D-1}
-	\left(y_1^{(0:D-2)}\right) }{N_D}.
+	\left(y^{(0:D-2)}\right) }{N_D}.
 \]
 and thus
 \begin{align}
 \begin{split}
-E_{D-1} &\left(y_1^{(0:D-2)}\right) \le  \frac{s_{D-1}^2 \left(y_1^{(0:D-2)}\right)}{N_{D-1}} +
+E_{D-1} &\left(y^{(0:D-2)}\right) \le  \frac{s_{D-1}^2 \left(y^{(0:D-2)}\right)}{N_{D-1}} +
 	\frac{4 K_{D-1}^2 \zeta^2_{D,D-1}
-		\left(y_1^{(0:D-2)}\right)}{N_D N_{D-1}} \\
-\quad \quad &	+ \frac{2 K_{D-1}s_{D-1} \left(y_1^{(0:D-2)}\right)
+		\left(y^{(0:D-2)}\right)}{N_D N_{D-1}} \\
+\quad \quad &	+ \frac{2 K_{D-1}s_{D-1} \left(y^{(0:D-2)}\right)
 		\zeta_{D,D-1}
-		\left(y_1^{(0:D-2)}\right)}{N_{D-1} \sqrt{N_D}}
-+\frac{K_{D-1}^2 \zeta^2_{D,D-1}\left(y_1^{(0:D-2)}\right)}{N_D}.
+		\left(y^{(0:D-2)}\right)}{N_{D-1} \sqrt{N_D}}
++\frac{K_{D-1}^2 \zeta^2_{D,D-1}\left(y^{(0:D-2)}\right)}{N_D}.
 \end{split}
 \end{align}
-This leads to following result for the single nesting case
+This leads to the following result for the single nesting case
 \begin{align}
 E_0 \le \frac{\varsigma^2_0}{N_0}+\frac{4 K_{0}^2 \varsigma_1^2}{N_0 N_{1}}
 +\frac{2 K_{0}\varsigma_{0} \varsigma_1}{N_{0} \sqrt{N_1}}+\frac{K_0 ^2 \varsigma_1^2}{N_1}
-\approx \frac{\varsigma^2_0}{N_0}+\frac{K_0 ^2 \varsigma_1^2}{N_1} = O\left(\frac{1}{N_0}+\frac{1}{N_1}\right)
 \end{align}
+$\approx \frac{\varsigma^2_0}{N_0}+\frac{K_0 ^2 \varsigma_1^2}{N_1} = O\left(\frac{1}{N_0}+\frac{1}{N_1}\right)$
 where the approximation becomes exact as $N_0,N_1 \rightarrow \infty$.
 Note that there is no $O\left(\epsilon\right)$ term as this bound is exact
 in the finite sample case.
 
 Things quickly get messy for double nesting and beyond so we will
 ignore non-dominant terms in the limit $N_0,\dots,N_D \rightarrow \infty$
-and resort to using $O(\epsilon)$ for these terms instead. 
-We first note that~\eqref{eq:general-bound-lip} can be simplified to
+and resort to using $O(\epsilon)$ for these instead. 
+We first note that removing dominated terms from~\eqref{eq:general-bound-lip} gives
 \begin{align}
-E_k \left(y_1^{(0:k-1)}\right) \le 
-\frac{s_k^2}{N_k} + K_k^2 \omega_k \left(y_1^{(0:k-1)}\right) + O(\epsilon)
+	\label{eq:Eklip}
+E_k \left(y^{(0:k-1)}\right) \le 
+\frac{s_k^2}{N_k} + K_k^2 \omega_k \left(y^{(0:k-1)}\right) + O(\epsilon)
 \end{align}
 as $s_k^2$ does not decrease with increasing $N_{k+1:D}$ whereas the other
-terms do.  We therefore also have that
+terms do.  We therefore also have
 \begin{align}
-\omega_k^2 \left(y_1^{(0:k-1)}\right) = \E \left[ \frac{s_{k+1}^2\left(y_1^{(0:k)}\right)}
-{N_{k+1}} + K^2_{k+1} \omega_{k+1} \left(y_1^{(0:k)}\right) \middle|
-y_1^{(0:k-1)}\right] + O(\epsilon)
+\omega_k \left(y^{(0:k-1)}\right) &= \E \left[E_{k+1} 
+\left(y^{(0:k)}\right) \middle|  y^{(0:k-1)} \right] \nonumber \\ &\le \E \left[ \frac{s_{k+1}^2\left(y^{(0:k)}\right)}
+{N_{k+1}} + K^2_{k+1} \omega_{k+1} \left(y^{(0:k)}\right) \middle|
+y^{(0:k-1)}\right] + O(\epsilon) \label{eq:omega-bound}
 \end{align}
-and therefore
+and therefore by recursively substituting~\eqref{eq:omega-bound} into itself
+we have
 \begin{align}
-E_k \left(y_1^{(0:k-1)}\right) &\le  \frac{s_k^2\left(y_1^{(0:k-1)}\right)}{N_k} +
+	\label{eq:Komega}
+	K_k^2\omega_k \left(y^{(0:k-1)}\right) &\le
+	\sum_{d=k+1}^{D} \frac{\left(\prod_{\ell=k}^{d-1} K_{\ell}^2\right)
+		\E \left[ s_{d}^2 \left(y^{(0:d-1)}\right) \middle|
+		y^{(0:k-1)}\right]}{N_{d}}+ O(\epsilon).
+\end{align}
+Now noting that $\zeta_{d,k}^2\left(y^{(0:k-1)}\right) =
+\E \left[ s_{d}^2 \left(y^{(0:d-1)}\right) \middle| y^{(0:k-1)}\right]$, substituting
+\eqref{eq:Komega} back into~\eqref{eq:Eklip} gives
+\begin{align}
+E_k \left(y^{(0:k-1)}\right) 
+%&\le  \frac{s_k^2\left(y^{(0:k-1)}\right)}{N_k} +
+%\sum_{d=k+1}^{D} \frac{\left(\prod_{\ell=k}^{d-1} K_{\ell}^2\right)
+%	\E \left[ s_{d}^2 \left(y^{(0:d-1)}\right) \middle|
+%	y^{(0:k-1)}\right]}{N_{d}}+ O(\epsilon) \\
+&= \frac{s_k^2\left(y^{(0:k-1)}\right)}{N_k} +
 \sum_{d=k+1}^{D} \frac{\left(\prod_{\ell=k}^{d-1} K_{\ell}^2\right)
-	\E \left[ s_{d}^2 \left(y_1^{(0:d-1)}\right) \middle|
-	y_1^{(0:k-1)}\right]}{N_{d}}+ O(\epsilon) \\
-&= \frac{s_k^2\left(y_1^{(0:k-1)}\right)}{N_k} +
-\sum_{d=k+1}^{D} \frac{\left(\prod_{\ell=k}^{d-1} K_{\ell}^2\right)
-	\zeta_{d,k}^2\left(y_1^{(0:k-1)}\right)}{N_{d}}+ O(\epsilon)
+	\zeta_{d,k}^2\left(y^{(0:k-1)}\right)}{N_{d}}+ O(\epsilon).
 \label{eq:final-lip-bound}
 \end{align}
-Now from its definition we have that
-$\zeta_{0,0}^2 = s_0^2$ and $\zeta_{d,0}^2 = \varsigma_d^2$ and
+By definition we have that
+$\zeta_{0,0}^2 = s_0^2 =\varsigma_0^2$ and $\zeta_{d,0}^2 = \varsigma_d^2$ and
 as~\eqref{eq:final-lip-bound} holds in the case $k=0$, 
 the mean squared error of the overall estimator is as follows
 \begin{align}
@@ -442,158 +491,164 @@ the mean squared error of the overall estimator is as follows
 \end{align}
 and we have the desired result for the Lipschitz case.
 
-We now revisit the bound for the bias in the continuously differentiable case to
-show that a tighter bound can be found.  We first remember that
+\vspace{15pt}
+\noindent\textbf{\large Continuously Differentiable Case}
+\vspace{5pt}
+
+\noindent We now revisit the bound for the bias in the continuously differentiable case to
+show that a tighter overall bound can be found.  We first remember that
 \[
-\beta_k \left(y_1^{(0:k-1)} \right) =
-\E \left[f_k\left(y^{(0:k)}_1, I_{k+1}\left(y^{(0:k)}_1\right)\right)
-- f_k\left(y^{(0:k)}_1, \gamma_{k+1}\left(y^{(0:k)}_1\right)\right)
-\middle|  y_1^{(0:k-1)} \right].
+\beta_k \left(y^{(0:k-1)} \right) =
+\E \left[f_k\left(y^{(0:k)}, I_{k+1}\left(y^{(0:k)}\right)\right)
+- f_k\left(y^{(0:k)}, \gamma_{k+1}\left(y^{(0:k)}\right)\right)
+\middle|  y^{(0:k-1)} \right].
 \]
-We now use a Taylor expansion for $f_k\left(y^{(0:k)}_1, I_{k+1}\left(y^{(0:k)}_1\right)\right)$ about the point
-$f_k\left(y^{(0:k)}_1, \gamma_{k+1}\left(y^{(0:k)}_1\right)\right)$
-as follows where all derivatives are with respect to the second input.  First we
-define
+Taylor's theorem implies that for any continuously differentiable $f_k$ we can write
+\begin{align}
+	\begin{split}
+f_k&\left(y^{(0:k)}, I_{k+1}\left(y^{(0:k)}\right)\right)
+	- f_k\left(y^{(0:k)}, \gamma_{k+1}\left(y^{(0:k)}\right)\right) \\
+	&\quad\quad\quad\quad= \frac{\partial f_k \left(y^{(0:k)},\gamma_{k+1}(y^{(0:k)})\right)}{\partial \gamma_{k+1}}
+		\left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right) \\
+	&\quad\quad\quad\quad\phantom{=}+\frac{1}{2}
+	\frac{\partial f_k^{2} \left(y^{(0:k)},\gamma_{k+1}(y^{(0:k)})\right)}{\partial \gamma_{k+1}^{2}}
+	\left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)^{2} \\
+	&\quad\quad\quad\quad\phantom{=}+h_3\left(I_{k+1}\left(y^{(0:k)}\right) \right) 
+	\left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)^{3}
+	\end{split}
+\end{align}
+where $\lim_{x\rightarrow\gamma_{k+1}\left(y^{(0:k)}\right)}h_3(x)=0$.  Consequently, the
+last term is $O\left(\left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)^{3}\right)$
+and so will diminish in magnitude faster than the first two terms provided that the derivatives are
+bounded, which is guaranteed by our assumptions.  We will thus use $O(\epsilon)$ for this term and note that
+it is dominated in the limit.
+
+Now defining
 \begin{align*}
-\delta_1 &= \E \left[\frac{\partial f_k \left(y^{(0:k)},\gamma_{k+1}(y^{(0:k)})\right)}{\partial \gamma_{k+1}}
-\left(I_{k+1}\left(y^{(0:k)}_1\right) - \gamma_{k+1}\left(y^{(0:k)}_1\right)\right)
-\middle|  y_1^{(0:k-1)} \right] \\
-\delta_2 &= \E \left[ \frac{\partial f_k^2 \left(y^{(0:k)},\gamma_{k+1}(y^{(0:k)})\right)}{\partial \gamma_{k+1}^2}
-\left(I_{k+1}\left(y^{(0:k)}_1\right) - \gamma_{k+1}\left(y^{(0:k)}_1\right)\right)^2
-\middle|  y_1^{(0:k-1)} \right] 
+	%\delta_{1,k} &= \E \left[\frac{\partial f_k \left(y^{(0:k)},\gamma_{k+1}(y^{(0:k)})\right)}{\partial \gamma_{k+1}}
+	%\left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)
+	%\middle|  y^{(0:k-1)} \right] \\
+	\delta_{\ell,k} &= \E \left[ \frac{\partial f_k^{\ell} \left(y^{(0:k)},\gamma_{k+1}(y^{(0:k)})\right)}{\partial \gamma_{k+1}^{\ell}}
+	\left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)^{\ell}
+	\middle|  y^{(0:k-1)} \right] 
 \end{align*}
-then we have from the Taylor expansion
+then we have
 \begin{align*}
-\beta_k^2 \left(y_1^{(0:k-1)} \right) =& 
-\left(\E \left[f_k\left(y^{(0:k)}_1, \gamma_{k+1}\left(y^{(0:k)}_1\right)\right)
-\middle|  y_1^{(0:k-1)} \right]+
-\delta_1+\frac{\delta_2}{2}
-+O(\epsilon) \right.\\
-&\left.\quad-\E \left[f_k\left(y^{(0:k)}_1, \gamma_{k+1}\left(y^{(0:k)}_1\right)\right)
-\middle|  y_1^{(0:k-1)} \right]\right)^2 \\
-=&\delta_1^2+\frac{\delta_2^2}{4}+\delta_1\delta_2 +O(\epsilon).
+	\beta_k^2 \left(y^{(0:k-1)} \right)
+	=&\delta_{1,k}^2+\frac{\delta_{2,k}^2}{4}+\delta_{1,k}\delta_{2,k} +O(\epsilon).
 \end{align*}
-Now considering $\delta_1$ we have by the tower property
+%We now use a Taylor expansion for $f_k\left(y^{(0:k)}, I_{k+1}\left(y^{(0:k)}\right)\right)$ about the point
+%$f_k\left(y^{(0:k)}, \gamma_{k+1}\left(y^{(0:k)}\right)\right)$
+%as follows where all derivatives are with respect to the second input.  First we
+%define
+%\begin{align*}
+%%\delta_{1,k} &= \E \left[\frac{\partial f_k \left(y^{(0:k)},\gamma_{k+1}(y^{(0:k)})\right)}{\partial \gamma_{k+1}}
+%%\left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)
+%%\middle|  y^{(0:k-1)} \right] \\
+%\delta_{\ell,k} &= \E \left[ \frac{\partial f_k^{\ell} \left(y^{(0:k)},\gamma_{k+1}(y^{(0:k)})\right)}{\partial \gamma_{k+1}^{\ell}}
+%\left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)^{\ell}
+%\middle|  y^{(0:k-1)} \right] 
+%\end{align*}
+%then we have from the Taylor expansion
+%\begin{align*}
+%\beta_k^2 \left(y^{(0:k-1)} \right) =& 
+%\left(\E \left[f_k\left(y^{(0:k)}, \gamma_{k+1}\left(y^{(0:k)}\right)\right)
+%\middle|  y^{(0:k-1)} \right]+
+%\delta_{1,k}+\frac{\delta_{2,k}}{2}
+%+O(\epsilon) \right.\\
+%&\left.\quad-\E \left[f_k\left(y^{(0:k)}, \gamma_{k+1}\left(y^{(0:k)}\right)\right)
+%\middle|  y^{(0:k-1)} \right]\right)^2 \\
+%=&\delta_{1,k}^2+\frac{\delta_{2,k}^2}{4}+\delta_{1,k}\delta_{2,k} +O(\epsilon).
+%\end{align*}
+By using the tower property we further have that
 \begin{align*}
-\delta_1 &= \E \left[ \E \left[\frac{\partial f_k \left(y^{(0:k)},\gamma_{k+1}(y^{(0:k)})\right)}{\partial \gamma_{k+1}}
-\left(I_{k+1}\left(y^{(0:k)}_1\right) - \gamma_{k+1}\left(y^{(0:k)}_1\right)\right)
-\middle|  y_1^{(0:k)} \right] \middle|  y_1^{(0:k-1)} \right] \\
-&= \E \left[ 
-\frac{\partial f_k \left(y^{(0:k)},\gamma_{k+1}(y^{(0:k)})\right)}{\partial \gamma_{k+1}} \E \left[
-\left(I_{k+1}\left(y^{(0:k)}_1\right) - \gamma_{k+1}\left(y^{(0:k)}_1\right)\right)
-\middle|  y_1^{(0:k)} \right] \middle|  y_1^{(0:k-1)} \right]
+\delta_{\ell,k} &= \E \left[ \E \left[\frac{\partial f_k^{\ell} \left(y^{(0:k)},\gamma_{k+1}(y^{(0:k)})\right)}{\partial \gamma_{k+1}^{\ell}}
+\left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)^{\ell}
+\middle|  y^{(0:k)} \right] \middle|  y^{(0:k-1)} \right] \displaybreak[0]\\
+&= \E \left[ \frac{\partial f_k^{\ell} \left(y^{(0:k)},\gamma_{k+1}(y^{(0:k)})\right)}{\partial \gamma_{k+1}^{\ell}} \E \left[
+\left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)^{\ell}
+\middle|  y^{(0:k)} \right] \middle|  y^{(0:k-1)} \right] \displaybreak[0]\\
+&\le \E \left[ \left|\frac{\partial f_k^{\ell} \left(y^{(0:k)},\gamma_{k+1}(y^{(0:k)})\right)}{\partial \gamma_{k+1}^{\ell}} \right| 
+\left|\E \left[
+\left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)^{\ell}
+\middle|  y^{(0:k)} \right] \right| \; \middle|  y^{(0:k-1)} \right]  \displaybreak[0]\\
+&\le \left(\sup_{y^{(0)}} \left|
+\frac{\partial^{\ell} f_k \left(y^{(0:k)},\gamma_{k+1}(y^{(0:k)})\right)}{\partial \gamma^{\ell}_{k+1}} \right| \right)\\
+&\quad\quad \cdot \E \left[\left| \E \left[
+\left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)^{\ell}
+\bigg| y^{(0:k)} \right]
+\right| \; \Bigg| y^{(0:k-1)} \right].
 \end{align*}
-and so by noting that $a\le|a|$ where $|a|$ is the absolute value of $a$ we have
+Now for the particular cases of $\ell=1$ and $\ell=2$ then the derivative terms where 
+defined in the theorem and the expectations correspond respectively to our definitions of $\lambda_k$ and $\omega_k$
+giving
 \begin{align*}
-\delta_1 &\le \E \left[ 
-\left| \frac{\partial f_k \left(y^{(0:k)},\gamma_{k+1}(y^{(0:k)})\right)}{\partial \gamma_{k+1}}\right| \left|\E \left[
-\left(I_{k+1}\left(y^{(0:k)}_1\right) - \gamma_{k+1}\left(y^{(0:k)}_1\right)\right)
-\middle|  y_1^{(0:k)} \right] \right| \middle|  y_1^{(0:k-1)} \right] \\
-&\le K_k \E \left[ \left|\E \left[
-\left(I_{k+1}\left(y^{(0:k)}_1\right) - \gamma_{k+1}\left(y^{(0:k)}_1\right)\right)
-\middle|  y_1^{(0:k)} \right] \right| \Bigg|  y_1^{(0:k-1)} \right] \\
-&= K_k \lambda_k\left(y_1^{(0:k-1)} \right)
-\end{align*}
-Similarly we have
-\begin{align*}
-\delta_2 &\le C_k \omega_k\left(y_1^{(0:k-1)} \right)
+\delta_{1,k} &\le  K_k \lambda_k\left(y^{(0:k-1)} \right) \\
+\delta_{2,k} &\le C_k \omega_k\left(y^{(0:k-1)} \right)
 \end{align*}
 and therefore
 %\begin{align}
-%\beta_k^2 \left(y_1^{(0:k-1)} \right)  \le 
-%K_k^2 \omega_k\left(y_1^{(0:k-1)} \right) + 
-%\frac{C_k^2}{4} \omega_k^2\left(y_1^{(0:k-1)} \right)
-%+K_k C_k \omega_k^{\frac{3}{2}}\left(y_1^{(0:k-1)} \right)+O(\epsilon)
+%\beta_k^2 \left(y^{(0:k-1)} \right)  \le 
+%K_k^2 \omega_k\left(y^{(0:k-1)} \right) + 
+%\frac{C_k^2}{4} \omega_k^2\left(y^{(0:k-1)} \right)
+%+K_k C_k \omega_k^{\frac{3}{2}}\left(y^{(0:k-1)} \right)+O(\epsilon)
 %\end{align}
-\begin{align*}
-\beta_k^2 \left(y_1^{(0:k-1)} \right)  &\le K_k^2 \lambda_k^2 \left(y_1^{(0:k-1)} \right) +\frac{C_k^2}{4} \omega_k^2\left(y_1^{(0:k-1)} \right) +K_k\; C_k \; \lambda_k \left(y_1^{(0:k-1)} \right) \omega_k \left(y_1^{(0:k-1)} \right) + O(\epsilon)\\
-&=\left(K_k \lambda_k \left(y_1^{(0:k-1)} \right) +
-\frac{C_k}{2} \omega_k\left(y_1^{(0:k-1)} \right) \right)^2+O(\epsilon).
-\end{align*}
-Now remembering that our overall error is of the form
-$E_k \left(y_1^{(0:k-1)}\right) 
-= \frac{\sigma_k^2 \left(y_1^{(0:k-1)}\right)}{N_k} + \beta_k^2 \left(y_1^{(0:k-1)}\right)$,
-we can again recursively define the error bound.  We can immediately see that,
+\begin{align}
+\beta_k^2 \left(y^{(0:k-1)} \right)  &\le K_k^2 \lambda_k^2 \left(y^{(0:k-1)} \right) +\frac{C_k^2}{4} \omega_k^2\left(y^{(0:k-1)} \right) \nonumber\\&\phantom{\le\le}+K_k\; C_k \; \lambda_k \left(y^{(0:k-1)} \right) \omega_k \left(y^{(0:k-1)} \right) + O(\epsilon) \nonumber\\
+&=\left(K_k \lambda_k \left(y^{(0:k-1)} \right) +
+\frac{C_k}{2} \omega_k\left(y^{(0:k-1)} \right) \right)^2+O(\epsilon). \label{eq:beta-k-cont}
+\end{align}
+
+Remembering~\eqref{eq:E_decomp}
+%$E_k \left(y^{(0:k-1)}\right) 
+%= \frac{\sigma_k^2 \left(y^{(0:k-1)}\right)}{N_k} + \beta_k^2 \left(y^{(0:k-1)}\right)$,
+we can recursively define the error bound in the same manner as the Lipschitz case.  We can immediately see that,
 as $\beta_D =0$ without any nesting, we recover the bound from the Lipschitz case for the inner most estimator as expected.  
 As the innermost estimator is unbiased we also have
-$\lambda_{D-1} \left(y_1^{(0:D-2)} \right)=0$ and so
+$\lambda_{D-1} \left(y^{(0:D-2)} \right)=0$ and so
 \begin{align*}
-\beta_{D-1}^2 \left(y_1^{(0:D-2)} \right) &\le \frac{C_{D-1}^2}{4} \omega^2_{D-1} \left(y_1^{(0:D-2)}\right) + O(\epsilon) \\
+\beta_{D-1}^2 \left(y^{(0:D-2)} \right) &\le \frac{C_{D-1}^2}{4} \omega^2_{D-1} \left(y^{(0:D-2)}\right) + O(\epsilon) \\
 &\le \frac{C_{D-1}^2}{4} 
-\left(\E \left[\frac{s_D^2\left(y_1^{(0:D-1)}\right)}{N_D}
-\middle|  y_1^{(0:D-2)} \right]\right)^2+ O(\epsilon) \\
+\left(\E \left[\frac{s_D^2\left(y^{(0:D-1)}\right)}{N_D}
+\middle|  y^{(0:D-2)} \right]\right)^2+ O(\epsilon) \\
 &= \frac{C_{D-1}^2 \; \zeta^4_{D,D-1}
-	\left(y_1^{(0:D-2)}\right) }{4N_D^2}+ O(\epsilon).
+	\left(y^{(0:D-2)}\right) }{4N_D^2}+ O(\epsilon).
 \end{align*}
-Using the full expansion of $\sigma_{D-1}^2 \left(y_1^{(0:D-2)}\right)$
-derived in the Lipschitz case we have
+Using the full expansion of $\sigma_{D-1}^2 \left(y^{(0:D-2)}\right)$
+derived in the Lipschitz case and the exact form of~\eqref{eq:E_decomp} we have
 \begin{align}
 \begin{split}
-& E_{D-1}\left(y_1^{(0:D-2)}\right) \le  \frac{s_{D-1}^2 \left(y_1^{(0:D-2)}\right)}{N_{D-1}} +
+& E_{D-1}\left(y^{(0:D-2)}\right) \le  \frac{s_{D-1}^2 \left(y^{(0:D-2)}\right)}{N_{D-1}} +
 \frac{4K_{D-1}^2 \zeta^2_{D,D-1}
-	\left(y_1^{(0:D-2)}\right)}{N_D N_{D-1}} \\
-&\quad \quad + \frac{2 K_{D-1}s_{D-1} \left(y_1^{(0:D-2)}\right)
+	\left(y^{(0:D-2)}\right)}{N_D N_{D-1}} \\
+&\quad \quad + \frac{2 K_{D-1}s_{D-1} \left(y^{(0:D-2)}\right)
 	\zeta_{D,D-1}
-	\left(y_1^{(0:D-2)}\right)}{N_{D-1} \sqrt{N_D}}
+	\left(y^{(0:D-2)}\right)}{N_{D-1} \sqrt{N_D}}
 +\frac{C_{D-1}^2 \; \zeta^4_{D,D-1}
-	\left(y_1^{(0:D-2)}\right) }{4N_D^2}+ O(\epsilon).
+	\left(y^{(0:D-2)}\right) }{4N_D^2}+ O(\epsilon).
 \end{split}
 \end{align}
-Therefore for the single nesting case we now have
+Therefore for the single nesting case, we now have
 \begin{align}
 E_0 \le \frac{\varsigma^2_0}{N_0}+\frac{4 K_{0}^2 \varsigma_1^2}{N_0 N_{1}}
 +\frac{2 K_{0}\varsigma_{0} \varsigma_1}{N_{0} \sqrt{N_1}}+\frac{C_0 ^2 \varsigma_1^4}{4 N_1^2}
-+ O(\epsilon)
-\approx \frac{\varsigma^2_0}{N_0}+\frac{C_0 ^2 \varsigma_1^4}{4 N_1^2} = O\left(\frac{1}{N_0}+\frac{1}{N_1^2}\right)
++ O\left(\frac{1}{N_1^3}\right)
 \end{align}
+$\approx \frac{\varsigma^2_0}{N_0}+\frac{C_0 ^2 \varsigma_1^4}{4 N_1^2} = O\left(\frac{1}{N_0}+\frac{1}{N_1^2}\right)$
 where again the approximation becomes tight when $N_0,N_1 \rightarrow \infty$.
-We can further note that in this case the only contribution to the $O(\epsilon)$
-term is from higher order terms in the Taylor expansion of the bias term.
-As $\delta_1=0$ for the single nesting case by unbiasedness,
-The largest of these terms is $\frac{\delta_2 \delta_3}{3}$ where
+Here we have used the fact that the only $O(\epsilon)$ term comes from the Taylor expansion.
+In this case, we have $\delta_{1,D-1}=0$ and so we have
 \begin{align*}
-\delta_3 &= \E \left[\frac{\partial^3 f_0 \left(y^{(0)},\gamma_{1}(y^{(0)})\right)}{\partial \gamma^3_{1}}
-\left(I_{1}\left(y^{(0)}_1\right) - \gamma_{1}\left(y^{(0)}_1\right)\right)^3\right] \\
-&\le \sup_{y_1^{(0)}} \left|\frac{\partial^3 f_0 \left(y^{(0)},\gamma_{1}(y^{(0)})\right)}{\partial \gamma^3_{1}}\right|
- \E \left[\left| \E \left[
- \left(I_{1}\left(y^{(0)}_1\right) - \gamma_{1}\left(y^{(0)}_1\right)\right)^3
- \Bigg| y_1^{(0)} \right]
- \right|\right] \\
- &= \frac{1}{N_1^3}  \sup_{y_1^{(0)}} \left|\frac{\partial^3 f_0 \left(y^{(0)},\gamma_{1}(y^{(0)})\right)}{\partial \gamma^3_{1}}\right|
- \E \left[\left| \E \left[
-\sum_{n=1}^{N_1}\left(f_{1}\left(y^{(0)}_1,y_n^{(1)}\right) - \gamma_{1}\left(y^{(0)}_1\right)\right)^3
- \Bigg| y_1^{(0)} \right]+\right.\right. \\
-&\quad \quad \left.\left. \E \left[
-\sum_{n=1}^{N_1} \sum_{m=1,m\neq n}^{N_1}
-\left(f_{1}\left(y^{(0)}_1,y_n^{(1)}\right) - \gamma_{1}\left(y^{(0)}_1\right)\right)
-\left(f_{1}\left(y^{(0)}_1,y_m^{(1)}\right) - \gamma_{1}\left(y^{(0)}_1\right)\right)^2
-\Bigg| y_1^{(0)} \right] \right|\right] \\
-&= \frac{1}{N_1^3}  \sup_{y_1^{(0)}} \left|\frac{\partial^3 f_0 \left(y^{(0)},\gamma_{1}(y^{(0)})\right)}{\partial \gamma^3_{1}}\right|
-\E \left[\left| \E \left[
-\sum_{n=1}^{N_1}\left(f_{1}\left(y^{(0)}_1,y_n^{(1)}\right) - \gamma_{1}\left(y^{(0)}_1\right)\right)^3
-\Bigg| y_1^{(0)} \right] \right|\right]\\
-&= \frac{1}{N_1^2}  \sup_{y_1^{(0)}} \left|\frac{\partial^3 f_0 \left(y^{(0)},\gamma_{1}(y^{(0)})\right)}{\partial \gamma^3_{1}}\right|
-\E \left[\left| \E \left[
-\left(f_{1}\left(y^{(0)}_1,y_1^{(1)}\right) - \gamma_{1}\left(y^{(0)}_1\right)\right)^3
-\Bigg| y_1^{(0)} \right] \right|\right]\\
-% &\le \sup_{y_1^{(0)}} \left|\frac{\partial^3 f_0 \left(y^{(0)},\gamma_{1}(y^{(0)})\right)}{\partial \gamma^3_{1}}\right|
-% \left(\E \left[
-% \left(I_{1}\left(y^{(0)}_1\right) - \gamma_{1}\left(y^{(0)}_1\right)\right)^4
-%\right] \right)^{\frac{3}{4}} \\
-&= O\left(\frac{1}{N_1^{2}}\right)
+O(\epsilon)&=O\left(\delta_{2,D-1}\E \left[
+\left(I_{1}\left(y^{(0)}\right) - \gamma_{1}\left(y^{(0)}\right)\right)^{3}\middle| y^{(0)}\right]\right) \\
+&=O\left(\frac{1}{N_1}\E \left[
+\left(\frac{1}{N_1}\sum_{n=1}^{N_1} f_1\left(y^{(0:1)}_n\right)- \E \left[f_1\left(y^{(0:1)}\right) \middle| y^{(0)}\right]\right)^{3}\middle| y^{(0)}\right]\right)
 \end{align*}
-Therefore $\frac{\delta_2 \delta_3}{3}
-=O\left(\frac{1}{N_1^{3}}\right)$ which confirms that the $O(\epsilon)$ term is
-asymptotically negligible as required and allows us to better characterize the
-bound in the single nesting case as we have
-\begin{align}
-E_0 \le \frac{\varsigma^2_0}{N_0}+\frac{4 K_{0}^2 \varsigma_1^2}{N_0 N_{1}}
-+\frac{2 K_{0}\varsigma_{0} \varsigma_1}{N_{0} \sqrt{N_1}}+\frac{C_0 ^2 \varsigma_1^4}{4 N_1^2}
-+ O\left(\frac{1}{N_1^{3}}\right).
-\end{align}
+which can easily be shown to be $O\left(1/N_1^3\right)$ as required.
+\\
 %as $\E \left[
-%\left(I_{1}\left(y^{(0)}_1\right) - \gamma_{1}\left(y^{(0)}_1\right)\right)^4
-%\right]=O\left(\frac{1}{N_1^{2}}\right)$.  Therefore $\frac{\delta_2 \delta_3}{3}
+%\left(I_{1}\left(y^{(0)}\right) - \gamma_{1}\left(y^{(0)}\right)\right)^4
+%\right]=O\left(\frac{1}{N_1^{2}}\right)$.  Therefore $\frac{\delta_{2,k} \delta_{3,k}}{3}
 %=O\left(\frac{1}{N_1^{5/2}}\right)$ which confirms that the $O(\epsilon)$ term is
 %asymptotically negligible as required and allows us to better characterize the
 %bound in the single nesting case as we have
@@ -603,64 +658,97 @@ E_0 \le \frac{\varsigma^2_0}{N_0}+\frac{4 K_{0}^2 \varsigma_1^2}{N_0 N_{1}}
 %+ O\left(\frac{1}{N_1^{5/2}}\right).
 %\end{align}
 
-For the repeated nesting case we first note that
-\begin{align*}
-\omega_k\left(y_1^{(0:k-1)} \right) &= \E \left[\frac{s_{k+1}^2 \left(y_1^{(0:k)}\right)}{N_{k+1}} + \beta^2_{k+1} 
-\left(y_1^{(0:k)}\right) \middle|  y_1^{(0:k-1)} \right] + O(\epsilon) \\
-&= \frac{\zeta_{k+1,k}^2}{N_{k+1}}+\E \left[\beta^2_{k+1} 
-\left(y_1^{(0:k)}\right) \middle|  y_1^{(0:k-1)} \right] + O(\epsilon) 
-\end{align*}
-and that except at $k=D-1$ and $k=D$ (for which both are zero), then
+\noindent Returning to calculating the bound for the repeated nesting case then by 
+substituting~\eqref{eq:beta-k-cont} into~\eqref{eq:E_decomp} we have more generally
+\begin{align}
+	E_k \left(y^{(0:k-1)}\right) 
+	&\le \frac{s_k^2 \left(y^{(0:k-1)}\right)}{N_k}+ \left(K_k \lambda_k \left(y^{(0:k-1)} \right) +
+	\frac{C_k}{2} \omega_k\left(y^{(0:k-1)} \right) \right)^2+O(\epsilon). \label{eq:Ekcont}
+	\end{align}
+Now remembering that
+$\omega_k \left(y^{(0:k-1)}\right) = \E \left[E_{k+1} 
+\left(y^{(0:k)}\right) \middle|  y^{(0:k-1)} \right] $ from~\eqref{eq:E_decomp} we have
+\begin{align}
+	\omega_k\left(y^{(0:k-1)} \right) &= \E \left[\frac{s_{k+1}^2 \left(y^{(0:k)}\right)}{N_{k+1}} + \beta^2_{k+1} 
+	\left(y^{(0:k)}\right) \middle|  y^{(0:k-1)} \right] + O(\epsilon) \nonumber \\
+	&= \frac{\zeta_{k+1,k}^2}{N_{k+1}}+\E \left[\beta^2_{k+1} 
+	\left(y^{(0:k)}\right) \middle|  y^{(0:k-1)} \right] + O(\epsilon).  \label{eq:omega}
+\end{align}
+We also have that except at $k=D-1$ and $k=D$ (for which both $\lambda_k$ and $\beta_{k+1}$ are zero), then
 \[
-\lambda_k\left(y_1^{(0:k-1)} \right) = \E \left[\left|\beta_{k+1} 
-\left(y_1^{(0:k-1)}\right) \right| \Bigg|  y_1^{(0:k)}\right] \gg
+\lambda_k\left(y^{(0:k-1)} \right) = \E \left[\left|\beta_{k+1} 
+\left(y^{(0:k)}\right) \right| \Bigg|  y^{(0:k)}\right] \gg
 \E \left[\beta^2_{k+1} 
-\left(y_1^{(0:k)}\right) \middle|  y_1^{(0:k-1)} \right]
+\left(y^{(0:k)}\right) \middle|  y^{(0:k-1)} \right]
 \]
 for sufficiently large $N_{k+1},\dots,N_D$.
- We can therefore ignore the latter term in $\omega_k$ as follows
- \begin{align*}
-  E_k \left(y_1^{(0:k-1)}\right) 
- &=\frac{s_k^2 \left(y_1^{(0:k-1)}\right)}{N_k}+ \beta_k^2 \left(y_1^{(0:k-1)} \right) +O(\epsilon) \\
- &\le \frac{s_k^2 \left(y_1^{(0:k-1)}\right)}{N_k}+ \left(K_k \lambda_k \left(y_1^{(0:k-1)} \right) +
- \frac{C_k}{2} \omega_k\left(y_1^{(0:k-1)} \right) \right)^2+O(\epsilon) \\
- &= \frac{s_k^2 \left(y_1^{(0:k-1)}\right)}{N_k}
- +\left(K_k \lambda_k \left(y_1^{(0:k-1)}\right) 
- +\frac{C_k \zeta_{k+1,k}^2}{2 N_{k+1}}\right)^2 + O(\epsilon).
- \end{align*}
+This means that when we substitute~\eqref{eq:omega} into~\eqref{eq:Ekcont},
+the second term in \eqref{eq:omega} becomes dominated giving
+\begin{align}
+	E_k \left(y^{(0:k-1)}\right) 
+	\le\frac{s_k^2 \left(y^{(0:k-1)}\right)}{N_k}
+	+\left(K_k \lambda_k \left(y^{(0:k-1)}\right) 
+	+\frac{C_k \zeta_{k+1,k}^2}{2 N_{k+1}}\right)^2 + O(\epsilon). \label{eq:E_k_for_sub}
+\end{align}
+%\noindent Returning to calculating the bound for the repeated nesting case, we have
+%\begin{align}
+%\omega_k\left(y^{(0:k-1)} \right) &= \E \left[\frac{s_{k+1}^2 \left(y^{(0:k)}\right)}{N_{k+1}} + \beta^2_{k+1} 
+%\left(y^{(0:k)}\right) \middle|  y^{(0:k-1)} \right] + O(\epsilon) \nonumber \\
+%&= \frac{\zeta_{k+1,k}^2}{N_{k+1}}+\E \left[\beta^2_{k+1} 
+%\left(y^{(0:k)}\right) \middle|  y^{(0:k-1)} \right] + O(\epsilon)  \label{eq:omega}
+%\end{align}
+%and except at $k=D-1$ and $k=D$ (for which both $\lambda_k$ and $\beta_{k+1}$ are zero), then
+%\[
+%\lambda_k\left(y^{(0:k-1)} \right) = \E \left[\left|\beta_{k+1} 
+%\left(y^{(0:k-1)}\right) \right| \Bigg|  y^{(0:k)}\right] \gg
+%\E \left[\beta^2_{k+1} 
+%\left(y^{(0:k)}\right) \middle|  y^{(0:k-1)} \right]
+%\]
+%for sufficiently large $N_{k+1},\dots,N_D$.
+% We can therefore ignore the second term in $\omega_k$ as follows.   Starting from~\eqref{eq:E_decomp}
+% and substituting in~\eqref{eq:beta-k-cont} we have
+% \begin{align}
+%  E_k \left(y^{(0:k-1)}\right) 
+% &=\frac{s_k^2 \left(y^{(0:k-1)}\right)}{N_k}+ \beta_k^2 \left(y^{(0:k-1)} \right) +O(\epsilon) \nonumber \\
+% &\le \frac{s_k^2 \left(y^{(0:k-1)}\right)}{N_k}+ \left(K_k \lambda_k \left(y^{(0:k-1)} \right) +
+% \frac{C_k}{2} \omega_k\left(y^{(0:k-1)} \right) \right)^2+O(\epsilon) \nonumber \\
+% &= \frac{s_k^2 \left(y^{(0:k-1)}\right)}{N_k}
+% +\left(K_k \lambda_k \left(y^{(0:k-1)}\right) 
+% +\frac{C_k \zeta_{k+1,k}^2}{2 N_{k+1}}\right)^2 + O(\epsilon). \label{eq:E_k_for_sub}
+% \end{align}
 %again ignore the higher order terms giving
 %\begin{align*}
-%& E_k \left(y_1^{(0:k-1)}\right) 
-%=\frac{s_k^2 \left(y_1^{(0:k-1)}\right)}{N_k} + \beta_k^2 \left(y_1^{(0:k-1)}\right)
+%& E_k \left(y^{(0:k-1)}\right) 
+%=\frac{s_k^2 \left(y^{(0:k-1)}\right)}{N_k} + \beta_k^2 \left(y^{(0:k-1)}\right)
 %+ O(\epsilon) \\
-%&\quad \quad \le \frac{s_k^2 \left(y_1^{(0:k-1)}\right)}{N_k} +K_k^2 \lambda_k^2 \left(y_1^{(0:k-1)} \right) +\frac{C_k^2}{4} \omega_k^2\left(y_1^{(0:k-1)} \right) \\
-%&\quad \quad \quad +K_kC_k \lambda_k \left(y_1^{(0:k-1)} \right) \omega_k \left(y_1^{(0:k-1)} \right) + O(\epsilon)
+%&\quad \quad \le \frac{s_k^2 \left(y^{(0:k-1)}\right)}{N_k} +K_k^2 \lambda_k^2 \left(y^{(0:k-1)} \right) +\frac{C_k^2}{4} \omega_k^2\left(y^{(0:k-1)} \right) \\
+%&\quad \quad \quad +K_kC_k \lambda_k \left(y^{(0:k-1)} \right) \omega_k \left(y^{(0:k-1)} \right) + O(\epsilon)
 %  \displaybreak[0] \\ 
-%&\quad \quad = \frac{s_k^2 \left(y_1^{(0:k-1)}\right)}{N_k}+K_k^2
+%&\quad \quad = \frac{s_k^2 \left(y^{(0:k-1)}\right)}{N_k}+K_k^2
 % \left(\E \left[\left|\beta_{k+1} 
-% \left(y_1^{(0:k)}\right) \right| \Bigg|  y_1^{(0:k-1)} \right]\right)^2 \\
-% &\quad \quad \quad+\frac{C_k^2}{4} \left( \E \left[\frac{s_{k+1}^2 \left(y_1^{(0:k)}\right)}{N_{k+1}} + \beta^2_{k+1} 
-% \left(y_1^{(0:k)}\right) \middle|  y_1^{(0:k-1)} \right]\right)^2 \\
+% \left(y^{(0:k)}\right) \right| \Bigg|  y^{(0:k-1)} \right]\right)^2 \\
+% &\quad \quad \quad+\frac{C_k^2}{4} \left( \E \left[\frac{s_{k+1}^2 \left(y^{(0:k)}\right)}{N_{k+1}} + \beta^2_{k+1} 
+% \left(y^{(0:k)}\right) \middle|  y^{(0:k-1)} \right]\right)^2 \\
 % &\quad \quad \quad+K_kC_k 
 % \E \left[\left|\beta_{k+1} 
-% \left(y_1^{(0:k)}\right) \right| \Bigg|   y_1^{(0:k-1)} \right]
-% \E \left[\frac{s_{k+1}^2 \left(y_1^{(0:k)}\right)}{N_{k+1}} + \beta^2_{k+1} 
-% \left(y_1^{(0:k)}\right) \middle|  y_1^{(0:k-1)} \right] +O(\epsilon).
+% \left(y^{(0:k)}\right) \right| \Bigg|   y^{(0:k-1)} \right]
+% \E \left[\frac{s_{k+1}^2 \left(y^{(0:k)}\right)}{N_{k+1}} + \beta^2_{k+1} 
+% \left(y^{(0:k)}\right) \middle|  y^{(0:k-1)} \right] +O(\epsilon).
 %\end{align*}
 %We first consider the double nested case for which
 %\begin{align*}
 % \E \left[\beta^2_{1} 
-% \left(y_1^{(0:1)}\right) \middle|  y_1^{(0)} \right] \le 
-%  C_{1}^2 \E \left[ \omega^2_1 \left(y_1^{(0)}\right) \middle|  y_1^{(0)}  \right] + O(\epsilon) 
+% \left(y^{(0:1)}\right) \middle|  y^{(0)} \right] \le 
+%  C_{1}^2 \E \left[ \omega^2_1 \left(y^{(0)}\right) \middle|  y^{(0)}  \right] + O(\epsilon) 
 % &=
 % \frac{C_{1}^2 \E \left[ \zeta^4_{2,1}
-% 	\left(y_1^{(0)}\right) \middle|  y_1^{(0)}  \right]}{4 N_2^2}  + O(\epsilon) \\
+% 	\left(y^{(0)}\right) \middle|  y^{(0)}  \right]}{4 N_2^2}  + O(\epsilon) \\
 % \E \left[\left|\beta_{1} 
-% \left(y_1^{(0:1)}\right) \right| \Bigg|  y_1^{(0)} \right] \le 
-%   C_{1}^2 \E \left[ \left|\omega_1 \left(y_1^{(0)}\right) \right| \Bigg|  y_1^{(0)}  \right] + O(\epsilon) 
+% \left(y^{(0:1)}\right) \right| \Bigg|  y^{(0)} \right] \le 
+%   C_{1}^2 \E \left[ \left|\omega_1 \left(y^{(0)}\right) \right| \Bigg|  y^{(0)}  \right] + O(\epsilon) 
 %   &=
 % \frac{C_{1} \E \left[ \zeta^2_{2,1}
-% 	\left(y_1^{(0)}\right) \middle|  y_1^{(0)}  \right]}{2N_2}  + O(\epsilon) \\
+% 	\left(y^{(0)}\right) \middle|  y^{(0)}  \right]}{2N_2}  + O(\epsilon) \\
 % &=  \frac{C_{1} \varsigma_{2}^2}{2 N_2}  + O(\epsilon)
 %\end{align*}
 %and thus
@@ -668,13 +756,13 @@ for sufficiently large $N_{k+1},\dots,N_D$.
 %E_0 \le& \frac{s_0^2}{N_0}+\frac{K_0^2 C_{1}^2 \varsigma_{2}^4}{4 N_2^2}+
 %\frac{C_0^2\varsigma_1^4}{4 N_1^2}+\frac{C_0^2C_1^2\varsigma_1^2
 %	\E \left[ \zeta^4_{2,1}
-%	\left(y_1^{(0)}\right) \middle|  y_1^{(0)}  \right]}{8N_1N_2^2}+
+%	\left(y^{(0)}\right) \middle|  y^{(0)}  \right]}{8N_1N_2^2}+
 %\frac{C_0^2C_1^4
 %	\left(\E \left[ \zeta^4_{2,1}
-%	\left(y_1^{(0)}\right) \middle|  y_1^{(0)}  \right]\right)^2}{64 N_2^4} \\
+%	\left(y^{(0)}\right) \middle|  y^{(0)}  \right]\right)^2}{64 N_2^4} \\
 %&+\frac{K_0C_0C_1\varsigma_1^2\varsigma_2^2}{2N_1N_2}
 %+\frac{K_0C_0C_1^3\varsigma_2^2 \E \left[ \zeta^4_{2,1}
-%	\left(y_1^{(0)}\right) \middle|  y_1^{(0)}  \right]}{8N_2^3} +O(\epsilon).
+%	\left(y^{(0)}\right) \middle|  y^{(0)}  \right]}{8N_2^3} +O(\epsilon).
 %\end{align*}
 %Dropping the higher order terms, we have
 %\begin{align*}
@@ -688,46 +776,48 @@ for sufficiently large $N_{k+1},\dots,N_D$.
 %Now we note that except at $k=D-1$ and $k=D$
 %for which they are zero, the
 %$ \E \left[\left|\beta_{1} 
-%\left(y_1^{(0:1)}\right) \right| \Bigg|  y_1^{(0)} \right]$
+%\left(y^{(0:1)}\right) \right| \Bigg|  y^{(0)} \right]$
 %terms dominate
 % the $ \E \left[\beta_{1} 
-% \left(y_1^{(0:1)}\right)^2 \middle|  y_1^{(0)} \right]$ terms.
+% \left(y^{(0:1)}\right)^2 \middle|  y^{(0)} \right]$ terms.
 % We can therefore ignore the latter as higher order terms as follows
 % \begin{align*}
-%& E_k \left(y_1^{(0:k-1)}\right) 
-%=\frac{s_k^2 \left(y_1^{(0:k-1)}\right)}{N_k}+K_k^2
-%\lambda_k^2 \left(y_1^{(0:k-1)}\right) +\frac{C_k^2}{4 N_{k+1}^2} \left( \E \left[s_{k+1}^2 \left(y_1^{(0:k)}\right) \middle|  y_1^{(0:k-1)} \right]\right)^2 \\
+%& E_k \left(y^{(0:k-1)}\right) 
+%=\frac{s_k^2 \left(y^{(0:k-1)}\right)}{N_k}+K_k^2
+%\lambda_k^2 \left(y^{(0:k-1)}\right) +\frac{C_k^2}{4 N_{k+1}^2} \left( \E \left[s_{k+1}^2 \left(y^{(0:k)}\right) \middle|  y^{(0:k-1)} \right]\right)^2 \\
 % &\quad \quad \quad \quad \quad \quad \phantom{=}+\frac{K_kC_k}{N_{k+1}}
-%\lambda_k \left(y_1^{(0:k-1)}\right) 
-% \E \left[s_{k+1}^2 \left(y_1^{(0:k)}\right)  \middle|  y_1^{(0:k-1)} \right] +O(\epsilon) \\
-% &\quad \quad  = \frac{s_k^2 \left(y_1^{(0:k-1)}\right)}{N_k}+K_k^2
-%\lambda_k^2 \left(y_1^{(0:k-1)}\right) +\frac{C_k^2 \zeta_{k+1,k}^4}{4 N_{k+1}^2} +\frac{K_kC_k\zeta_{k+1,k}^2}{N_{k+1}}
-%\lambda_k \left(y_1^{(0:k-1)}\right) +O(\epsilon) \\
-% &\quad \quad = \frac{s_k^2 \left(y_1^{(0:k-1)}\right)}{N_k}
-% +\left(K_k \lambda_k \left(y_1^{(0:k-1)}\right) 
+%\lambda_k \left(y^{(0:k-1)}\right) 
+% \E \left[s_{k+1}^2 \left(y^{(0:k)}\right)  \middle|  y^{(0:k-1)} \right] +O(\epsilon) \\
+% &\quad \quad  = \frac{s_k^2 \left(y^{(0:k-1)}\right)}{N_k}+K_k^2
+%\lambda_k^2 \left(y^{(0:k-1)}\right) +\frac{C_k^2 \zeta_{k+1,k}^4}{4 N_{k+1}^2} +\frac{K_kC_k\zeta_{k+1,k}^2}{N_{k+1}}
+%\lambda_k \left(y^{(0:k-1)}\right) +O(\epsilon) \\
+% &\quad \quad = \frac{s_k^2 \left(y^{(0:k-1)}\right)}{N_k}
+% +\left(K_k \lambda_k \left(y^{(0:k-1)}\right) 
 % +\frac{C_k \zeta_{k+1,k}^2}{2 N_{k+1}}\right)^2 + O(\epsilon).
 % \end{align*}
- Now we have
+ Now as $\beta_{k+1}^2 \left(y^{(0:k)}\right) =E_{k+1} 
+ \left(y^{(0:k)}\right) -\frac{s_{k+1}^2 \left(y^{(0:k)}\right)}{N_{k+1}}$ we have
  \begin{align*}
-  \lambda_k \left(y_1^{(0:k-1)}\right)  &=
+  \lambda_k \left(y^{(0:k-1)}\right)  &=
   \E \left[\sqrt{E_{k+1} 
-  \left(y_1^{(0:k)}\right) -\frac{s_{k+1}^2 \left(y_1^{(0:k)}\right)}{N_{k+1}}}
-  \middle|  y_1^{(0:k-1)}  \right] +O(\epsilon)\\
- &\le \E \left[K_{k+1} \lambda_{k+1} \left(y_1^{(0:k)}\right) 
-  +\frac{C_{k+1} \zeta_{k+2,k+1}^2}{2 N_{k+2}} \middle|  y_1^{(0:k-1)} \right] 
-  +O(\epsilon)\\
+  \left(y^{(0:k)}\right) -\frac{s_{k+1}^2 \left(y^{(0:k)}\right)}{N_{k+1}}}
+  \middle|  y^{(0:k-1)}  \right] +O(\epsilon)\\
+  \intertext{and substituting in~\eqref{eq:E_k_for_sub} gives}
+ \lambda_k \left(y^{(0:k-1)}\right)  &\le \E \left[K_{k+1} \lambda_{k+1} \left(y^{(0:k)}\right) 
+  +\frac{C_{k+1} \zeta_{k+2,k+1}^2}{2 N_{k+2}} \middle|  y^{(0:k-1)} \right] 
+  +O(\epsilon) \displaybreak[0]\\
  &= \frac{C_{k+1} \zeta_{k+2,k}^2}{2 N_{k+2}}
- +K_{k+1} \E \left[\lambda_{k+1} \left(y_1^{(0:k)}\right)  \middle|  y_1^{(0:k-1)} \right] +O(\epsilon)\\
+ +K_{k+1} \E \left[\lambda_{k+1} \left(y^{(0:k)}\right)  \middle|  y^{(0:k-1)} \right] +O(\epsilon) \displaybreak[0]\\
   &\le \frac{C_{k+1} \zeta_{k+2,k}^2}{2 N_{k+2}}+
   \sum_{d=k+1}^{D-2}  \E \left[\left(\prod_{\ell=k+1}^{d} K_{\ell}\right)
-  \frac{C_{d+1} \zeta^2_{d+2,d}}{2 N_{d+2}} \middle|  y_1^{(0:k-1)} \right] +O(\epsilon) \\
+  \frac{C_{d+1} \zeta^2_{d+2,d}}{2 N_{d+2}} \middle|  y^{(0:k-1)} \right] +O(\epsilon) \displaybreak[0]\\
  &\le \frac{C_{k+1} \zeta_{k+2,k}^2}{2 N_{k+2}}+
  \sum_{d=k+1}^{D-2}  \left(\prod_{\ell=k+1}^{d} K_{\ell}\right)
  \frac{C_{d+1} \zeta^2_{d+2,k}}{2 N_{d+2}}+O(\epsilon)
  \end{align*}
  and thus
  \begin{align*}
- E_k \left(y_1^{(0:k-1)}\right)  \le \frac{s_k^2 \left(y_1^{(0:k-1)}\right)}{N_k}
+ E_k \left(y^{(0:k-1)}\right)  \le \frac{s_k^2 \left(y^{(0:k-1)}\right)}{N_k}
  +\frac{1}{4}\left(
  \frac{C_k \zeta_{k+1,k}^2}{N_{k+1}}
  +\sum_{d=k}^{D-2}  \left(\prod_{\ell=k}^{d} K_{\ell}\right)
@@ -745,4 +835,194 @@ for sufficiently large $N_{k+1},\dots,N_D$.
   \right)^2 + O(\epsilon)
   \end{align*}
   as required and we are done.
+  
+%  We finish by checking that $O(\epsilon)$ is indeed dominated.  This is trivial except for the
+%  $O(\epsilon)$ term originating in the Taylor expansion, which we can examine further by looking
+%  at the $\delta_{\ell,k}$ for $\ell>2$. First we note that as we have assumed continuous differentiability, all of the derivative
+%  supremum terms are finite constants which do not affect whether or not the terms are asymptotically 
+%  dominated.  Thus
+%  \[
+%  \delta_{\ell,k} = O\left(\E \left[\left| \E \left[
+%  \left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)^{\ell}
+%  \bigg| y^{(0:k)} \right]
+%  \right| \; \Bigg| y^{(0:k-1)} \right]\right)
+%  \]
+%  so we will examine the right side directly.
+%  For sufficiently large $N_{k+1},\dots,N_D$ we have that 
+%  \begin{align*}
+%& \left| \frac{1}{\ell!}\E \left[
+%  \left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)^{\ell}
+%  \middle| y^{(0:k)} \right] \right| \ge \\
+%  &\quad \quad \left| \frac{1}{(\ell+2) !}\E \left[
+%  \left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)^{\ell+2}
+%  \middle| y^{(0:k)} \right] \right|
+%  \end{align*}
+%  for all finite positive integers $\ell\ge2$. This follows from the fact
+%  as each possible value of the random variable
+%  $I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right) < 1$ must have a smaller
+%  magnitude when raised to a larger power and that the probability that 
+%  $I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)>1$
+%  tends to zero for increasing $N_{k+1},\dots,N_D$ from our result in the Lipschitz
+%  continuous case.  We further do not need to worry about the limit
+%  of large $\ell$ as these terms are zero by our smoothness assumptions. 
+%  We now show $\delta_{\ell,k}$ for $\ell\ge3$ are dominated
+%  by showing that $\delta_{3,k}$ and $\delta_{4,k}$ are dominated by
+%  $\delta_{1,k}$ and $\delta_{2,k}$, with the cases $\ell>4$ following from the above result.  Defining
+%  \begin{align*}
+%  \psi_{k} \left(y^{(0:k+1)}\right) &=f_{k+1}\left(y^{(0:k)},I_{k+2}\left(y^{(0:k+1)}\right)\right) - \gamma_{k+1}\left(y^{(0:k)}\right) \\
+%  \rho_{k,\ell} \left(y^{(0:k)}\right) &= \E\left[\left(\psi_{k} \left(y^{(0:k+1)}\right)\right)^{\ell} \middle| y^{(0:k)}\right]
+%  \end{align*}
+%  we have for $\delta_{3,k}$
+%  \begin{align*}
+%  \E &\left[
+%  \left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)^{3}
+%  \middle| y^{(0:k)} \right]
+%  =\frac{1}{N_{k+1}^3}\E \left[
+%  \sum_{n=1}^{N_{k+1}}\left(\psi_{k} \left(y_n^{(0:k+1)}\right)\right)^3
+%  \Bigg| y^{(0:k)} \right]\\
+%  &\quad +\frac{3}{N_{k+1}^3}\E \left[
+%  \sum_{n=1}^{N_{k+1}} \sum_{m=1,m\neq n}^{N_{k+1}}
+%  \psi_{k} \left(y_n^{(0:k+1)}\right)
+%  \left(\psi_{k} \left(y_m^{(0:k+1)}\right)\right)^2
+%  \middle| y^{(0:k)} \right] \\
+%  &\quad +\frac{6}{N_{k+1}^3}\E \left[
+%  \sum_{n=1}^{N_{k+1}} \sum_{m\neq n}^{N_{k+1}} \sum_{t\neq n,m}^{N_{k+1}}
+%  \psi_{k} \left(y_n^{(0:k+1)}\right)
+%  \left(\psi_{k} \left(y_m^{(0:k+1)}\right)\right) \left(\psi_{k} \left(y_t^{(0:k+1)}\right)\right)
+%  \middle| y^{(0:k)} \right] \displaybreak[0]\\
+%  %&\frac{1}{N_k^3}\E \left[
+%  %\sum_{n=1}^{N_k}\left(f_{k+1}\left(y^{(0:k)},I_{k+2}\left(y_n^{(0:k+1)}\right)\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)^3
+%  %\Bigg| y^{(0:k)} \right]+\\
+%  %&\frac{1}{N_k^3}\E \left[
+%  %\sum_{n=1}^{N_1} \sum_{m=1,m\neq n}^{N_1}
+%  %\left(f_{k+1}\left(y^{(0:k)},I_{k+2}\left(y_n^{(0:k+1)}\right)\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)
+%  %\left(f_{k+1}\left(y^{(0:k)},I_{k+2}\left(y_m^{(0:k+1)}\right)\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)^2
+%  %\Bigg| y^{(0)} \right]
+%  &\;\;=  \frac{\rho_{k,3} \left(y^{(0:k)}\right)}{N_{k+1}^2}
+%  + \frac{3\left(N_{k+1}-1\right) \rho_{k,1} \left(y^{(0:k)}\right) \rho_{k,2} \left(y^{(0:k)}\right)}{N_{k+1}^2}\\
+%  &\quad\quad+ \frac{6\left(N_{k+1}-1\right)\left(N_{k+1}-2\right)  \left(\rho_{k,1} \left(y^{(0:k)}\right)\right)^3}{N_{k+1}^2}.
+%  \end{align*}
+%  In the case where $k=D-1$ we have $\rho_{D-1,1} \left(y^{(0:D-1)}\right)=0$ by the unbiasedness of Monte Carlo and 
+%  $\rho_{D-1,3} \left(y^{(0:D-1)}\right)$ is a constant giving $\delta_{3,D-1} = O(1/N_D^2)$.  Otherwise
+%  we have that
+%  \[
+%  \left|\rho_{k,3} \left(y^{(0:k)}\right)\right| \ll \left|\rho_{k,1} \left(y^{(0:k)}\right)\right| \ll 1
+%  \] for sufficiently large
+%  $N_{k+2},\dots,N_D$ so
+%  \begin{align*}
+%  \E &\left[\left| \E \left[
+%  \left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)^{3}
+%  \bigg| y^{(0:k)} \right]
+%  \right| \; \Bigg| y^{(0:k-1)} \right] \ll \\
+%  &\quad \quad \quad\E \left[\left| \frac{\rho_{k,1} \left(y^{(0:k)}\right) }{N_{k+1}^2} +
+%  \frac{3\rho_{k,1} \left(y^{(0:k)}\right) \rho_{k,2} \left(y^{(0:k)}\right)}{N_{k+1}}
+%  +6\left(\rho_{k,1} \left(y^{(0:k)}\right)\right)^3
+%  \right| \; \Bigg| y^{(0:k-1)} \right]
+%  \end{align*} 
+%  As  $\E \left[\left| \rho_{k,1} \left(y^{(0:k)}\right) 
+%  \right| \; \middle| y^{(0:k-1)} \right]=\lambda_k(y^{(0:k-1)})$, each of these terms
+%  must be dominated by $\delta_{1,k}$ for large $N_{k+1}$.  Therefore, we have that
+%  $\delta_{3,k}$ is dominated by $\delta_{1,k}$ as required.
+%  
+%  Doing a similar analysis for $\delta_{4,k}$ we get   
+%  \begin{align*}
+%  \E &\left[
+%  \left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)^{4}
+%  \middle| y^{(0:k)} \right] = \frac{\rho_{k,4} \left(y^{(0:k)}\right)}{N_{k+1}^3}+
+%  \frac{6\left(N_{k+1}-1\right) \left(\rho_{k,2} \left(y^{(0:k)}\right) \right)^2}{N_{k+1}^3}\\
+%  &
+%  \quad\quad+ \frac{4\left(N_{k+1}-1\right) \rho_{k,1} \left(y^{(0:k)}\right) \rho_{k,3} \left(y^{(0:k)}\right)}{N_{k+1}^3}
+%  \\
+%  &\quad\quad+ \frac{12\left(N_{k+1}-1\right)\left(N_{k+1}-2\right)  \left(\rho_{k,1} \left(y^{(0:k)}\right)\right)^2
+%  	\left(\rho_{k,2} \left(y^{(0:k)}\right)\right)}{N_{k+1}^2}\\
+%  &\quad\quad+ \frac{24\left(N_{k+1}-1\right)\left(N_{k+1}-2\right)\left(N_{k+1}-3\right)   \left(\rho_{k,1} \left(y^{(0:k)}\right)\right)^4}{N_{k+1}^3}.
+%  \end{align*}
+%  As $\E \left[ \rho_{k,2} \left(y^{(0:k)}\right)
+%   \middle| y^{(0:k-1)} \right]\le N_{k+1}\omega_k(y^{(0:k-1)})$, each of these terms becomes
+%  dominated by either $\delta_{1,k}$ or $\delta_{2,k}$ in the same way terms in $\delta_{3,k}$
+%  were dominated by $\delta_{1,k}$.  Therefore we have that $\delta_{4,k}$ is dominated by $\delta_{1,k}+\delta_{2,k}$ and
+%  we are done in terms of showing that $O(\epsilon)$ is dominated. 
+%  
+%  The final remaining task is to characterize $O(\epsilon)$ in the single nesting case.
+%  For $k=D-1$, we can use $\rho_{D-1,1} \left(y^{(0:D-1)}\right)=0$ to eliminate
+%  the third, fourth, and fifth terms for $\delta_{4,k}$.  We can further note that
+%  $\E \left[ \rho_{D-1,1} \left(y^{(0:D-1)}\right)^2
+%  \middle| y^{(0:D-2)} \right] = s_{D-1}^2(y^{(0:D-2)} )$.  Therefore, we have
+%  we have $\delta_{4,D-1} = O(\frac{1}{N_{D}^2})$.  From before we have that 
+%  $\delta_{3,D-1} = O(\frac{1}{N_{D}^2})$ and as $\delta_{1,D-1}=0$, we 
+%  have that the biggest terms from the Taylor expansion not yet accounted for
+%  at the $D-1$ level are $\delta_{2,D-1}\delta_{3,D-1}$
+%  and $\delta_{2,D-1}\delta_{4,D-1}$, each of which is $O(\frac{1}{N_{D}^3})$.
+%  In the single nesting case, the only $O(\epsilon)$ terms come from the Taylor expansion
+%%  
+%%  We can further note that in this case the only contribution to the $O(\epsilon)$
+%%  term is from higher order terms in the Taylor expansion of the bias term.
+%%  As $\delta_{1,k}=0$ for the single nesting case by unbiasedness,
+%%  The largest of these terms is $\frac{\delta_{2,k} \delta_{3,k}}{3}$ where using the 
+%%  same trick with the tower property as for $\delta_{1,k}$ we have
+%%  \begin{align*}
+%%  \delta_{3,k} &= \E \left[\frac{\partial^3 f_0 \left(y^{(0)},\gamma_{1}(y^{(0)})\right)}{\partial \gamma^3_{1}}
+%%  \left(I_{1}\left(y^{(0)}\right) - \gamma_{1}\left(y^{(0)}\right)\right)^3\right] \displaybreak[0]\\
+%%  &\le \left(\sup_{y^{(0)}} \left|\frac{\partial^3 f_0 \left(y^{(0)},\gamma_{1}(y^{(0)})\right)}{\partial \gamma^3_{1}}\right| \right)
+%%  \cdot \E \left[\left| \E \left[
+%%  \left(I_{1}\left(y^{(0)}\right) - \gamma_{1}\left(y^{(0)}\right)\right)^3
+%%  \Bigg| y^{(0)} \right]
+%%  \right|\right] \displaybreak[0]\\
+%%  &= \frac{1}{N_1^3} \left( \sup_{y^{(0)}} \left|\frac{\partial^3 f_0 \left(y^{(0)},\gamma_{1}(y^{(0)})\right)}{\partial \gamma^3_{1}}\right|\right)
+%%  \cdot  \left(\E \left[\left| \E \left[
+%%  \sum_{n=1}^{N_1}\left(f_{1}\left(y^{(0)},y_n^{(1)}\right) - \gamma_{1}\left(y^{(0)}\right)\right)^3
+%%  \Bigg| y^{(0)} \right]+\right.\right.\right.\\
+%%  &\quad \quad \left.\left.\left. \E \left[
+%%  \sum_{n=1}^{N_1} \sum_{m=1,m\neq n}^{N_1}
+%%  \left(f_{1}\left(y^{(0)},y_n^{(1)}\right) - \gamma_{1}\left(y^{(0)}\right)\right)
+%%  \left(f_{1}\left(y^{(0)},y_m^{(1)}\right) - \gamma_{1}\left(y^{(0)}\right)\right)^2
+%%  \Bigg| y^{(0)} \right] \right|\right] \right)\displaybreak[0],
+%%  \end{align*}
+%%  for which the second expectation is zero because of independence between the $y_n$ and
+%%  because each $\E\left[\left(f_{1}\left(y^{(0)},y_n^{(1)}\right) - \gamma_{1}\left(y^{(0)}\right)\right)\right]=0$. 
+%%  We therefore have
+%%  \begin{align*}
+%%  \delta_{3,k} &= \frac{1}{N_1^3}  \left(\sup_{y^{(0)}} \left|\frac{\partial^3 f_0 \left(y^{(0)},\gamma_{1}(y^{(0)})\right)}{\partial \gamma^3_{1}}\right|
+%%  \right) \cdot \E \left[\left| \E \left[
+%%  \sum_{n=1}^{N_1}\left(f_{1}\left(y^{(0)},y_n^{(1)}\right) - \gamma_{1}\left(y^{(0)}\right)\right)^3
+%%  \Bigg| y^{(0)} \right] \right|\right]\displaybreak[0]\\
+%%  &= \frac{1}{N_1^2}  \left(\sup_{y^{(0)}} \left|\frac{\partial^3 f_0 \left(y^{(0)},\gamma_{1}(y^{(0)})\right)}{\partial \gamma^3_{1}}\right|
+%%  \right) \cdot \E \left[\left| \E \left[
+%%  \left(f_{1}\left(y^{(0)},y^{(1)}\right) - \gamma_{1}\left(y^{(0)}\right)\right)^3
+%%  \Bigg| y^{(0)} \right] \right|\right]\displaybreak[0]\\
+%%  % &\le \sup_{y^{(0)}} \left|\frac{\partial^3 f_0 \left(y^{(0)},\gamma_{1}(y^{(0)})\right)}{\partial \gamma^3_{1}}\right|
+%%  % \left(\E \left[
+%%  % \left(I_{1}\left(y^{(0)}\right) - \gamma_{1}\left(y^{(0)}\right)\right)^4
+%%  %\right] \right)^{\frac{3}{4}} \\
+%%  &= O\left(\frac{1}{N_1^{2}}\right)
+%%  \end{align*}
+%%  Therefore $\frac{\delta_{2,k} \delta_{3,k}}{3}
+%%  =O\left(\frac{1}{N_1^{3}}\right)$ which confirms that the $O(\epsilon)$ term is
+%%  asymptotically negligible as required and allows us to better characterize the
+%%  bound in the 
+%  and so we have
+%  \begin{align}
+%  E_0 \le \frac{\varsigma^2_0}{N_0}+\frac{4 K_{0}^2 \varsigma_1^2}{N_0 N_{1}}
+%  +\frac{2 K_{0}\varsigma_{0} \varsigma_1}{N_{0} \sqrt{N_1}}+\frac{C_0 ^2 \varsigma_1^4}{4 N_1^2}
+%  + O\left(\frac{1}{N_1^{3}}\right)
+%  \end{align}
+%  and we are finally done.
+%%  More generally, we can show that the $O(\epsilon)$ terns from our Taylor expansion
+%%  are asymptotically negligible at all levels by noting that in all cases we have
+%%  \begin{align*}
+%%  \delta_{\ell,k} \le& \left(\sup_{y^{(0)}} \left|
+%%  \frac{\partial^{\ell} f_k \left(y^{(0:k)},\gamma_{k+1}(y^{(0:k)})\right)}{\partial \gamma^{\ell}_{k+1}} \right| \right)\\
+%%  &\cdot \E \left[\left(\left| \E \left[
+%%  \left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)^{\ell}
+%%  \Bigg| y^{(0:k)} \right]
+%%  \right| \right)\middle| y^{(0:k-1)} \right]
+%%  \end{align*}
+%%  and that, provided all the derivatives are bounded, then by using the central limit theorem
+%%  on $I_{k+1}\left(y^{(0:k)}\right)  \bigg| y^{(0:k)}$ we have that all terms of
+%%  \[
+%%  \E \left[\left(I_{k+1}\left(y^{(0:k)}\right) - \gamma_{k+1}\left(y^{(0:k)}\right)\right)^{\ell}
+%%  \Bigg| y^{(0:k)} \right],
+%%  \]
+%%  and thus each $\delta_{\ell,k}$ for $\ell>2$ are asymptotically insignificant relative to 
+%%  $\delta_{1,k}$ and $\delta_{2,k}$.
 \end{proof}

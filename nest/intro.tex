@@ -1,4 +1,4 @@
-% !TEX root = ../main.tex
+% !TEX root =  main.tex
 
 \section{Introduction}
 \label{sec:intro}
@@ -14,9 +14,8 @@ For example, they have become a ubiquitous means of carrying out approximate Bay
 %%pseudo-marginal Hamiltonian MC \cite{lindsten2016pseudo}, 
 %The aim of these methods is always the same: to generate approximate samples from a posterior, from which an expectation can be calculated.  
 Although interesting alternatives have been suggested recently \citep{briol2015probabilistic}, MC integration is used almost exclusively for calculating these expectations from the produced samples.
-
-Though the convergence of MC integration has been considered extensively in 
-literature \citep{gilks2005markov,robert2004monte}, the theoretical implications
+The convergence of MC integration has been considered extensively in 
+literature \citep{gilks2005markov,robert2004monte}.  However, the theoretical implications
 arising from the \emph{nesting} of MC schemes, where terms in the integrand depend on the
 result of separate, nested, MC estimators, is generally less well known.
 %By nesting, we refer to problems in which terms in our MC integration are themselves a function of an intractable expectation and must be estimated using a separate, nested, MC scheme.  
@@ -29,42 +28,50 @@ Bayesian experimental design \citep{chaloner1995bayesian,sebastiani2000maximum} 
 the calculation of an entropy of a marginal distribution, and therefore includes the
 expectation of the logarithm of an expectation.  By extension, any Kullback-Leibler
 divergence where one of the terms is a marginal distribution also involves a nested expectation.  Hence, our results have important implications for relaxing mean field assumptions in variational
-inference \citep{hoffman2015stochastic} and deep generative models
-\citep{burda2015importance,maaloe2016auxiliary}.
+inference \citep{hoffman2015stochastic,naesseth2017variational,maddison2017filtering} and deep generative models
+\citep{burda2015importance,maaloe2016auxiliary,le2017auto}.
 %Here the nonlinearity provided by the logarithm prevents a simple reformulation to a
 %single expectation in the general case, and thus presents conventional MC estimation.
+Another common nested estimation scenario is calculating expectations with respect to so-called
+doubly-intractable distributions~\citep{moller2006efficient,murray2006mcmc,liang2010double}, whereby
+the target distribution is only known up to a parameter-dependent normalizing constant.  Here
+the normalization constant itself represents an intractable expectation
+nested within the overall expectation.
+NMC can also arise in contexts demanding the use
+of direct MC simulations, for example in portfolio risk management
+\citep{gordy2010nested} and stochastic control \citep{belomestny2010regression}. 
+In particular, 
+simulations of agents that reason about decisions of other agents tend to include nested expectations.
 
 Another important reason for studying the properties of NMC comes from
 probabilistic programming systems (PPS)
 \citep{goodman2008church,wood2014new}.
 PPS allow a decoupling of model specification and inference, with the latter being carried out
 by a back-end engine that can operate on arbitrary programs. Some PPS allow for
-arbitrary nesting of queries so that it is easy to define and run nested inference
+arbitrary nesting of models so that it is easy to define and run nested inference
 problems, which has already begun to be exploited in application-specific work
 \citep{ouyang2016practical}. However, these nested inference problems fall outside the
 scope of the conventional proof of the convergence of MC estimation. Thus additional
 work is required to prove the validity of the corresponding back-end inference engines.
 
-Outside the Bayesian inference framework, NMC can also arise in contexts demanding the use
-of direct MC simulations, for example in portfolio risk management
-\citep{gordy2010nested} and stochastic control \citep{belomestny2010regression}. 
-%In particular, 
-%simulations of agents that reason about decisions of other agents tend to include nested expectations.
-
 Certain nested estimation problems can be tackled by so-called pseudo-marginal methods
-\citep{andrieu2009pseudo,andrieu2010particle,andrieu2015convergence,andersson2015nested}.
-These consider cases of Bayesian inference where the likelihood is intractable, such as
-when it originates from an Approximate Bayesian Computation (ABC)
-\citep{csillery2010approximate},
+\citep{beaumont2003estimation,andrieu2009pseudo,andrieu2010particle,
+	andrieu2015convergence,andersson2015nested}.
+These consider cases of Bayesian inference where the likelihood is intractable, 
+%such as
+%when it originates from an Approximate Bayesian Computation (ABC)
+%\citep{csillery2010approximate}, 
+but (unlike doubly-intractable distributions in general) can
+be estimated unbiasedly.
 % or when sequential Monte Carlo \cite{smith2013sequential} is used to approximate a high
 % dimensional distribution.  
-and involve reformulating the problem in an extended space with auxiliary variables that
+They involve reformulating the problem in an extended space with auxiliary variables that
 are used to represent the stochasticity in the likelihood computation. This then enables the
 problem to be expressed as a single expectation.
 Our work goes beyond this by also considering cases in which a non-linear mapping is
 applied to the output of the inner expectation (such as the logarithm in the 
-experimental design case), so that this reformulation to a single expectation is no longer
-possible.
+experimental design case or the inverse for general doubly-intractable distributions), so that 
+this reformulation to a single expectation is no longer possible.
 
 NMC with non-linear mappings of the inner expectation has been previously considered in
 the financial statistics literature, for example in the pricing of American
@@ -72,7 +79,6 @@ options \citep{longstaff2001valuing}. Though most of this literature focuses on
 particular application-specific non-linear mappings \citep{broadie2011efficient,gordy2010nested},
 convergence bounds for a more general class of models
 has been shown by \citet{hong2009estimating}.
-
 We build on these results and outline the opportunities and pitfalls of nesting Monte Carlo
 estimators in a machine learning context.
 We demonstrate that the construction of consistent NMC algorithms is possible,

@@ -1,13 +1,14 @@
-% !TEX root =  ../main.tex
+% !TEX root =  main.tex
 
-\subsection{Proof of Theorem~\ref{the:Rate} - Convergence Rate}
+\subsection{Single Nested and Lipschitz Continuous Convergence Rate}
 \label{sec:app:rate_single}
 
 \theRate*
 
 \begin{proof}
-	Though the proof follows directly from Theorem~\ref{the:Repeat}, we also provide the following proof 
-	for this simplified case as a stepping stone to aid in understanding the more general proof.
+	Though the Theorem follows directly from Theorem~\ref{the:Repeat}, we also provide the following proof 
+	for this simplified case to provide a more accessible intuition behind the result.  Note that the approach
+	taken is distinct from the proof of Theorem~\ref{the:Repeat} which relies on using bias-variance decompositions.
 	
 	Using Minkowski's inequality, we can bound the mean squared error of $I_{N,M}$ by
 	\begin{align} \label{eq:mse-bound-app}\begin{split}
