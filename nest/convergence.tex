@@ -48,8 +48,8 @@ $f$ to be Lipschitz continuous, at the expense of weakening this bound to $O(1/N
 	1/M\right)$.
 \end{restatable}
 \begin{proof}
-The Theorem follows as a special case of Theorem~\ref{the:Repeat} which,
-amongst other things, provides an exact form for this bound and a tighter bound
+The Theorem follows as a special case of Theorem~\ref{the:Repeat} which
+provides an exact form for this bound and a tighter bound
 that holds when $f$ is continuously differentiable.  See also~\cite{rainforth2017pitfalls}
 for a more accessible proof of this particular result.
 \end{proof}
@@ -115,13 +115,13 @@ On the other hand, the vast majority of problems involving this $f$ will satisfy
 %%  characterising some instances of when $\epsilon_M \to 0$}
 %%\end{proof}
 
-An important point to note is that as this convergence is in $M$, it suggests (and is reinforced by the convergence rate) 
-that in order to achieve convergence for most $f$,
-we should increase not just the number of samples in the outer estimator 
-but also the number of samples in the inner estimator.
-Theorem~\ref{the:Rate} gives an intuitive reason for why this should be the case;
-it says that if $M$ is fixed, the bias on each inner term will remain non-zero even when
-$N$ tends to $\infty$.
+%An important point to note is that as this convergence is in $M$, it suggests (and is reinforced by the convergence rate) 
+%that in order to achieve convergence for most $f$,
+%we should increase not just the number of samples in the outer estimator 
+%but also the number of samples in the inner estimator.
+%Theorem~\ref{the:Rate} gives an intuitive reason for why this should be the case;
+%it says that if $M$ is fixed, the bias on each inner term will remain non-zero even when
+%$N$ tends to $\infty$.
 %
 %\subsection{Convergence Rate}
 %We now refine this by also establishing the convergence rate as below.
@@ -129,9 +129,6 @@ $N$ tends to $\infty$.
 %
 
 We next consider the case of multiple levels of nesting.
-This case is particularly important for analyzing probabilistic programming
-languages, which provide mechanisms for nesting probabilistic
-submodules to enable flexible compositionality.
 To formalize what we mean by arbitrary nesting, we first assume some fixed integral depth
 $D > 0$, and real-valued functions $f_0, \cdots, f_D$.
 We then define
@@ -148,7 +145,7 @@ estimate $\gamma_0 = \E \left[f_0\left(y^{(0)},
   I_D\left(y^{(0:D-1)}\right) &= \frac{1}{N_D} \sum_{n=1}^{N_D} f_D\left(y^{(0:D-1)}, y^{(D)}_n\right) \quad \text{and} \\
   I_k\left(y^{(0:k-1)}\right) &= \frac{1}{N_k} \sum_{n=1}^{N_k} f_k\left(y^{(0:k-1)}, y^{(k)}_n, I_{k+1}\left(y^{(0:k-1)}, y^{(k)}_n\right)\right)
 \end{align*}
-for $0 \leq k < D$, where each $y^{(k)}_n \sim p\left(y^{(k)}|y^{(0:k-1)}\right)$ is drawn
+for $0 \leq k \le D-1$, where each $y^{(k)}_n \sim p\left(y^{(k)}|y^{(0:k-1)}\right)$ is drawn
 independently. Note thus that there are multiple values of $y^{(k)}_n$ for each possible $y^{(0:k-1)}$
 and that $I_k\left(y^{(0:k-1)}\right)$ is still a random variable given  $y^{(0:k-1)}$.
 

@@ -3,14 +3,14 @@
 \section{Problem Formulation}
 \label{sec:prob-form}
 
-The key idea of MC is that the expectation of an arbitrary function 
+To recap from Chapter~\ref{chp:inf}, the key idea of MC is that the expectation of an arbitrary function 
 $\lambda \colon \mathcal{Y} \rightarrow \mathcal{F} \subseteq \real$ under a probability distribution $p(y)$ for its input $y \in \mathcal{Y}$ can be approximately calculated using:
 \begin{align}
 \label{eq:MC}
 I &= \mathbb{E}_{p(y)} \left[\lambda(y)\right]
 \approx \frac{1}{N} \sum_{n=1}^{N} \lambda(y_n) \quad \text{where} \quad y_n \iid p(y).
 \end{align}
-In this paper, we consider the case that $\lambda$ is itself intractable, defined only in terms of a functional mapping of an expectation. Specifically, $\lambda(y) = f(y,\gamma(y))$
+In this chapter, we consider the case that $\lambda$ is itself intractable, defined only in terms of a functional mapping of an expectation. Specifically, $\lambda(y) = f(y,\gamma(y))$
 where we can evaluate $f \colon \mathcal{Y} \times \Phi \rightarrow \mathcal{F}$ exactly for a given $y$ and $\gamma (y)$, but $\gamma(y)$ is the output of the following 
 intractable expectation of another variable $z \in \mathcal{Z}$:
 \begin{subequations}
@@ -26,7 +26,7 @@ intractable expectation of another variable $z \in \mathcal{Z}$:
 depending on the problem, with $\phi \colon \mathcal{Y} \times \mathcal{Z} \rightarrow \Phi \subseteq \real^{D_{\phi}}$.
 All our results apply to both cases, but we will focus on~\eqref{eq:gamma_1} for clarity.
 Estimating $I$ involves computing two integrals, one for $y$ and the other for $z$. 
-We call the approach of tackling both integrations using Monte Carlo 
+We refer to the approach of tackling both integrations using Monte Carlo 
 as \emph{nested Monte Carlo} (NMC):
 \begin{subequations}
 \label{eq:nested-mc}
@@ -41,12 +41,12 @@ levels of nesting, where computing $\phi(y,z)$ requires the computation of an in
 %Note that for the experimental design example given in~\eqref{eq:exp-design},
 %$f(y,\gamma(y)) = \log \gamma(y)$, $\gamma(y)$ is of the form~\eqref{eq:gamma_2}, and
 %$\phi(y,z)$ is the likelihood function  $p(y|z,x)$.
-
-The rest of this Chapter proceeds as follows. In Section~\ref{sec:special_cases}, we consider
-special cases that allow recovery of the standard MC convergence rate.
-In Section~\ref{sec:convergence}, we establish convergence results for $I_{N,M}$ given a
-general class of $f$ and extend this to cases of repeated nesting. In Section~\ref{sec:bias}, we establish results demonstrating the
-inevitable bias of most possible general-purpose NMC schemes. In Section~\ref{sec:empirical}, 
-we present empirical results demonstrating the applicability of NMC and suggesting that our theoretical 
-convergence rates are observed in practice.  Longer proofs are provided at the end of the Chapter
-in Section~\ref{sec:nest:proofs}.
+%
+%The rest of this Chapter proceeds as follows. In Section~\ref{sec:special_cases}, we consider
+%special cases that allow recovery of the standard MC convergence rate.
+%In Section~\ref{sec:convergence}, we establish convergence results for $I_{N,M}$ given a
+%general class of $f$ and extend this to cases of repeated nesting. In Section~\ref{sec:bias}, we establish results demonstrating the
+%inevitable bias of most possible general-purpose NMC schemes. In Section~\ref{sec:empirical}, 
+%we present empirical results demonstrating the applicability of NMC and suggesting that our theoretical 
+%convergence rates are observed in practice.  Longer proofs are provided at the end of the Chapter
+%in Section~\ref{sec:nest:proofs}.

@@ -1,6 +1,6 @@
 % !TEX root =  main.tex
 
-\section{Introduction}
+\section{Background}
 \label{sec:intro}
 
 %Although interesting alternatives have recently been suggested \cite{briol2015probabilistic}, MC integration is almost exclusively used to calculate the expectation, given the generated samples.
@@ -8,24 +8,10 @@
 %The calculation of expectations using MC can be considered intertwined with that of MC inference.  
 %After all, convergence rates that are often quoted for MC inference schemes, actually correspond to the convergence of the final MC integration estimate.
 
-Monte Carlo (MC) methods \citep{metropolis1949monte,robert2004monte} are used throughout the quantitative sciences.
-For example, they have become a ubiquitous means of carrying out approximate Bayesian inference \citep{doucet2001introduction,gilks1995markov}, generating approximate samples from a posterior from which an expectation can be calculated.
-%From simplistic Metropolis Hastings approaches to state-of-the-art algorithms such as the bouncy particle sampler \cite{bouchard2015bouncy} and interacting particle Markov chain MC \cite{rainforth2016interacting},
-%%pseudo-marginal Hamiltonian MC \cite{lindsten2016pseudo}, 
-%The aim of these methods is always the same: to generate approximate samples from a posterior, from which an expectation can be calculated.  
-Although interesting alternatives have been suggested recently \citep{briol2015probabilistic}, MC integration is used almost exclusively for calculating these expectations from the produced samples.
-The convergence of MC integration has been considered extensively in 
-literature \citep{gilks2005markov,robert2004monte}.  However, the theoretical implications
-arising from the \emph{nesting} of MC schemes, where terms in the integrand depend on the
-result of separate, nested, MC estimators, is generally less well known.
-%By nesting, we refer to problems in which terms in our MC integration are themselves a function of an intractable expectation and must be estimated using a separate, nested, MC scheme.  
-%This problem is distinct to that of conjoining of Monte Carlo schemes, such as is done in sequential Monte Carlo \cite{smith2013sequential}, where the inference is broken down into a separate parts, but the overall estimation is still a single Monte Carlo integration.
-This paper examines the convergence of such nested Monte Carlo (NMC) methods.  
-
 There are various problems involving nested expectations that require the use of nested
 estimation schemes such as NMC. For example, the expected information gain used in
-Bayesian experimental design \citep{chaloner1995bayesian,sebastiani2000maximum} requires
-the calculation of an entropy of a marginal distribution, and therefore includes the
+Bayesian experimental design requires
+the calculation of an entropy of a marginal distribution (see Chapter~\ref{chp:design}), and therefore includes the
 expectation of the logarithm of an expectation.  By extension, any Kullback-Leibler
 divergence where one of the terms is a marginal distribution also involves a nested expectation.  Hence, our results have important implications for relaxing mean field assumptions in variational
 inference \citep{hoffman2015stochastic,naesseth2017variational,maddison2017filtering} and deep generative models
@@ -42,17 +28,6 @@ of direct MC simulations, for example in portfolio risk management
 \citep{gordy2010nested} and stochastic control \citep{belomestny2010regression}. 
 In particular, 
 simulations of agents that reason about decisions of other agents tend to include nested expectations.
-
-Another important reason for studying the properties of NMC comes from
-probabilistic programming systems (PPS)
-\citep{goodman2008church,wood2014new}.
-PPS allow a decoupling of model specification and inference, with the latter being carried out
-by a back-end engine that can operate on arbitrary programs. Some PPS allow for
-arbitrary nesting of models so that it is easy to define and run nested inference
-problems, which has already begun to be exploited in application-specific work
-\citep{ouyang2016practical}. However, these nested inference problems fall outside the
-scope of the conventional proof of the convergence of MC estimation. Thus additional
-work is required to prove the validity of the corresponding back-end inference engines.
 
 Certain nested estimation problems can be tackled by so-called pseudo-marginal methods
 \citep{beaumont2003estimation,andrieu2009pseudo,andrieu2010particle,
@@ -81,22 +56,16 @@ convergence bounds for a more general class of models
 has been shown by \citet{hong2009estimating}.
 We build on these results and outline the opportunities and pitfalls of nesting Monte Carlo
 estimators in a machine learning context.
-We demonstrate that the construction of consistent NMC algorithms is possible,
-establish convergence rates, and provide
-empirical evidence that these rates are observed in practice.
 Our proofs apply to a more general class of problems than existing approaches.
-In particular, we provide the first convergence bounds for cases of multiple levels of estimator nesting
-as might occur in, for example, a probabilistic programming system.
-Our results show that whenever an outer estimator depends nonlinearly on an inner
-estimator, then the number of samples used in \emph{both} the inner and outer estimators
-must, in general, be driven to infinity for convergence.  
-We provide theoretical results showing that in such scenarios any MC
-estimator using imperfect nested estimates is, in general, biased.
-We also lay out novel methods for reformulating certain classes of nested expectation problems
+For example, we provide the first convergence bounds for cases of multiple levels of estimator nesting
+as might occur in a probabilistic programming system.
+We further lay out novel methods for reformulating certain classes of nested expectation problems
 into a single expectation, allowing the use of conventional MC estimation 
-schemes with superior convergence rates than the na\"{i}ve use of NMC.  Finally, we use one of these results 
-to derive a new estimation scheme for Bayesian experimental design with discrete outputs that has 
-a superior convergence rate to existing approaches.
+schemes with superior convergence rates than the na\"{i}ve use of NMC, one of which we
+exploit in Chapter~\ref{chp:design} to derive an improve estimator for discrete
+Bayesian experimental design problems.
+Finally, we provide theoretical results showing that any MC
+estimator using imperfect nested estimates is, in general, biased.
 
 %\tom{Policy search?}
 

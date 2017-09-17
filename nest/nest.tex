@@ -1,12 +1,14 @@
 % !TEX root = ../main.tex
 
-\chapter{Nested Estimation}
+\chapter{Nested Monte Carlo}
 \label{chp:nest}
 
-\todo[inline]{Voting probprog example?}
-
-We present a formalization of nested Monte Carlo (NMC) estimation, whereby
-terms in an outer estimator are themselves the output of separate, nested, Monte Carlo (MC) estimators.
+The convergence of Monte Carlo (MC) estimators has been considered extensively in 
+literature (see Chapter~\ref{chp:inf}).  However, the theoretical implications
+arising from the \emph{nesting} of MC estimators, where terms in the integrand depend on the
+result of separate, nested, MC estimators, is generally less well known.
+This chapter examines the convergence of such nested Monte Carlo (NMC) 
+methods~\citep{rainforth2016pitfalls,rainforth2017pitfalls}.
 We demonstrate that NMC can provide consistent estimates of 
 nested expectations, including cases of repeated nesting, under mild conditions;
 establish corresponding rates of convergence;
@@ -16,8 +18,15 @@ and provide guidelines about how they can be avoided.
 Our results show that whenever an outer estimator depends nonlinearly on an inner
 estimator, then the number of samples used in \emph{both} the inner and outer estimators
 must, in general, be driven to infinity for convergence.  
-We also lay out novel methods for reformulating certain classes of nested expectation problems
-into a single expectation, leading to improved convergence rates compared with na\"{i}ve NMC.
+
+A key motivation behind this work is the ability of some PPSs to allow
+arbitrary nesting of models, for example using the \conditional construct in Anglican,
+such that it is easy to define and run nested inference problems, such as done
+by \citep{ouyang2016practical,le2016nested}. These nested inference problems fall outside the
+scope of the conventional proof of the convergence of MC estimation. Thus additional
+work is required to prove the validity of the corresponding back-end inference engines.
+However, the prevalence of NMC goes far beyond PPSs and so we will introduce it in
+a more general context, before returning to assess the implications for PPSs in Section~\ref{sec:design:imp}.
 
 %\vspace{-10pt}
 
