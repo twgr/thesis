@@ -8,13 +8,10 @@ experiments are sequential and previous data must be incorporated in choosing fu
 This previous data is incorporated in the standard Bayesian fashion such that
 at experiment iteration $t$, we replace $p\left(\theta\right)$ with 
 $p\left(\theta | d_{1:t-1}, y_{1:t-1}\right)$, where $d_{1:t-1}$ and  $y_{1:t-1}$ are 
-respectively the designs and responses at previous iterations.
-We further need to keep track of $p\left(\theta | d_{1:t-1}, y_{1:t-1}\right)$ as it is target we wish
-to learn from the experiment - the posterior over the parameters given the responses.
+respectively the designs and outcomes at previous iterations.
 The likelihood $p\left(y_t | \theta, d_t\right)$, on the other hand, is unchanged (presuming it 
 is a parametric distribution) as, conditioned on 
-$\theta$ and $d$, the current response is independent of the previous data -- it is still defined 
-by the same likelihood model defined before.
+$\theta$ and $d$, the current outcome is independent of the previous data.
 Putting this together, we get that the expected information gain criteria for the
 sequential case is
 \begin{align}
@@ -27,7 +24,7 @@ p(y_t | \theta, d_t) \log(p(y_t | \theta, d_t)) d\theta dy_t \\
 \end{split}
 \end{align}
 We can now see that these terms are the same as in the non-sequential case,
-except that expectations are taken of $p\left(\theta | d_{1:t-1}, y_{1:t-1}\right)$
+except that expectations are taken with respect to $p\left(\theta | d_{1:t-1}, y_{1:t-1}\right)$
 rather than $p(\theta)$.  Therefore, we can use the same Monte Carlo estimators
 \eqref{eq:exp-des-nmc} and \eqref{eq:u_bar_MC}, simply changing the distribution from which
 the $\theta_n$ are sampled.
@@ -39,22 +36,24 @@ design space, with the next chosen design calculated automatically when provided
 the outcome of the last.  However, as we will discuss in Section INSERT, this actually goes
 beyond the capabilities of current PPS.  What we present is by no means a complete solution to
 this problem and certainly does not represent a PPS itself, but it does perhaps provide an important
-step towards such building such a hypothetical system, with a working system using these ideas
-to provide automated sequential BED for a very restricted model class existing in the form of
-the DARC toolbox introduced in Section~\ref{sec:design:darc}.
+step towards such building such a hypothetical system.   Indeed the framework has already been
+applied to provide automated sequential BED for a very restricted model class existing in the form of
+the DARC toolbox~\citep{vincent2017darc} introduced in Section~\ref{sec:design:darc}.
 
 \subsection{Parameter Inference}
 \label{sec:design:auto:inf}
 
 Unlike $p\left(\theta\right)$, it is typically not possible to evaluate, or sample from, $p\left(\theta | d_{1:t-1}, y_{1:t-1}\right)$ exactly -- we need to perform Bayesian inference to estimate it.  Noting
-the implicit assumption of our models that observations are independent of one other given the
+the implicit assumption of the likelihood model that observations are independent of one other given the
 parameters we have
 \begin{align}
 p\left(\theta | d_{1:t-1}, y_{1:t-1}\right) \propto p(\theta) \prod_{i=1}^{t-1} p(y_i | \theta, d_i)
 \end{align}
 which is a typical Bayesian inference problem, such that we can use Monte Carlo inference
-to generate the required samples $\theta_n$.
-There are many suitable candidates for this inference such as those discussed in Chapters~\ref{chp:inf} and
+to generate the required samples $\theta_n$.  Note that this setup is very general.   For example, there might
+be a term in $\theta$ for each round of the experiment, leading to a non-Markovian state space model as
+per~\ref{sec:part:smc:nmssm}.
+There are many suitable candidates for the requied inference such as those discussed in Chapters~\ref{chp:inf} and
 \ref{chp:part}.
 The relative merit of these will depend on
 characteristics of the problem such as multi-modality, dimensionality of $\theta$, and the total
@@ -64,16 +63,16 @@ the choice of inference algorithm, provided that algorithm can be appropriately 
 of problems one wishes to run, as is the case for a PPS.  One salient feature of note though is
 that, by its nature, the inference problem requires a series of targets to be approximated and so
 inference methods that can effectively exploit the approximation of the previous target (such as particle
-based methods, see Chapter~\ref{chp:part}) are likely to be particularly effective.
+based methods, see Chapter~\ref{chp:part}) are likely to be particularly efficient.
 
 \subsection{Design Optimization}
 \label{sec:design:auto:optimization}
-
+\todo{Come up with names for stuff?}
 We have now derived an estimator for $\bar{U}_t(d)$ and demonstrated how we can generate the
 samples required to evaluate this estimator.  We will now look at how to optimize for $d$.  
 Our problem requires the optimization of an intractable expectation and thus shares substantial
-similarity to the problems considered in~\ref{chp:bopp}.  Indeed BOPP actually forms a suitable
-alternative approach to estimating $d^*$ at each iteration.  However, BOPP is a somewhat heavy
+similarity to the problems considered in~\ref{chp:bopp}.  Indeed BOPP could forms a suitable
+approach to estimating $d^*$ at each iteration for many problems.  However, BOPP is a somewhat heavy
 duty MMAP estimation process that may not be suitable for problems that are relatively simpler,
 but for which speed is paramount.  Many of the possible applications of our approach, such
 as the DARC toolbox, require rerunning in real-time with human participants, for which BOPP would
@@ -82,22 +81,20 @@ thus be inappropriate.\footnote{It is worth noting, nonetheless, that if the sur
 	then the result algorithm could prove a viable alternative even under strict time pressure.}
 We instead construct a new approach
 that exploits the fact that~\eqref{eq:u_bar_MC} need not generate distinct $\theta_n$ to evaluate
-different designs.  Our novel approach combines ideas from both the bandit and
+different designs.  Our novel method combines ideas from both the bandit and
 Monte Carlo literatures~\citep{amzal2006bayesian,neufeld2014adaptive} by adaptive 
 allocating resources to a set of candidate designs.  We will presume that there are some fixed number 
 of candidate designs $\mathcal{D} = \{d_k\}_{k=1:K}$ which could be randomly (or quasi-randomly)
-sampled up front if the design space is continuous.  This design decision was made because the 
-algorithm was chosen with a particular application in mind, namely the DARC toolbox for which $K$
-is generally not more than a few thousand, but note that more general usage might wish to
-relax this using MCMC transitions or similar as explained at the end of the section.
+sampled up front if the design space is continuous.  This assumption is made because the 
+algorithm was designed with a particular application in mind, namely the DARC toolbox for which $K$
+is generally not more than a few thousand.  We note, though, that it should be possible to relax this
+assumption by incorporating MCMC transitions in a manner akin to~\citep{amzal2006bayesian}.
 
 The underlying idea of the approach is that we are willing to accept higher variance in the integral estimates for lower utility designs as this error is unlikely to lead to an incorrect estimation of the optimum.
 Therefore, we desire to take more Monte Carlo samples, and thus achieve a more accurate estimate, for the designs we estimate to have a higher chance of being the optimal design, given the current noisy estimates.
 At a high level, this is similar  to the idea of Thompson sampling~\citep{thompson1933likelihood} 
 where a candidate is sampled in proportion to its probability of being the best, 
 a technique commonly used in the bandit literature~\citep{agrawal2012analysis}.
-However, as we do not have direct access to these probabilities and so cannot
-carry out Thompson sampling directly.
 
 \begin{algorithm}[t]
 	\small
@@ -115,7 +112,7 @@ carry out Thompson sampling directly.
 		\State $q_k \leftarrow 1/K \quad \forall k \in \{1,\dots,K\}$ \Comment Initialize selection probability
 		\For{$\ell= 1 \colon L$}
 		\State $\{n_k\}_{k=1:K} \sim \textsc{Multinomial}(N,\{q_k\}_{k=1:K})$ \label{line:des-opt:sample-nsamples}
-		\Comment Sample number of new samples to add
+		\Comment Sample number of new samples to add\footnotemark
 		\For{$k = 1 \colon K$}
 		\State $\hat{\theta}_{j} \leftarrow \textsc{Discrete}\left(\left\{\theta_m\right\}_{m=1:M}\right) \quad \forall j=1,\dots,n_k$ \label{line:des-opt:draw-theta}
 		\Comment Draw $n_k$ samples from reservoir
@@ -136,6 +133,8 @@ carry out Thompson sampling directly.
 		\State \Return $d_{k^*}$
 	\end{algorithmic}
 \end{algorithm}
+\footnotetext{One could use systematic ``resampling'' here to 
+	as per Section~\ref{sec:inf:foundation:resampling}.}
 
 An overview of our approach is given in Algorithm~\ref{alg:des-opt}.  As this shows, our algorithm uses
 a \emph{reservoir} of samples $\{\theta_m\}_{m=1:M}$ instead of drawing samples from 
@@ -153,14 +152,15 @@ produces a reservoir as output and the optimizer can then run without having to 
 inference algorithm.
 
 The second key innovation of our approach is that rather than calculating each estimate $\hat{U}_k$ in one go, we
-exploit in the intermediary information from incomplete evaluations to reallocate computational
+exploit in the intermediate information from incomplete evaluations to reallocate computational
 resources in a manner that has parallels with SMC, SMC search~\citep{amzal2006bayesian}, annealed
 importance sampling~\citep{neal2001annealed}, adaptive Monte Carlo via bandit 
 allocation~\cite{neufeld2014adaptive}, and the Hyperband algorithm~\citep{li2016hyperband}.\footnote{We
-	note that our approach was independently developed prior to publication Hyperband algorithm (the relevant
+	note that our approach was independently developed prior to publication of~\cite{li2016hyperband} (the relevant
 	code for the DARC toolbox dates back to 2015), but remained unpublished until~\cite{vincent2017darc}.}
 We emphasise though that our method has important differences
 to these previous approaches and is constitutes a new algorithm in its own right.
+
 Imagine that we are considering $K$ designs with a total sample budget $\bar{N}K$
 and decide to use the same number of samples, $\bar{N}$, to calculate an estimate $\hat{U}_{1:K}$ for the 
 utility of each design.  
@@ -205,27 +205,23 @@ Algorithm~\ref{alg:des-opt}.
 The purpose of the annealing function is to control how aggressive our algorithm is in its allocation of
 computational resources to promising designs.
 At the early rounds, we are quite uncertain about the relative
-utilities and therefore wish to allocate samples for evenly.  At the later rounds, we become more certain
+utilities and therefore wish to allocate samples fairly evenly.  At the later rounds, we become more certain
 about the estimates so we become more aggressive about concentrating our efforts on promising designs.
-Therefore $\gamma(\ell)$ is set to increase with $\ell$ so that the algorithm becomes more aggressive
-as our estimates become better refined.
+Therefore $\gamma(\ell)$ is set to increase with $\ell$.
 
 We finish the subsection by noting a small, but important, subtlety of our method.  As introduced so far, our algorithm
 is not guaranteed to converge.  For example, it might be that $\hat{U}_{k^*} =0$ after the first round
 of sampling where $k^*$ indicates the true optimal design and $\bar{U}_{k^*} \ne0$.  
 Presuming that another design has a non zero estimate at this point, sampling na\"{i}vely from~\eqref{eq:p_k} would 
 mean that no additional samples are ever added to $\hat{U}_{k_*}$, even if infinite rounds are undertaken,
-meaning that the true optimum will be missed.  To guard against this, we introduce a new parameter $0<\rho\le1$
-(by default we take $\rho=0.01$), with lines~\ref{line:des-opt:set-p} to~\ref{line:des-opt:renorm} in Algorithm~\ref{alg:des-opt}
-ensuring that $q_{k,\ell}>\frac{\rho}{2N}$ (see~\cite{vincent2017darc})., which in turn ensures that  
-\begin{align}
-\label{eq:nk-bound}
-\mathbb{E}[n_{k,\ell}] > \frac{\rho }{2}
-\end{align} 
-and so for any finite value of $\rho$, each
+meaning that the true optimum will be missed.  To guard against this, we introduce a new parameter $0<\rho\le1$, 
+with lines~\ref{line:des-opt:set-p} to~\ref{line:des-opt:renorm} in Algorithm~\ref{alg:des-opt}
+ensuring that each $q_{k,\ell}>\frac{\rho}{2N}$ (see~\cite{vincent2017darc}), which in turn ensures that  
+$\mathbb{E}\left[\sum_{\ell=1}^{L} n_{k,\ell}\right] >\rho L/2$.
+Therefore, for any finite value of $\rho$, each
 estimate will, in expectation, be assigned infinitely many samples as $L\rightarrow\infty$, regardless
 of the true utilities and the values of $\gamma(\ell)$.\footnote{Note that one should, if desired, be able to instead 
-	use an upper confidence bounding strategy~\cite{auer2002using} instead to produce a zero-regret 
+	use an upper confidence bounding strategy~\cite{auer2002using} to produce a zero-regret 
 	strategy whilst maintaining convergence}.
 As we show in the next section, we can
 use this to prove the convergence of the algorithm, in the sense of guaranteeing the optimal design
@@ -234,17 +230,20 @@ will be found given infinite computational budget.
 \subsection{Tying it All Together}
 \label{sec:tying-together}
 
-Over the last few sections we have shown how to construct an appropriate target for our design optimization,
+In the previous sections we have shown how to construct an appropriate target for our design optimization,
 estimate this target for a particular design given samples from the posterior on parameters,
 produce the required approximate samples for this posterior, and use these samples to find the optimal design.
-Algorithm~\ref{alg:bad} shows how these components fit together to produce a novel scheme for
+Algorithm~\ref{alg:bad} shows how these components fit together to produce a framework for
 automated online sequential design optimization.  Algorithm parameters have been omitted
-for clarity, but we note that it should in general be possible to set these to default values if required.  
-The algorithm iterates between selecting the optimal design,
-running the experiment, and incorporating the results of the experiment to update the posterior on the
-parameters.  As we have previously explained, our design optimization can be run using a reservoir of
-samples from the posterior, allowing this modularization of the inference and optimization processes.
-
+for clarity, but we note that it should in general be possible to set these to default values if required, e.g. using
+the general purpose inference strategies taken by PPSs.
+%The algorithm iterates between selecting the optimal design,
+%running the experiment, and incorporating the results of the experiment to update the posterior on the
+%parameters.  As we have previously explained, our design optimization can be run using a reservoir of
+%samples from the posterior, allowing this modularization of the inference and optimization processes.
+We finish with the following theoretical result that
+shows that the method is guaranteed to return the optimal design at each iteration in the limit of large
+computational resources.
 \begin{algorithm}[t]
 	\small
 	\captionsetup{labelfont=bf, justification=justified,singlelinecheck=false}
@@ -255,57 +254,55 @@ samples from the posterior, allowing this modularization of the inference and op
 		\renewcommand{\algorithmicensure}{\textbf{Outputs:}}				 
 		\Require Prior $p(\theta)$, likelihood $p(y | \theta, d)$, number of experiment iterations $T$,
 		candidate designs $\mathcal{D}$
-		\Ensure Design-response pairs $\{d_t,y_t\}_{t=1:T}$, posterior samples $\{\theta_m\}_{m=1:M}$
+		\Ensure Design-outcome pairs $\{d_t,y_t\}_{t=1:T}$, posterior samples $\{\theta_m\}_{m=1:M}$
 		\State $\theta_m\sim p(\theta) \quad \forall m = 1, \dots, M$
 		\For{$t=1:T$}
 		\State $d_t \leftarrow \textsc{DesignOptimization}\left(\{\theta_m\}_{m=1:M},p(y | \theta, d),
 		\mathcal{D}\right)$ \Comment Find next step optimal design
-		\State $y_t \leftarrow \textsc{RunExperiment}(d_t)$ \Comment Get response using design $d_t$
+		\State $y_t \leftarrow \textsc{RunExperiment}(d_t)$ \Comment Get outcome using design $d_t$
 		\State $\mathcal{D}\leftarrow\mathcal{D}\backslash d_t$ 
 		\Comment Eliminate new design from candidate set (optional)
-		\State $\{\theta_m\}_{m=1:M} \leftarrow \textsc{PMC}\left(p(\theta),p(y | \theta, d),\{d_i,y_i\}_{i=1:t},
+		\State $\{\theta_m\}_{m=1:M} \leftarrow \textsc{Inference}\left(p(\theta),p(y | \theta, d),\{d_i,y_i\}_{i=1:t},
 		\{\theta_m\}_{m=1:M} \right)$ 
-		\Comment  Run inference
+		\Comment  Update the posterior
 		\EndFor
 		\State \Return $\{d_t,y_t\}_{t=1:T}$, $\{\theta_m\}_{m=1:M}$
 	\end{algorithmic}
 \end{algorithm}
-
-We finish with the following theoretical result that
-shows that the method is guaranteed to return the optimal design at each iteration in the limit of large
-computational resources.
 \begin{theorem}
-	Assume that all the requirements for consistency of the chosen inference algorithm are satisfied.\footnote{If the
+	Assume that each $\bar{U}_t$ is a measurable function and 
+	that all other requirements for consistency of the chosen inference algorithm are satisfied.\footnote{If the
 		chosen inference algorithm also provides almost sure convergence, the result also holds almost surely.}
-	Given a finite number of candidate designs $\{d_k\}_{k=1:K}$, fixed parameters $\rho>0$ and $N\in\mathbb{N}+$, and a
-	function $\tau : \real \rightarrow \real$ such that $\tau(L)\ge NL, \; \forall L$, then using
-	Algorithms~\ref{alg:des-opt} and~\ref{alg:bad} to choose design response pairs with $M=\tau(L)$
+	Given a finite number of candidate designs $\{d_k\}_{k=1:K}$, fixed parameters $\rho>0$ and $N\in\mathbb{N}^{+}$, and a
+	function $\tau : \real \rightarrow \real$ such that $\tau(L)\ge NL \; \forall L$, then using
+	Algorithms~\ref{alg:des-opt} and~\ref{alg:bad} to choose design outcome pairs with $M=\tau(L)$
 	ensures that the chosen design at each iteration $d_t$ satisfies
 	\begin{align}
 	\bar{U}_t(d_t)= \max_{d\in\mathcal{D}} \bar{U}_t(d)
 	\end{align}
-	with high probability in the limit $L\rightarrow\infty$ where 
+	with high probability in the limit $L\rightarrow\infty$, where 
 	$\bar{U}_t(d)$ is defined as per~\eqref{eq:u_bar_seq}.
 \end{theorem}
 \begin{proof}
 	We start by noting that by the definition of $\tau(\cdot)$ then $L\rightarrow\infty$ also predicates
 	that $M\rightarrow\infty$ and so by assumption our Monte Carlo estimates made using the output
-	of our inference algorithm converge in probability.  As $M\ge NL$,
-	we further have that the reservoir will produce sufficient samples
-	to complete the design optimization, regardless of the number of samples taken for each design.
-	By~\eqref{eq:nk-bound} then the expected number of samples for each design at each round
-	is greater than $\rho/2$.  The expected number of samples for each design for $L$ rounds thus
-	satisfies
-	\[
-	\sum_{\ell=1}^{L} \mathbb{E}[n_{k,\ell}] > \sum_{\ell=1}^{L} \frac{\rho}{2} = \frac{\rho L}{2}
-	\rightarrow \infty \quad \text{as} \quad L\rightarrow \infty
-	\]
-	such that the expected number of samples used for each design is infinite.  As each $n_{k,\ell}$
-	is sampled independently, then by the second Borel-Cantelli lemma it must also be the case
-	that $\sum_{\ell=1}^{\infty} n_{k,\ell} = \infty$ for each $k\in \{1,\dots,K\}$ almost surely.
-	Consequently, we have convergence in probability of each of the $K$ estimates $\hat{U}_k$
-	at each iteration and so we must choose the optimal design with high probability (or one
-	the equally best designs if there is a tie).
+	of our inference algorithm converge in probability (noting $M\ge NL$ also ensures the reservoir is
+	large enough to not need to reuse samples).
+	%By~\eqref{eq:nk-bound}, we have $\mathbb{E}\left[\sum_{\ell=1}^{L}  n_{k,\ell}\right]\rightarrow \infty$
+	%as $L\rightarrow\infty$ such that the expected number of samples used for each design is infinite. 
+	
+	As the $n_{k,\ell}$ are not independent, we break each down into two terms
+	$n_{k,\ell} = m_{k,\ell}+r_{k,\ell}$ where $m_{k,\ell} \sim \textsc{Binomial}(N,\frac{\rho}{2N})$ and
+	$r_{k,\ell} \sim \textsc{Binomial}(N,q_{k,{\ell}}-\frac{\rho}{2N})$ (which induces the appropriate distribution
+	on $n_{k,\ell}$).  For any given $k$, all the $m_{k,\ell}$
+	are mutually independent and $P(m_{k,\ell} \ge 1) = 1-(1-\frac{\rho}{2N})^N$ ($\rightarrow 1-\exp (-\rho/2)$ 
+	as $N\rightarrow\infty$).  Therefore, for any possible $N$ (including $N\rightarrow\infty$) 
+	we have $\sum_{\ell=1}^{\infty} P(m_{k,\ell} \ge 1) = \infty$
+	and so by the second Borel-Cantelli lemma, the event $m_{k,\ell} \ge 1$ occurs infinitely often with probability $1$.
+	Thus, as each $r_{k,\ell}\ge0$, it must also be the case that
+	$P(\lim_{L\rightarrow\infty} \sum_{\ell=1}^{L} n_{k,\ell} = \infty) = 1$.
+	
+	Combining these two results, we have convergence of each of the $K$ estimates $\hat{U}_k$
+	at each iteration and so we must choose the optimal design (or one
+	the equally best designs if there is a tie)  with high probability in the limit $L\rightarrow\infty$.
 \end{proof}
-
-\todo[inline]{MCMC for continuous design space}

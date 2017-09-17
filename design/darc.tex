@@ -3,6 +3,26 @@
 \section{The DARC Toolbox}
 \label{sec:design:darc}
 
+We now demonstrate the utility our approach by considering its application 
+to automating the adaptive design psychology experiments via the DARC (Delay
+And Risky Choice) toolbox introduced in~\cite{vincent2017darc}.\footnote{Code will be made freely
+	available through \url{http://www.inferencelab.com/}.}  We will only provide
+a short introduction here and refer the reader to~\cite{vincent2017darc} for further details.
+
+The DARC toolbox allows users 
+to encode their own (or use one of the provided) models for human \emph{discounting} behavior,
+whereby psychologists want to learn how delays and uncertainties affect the subjective value people place
+on (typically monetary) rewards or costs. Given a model, the toolbox uses the framework from the
+previous section to automate in an online fashion 
+both the inference of the model parameters and the sequential adaptation of the experiment itself through
+choosing the questions the participant is asked.  It therefore automates the full run-time experimental 
+pipeline  by using the responses from previous questions to perform inference 
+and update the internal representation
+of the participant and then using information to ask the most informative questions for a particular
+participant as per the BED equations.  The technical innovations introduced earlier is this chapter
+are essential in allowing this to be done sufficiently efficiently to permit
+real-time usage required for deployment with real participants.
+
 \begin{figure}[t]
 	\centering
 	\begin{subfigure}[b]{0.49\textwidth}
@@ -29,52 +49,66 @@
 		}
 \end{figure}
 
-We now demonstrate that the theoretical improvements provided by our estimator carry over
-to practical gains, using as a case study our recent work~\cite{vincent2017darc}, in which we
-construct a package for adaptive psychology experiments investigating the effects of
-delays and risks on the subjective value people give to money. Our so-called DARC (Delay And Risky Choice)
-toolbox\footnote{Available at \url{github.com/drbenvincent/discounting-experiment-toolbox}} allows users 
-to encode their own (or use one of the provided) models for human \emph{discounting} behavior,
-whereby psychologists want to learn how delays and uncertainties affect the subjective value people place
-on rewards or costs. Given a model, the toolbox automates in an online fashion 
-both the inference of the model parameters and the sequential adaptation of the experiment itself through
-choosing the questions the participant is asked.  It therefore automates the full run-time experimental 
-pipeline  by using the responses from previous questions to perform inference 
-and update the internal representation
-of the participant and then using information to ask the most informative questions for a particular
-participant as per the BED equations.  Our reformulated estimator is one of a number of key technical
-innovations that are essential in allowing this to be done sufficiently efficiently to permit
-real-time usage required for deployment with real participants.  It is beyond the scope of our current
-work to explain how this is done 
-
-More specifically how delays or uncertainties in rewards 
-
-
-To demonstrate the improvements introduced by our estimator
-we consider a model used in psychology experiments for delay discounting introduced by 
-\cite{vincent2016hierarchical} and later adapted by \cite{vincent2017darc}.  Our experiment 
-comprises of asking questions of the form 
-\emph{``Would you prefer $\pounds A$ now, or $\pounds B$ in $D$ days?''} and we wish 
-to choose the question  variables $d = \{A,B,D\}$ in the manner that will give the most 
-incisive questions.  The target participant is presumed to have parameters $\theta=\{k,\alpha\}$ 
-and the following response model
+A common style of experiment for the toolbox comprises of asking questions of the form 
+\emph{``Would you prefer $\pounds A$ now, or $\pounds B$ in $D^b$ days?''}, where we desire
+to choose the question  variables $d = \{A,B,D^b\}$ in the manner that will give the most 
+incisive questions.  One possible participant model~\citep{vincent2016hierarchical}
+presumes that participants have parameters $\theta=\{\log k,\alpha\}$, where $\log k \sim \mathcal{N}(-4.5,0.5^2)$ 
+represents a $\log$ discount rate and $\alpha\sim \Gamma(2,2)$ a variability, and the following response model
 \begin{equation}
-y \sim \mathrm{Bernoulli} \left(0.01 + 0.98 \cdot \Phi\left(\frac{1}{\alpha} \left(\frac{B}{1+e^k D}-A\right)\right)\right)
+\label{eq:design:darc}
+y \sim \mathrm{Bernoulli} \left(0.01 + 0.98 \cdot \Phi\left(\frac{1}{\alpha} \left(\frac{B}{1+e^k D^b}-A\right)\right)\right)
 \end{equation}
 where $y=1$ indicates choosing the delayed response and $\Phi$ represents the 
-cumulative normal distribution.  As more questions are asked, the distribution 
-over the parameters $\theta$ is updated, such
+cumulative normal distribution. As more questions are asked, the distribution 
+over the parameters $\theta$ is updated in the standard Bayesian fashion, such
 that the most optimal question to ask at a particular time depends on the previous questions
-and responses.  For the sake of brevity, when comparing the performance 
-of~\eqref{eq:exp-des-nmc} and~\eqref{eq:u_bar_MC} we will neglect the problem 
-of how best to optimize the design, and consider
-only the problem of evaluating $\bar{U}(d)$.  We will further consider the case 
-where $B=100$ and $D = 50$ are fixed and we are only choosing the delayed value $A$.
-Our prior distributions on the parameters are given by $k \sim \mathcal{N}(-4.5,0.5^2)$
-and $\alpha \sim \Gamma(2,2)$.
-We first consider convergence in the estimate of $\bar{U}(d)$ for the case $A=70$ for our suggested method~\eqref{eq:u_bar_MC} and the na\"{i}ve solution~\eqref{eq:exp-des-nmc}, the results of which are shown in Figure~2a in the main paper. 
-Here we see that the convergence rates of the two methods are both as expected and that our suggested method offers significant empirical performance improvements.  
+and responses.  
 
-We next consider setting a total sample budget $T=10^4$ and look at the variation in the estimated values of $\bar{U}(d)$ for different values of $A$ for the two methods as shown in Figure~\ref{fig:exp-d-scan}.
-This shows that the improvement in MSE leads to clearly visible improvements in the characterization of $\bar{U}(d)$ that
+Rather than considering the full BED pipeline, we will first examine the convergence and empirical
+performance of our
+reformulated estimator~\eqref{eq:u_bar_MC}  compared to the na\"{i}ve alternative~\eqref{eq:exp-des-nmc}.
+For simplicity, we will consider the case 
+where $B=100$ and $D^b = 50$ are fixed and we are only choosing the delayed value $A$.
+We first examine the convergence in the estimate of $\bar{U}(d)$ for the case $A=70$,
+for which Figure~\ref{fig:exp-conv} demonstrates similar behavior for the na\"{i}ve NMC estimator
+as seen in the experiments of Chapter~\ref{chp:nest} and, as expected, substantial improvements
+for the the reformulated estimator in the form of a $O(1/N)$ convergence rate.
+We next consider setting a total sample budget $T=10^4$ and look at the variation in the 
+estimated values of $\bar{U}(d)$ for different values of $A$ for the two methods as 
+shown in Figure~\ref{fig:exp-d-scan}. This shows that the improvement in MSE leads 
+to clearly visible improvements in the characterization of $\bar{U}(d)$ that
 will translate to improvements in seeking the optimum.
+
+\begin{figure}[t]
+	\centering
+		\includegraphics[width=\textwidth]{darc_results}
+	\caption{Comparison of the DARC toolbox to alternative methods for two behavior styles: major
+		depressive disorder (top) which indicates a relatively strong desire for immediate rewards ($k=0.04$)
+		and anorexia nervosa (bottom) which indicates relatively low discounting rate ($k=0.0028$).  Solid lines show
+		posterior samples from the final learned predictive distribution for the indifference curve (i.e. the curve
+		along which the participant is equally likely to choose the immediate or dealy reward), circles represent
+		questions where the delayed reward was preferred, and the filled dots correspond to the questions were
+		the immediate reward was preferred.  The columns left to right corresponding to using the approaches
+		of~\cite{Kirby:2009eu} which uses pre-fixed questions rather than using online adaptation,~\cite{Frye:2016eu}
+		which uses a heuristic approach for choosing the best questions adaptively, and using our DARC toolbox
+		which chooses questions using our sequential BED approach.  See~\cite{vincent2017darc} for further details.
+		\label{fig:design:darc}
+	}
+\end{figure}
+
+We next examine the performance of the DARC toolbox compared to alternatives in the
+psychology literature~\citep{Kirby:2009eu,Frye:2016eu} as shown in Figure~\ref{fig:design:darc}.  Here
+we fix $\alpha=$ and fix the prior as $\log k \sim \mathcal{N}(-4.5,0.5^2)$.  We fixed $B=100$ and
+then use three different methods for sequentially selecting designs $d_t = \{A_t,D^b_t\}$, for
+two different hypothetical participants with respective ground truth parameters of $k=0.04$ and $k=0.0028$.
+Responses are generated presuming the likelihood model is correct and sampling directly from
+\eqref{eq:design:darc} using the ground truth parameters.  We then plot a characterization of the posterior
+predictive after $27$ questions have been asked.  All methods are capable of working in real time, taking
+about a second or less to choose the design at each iteration when run on a mid-range laptop.  Though 
+hardly a rigorous performance assessment, these results are still demonstrative of the potential utility of our
+method.  The non-adaptive scheme of~\cite{Kirby:2009eu} always asks the same questions regardless of
+the participant's responses.  The heuristic method of~\cite{Frye:2016eu} does better, but is still somewhat
+wasteful.  The DARC toolbox on the other hand, takes only a couple of questions before achieving a
+reasonable representation of the response surface, such that almost all of the questions asked are clearly
+pertinent and the final posterior predictive far lower entropy than the other approaches.

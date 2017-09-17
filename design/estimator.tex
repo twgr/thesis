@@ -10,14 +10,15 @@ to the required inference~\citep{PSImethod:1999, Prins:2013gr},
 which subsequently provides (biased) estimates for $p(\theta |y, d)$.
 However, this is highly unsatisfactory for a host of obvious reasons such as the generally
 poor performance of grid-search for inference, the use of a nested estimation procedure
-with accompanying poor performance as shown in Chapter~\ref{chp:nest}, and the need for careful, problem specific,
-human input in the form of the grid.
+with accompanying poor performance as shown in Chapter~\ref{chp:nest}, and the need to carefully
+choose the grid.
 
-To address these issues, we instead derive a nested Monte Carlo estimator and further
+To address these issues, we instead derive a nested Monte Carlo estimator as per, for example,
+\cite{myung2013tutorial} and further
 show how, when $y$ can only take a finite number of values,
 a substantially improved, non-nested, Monte Carlo estimator can be derived using the
 results from Chapter~\ref{chp:nest}.
-Out first step is to rearrange~\eqref{eq:u_bar_1} using Bayes' rule (remembering
+The first step is to rearrange~\eqref{eq:u_bar_1} using Bayes' rule (remembering
 $p(\theta)=p(\theta|d)$)
 \begin{align}
 \label{eq:u_bar_2}
@@ -27,7 +28,7 @@ $p(\theta)=p(\theta|d)$)
 =&\int_{\mathcal{Y}}\int_{\Theta} p(y,\theta | d) \log(p(y | \theta, d)) d\theta dy - \int_{\mathcal{Y}} p(y | d) \log(p(y | d))dy.
 \end{split}
 \end{align}
-The first of these terms can now be evaluated using standard MC approaches as the integrand is analytic,
+The former term can now be evaluated using standard MC approaches as the integrand is analytic,
 namely we can use
 \begin{align}
 \bar{U}_1(d) = &\int_{\mathcal{Y}}\int_{\Theta} p(y,\theta | d) \log(p(y | \theta, d)) d\theta dy
@@ -56,7 +57,7 @@ Putting~\eqref{eq:U1_MC} and~\eqref{eq:U2_MC} together (and renaming
 $\theta_n$ from~\eqref{eq:U1_MC} as $\theta_{n,0}$ for notational
 consistency with ~\eqref{eq:U2_MC})  we now have the following complete estimator,
 implicitly used by \cite{myung2013tutorial} 
-and \cite{ouyang2016practical} amongst others
+and \cite{ouyang2016practical} amongst others,
 \begin{align}
 \label{eq:exp-des-nmc}
 \bar{U}(d) 
@@ -69,22 +70,24 @@ This na\"{i}ve NMC estimator gives a convergence
 rate of $O(1/N+1/M^2)$ as per Theorem~\ref{the:Repeat}.
 
 We now show that if $y$ can only take on one of $C$ possible values ($y_1, \ldots, y_C$), 
-we can achieve significant improvements in the convergence rate by using a similar to that
+we can achieve significant improvements in the convergence rate by using a similar approach to that
 introduced in Section~\ref{sec:app:finite-res} to derive the following non-nested estimator for~\eqref{eq:u_bar_2}
 \begin{align}
 &\bar{U}(d)=\int_{\mathcal{Y}}\int_{\Theta} p(y,\theta | d) \log(p(y | \theta, d)) d\theta dy - \int_{\mathcal{Y}} p(y | d) \log(p(y | d))dy 
 \nonumber \\
 &= \int_{\Theta} \left[\sum_{c=1}^{C} p(\theta) p(y_c|\theta, d) \log(p(y_c | \theta, d)) \right] d\theta
--\sum_{c=1}^{C} p(y_c | d)\log(p(y_c | d))  \label{eq:u_bar_MC} \\
+-\sum_{c=1}^{C} p(y_c | d)\log(p(y_c | d))  \nonumber \\
 &\approx 
 \frac{1}{N} \sum_{n=1}^{N} \sum_{c=1}^{C} p(y_c | \theta_n, d) \log\left(p(y_c | \theta_n, d)\right)
-- \sum_{c=1}^{C} \left[\left(\frac{1}{N}\sum_{n=1}^{N} p(y_c | \theta_n, d)\right) \log \left(\frac{1}{N} \sum_{n=1}^{N} p(y_c | \theta_n, d)\right) \right] \nonumber
+- \sum_{c=1}^{C} \left[\left(\frac{1}{N}\sum_{n=1}^{N} p(y_c | \theta_n, d)\right) \log \left(\frac{1}{N} \sum_{n=1}^{N} p(y_c | \theta_n, d)\right) \right] \label{eq:u_bar_MC}
 \end{align}
-where $\theta_n \sim p(\theta) \quad \forall n \in 1,\dots,N$ and $y_c$ are fixed constants.
+where $\theta_n \sim p(\theta) \; \forall n \in 1,\dots,N$ and $y_c$ are fixed constants.
 Here our estimate is a deterministic function of a number of separate Monte Carlo estimators.  
-Because there is no trivial canceling of terms, $x\log(x)=0$, and each $p(y_c | \theta_n, d)\le1$,
+Because there is no trivial canceling of terms and there are no issues with continuity of the
+function because $x\log(x)=0$, and each $p(y_c | \theta_n, d)\le1$,
 no complications originate from this function application and the MSE of our estimator will
 converge at the standard MC error rate of $O(1/N)$. This requires $T=O(NC)$ calculations and
 so we can express the per evaluation convergence rate as $O(C/T)$.  This compares to 
-an optimal rate of $O(1/T^{2/3})$ for~\eqref{eq:exp-des-nmc}.
-To the best of our knowledge, this is the first introduction of this superior estimator in the literature.
+an optimal rate of $O(1/T^{2/3})$ for~\eqref{eq:exp-des-nmc}.  Though relatively straightforward,
+to the best of our knowledge, this superior estimator has not appeared in the literature prior
+to our own work~\citep{rainforth2017pitfalls,vincent2017darc}.

@@ -8,7 +8,7 @@ experimental design can be reduced to the same mathematical abstraction:
 choosing a design that maximizes the expected information gained from the 
 experiment.
 Bayesian experimental design (BED)~\citep{chaloner1995bayesian,sebastiani2000maximum} 
-provides an appropriate and powerful framework for this abstraction.  In BED
+provides a powerful framework for this abstraction.  In BED
 one constructs a likelihood model for the experiment outcome and then uses this, along
 with a prior on the parameters one wishes to learn about, to find the experimental setup
 that maximizes the expected information gathered by the experiment.  
@@ -20,12 +20,12 @@ array of fields such as psychology~\citep{myung2013tutorial,vincent2017darc,Cava
 Bayesian optimization~\citep{hennig2012entropy,hernandez2014predictive}, and
 bioinformatics~\citep{vanlier2012bayesian}.
 
-Unfortunately, as we alluded to in the previous chapter, BED problems require, in
-general, the calculation of a nested estimation.
+Unfortunately, as we alluded to in the previous chapter, BED problems, in
+general,  require the calculation of a nested estimation.
 In this section we will provide a brief introduction to BED and show how our results
 from the last chapter can be used to derive a new estimator for BED equations 
 which has a better convergence rate for discrete output problems than the na\"{i}ve
-methods typically currently used.  We will introduce a framework for automating the
+estimator often used.  We will further introduce a novel framework for automating the
 design of \emph{sequential} experiments and demonstrate how this can be
 effectively applied to automating psychological trials~\citep{vincent2017darc}.  
 
