@@ -1,3 +1,45 @@
-% !TEX root =  bopp.tex
+% !TEX root =  ../main.tex
 
-We present the first general purpose framework for marginal maximum a posteriori estimation of probabilistic program variables. By using a series of code transformations, the evidence of any probabilistic program, and therefore of any graphical model, can be optimized with respect to an arbitrary subset of its sampled variables.  To carry out this optimization, we develop the first Bayesian optimization package to directly exploit the source code of its target, leading to innovations in problem-independent hyperpriors, unbounded optimization, and implicit constraint satisfaction; delivering significant performance improvements over prominent existing packages.  We present applications of our method to a number of tasks including engineering design and parameter optimization.
+So far in this thesis, and in the literature more generally, probabilistic programming has focused
+on the problem of automating inference.  However, as we explained in Section~\ref{sec:opt:intro},
+optimization is also a very important tool in the machine learning toolbox.  Further, many problems
+require concurrent inference and optimization in the form of marginal maximum a posteriori (MMAP) estimation,
+maximum marginal likelihood (MML) estimation, or risk minimization.  In this chapter, we develop a framework
+for automating the solution of these mixed inference-optimization problems using probabilistic programming.
+We will focus for the most part on
+MMAP estimation, returning to discuss MML estimation and risk minimization at the end of the chapter.
+
+MMAP estimation is challenging as it corresponds to the optimization of an intractable integral, such that the 
+optimization target is expensive to evaluate and gives noisy results.  Current PPS inference engines are 
+typically unsuited to such settings.  We therefore introduce BOPP\footnote{Code available at \url{http://www.github.com/probprog/bopp/}}
+(Bayesian optimization for probabilistic programs)~\citep{rainforth2015workshopbopp,rainforth2016bayesian}, 
+which uses a series of code transformations, existing inference algorithms,
+and a bespoke Gaussian process (GP) based Bayesian optimization (BO) package, which we call Deodorant\footnote{Code available
+at \url{http://www.github.com/probprog/deodorant/}}, to optimize the evidence of a query with respect to
+an arbitrary subset of its internally sampled variables.\footnote{As we will explain later, there is no need to
+	provide separate consideration for optimizing with respect to the inputs of the query as, if required,
+	variables can be trivially internalized.}
+
+BOPP can be viewed from two different perspectives, providing distinct contributions to both the probabilistic
+programming and Bayesian optimization literatures.  From a probabilistic programming perspective, we can
+view BOPP as extending PPSs beyond their typical inference setting to a more
+general mixed inference-optimization framework.  It allows users to specify a model in the same manner 
+as existing systems, but then select some subset of the sampled variables in the query to be optimized, 
+with the rest marginalized out using existing inference algorithms.  Though the exact transformations we
+introduce are inevitably language specific and have been implemented for Anglican, the concepts we
+introduce apply more widely and the BO package itself, Deodorant, is not PPL specific and is provided
+as a stand-alone package.  More generally, the \textit{optimization query} we 
+introduce can be implemented and utilized in any PPL that supports an inference method returning a 
+partition function estimate.  This framework increases the scope of models that can be expressed in
+PPSs and gives additional flexibility in the outputs a user can request from a program.
+
+From a BO perspective, we can view BOPP as the first package to directly exploit the source code of its target.
+This leads to a number of novel contributions to the BO literature, such as innovations in 
+problem-independent hyperpriors, unbounded optimization, and implicit constraint satisfaction.  
+The ability to do these is rooted
+in the ability provided by PPLs to manipulate the target source code to return artifacts suitable for carrying
+out certain tasks on a model.  For example, we use a code transformation to produce a problem-specific
+optimizer for the acquisition function that ensures the implicit constraints specified by the query,
+including equality constraints no before considered by the BO literature, are automatically and exactly
+satisfied.  As a consequence, BOPP provides a substantial number of novel features and performance
+improvements even when used simply as a conventional BO package.

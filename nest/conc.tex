@@ -1,19 +1,35 @@
 % !TEX root =  main.tex
 
-\section{Implications For Probabilistic Programming}
+\section{Implications For Nesting Probabilistic Programs}
 \label{sec:design:imp}
 
-We have introduced a formal framework for nested Monte Carlo (NMC) estimation and shown that
-it can be used to yield a consistent estimator for problems that cannot be tackled
-with conventional MC alone.  We have demonstrated convergence rates and that NMC
-is, in general, biased. We have introduced a number of techniques for converting certain classes
-of NMC problems to conventional MC ones, allowing for improved convergence rates on these problems.
-We used one of these to derive a new estimator for Bayesian experimental design
-with a superior convergence rate to existing schemes.  For problems that do not satisfy these special
-cases, we have highlighted the importance of increasing the number of samples in both the inner
-and the outer estimators to ensure convergence.  Our results have implications for numerous
-applications, for example probabilistic programming, and serve both as an invitation for further inquiry 
-and a caveat against careless use.
+Given our results, it is now natural to ask the question what the implications
+for nesting probabilistic programming queries?  In particular, when is doing
+this valid and are their any precautions we can take to avoid problems?  Before
+we get to these question though, we first need to explicitly define what we
+mean by a nested query.  To this end, we distinguish between nested calling
+structures (such as the example given in Figure~\ref{fig:probprog:schell}) and
+queries that do not represent a single estimation, which we will refer
+to as nested queries.  Both of these cases have at times been referred to as
+nested queries in the literature.  Our motivation for defining only the later
+as nested is that the former can always be represented as a single
+query because they still represent a single expectation and define models
+for which the unnormalized target distribution can be evaluated exactly
+~\eqref{eq:probprog:universal-cond}.  Therefore, although these models are
+of clear importance, they are not a fundamentally different problem class
+to standard Bayesian inference problems and so we assert that existing MC
+converge results directly apply.  However, the distinction between models that
+use nested calling and nested queries can be surprisingly difficult to establish.
+For example, the Schelling coordination example we gave in Figure~\ref{fig:probprog:schell}
+was clearly an example of a nested calling structure, but was explicitly a single query.
+On the other hand, the original version of this problem in~\cite[]{stuhlmuller2014reasoning}
+is actually an (equivalent!) example of a nested query problem because the Church
+query 
+
+Conditional renormalization.
+
+Discrete and continuous problems are a fundamentally different problem class
+because of Theorem~\ref{the:finite-res}.
 
 \todo[inline]{Voting probprog example?}
 
