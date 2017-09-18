@@ -1,4 +1,74 @@
-% !TEX root =  bopp.tex
+% !TEX root =  ../main.tex
+
+As we explained in Section~\ref{sec:probprog:models:general}, probabilistic program queries
+define unnormalized distributions $\gamma(x_{1:n_x},\lambda)$ on program traces
+ as defined in~\eqref{eq:probprog:universal-cond}.
+At a high level, our aim is to optimize with respect to some of the $x_{1:n_x}$ variables while marginalizing out
+the rest.  However, formalizing what we mean by ``some variables'' is less trivial than it would
+first appear and will require specialist syntax for specifying models.  To this end,
+we introduce a new query macro \defopt.  The syntax of \defopt is identical to \defquery except 
+that it has an additional input identifying the variables to be optimized. 
+A possible na\"{i}ve strategy for identifying these target variables
+would be to simply predefine some subset of the \sample indices
+$c \subset \mathbb{N}^+$ and optimize for $\{x_j \}_{j\in c}$.  However, this is clearly not satisfactory
+because it is generally an awkward method of identifying the target variables and the variables we wish
+to optimize may not always be sampled at the same position in our trace (i.e. we do not want superfluous
+\sample statements to effect which variables constitute our target variables).
+Unfortunately though, the more natural choice of specifying any variable in the program, including those
+which are deterministic functions of other variables, is not possible in general, because of complications
+originating from changes of variables, namely nonlinear deterministic mappings change the density
+function in ways that it might not be possible to track.  Instead, we will still specify our target variables
+$\theta = \phi_{1:L}$ by name (i.e. using the lexical name of the variable as bound by a \clj{let} block in
+the raw program code), but we will place some restrictions, enforced at run time (see Section~\ref{sec:bopp:trans:error}), 
+to ensure validity of the model.  First, each optimization variable $\phi_{\ell}$ must be bound to a value directly 
+by a \sample statement to avoid change of variable complications.
+%Specifically if $\psi = g(\theta)$ then $p(Y,\theta) = \text{\bf D}_g(\psi) p(Y,\psi)$ where $\text{\bf D}_g$ represents the Jacobian associated with $g$, giving different maxima for $\theta$ and $\psi$ \cite{murphy2012machine}.
+Second, in order for the optimization to be well defined, the program must be written such that any 
+possible execution trace binds each optimization variable $\phi_{\ell}$ exactly once.  By proxy, this also
+ensures that the number of variables to be optimized, $L$, remains fixed.
+% HOW DO WE ENFORCE THIS? 
+Finally, although any $\phi_{\ell}$ may be lexically multiply bound, it must have the same reference 
+measure in all possible execution traces, because, for instance, if the reference measure of 
+a $\phi_{\ell}$ were to change between Lebesgue to counting, the notion of optimality would 
+no longer admit a conventional interpretation.  Note that we impose no restrictions on the latent
+variables which will be marginalized over.
+
+From a developer's perspective, these minor restrictions mean that all \sample statements are
+either not associated with any target variable or associated with a particular target variable $\phi_{\ell}$, that \sample
+statements associated with the target variables will never be evaluated more than once (but might never
+be evaluated if there are multiple possible \sample statements associated with a particular $\phi_{\ell}$), and
+that the total number of \sample statements associated with the target variables is always $L$.
+Therefore building on the notation from Section~\ref{sec:probprog:models:general}, we will redefine $x_{1:n_x}$
+as the variables that are to be marginalized over, with all associated terms similarly redefined (except $\gamma$).
+We next denote the $m_{\ell}$ lexical \sample statements associated with $\phi_{\ell}$ as 
+$h_{\ell,1},\dots,h_{\ell,m_{\ell}}$ with associated density function $h_{\ell,i}(\phi_{\ell} | \xi_{\ell})$ where
+$\xi_{\ell}$ is the provided distribution object (which can be a random variable but its reference measure
+must be deterministic).  We further denote $c_{\ell} \in \{1,\dots,m_{\ell}\}, \; 
+\forall \ell \in \{1,\dots,L\}$ as the (potentially random) variable used to index which lexical \sample statement
+the $\phi_{\ell}$ is drawn from.  We now have that the conditional distribution on the trace $\mT$ implied
+by the query is $p(\mT = \{\phi_{1:L},x_{1:n_x}\} | \lambda) \propto \gamma(\phi_{1:L},x_{1:n_x}, \lambda)$
+where
+\begin{align}
+\label{eq:bopp:joint}
+\gamma(\phi_{1:L},x_{1:n_x}, \lambda) = \begin{cases}
+\prod_{\ell=1}^{L}
+h_{\ell,c_{\ell}} (\phi_{\ell} | \xi_{\ell})
+\prod_{j=1}^{n_x} 
+f_{a_j}(x_j | \eta_j)
+\prod_{k=1}^{n_y}
+g_{b_k}(y_k | \psi_k) \; \text{if} \; \mathcal{B}(\phi_{1:L},x_{1:n_x},\lambda)=1 \\
+0 \quad \text{otherwise}
+\end{cases}
+\end{align}
+and we have redefined the trace validity function $\mathcal{B}(\phi_{1:L},x_{1:n_x},\lambda)$ appropriately.
+As before, although many of the terms in our trace probability are random variables, all are deterministic
+functions of $\{\phi_{1:L},x_{1:n_x}\}$.  Note that the relative ordering of the $\phi_{1:L}$ to the $x_{1:n_x}$
+does not actually effect the validity of the trace or the probability, as the \sample statements associated with
+each are mutually exclusive.
+
+\todo[inline]{Write out MMAP MML and risk min targets}
+
+For notational consistency with our original paper~\citep{rainforth2016nips}, 
 
 Given a program defining the joint density $p(Y, X, \theta)$ with fixed $Y$, our aim is to optimize with respect to a subset of the variables $\theta$ whilst marginalizing out latent variables $X$
 \begin{equation}
@@ -10,57 +80,5 @@ Given a program defining the joint density $p(Y, X, \theta)$ with fixed $Y$, our
 %We note that as finite bounds are equivalent to placing a uniform prior over the space of permissible solutions, this permits parameter optimization and standard BO (where $X=\emptyset$) as special cases\footnote{In some cases this may also require a mapping of the target to unnormalized probability distribution.  For example by noting that $\argmax_{\theta \in \mathcal{S} \subset \vartheta} f\left(\theta\right) = \argmax_{\theta \in \vartheta} \mathrm{Uniform}\left(\theta \in \mathcal{S}\right) \exp(f\left(\theta\right))$.}.
 %Although $X$ may be dynamically typed, we assume that $\theta$ is statically determinable.  This is because optimization, unlike inference, is not in general well defined on a variable defined relative to a mixed measure as some values may be infinity more probable than others.  We emphasise though that different $\phi$ may be of different type (i.e. some continuous and some discrete) and the type need not need be known prior to execution - the distribution from which $\phi$ is sampled may itself be dynamic provided the density is defined with respect to the same measure for all possible program traces.  We also apply the restriction that each target variable $\phi \in \theta$ is the direct output of a \sample statement.  As all variables in an Anglican query are either the result of a sample statement or deterministically calculable from previously invoked sample statements, this concession does not restrict the space of models in practise.  Further discussion on the rational behind these restrictions is provided in the supplementary material.
 
-To provide syntax to differentiate between $\theta$ and $X$, we introduce a new query macro \defopt.  The syntax of \defopt is identical to \defquery except that it has an additional input identifying the variables to be optimized.  To allow for the interleaving of inference and optimization required in MMAP estimation, we further introduce \doopt, which, analogous to \doquery, returns a lazy sequence $\{\hat{\theta}^*_m,\hat{\Omega}^*_m,\hat{u}^*_m\}_{m=1,\dots}$ where $\hat{\Omega}^*_m \subseteq X$ are the program outputs associated with $\theta=\hth^*_m$ and each $\hat{u}^*_m \in \real^+$ is an estimate of the corresponding log marginal $\log p(Y, \hth_m^*)$ (see Section \ref{sec:bopp-for-ml}).  The sequence is defined such that, at any time, $\hat{\theta}^*_m$ corresponds to the point expected to be most optimal of those evaluated so far and allows both inference and optimization to be carried out online.
+To allow for the interleaving of inference and optimization required in MMAP estimation, we introduce \doopt, which, analogous to \doquery, returns a lazy sequence $\{\hat{\theta}^*_m,\hat{\Omega}^*_m,\hat{u}^*_m\}_{m=1,\dots}$ where $\hat{\Omega}^*_m \subseteq X$ are the program outputs associated with $\theta=\hth^*_m$ and each $\hat{u}^*_m \in \real^+$ is an estimate of the corresponding log marginal $\log p(Y, \hth_m^*)$ (see Section \ref{sec:bopp-for-ml}).  The sequence is defined such that, at any time, $\hat{\theta}^*_m$ corresponds to the point expected to be most optimal of those evaluated so far and allows both inference and optimization to be carried out online.
 %We refer to the algorithm to do this as Bayesian optimization for probabilistic programs (BOPP) which we now outline.
-
-% Although no restrictions are placed on $X$, it is necessary to make some assumptions about $\theta$.  
-% Firstly, each $\phi \in \theta$ must be directly binded to the output of one or more \sample statements.
-% We do not consider finding MMAP estimates for other variables in the program because, even though all random draws in Anglican are the output of \sample statements, deterministic nonlinear mappings change the pdf, and thus the MMAP point, in a way that may not be possible to track. 
-% This assumption otherwise makes no difference to the problems which can be tackled. 
-% Secondly, although multiple possible bindings may be defined, any valid execution trace must invoke exactly one binding for each $\phi$, such that they have a unique value for each execution.  
-% This is necessary to ensure that optimizing the value of $\theta$ is a well defined problem.  
-% Finally, each $\phi$ must have a fixed type (i.e. continuous or discrete) and dimension for all possible executions (though each $\phi$ may be different). 
-% Violating this assumption would mean that $p(\theta|Y)$ is implicitly defined with respect to a mixed measure, such that its optimization no longer corresponds to a conventional notion of ``most probable''.
-
-%These assumptions are necessary to guarantee that the target variables are uniquely identifiable, the desired marginal likelihood can be calculated and the MMAP problem is well defined.  Discussion on the implications and possible relaxations are given in Section \ref{sec:disc}, while the mechanisms for ensuring compliance are given in the SM.
-%
-%For BOPP the identifiers associated with $\theta$ must all be unique and the respective \sample statements must be evaluated exactly once.  This guarantees that target \sample statements can be uniquely identified and manipulated as discussed in Section \ref{sec:transform}.  As the optimization specified in \eqref{eq:MMAP} is not meaningful for variables taking different values at the different points in the program and all variables in Anglican are either the result of a \sample statement or deterministically calculable from previously invoked \sample statements, this does not restrict the space of specifiable models in practise.
-%
-%Although we place no restrictions on $X$, we make two additional assumptions about $\theta$: we assume that the type of each $\phi \in \theta$ does not change (i.e. between continuous and discrete) for different program executions and that the overall dimensionality of $\theta$ remains fixed. The basis for the former is that, unlike inference, optimization is not necessarily well defined with respect to a mixed measure.  The latter is associated with the generic difficulty of optimizing a function of varying dimensionality in any setting and could form the basis for future work.  We emphasise though that different $\phi$ may be of different type (i.e. some continuous and some discrete) and the type need not need be known prior to execution.
-
-Although no restrictions are placed on $X$, it is necessary to place some restrictions on how programs  use the optimization variables $\theta = \phi_{1:K}$ specified by the optimization argument list of \defopt.
-First, each optimization variable $\phi_k$ must be bound to a value directly by a \sample statement with fixed measure-type distribution argument.
-% HOW DO WE ENFORCE THIS? MULTIPLE INSTANCES
-This avoids change of variable complications arising from nonlinear deterministic mappings.  
-%Specifically if $\psi = g(\theta)$ then $p(Y,\theta) = \text{\bf D}_g(\psi) p(Y,\psi)$ where $\text{\bf D}_g$ represents the Jacobian associated with $g$, giving different maxima for $\theta$ and $\psi$ \cite{murphy2012machine}.
-Second, in order for the optimization to be well defined, the program must be written such that any possible execution trace binds each optimization variable $\phi_k$ exactly once.  
-% HOW DO WE ENFORCE THIS? 
-Finally, although any $\phi_k$ may be lexically multiply bound, it must have the same base measure in all possible execution traces, because, for instance, if the base measure of a $\phi_k$ were to change from Lebesgue to counting, the notion of optimality would no longer admit a conventional interpretation.
-% HOW DO WE ENFORCE THIS? MULTIPLE INSTANCES
-Note that although the transformation implementations shown in Figure~\ref{fig:bopp_overview}  do not contain runtime exception generators that disallow continued execution of programs that violate these constraints,  those actually implemented in the BOPP system do.
-
-%the density of each $\phi_k$ must be with respect to the same base measure in all execution traces.  
-%Violating this restriction makes the optimization of $p(\theta | Y)$ lose correspondence to a conventional notion of ``most probable''.
-
-
-%Although no restrictions are placed on $X$, it is necessary to make assumptions about the optimization variables $\theta =: \phi_{1:K}$ specified by the optimization argument list of \defopt.
-%Firstly,  each optimization variable $\phi_k$ must be defined in a binding pair with a \sample statement.  This is necessary for identification purposes and avoids complications arising from the warping of the density function that results from applying nonlinear deterministic mappings.  Specifically if $\psi = g(\theta)$ then $p(Y,\theta) = \text{\bf D}_g(\psi) p(Y,\psi)$ where $\text{\bf D}_g$ represents the Jacobian associated with $g$, giving different maxima for $\theta$ and $\psi$ \cite{murphy2012machine}.  Secondly, in order to have a well-defined optimization problem, the program must be written in a way that any possible execution trace contains each optimization variable $\phi_k$ exactly once.  Finally, the density of each $\phi_k$ must be with respect to a fixed base measure in all execution traces.  Violating this restriction makes the optimization of $p(\theta | Y)$ lose correspondence to a conventional notion of ``most probable''.
-%
-%
-%%% TA's attemt at restrictions:
-%Although no restrictions are placed on $X$, it is necessary to make assumptions about the optimization variables $\theta =: \phi_{1:K}$ specified by the optimization argument list of \defopt.
-%% 1) Each theta must be bound in the bindings of let statement and it must be only a sample statement 
-%Firstly,  each optimization variable $\phi_k$ must be defined in a binding pair 
-%%of a \texttt{let} form in which 1) the binding symbol matches the one from \defopt's optimization argument list and 2) the binding expression is 
-%with a \sample statement.
-%%corresponding to the generative distribution of $\phi_k$ given .
-%% Because....
-%BOPP cannot be assigned to target other variables in the program as this binding is necessary to identify the \sample statements to be manipulated and to avoid complications from changes in variables effecting the MMAP point \cite{murphy2012machine}.
-%%Defining this prior distribution implicitly as a function of a \sample statement makes the relationship between the prior density and the density of the \sample statement difficult to manipulate which, in turn, complicates finding the MMAP point.
-%Note that this restriction does not limit the space of problems we can solve as we can always let the most elementary source of randomness be bound to the optimization variables at the cost of inconveniencing the user.
-%% 2) Execution trace must hit each optimization variable exactly once
-%Secondly, in order to have a well-defined optimization problem, the program must be written in a way that any possible execution trace contains each optimization variable $\phi_k$ exactly once.
-%% 3) Each optimization variable must have a fixed type (continuous/discrete) and dimension in all possible executions
-%Finally, the density of each $\phi_k$ must be with respect to a fixed base measure in all execution traces.
-%% Because ...
-%Violating this restriction makes the optimization of $p(\theta | Y)$ lose correspondence to a conventional notion of ``most probable''.

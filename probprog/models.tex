@@ -369,13 +369,13 @@ implied by our query as $p(\mT = x_{1:n_x} | \lambda)
 \label{eq:probprog:universal-cond}
 \gamma(x_{1:n_x}, \lambda) = \begin{cases}
 \prod_{j=1}^{n_x} 
-f_{a_j}(x_j | \phi_j)
+f_{a_j}(x_j | \eta_j)
 \prod_{k=1}^{n_y}
 g_{b_k}(y_k | \psi_k) \quad \text{if} \quad \mathcal{B}(x_{1:n_x},\lambda)=1 \\
 0 \quad \text{otherwise}
 \end{cases}
 \end{align}
-noting that although the $a_j$, $\phi_j$, etc are random variables, they are all deterministically
+noting that although the $a_j$, $\eta_j$, etc are random variables, they are all deterministically
 calculable given $x_{1:n_x}$, $\lambda$, and our query.  Similarly $\mathcal{B}(x_{1:n_x},\lambda)$
 is a deterministic function implied by the program. As a consequence, our program implies a well
 defined, normalized, conditional distribution, or ``posterior, on the produced traces
@@ -394,13 +394,13 @@ Imagine we want to calculate the unnormalized trace probability
 $\gamma(x_{1:n_x}=[0.2,0.07],\lambda=4)$ which we can do by stepping through the program and accumulating
 terms (for reference we will be following the cyan path
 in Figure~\ref{fig:probprog:poi-traces}).  
-On our path we first hit $f_1(x_1 | \phi_1) = \textsc{Uniform}(0.2;0,1) = 1$, we fix $u\leftarrow x_1$
+On our path we first hit $f_1(x_1 | \eta_1) = \textsc{Uniform}(0.2;0,1) = 1$, we fix $u\leftarrow x_1$
 and $p\leftarrow 1\cdot u$, and test if $p=0.2\le \exp(-4) \approx 0.0183$.  This gives false
 and so we do not break the while loop, instead encountering
 $g_2(y_1 | \psi_1) = \textsc{Bernoulli}(1;0.2) = 0.2$ and so our running value for
 $\gamma(x_{1:n_x}=[0.2,0.07],\lambda=4)$ is $1\times0.2 = 0.2$.  Updating $k\leftarrow1$ and
 going back to the
-start of the while loop we encounter $f_1(x_2 | \phi_2) = \textsc{Uniform}(0.07;0,1) = 1$,
+start of the while loop we encounter $f_1(x_2 | \eta_2) = \textsc{Uniform}(0.07;0,1) = 1$,
 so our running score is $1\times0.2\times1=0.2$.
 Reassigning $u$ and $p$ we see that  $p=0.014\le \exp(-4)$ is now true and so we take
 the opposite branch to before with our if statement, thus breaking the while loop.  To
@@ -497,19 +497,19 @@ In such cases where our observation is a hard constraint, we can view the normal
 the conditional defined by the query as the probability of our constraint being satisfied.  
 For more general queries of discrete variables we might have, for example,
 \[
-P(x|\lambda) \propto f(x|\lambda)g(y=\eta(x,\lambda)|x,\lambda)
+P(x|\lambda) \propto f(x|\lambda)g(y=\kappa(x,\lambda)|x,\lambda)
 \]
-for some deterministic function $\eta$.  Here we
-can view the marginalization as being the probability of the event $y=\eta(x,\lambda)$ under the joint $P(x,y)=f(x|\lambda)g(y|x,\lambda)$.
-For our previous example we have $x:=a$, $y:=b$, $\eta(a,\lambda):=a$, $f(a):=p(a)$, and $g(b=a):=p(b=a|a)$.
-The same intuition applies to continuous cases where we now have the density of the event $y=\eta(x,\lambda)$.
-We can also think of $f(x|\lambda)g(\eta(x,\lambda)|x,\lambda)$ as defining a unnormalized distribution on $x$ whose
-normalization constant is $\int f(x|\lambda)g(\eta(x,\lambda)|x,\lambda) dx$.  In general, our normalization
+for some deterministic function $\kappa$.  Here we
+can view the marginalization as being the probability of the event $y=\kappa(x,\lambda)$ under the joint $P(x,y)=f(x|\lambda)g(y|x,\lambda)$.
+For our previous example we have $x:=a$, $y:=b$, $\kappa(a,\lambda):=a$, $f(a):=p(a)$, and $g(b=a):=p(b=a|a)$.
+The same intuition applies to continuous cases where we now have the density of the event $y=\kappa(x,\lambda)$.
+We can also think of $f(x|\lambda)g(\kappa(x,\lambda)|x,\lambda)$ as defining a unnormalized distribution on $x$ whose
+normalization constant is $\int f(x|\lambda)g(\kappa(x,\lambda)|x,\lambda) dx$.  In general, our normalization
 constant will be a combination of conventional marginal likelihood terms and contributions from these ``doubly defined''
 terms. We refer to this normalization constant the \emph{partition function}\footnote{Note this is not a
 	term that is usually used in the probabilistic programming literature, where it is usually just referred to as a marginal
 	likelihood.  Similarly, it is common in the literature to refer to a query as defining a ``normalized 
-	joint'' density of $p_{\theta}(x_{1:n_x},y_{1:n_y}) = \prod_{j=1}^{n_x} f_{a_j}(x_j | \phi_j)
+	joint'' density of $p_{\theta}(x_{1:n_x},y_{1:n_y}) = \prod_{j=1}^{n_x} f_{a_j}(x_j | \eta_j)
 	\prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k)$.  We have deviated from both of these because, as our examples
 	demonstrate, this viewpoint is technically a little questionable.  For example, $p_{\theta}(x_{1:n_x},y_{1:n_y})$
 	defined in this way might not be a correctly normalized distribution and the normalization constant
@@ -521,7 +521,7 @@ terms. We refer to this normalization constant the \emph{partition function}\foo
 \label{eq:probprog:mod}
 Z(\lambda) &= \E \left[ \prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k) | \lambda \right] = \int \gamma(x_{1:n_x},\lambda) dx_{1:n_x}\nonumber\\
 &= \int_{x_{1:n_x} \in \{x_{1:n_x} : \mathcal{B}(x_{1:n_x},\lambda)=1\}} 
-\prod_{j=1}^{n_x} f_{a_j}(x_j | \phi_j) \prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k) dx_{1:n_x}
+\prod_{j=1}^{n_x} f_{a_j}(x_j | \eta_j) \prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k) dx_{1:n_x}
 \end{align}
 where the expectation is under running the query forwards (i.e. the distribution implied by simulating
 from an equivalent query with all the \observe statements removed) and 

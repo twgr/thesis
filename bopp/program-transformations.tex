@@ -1,4 +1,4 @@
-% !TEX root = bopp.tex
+% !TEX root = ../main.tex
 
 In this section we give a more detailed and language specific description of our program transformations, code for which can be found at \href{http://www.github.com/probprog/bopp}{\url{http://www.github.com/probprog/bopp}}. %We will refer to the code in explaining the implementation of program transformations for BOPP.
 
@@ -39,13 +39,13 @@ Firstly it replaces all \observe statements by \lsi{nil}.
 As \observe statements return \lsi{nil}, this trivially preserves the generative model of the program, but the probability of the execution changes. 
 Secondly, it inspects the binding variables of \lsi{let} forms in order to modify the binding expressions for the optimization variables, as specified by the second input of \defopt, asserting that these are directly bound to a \sample statement of the form \texttt{(\sample dist)}.
 The transformation then replaces this expression by one that stores the result of this sample in Anglican's \lsi{store} before returning it.
-Specifically, if the binding variable in question is \lsi{phi-k}, then the original binding expression \lsi{(sample dist)} is transformed into
+Specifically, if the binding variable in question is \lsi{phi-}$\ell$, then the original binding expression \lsi{(sample dist)} is transformed into
 % \begin{figure}
     \begin{lstlisting}[basicstyle=\footnotesize\ttfamily]
 (let [value (sample dist)]
   ;; Store the sampled value in Anglican's store
   (store OPTIM-ARGS-KEY
-         'phi-k
+         'phi-$\ell$
          value)
   value)
     \end{lstlisting}
@@ -101,7 +101,7 @@ To carry out this early termination, we first wrap the query in a \lsi{catch} bl
 (let [value (sample dist)]
   ;; Store the sampled value in Anglican's store
   (store OPTIM-ARGS-KEY
-         'phi-k
+         'phi-$\ell$
          value)
   ;; Terminate early if all optimization variables are sampled
   (if (= (set (keys (retrieve OPTIM-ARGS-KEY)))
@@ -133,11 +133,11 @@ where \lsi{prologue-code} refers to one of the following expressions depending o
 We note that valid programs for both \lsi{q-prior} and \lsi{q-acq} should always terminate via one of these early stopping criteria and therefore never actually reach the appending statements in the \lsi{query} blocks shown in Sections \ref{sec:bopp-supp/prior-transformations} and \ref{sec:bopp-supp/acq-transformations}.  As such, these are, in practise, only for exposition and error catching.
 
 \subsection{Marginal/MMAP Transformation}
-The marginal transformation inspects all \lsi{let} binding pairs and if a binding variable \lsi{phi-k} is one of the optimization variables, the binding expression \lsi{(sample dist)} is transformed to the following
+The marginal transformation inspects all \lsi{let} binding pairs and if a binding variable \lsi{phi-}$\ell$ is one of the optimization variables, the binding expression \lsi{(sample dist)} is transformed to the following
 % \begin{figure}
     \begin{lstlisting}[basicstyle=\footnotesize\ttfamily]
-(do (observe dist phi-k-hat)
-    phi-k-hat)
+(do (observe dist phi-$\ell$-hat)
+    phi-$\ell$-hat)
     \end{lstlisting}
 %     \caption{}
 %     \label{fig:marg-1}
@@ -145,6 +145,7 @@ The marginal transformation inspects all \lsi{let} binding pairs and if a bindin
 corresponding to the \lsi{observe<-} form used in the main paper.
 
 \subsection{Error Handling}
+\label{sec:bopp:trans:error}
 During program transformation stage, we provide three error-handling mechanisms to enforce the restrictions on the probabilistic programs described in Section~\ref{sec:problem}.
 \begin{enumerate}
     \item We inspect \lsi{let} binding pairs and throw an error if an optimization variable is bound to anything other than a \sample statement.

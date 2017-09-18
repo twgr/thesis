@@ -57,18 +57,18 @@ As a simple illustrative approach that avoids some of the theoretical pitfalls a
 with LMH approaches~\citep{wood2014new}, consider an MH sampler whose proposal is simply to choose one
 of the \sample statements, $m$, uniformly at random from $\{1,\dots,n_x\}$, propose a new $x_m'$ using a local reversible
 MH kernel for that \sample statement $\kappa(x_m' | x_{m})$ (which can always be independently sampling
-from $f_m(x_m|\phi_m)$ if necessary) and then rerun the entire rest of the program
+from $f_m(x_m|\eta_m)$ if necessary) and then rerun the entire rest of the program
 from that point.  This equates to using the proposal (omitting our trace validity term on the
 basis that this always holds because we are sampling from the generative model)
 \begin{align}
 q(x_{1:n_x'}' | x_{1:n_x}) &= q(m|x_{1:n_x}) q(x_m' | x_{m}, m) q(x_{m+1:n_x}' | x_{1:m-1}, m, x_m') \mathbb{I}(x_{1:m-1}'=x_{1:m-1}) \nonumber \\
-&=\frac{1}{n_x} \kappa(x_m' | x_{m}) \mathbb{I}(x_{1:m-1}'=x_{1:m-1})  \prod_{j=m+1}^{n_x'} f_{a_{j}'} (x_{j}' | \phi_{j}')
+&=\frac{1}{n_x} \kappa(x_m' | x_{m}) \mathbb{I}(x_{1:m-1}'=x_{1:m-1})  \prod_{j=m+1}^{n_x'} f_{a_{j}'} (x_{j}' | \eta_{j}')
 \end{align}
 which in turn gives an acceptance probability of
 \begin{align}
 P(\text{Accept}) &= \min\left(1, \frac{\gamma(x_{1:n_x'}',\lambda) q(x_{1:n_x} | x_{1:n_x'}') }
 {\gamma(x_{1:n_x},\lambda) q(x_{1:n_x'}' | x_{1:n_x}) }\right) \nonumber\\
-&= \min\left(1, \frac{\kappa(x_m | x_{m}') f_{a_m} (x_m' | \phi_m)} {\kappa(x_m' | x_{m}) f_{a_m} (x_m' | \phi_m)} \;
+&= \min\left(1, \frac{\kappa(x_m | x_{m}') f_{a_m} (x_m' | \eta_m)} {\kappa(x_m' | x_{m}) f_{a_m} (x_m' | \eta_m)} \;
 \frac{n_x}{n_x'} \; \frac{\prod_{k=k_0(x_{1:m})+1}^{n_y'} g_{b_{k}'} (y_{k}' | \psi_{k}')}
 {\prod_{k=k_0(x_{1:m})+1}^{n_y} g_{b_{k}} (y_{k} | \psi_{k}) }\right) \label{eq:proginf:lmh-A}
 \end{align}
@@ -77,7 +77,7 @@ trace $x_{1:m}$.  Here we have used the fact that the trace probability factors 
 exactly, while the \sample terms for $m+1$ onwards cancel between the target and the proposal.
 We can intuitively break down the terms in~\eqref{eq:proginf:lmh-A} by first noting that the first
 ratio of terms is what we would get from
-doing MH targeting $f_{a_m}(x_m|\phi_m)$ (note also that these terms cancel if we propose ``from the 
+doing MH targeting $f_{a_m}(x_m|\eta_m)$ (note also that these terms cancel if we propose ``from the 
 prior'' by just independently sampling a new $x_m'$ from the \sample statement).  The next ratio of terms,
 $n_x / n_x'$ reflect the fact that if our new trace is longer it is less likely that we would have chosen the
 point $m$ to resample and vice versa.  The final ratio of terms reflects the ratio of the likelihood weight
@@ -108,7 +108,7 @@ $n_x$) is invalid as the program is deterministic given $\xnx$ (remembering that
 have defined $x_{1:n_x}$ as be the raw \sample outputs not program variables).  If $x_m \rightarrow x_m'$ gives
 a valid trace, then $\gamma([x_{1:m-1},x_m',x_{m+1:n_x}],\lambda)$ will be well defined (though not necessarily
 non-zero) and we can use the update as a proposal with needing to regenerate $x_{m+1:n_x}$.  Note though
-that as the $a_j$, $b_k$, $\phi_j$, and $\psi_k$ terms downstream of $m$ can change, the 
+that as the $a_j$, $b_k$, $\eta_j$, and $\psi_k$ terms downstream of $m$ can change, the 
 probability of the new trace still needs recalculating.  In this scenario, our acceptance ratio becomes
 \begin{align}
   P(\text{Accept}) &= \min\left(1, \frac{\gamma(x_{1:n_x}',\lambda) \kappa(x_m | x_{m}')  }
@@ -124,8 +124,8 @@ and regeneration during the same single forward pass through trace and that whet
 is deterministic for given $x_m$ - $x_m'$ pair (and thus does not affect the MH acceptance ratio by symmetry).
 If we regenerate from \sample $\ell$ onwards then we now have
 \begin{align}
-P(\text{Accept}) &= \min\left(1, \frac{\gamma(x_{1:n_x}',\lambda) \kappa(x_m | x_{m}') n_x \prod_{j=\ell}^{n_x} f_{a_{j}} (x_j | \phi_j)}
-{\gamma(x_{1:n_x},\lambda) \kappa(x_m' | x_{m})  n_x' \prod_{j=\ell}^{n_x'} f_{a_{j}'} (x_j' | \phi_j')}\right).
+P(\text{Accept}) &= \min\left(1, \frac{\gamma(x_{1:n_x}',\lambda) \kappa(x_m | x_{m}') n_x \prod_{j=\ell}^{n_x} f_{a_{j}} (x_j | \eta_j)}
+{\gamma(x_{1:n_x},\lambda) \kappa(x_m' | x_{m})  n_x' \prod_{j=\ell}^{n_x'} f_{a_{j}'} (x_j' | \eta_j')}\right).
 \end{align}
 We can further overcome reducibility issues with such a scheme by forcing a fresh trace generation
 not only when we realize the trace is invalid, but also when we find a term in our trace with probability zero.
@@ -152,8 +152,8 @@ contain only terms from the current trace.  If we use $\mathbb{D}(j)=0$ to denot
 the database and $\mathbb{D}(j)=1$ to indicate terms that are redrawn, then our acceptance ratio now becomes
 \begin{align}
 P(\text{Accept}) &= \min\left(1, \frac{\gamma(x_{1:n_x}',\lambda) \kappa(x_m | x_{m}') n_x \prod_{j=m+1}^{n_x} 
-	\left(f_{a_{j}} (x_j | \phi_j)\right)^{\mathbb{D}(j)}}
-{\gamma(x_{1:n_x},\lambda) \kappa(x_m' | x_{m})  n_x' \prod_{j=m+1}^{n_x'} \left(f_{a_{j}'} (x_j' | \phi_j')\right)^{\mathbb{D}(j)}}\right).
+	\left(f_{a_{j}} (x_j | \eta_j)\right)^{\mathbb{D}(j)}}
+{\gamma(x_{1:n_x},\lambda) \kappa(x_m' | x_{m})  n_x' \prod_{j=m+1}^{n_x'} \left(f_{a_{j}'} (x_j' | \eta_j')\right)^{\mathbb{D}(j)}}\right).
 \end{align}
 
 We finish by noting that our identifies for points in the database, namely both $j$ and $a_j$ being the same, is
@@ -211,7 +211,7 @@ namely
 \label{eq:proginf:smc-targ}
 \gamma_t(x_{1:n_x}, \lambda) = \begin{cases}
 \prod_{j=1}^{n_x} 
-f_{a_j}(x_j | \phi_j)
+f_{a_j}(x_j | \eta_j)
 \prod_{k=1}^{t}
 g_{b_k}(y_k | \psi_k) \;\; \text{if} \;\; \mathcal{B}_t(x_{1:n_x},\lambda)=1 \\
 0 \quad \text{otherwise}

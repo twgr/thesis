@@ -21,10 +21,10 @@ this approach leads to the following SNIS characterization of the posterior
 \begin{align}
 p(x_{1:n_x} | \lambda) &\approx \hat{p}(x_{1:n_x} | \lambda) := \sum_{n=1}^{N} \nw_n \delta_{\hxnx^n} (x_{1:n_x})
 \quad \text{where}  \\
-\hxnx^n &\sim \prod_{j=1}^{n_x} f_{a_j}(x_j | \phi_j); \quad \nw_n = \frac{w_n}{\sum_{n=1}^{N} w_n}; \quad
+\hxnx^n &\sim \prod_{j=1}^{n_x} f_{a_j}(x_j | \eta_j); \quad \nw_n = \frac{w_n}{\sum_{n=1}^{N} w_n}; \quad
 w_n = \prod_{k=1}^{\hat{n}_{y}^n} g_{\hat{b}_{k}^n}(\hat{y}_{k}^n | \hat{\psi}_{k}^n);
 \end{align}
-$\delta_{\hxnx^n} (\cdot)$ is a delta function centered at $\hxnx^n$; $\phi_j$ and $a_j$ are deterministic functions of $\hxnx^n$ 
+$\delta_{\hxnx^n} (\cdot)$ is a delta function centered at $\hxnx^n$; $\eta_j$ and $a_j$ are deterministic functions of $\hxnx^n$ 
 and $\lambda$; and $\hat{n}_{y}^n$, $\hat{b}_{k}^n$, $\hat{y}_{k}^n$, and $\hat{\psi}_{k}^n$ are random variables
 that are deterministic functions of $\hxnx^n$ and $\lambda$.  Here we are sampling $\hxnx^n$ from
 the generative model defined by the program which is equivalent to a running the forward program
