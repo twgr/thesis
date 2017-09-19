@@ -1,12 +1,25 @@
-% !TEX root =  bopp.tex
+% !TEX root =  ../main.tex
 
 \subsection{Optimizing the Acquisition Function}
 \label{sec:optacqfunc}
 
-Optimizing the acquisition function for BOPP presents the issue that the query contains implicit constraints that are unknown to the surrogate function.  The problem of unknown constraints has been previously covered in the literature \citep{gardner2014bayesian,hernandez2015general} by assuming that constraints take the form of a black-box function which is modeled with a second surrogate function and must be evaluated in guess-and-check strategy to establish whether a point is valid. Along with the potentially significant expense such a method incurs, this approach is inappropriate for \emph{equality} constraints or when the target variables are potentially discrete.  For example, the Dirichlet distribution in Figure~\ref{fig:house-heating-code} introduces an equality constraint on \lsi{powers}, namely that its components must sum to $1$.
+Optimizing the acquisition function for BOPP presents the issue that the query contains implicit constraints that are unknown to the surrogate function.  The problem of unknown constraints has been previously covered in the literature \citep{gardner2014bayesian,gelbart2014bayesian,hernandez2015general} by assuming that constraints take the form of a black-box function which is modeled with a second surrogate function and must be evaluated in guess-and-check strategy to establish whether a point is valid. Along with the potentially significant expense such a method incurs, this approach is inappropriate for \emph{equality} constraints or when the target variables are potentially discrete.  For example, the Dirichlet distribution in Figure~\ref{fig:house-heating-code} introduces an equality constraint on \lsi{powers}, namely that its components must sum to $1$.
 
-We therefore take an alternative approach based on directly using the program to optimize the acquisition function.  To do so we consider a transformed program \lsi{q-acq} that is identical to \lsi{q-prior} (see Section \ref{sec:domain}), but adds an additional \observe statement that assigns a weight $\zeta(\theta)$ to the execution.  By setting $\zeta(\theta)$ to the acquisition function, the maximum likelihood corresponds to the optimum of the acquisition function subject to the implicit program constraints.  %Critically, this evaluation does not require inference and so can be evaluated cheaply.
-We obtain a maximum likelihood estimate for \lsi{q-acq} using a variant of the simulated annealing algorithm 
+We therefore take an alternative approach based on directly using the program to optimize the acquisition function.  To do so we consider a transformed program \lsi{q-acq} that is identical to \lsi{q-prior} (see Section \ref{sec:bopp:domain}), but adds an additional \observe statement that assigns a weight $\zeta(\theta)$ to the execution such that the unnormalized joint distribution is now 
+\begin{align}
+\label{eq:bopp:qacq}
+\gamma_{\text{acq}}(\theta,x_{1:n_{\theta}},\lambda) = \gamma_{\text{prior}}(\theta,x_{1:n_{\theta}},\lambda) \zeta(\theta)
+\end{align}
+By setting $\zeta(\theta)$ to the acquisition function, the maximum likelihood solution 
+of $\gamma_{\text{acq}}(\theta,x_{1:n_{\theta}},\lambda)$ corresponds to the optimum of the acquisition function 
+subject to the implicit program constraints.  More precisely, we maximize $\zeta(\theta)$ subject to
+the constraint that
+\[
+\theta \in \vartheta(\lambda) := \left\{\theta : \left\{\exists x_{1:n_{\theta}} :
+ \gamma_{\text{prior}}(\theta,x_{1:n_{\theta}},\lambda)>0\right\} \right\}.
+\]
+%Critically, this evaluation does not require inference and so can be evaluated cheaply.
+Such an estimate is achieved by running on \qacq a variant of the simulated annealing algorithm 
 discussed in Section~\ref{sec:bopp:related} in which RMH (see Section~\ref{sec:proginf:str:lmh}) is used for
 the transition kernel.  Using an RMH, rather than LMH, transition kernel here is important as it will often
 be the case that the optimum of the transition function is in a position of very low prior mass (see e.g. Figure~\ref{fig:domainAdpat}),

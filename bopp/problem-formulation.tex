@@ -88,24 +88,34 @@ We can now use~\eqref{eq:bopp:joint} to define the MMAP estimate targeted by a \
 \prod_{j=1}^{n_x} f_{a_j}(x_j | \eta_j) \prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k) dx_{1:n_x}
 \end{split}
 \end{align}
-where $\vartheta (\lambda) := \{\theta : \exists x_{1:n_x} : \gamma(\theta,x_{1:n_x},\lambda)>0\}$
-is the support of $\theta$ given $\lambda$.  
+where $\vartheta (\lambda) := \{\theta : \{\exists x_{1:n_x} : \gamma(\theta,x_{1:n_x},\lambda)>0\}\}$
+is the support of $\theta$ given $\lambda$.  For risk minimization, the only thing that
+needs to change in this definition is that the $\argmax$ is replaced with an $\argmin$.
+For MML estimation, the $\prod_{\ell=1}^{L} h_{\ell,c_{\ell}} (\phi_{\ell} | \xi_{\ell})$
+term is instead removed from the formulation.  Because the $y_k$ could still depend on $\theta$,
+this definition does not necessarily always correspond to the conventional notion of a MML solution.
+However, this is a necessary design decision and it does not place any restrictions on the 
+problems that can be encoded as one can always manually remove the relevant 
+\observe statements if desired.
+
 For simplicity and notational consistency with our original paper~\citep{rainforth2016nips}, 
-we will now drop the dependency on $\lambda$ in the rest of the paper and instead
-use the notation for MMAP estimation of a graphical model given in~\eqref{eq:opt:MMAP}
-(such that we express the MMAP problem as $\theta^* = \argmax_{\theta \in \vartheta}
-p(Y,\theta)$),
-where $Y$ represents data and $X$ are variables marginalized over, noting that this
+we will now drop the dependency on $\lambda$ and switch to
+the standard graphical model notation given in~\eqref{eq:opt:MMAP}
+with $Y$ representing data, $X$ are variables marginalized over, and $\theta$ the target variables
+(e.g. we express the MMAP problem as $\theta^* = \argmax_{\theta \in \vartheta}
+p(Y,\theta)$).
+We note though that
 is not always completely accurate as per Section~\ref{sec:probprog:models:general} and 
 \eqref{eq:bopp:mmap}.
 
 To carry out the interleaving of inference and optimization required in MMAP estimation, we
 introduce \doopt, which, analogous to \doquery, takes a compiled output from \defopt and
+an estimation type to carry out (i.e. MMAP, MML, or risk minimization), and
 returns a lazy sequence $\{\hat{\theta}^*_m,\hat{\Omega}^*_m,\hat{u}^*_m\}_{m=1,\dots}$
 where $\hat{\Omega}^*_m \subseteq X$ are the program outputs associated with
 $\theta=\hth^*_m$ and each $\hat{u}^*_m \in \real^+$ is an estimate of the corresponding
 log partition function $\log p(Y, \hth_m^*)$ (see Section \ref{sec:bopp-for-ml}).  The
 sequence is
 defined such that, at any time, $\hat{\theta}^*_m$ corresponds to the point expected to be
-most optimal of those evaluated so far and allows both inference and optimization to be
+most optimal of those evaluated so far (using the GP surrogate) and allows both inference and optimization to be
 carried out online.
