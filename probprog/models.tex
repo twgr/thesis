@@ -519,8 +519,8 @@ terms. We refer to this normalization constant the \emph{partition function}\foo
 	} and note that it is given by
 \begin{align}
 \label{eq:probprog:mod}
-Z(\lambda) &= \E \left[ \prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k) | \lambda \right] = \int \gamma(x_{1:n_x},\lambda) dx_{1:n_x}\nonumber\\
-&= \int_{x_{1:n_x} \in \{x_{1:n_x} : \mathcal{B}(x_{1:n_x},\lambda)=1\}} 
+Z(\lambda) &= \E \left[ \prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k) \middle| \lambda \right] = \int \gamma(x_{1:n_x},\lambda) dx_{1:n_x}\nonumber\\
+&= \int_{x_{1:n_x} \in \{X : \mathcal{B}(X,\lambda)=1\}} 
 \prod_{j=1}^{n_x} f_{a_j}(x_j | \eta_j) \prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k) dx_{1:n_x}
 \end{align}
 where the expectation is under running the query forwards (i.e. the distribution implied by simulating

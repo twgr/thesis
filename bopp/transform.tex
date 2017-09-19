@@ -1,9 +1,22 @@
-% !TEX root =  bopp.tex
+% !TEX root =  ../main.tex
 
-Consider the \defopt query \texttt{q} in Figure \ref{fig:bopp_overview}, the body of which defines the joint distribution $p\left(Y,a,\theta,b\right)$.   Calculating \eqref{eq:MMAP} (defining $X=\left\{a,b\right\}$) using a standard optimization scheme presents two issues: $\theta$ is a random variable within the program rather than something we control and its probability distribution is only defined conditioned on $a$.
+Consider the \defopt query \texttt{q} in Figure \ref{fig:bopp_overview}, the body of which defines the joint distribution $p\left(Y,a,\theta,b\right)$.   Calculating~\eqref{eq:opt:MMAP} (defining $X=\left\{a,b\right\}$) using a standard optimization scheme presents two issues: $\theta$ is a random variable within the program rather than something we control and its probability distribution is only defined conditioned on $a$.
 
-We deal with both these issues simultaneously using a program transformation similar to the disintegration transformation in Hakaru \citep{zinkov2016composing}. Our \emph{marginal} transformation returns a new \query object, \qmarg~ as shown in Figure~\ref{fig:bopp_overview}, that defines the same joint distribution on program variables and inputs, but now accepts the value for $\theta$ as an input.  This is done by replacing all \sample statements associated with $\theta$ with equivalent \observes statements, taking $\theta$ as the observed value, where \observes is identical to \observe except that it returns the observed value.  As both \sample and \observe operate on the same variable type - a distribution object - this transformation can always be made, while the identical returns of \sample and \observes trivially ensures validity of the transformed program.  
+We deal with both these issues simultaneously using a program transformation similar to the disintegration transformation in Hakaru \citep{zinkov2016composing}. Our \emph{marginal} transformation can be thought of generating a new query, \qmarg~ as shown in Figure~\ref{fig:bopp_overview}, that defines the same unnormalized joint distribution on program variables and inputs (i.e. $\gamma(\theta,x_{1:n_x},\lambda)$ is unchanged), but now accepts the value for $\theta$ as an input (i.e. the $\phi_{1:L}$ becomes terms in $\lambda$ rather than being random variables).  This is done by replacing all \sample statements associated with each $\phi_{\ell}$ with an equivalent \observes statement, taking $\phi_{\ell}$ as the observed value, where \observes is identical to \observe except that it returns the observed value instead of \clj{nil}.  As both \sample and \observe operate on the same variable type -- a distribution object -- this transformation can always be made, while the identical returns of \sample and \observes trivially ensures validity of the transformed program.  
 
+It truth, the transformations used by BOPP are not exactly as shown in~\ref{fig:bopp_overview}
+and as described above.  This is because, although for simple programs, such as the given
+example, these transformations can be easily expressed as static transformations, for more
+complicated programs it would be difficult to actually implement these as purely static
+generic transformations in a higher-order language.  Therefore, even though all the
+transformations dynamically execute as shown at runtime, in truth, the generated source 
+code for the prior and acquisition transformations varies from what is shown and has 
+been presented this way in the interest of exposition.  Our true transformations exploit
+the existing Anglican special forms \lsi{store} and \lsi{retrieve} and two new
+special forms we introduce called \lsi{catch} and \lsi{throw}, in order to generate programs
+that dynamically execute in the same way at run time as the static examples shown, but
+whose actual source code varies significantly.  Full details on the all the transformations
+as actually implemented can be found in~\cite{rainforth2017boppArxiv}.
 
 %We now build upon our optimization query to demonstrate how BOPP can optimize with respect to an arbitrary subset of variables sampled within a PP.  This is equivalent to optimizing with respect to an arbitrary subset of nodes in a graphical model, whilst marginalizing over the others, representing a new method beyond the scope of current BO algorithms.
 

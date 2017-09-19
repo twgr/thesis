@@ -9,9 +9,13 @@ Section~\ref{sec:opt:intro}.
 However, formalizing what we mean by ``some variables'' is less trivial than it would
 first appear and will require specialist syntax for specifying models.  To this end,
 we introduce a new query macro \defopt.  The syntax of \defopt is identical to \defquery except 
-that it has an additional input identifying the variables to be optimized. 
+that it has an additional input identifying the variables to be optimized.  As we will
+explain later, \defopt invokes a series of code transformations to produce a number
+of different Anglican queries used by BOPP.  Each of these are compiled using \query
+and returned as a hash map of CPS Clojure functions that can then
+be used by the BOPP back end.
 
-A possible na\"{i}ve strategy for identifying these target variables
+A possible na\"{i}ve strategy for identifying the target variables
 would be to simply predefine some subset of the \sample indices
 $c \subset \mathbb{N}^+$ and optimize for $\{x_j \}_{j\in c}$.  However, this is clearly not satisfactory
 because it is generally an awkward method of identifying the target variables and the variables we wish
@@ -22,7 +26,7 @@ which are deterministic functions of other variables, is not possible in general
 originating from changes of variables, namely that nonlinear deterministic mappings change the density
 function in ways that it might not be possible to track.  Instead, we will still specify our target variables
 $\theta = \phi_{1:L}$ by name (i.e. using the lexical name of the variable as bound by a \clj{let} block in
-the raw program code), but we will place some restrictions, enforced at run time (see Section~\ref{sec:bopp:trans:error}), 
+the raw program code), but we will place some restrictions, enforced at run time (see~\cite{rainforth2016nips}), 
 to ensure validity of the model.  First, each optimization variable $\phi_{\ell}$ must be bound to a value directly 
 by a \sample statement to avoid change of variable complications.
 %Specifically if $\psi = g(\theta)$ then $p(Y,\theta) = \text{\bf D}_g(\psi) p(Y,\psi)$ where $\text{\bf D}_g$ represents the Jacobian associated with $g$, giving different maxima for $\theta$ and $\psi$ \cite{murphy2012machine}.
@@ -50,17 +54,17 @@ $\xi_{\ell}$ is the provided distribution object (which can be a random variable
 must be deterministic).  We further denote $c_{\ell} \in \{1,\dots,m_{\ell}\}, \; 
 \forall \ell \in \{1,\dots,L\}$ as the (potentially random) variable used to index which lexical \sample statement
 $\phi_{\ell}$ is drawn from in a particular execution.  We now have that the conditional distribution on the trace $\mT$ implied
-by the query is $p(\mT = \{\phi_{1:L},x_{1:n_x}\} | \lambda) \propto \gamma(\phi_{1:L},x_{1:n_x}, \lambda)$
+by the query is $p(\mT = \{\phi_{1:L},x_{1:n_x}\} | \lambda) \propto \gamma(\theta,x_{1:n_x}, \lambda)$
 where
 \begin{align}
 \label{eq:bopp:joint}
-\gamma(\phi_{1:L},x_{1:n_x}, \lambda) = \begin{cases}
+\gamma(\theta,x_{1:n_x}, \lambda) = \begin{cases}
 \prod_{\ell=1}^{L}
 h_{\ell,c_{\ell}} (\phi_{\ell} | \xi_{\ell})
 \prod_{j=1}^{n_x} 
 f_{a_j}(x_j | \eta_j)
 \prod_{k=1}^{n_y}
-g_{b_k}(y_k | \psi_k) \; \text{if} \; \mathcal{B}(\phi_{1:L},x_{1:n_x},\lambda)=1 \\
+g_{b_k}(y_k | \psi_k) \;\;\; \text{if} \;\;\; \mathcal{B}(\theta,x_{1:n_x},\lambda)=1 \\
 0 \quad \text{otherwise}
 \end{cases}
 \end{align}
@@ -70,19 +74,38 @@ functions of $\{\phi_{1:L},x_{1:n_x}\}$.  Note that the relative ordering of the
 does not affect the validity of the trace or the probability, as the \sample statements associated with
 each are mutually exclusive.
 
-\todo[inline]{Write out MMAP MML and risk min targets}
+We can now use~\eqref{eq:bopp:joint} to define the MMAP estimate targeted by a \defopt query as
+\begin{align}
+\label{eq:bopp:mmap}
+\begin{split}
+\theta^*& (\lambda) = \argmax_{\theta \in \vartheta (\lambda)} 
+\E \left[p(\mT = \{\phi_{1:L},x_{1:n_x}\} | \lambda) \middle| \theta \right]
+= \argmax_{\theta \in \vartheta (\lambda)} 
+\E \left[\gamma(\theta,x_{1:n_x}, \lambda) \middle| \theta \right] \\
+& = \argmax_{\theta \in \vartheta (\lambda)} 
+\int_{x_{1:n_x} \in \{X : \mathcal{B}(\theta,X,\lambda)=1\}} 
+\prod_{\ell=1}^{L} h_{\ell,c_{\ell}} (\phi_{\ell} | \xi_{\ell})
+\prod_{j=1}^{n_x} f_{a_j}(x_j | \eta_j) \prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k) dx_{1:n_x}
+\end{split}
+\end{align}
+where $\vartheta (\lambda) := \{\theta : \exists x_{1:n_x} : \gamma(\theta,x_{1:n_x},\lambda)>0\}$
+is the support of $\theta$ given $\lambda$.  
+For simplicity and notational consistency with our original paper~\citep{rainforth2016nips}, 
+we will now drop the dependency on $\lambda$ in the rest of the paper and instead
+use the notation for MMAP estimation of a graphical model given in~\eqref{eq:opt:MMAP}
+(such that we express the MMAP problem as $\theta^* = \argmax_{\theta \in \vartheta}
+p(Y,\theta)$),
+where $Y$ represents data and $X$ are variables marginalized over, noting that this
+is not always completely accurate as per Section~\ref{sec:probprog:models:general} and 
+\eqref{eq:bopp:mmap}.
 
-For notational consistency with our original paper~\citep{rainforth2016nips}, 
-
-Given a program defining the joint density $p(Y, X, \theta)$ with fixed $Y$, our aim is to optimize with respect to a subset of the variables $\theta$ whilst marginalizing out latent variables $X$
-\begin{equation}
-\label{eq:MMAP}
-\theta^* = \argmax_{\theta \in \vartheta} \; p(\theta | Y) = \argmax_{\theta \in \vartheta} \; p(Y, \theta) = \argmax_{\theta \in \vartheta} \: \int \: p(Y, X, \theta) dX.
-\end{equation}
-%which in the interest of clarity will our focus.  Other variations of COI, such as risk minimization and type-$\RN{2}$ maximum likelihood can be achieved by for switching between minimization and maximization, and, using Bayes' rule, removing the prior component on $\theta$.  These cases are also covered by BOPP and are discussed in the SM.
-%To carry out global optimization, it is necessary for the target to diminish away from a region of interest.  This is implicitly satisfied by \eqref{eq:MMAP} as $p(Y, \theta)$ is a probability distribution.  
-%We note that as finite bounds are equivalent to placing a uniform prior over the space of permissible solutions, this permits parameter optimization and standard BO (where $X=\emptyset$) as special cases\footnote{In some cases this may also require a mapping of the target to unnormalized probability distribution.  For example by noting that $\argmax_{\theta \in \mathcal{S} \subset \vartheta} f\left(\theta\right) = \argmax_{\theta \in \vartheta} \mathrm{Uniform}\left(\theta \in \mathcal{S}\right) \exp(f\left(\theta\right))$.}.
-%Although $X$ may be dynamically typed, we assume that $\theta$ is statically determinable.  This is because optimization, unlike inference, is not in general well defined on a variable defined relative to a mixed measure as some values may be infinity more probable than others.  We emphasise though that different $\phi$ may be of different type (i.e. some continuous and some discrete) and the type need not need be known prior to execution - the distribution from which $\phi$ is sampled may itself be dynamic provided the density is defined with respect to the same measure for all possible program traces.  We also apply the restriction that each target variable $\phi \in \theta$ is the direct output of a \sample statement.  As all variables in an Anglican query are either the result of a sample statement or deterministically calculable from previously invoked sample statements, this concession does not restrict the space of models in practise.  Further discussion on the rational behind these restrictions is provided in the supplementary material.
-
-To allow for the interleaving of inference and optimization required in MMAP estimation, we introduce \doopt, which, analogous to \doquery, returns a lazy sequence $\{\hat{\theta}^*_m,\hat{\Omega}^*_m,\hat{u}^*_m\}_{m=1,\dots}$ where $\hat{\Omega}^*_m \subseteq X$ are the program outputs associated with $\theta=\hth^*_m$ and each $\hat{u}^*_m \in \real^+$ is an estimate of the corresponding log marginal $\log p(Y, \hth_m^*)$ (see Section \ref{sec:bopp-for-ml}).  The sequence is defined such that, at any time, $\hat{\theta}^*_m$ corresponds to the point expected to be most optimal of those evaluated so far and allows both inference and optimization to be carried out online.
-%We refer to the algorithm to do this as Bayesian optimization for probabilistic programs (BOPP) which we now outline.
+To carry out the interleaving of inference and optimization required in MMAP estimation, we
+introduce \doopt, which, analogous to \doquery, takes a compiled output from \defopt and
+returns a lazy sequence $\{\hat{\theta}^*_m,\hat{\Omega}^*_m,\hat{u}^*_m\}_{m=1,\dots}$
+where $\hat{\Omega}^*_m \subseteq X$ are the program outputs associated with
+$\theta=\hth^*_m$ and each $\hat{u}^*_m \in \real^+$ is an estimate of the corresponding
+log partition function $\log p(Y, \hth_m^*)$ (see Section \ref{sec:bopp-for-ml}).  The
+sequence is
+defined such that, at any time, $\hat{\theta}^*_m$ corresponds to the point expected to be
+most optimal of those evaluated so far and allows both inference and optimization to be
+carried out online.

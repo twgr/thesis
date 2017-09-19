@@ -102,7 +102,7 @@ MMAP estimation varies from MML in the same manner as MAP from ML: the inclusion
 of a prior on the target parameters.  Specifically it aims to optimize
 \begin{align}
 \label{eq:opt:MMAP}
-\theta^* &= \argmax_{\theta \in \vartheta} p(Y,\theta) 
+\theta^* &= \argmax_{\theta \in \vartheta} p(\theta | Y)  = \argmax_{\theta \in \vartheta} p(Y,\theta) 
 = \argmax_{\theta \in \vartheta} \E \left[p(Y,X|\theta) p(\theta) | Y, \theta\right].
 \end{align}
 As with MAP estimation compared with ML estimation, 

@@ -79,31 +79,31 @@ from their limited importance sampling setting, to a more powerful SMC framework
 \label{sec:bopp}
 
 \input{bopp/optimization}
-
-\subsection{Problem Independent Gaussian Process Hyperprior}
-\label{sec:app:hyperprior}
-
-\input{bopp/gp.tex}
+%
+%\subsection{Problem Independent Gaussian Process Hyperprior}
+%\label{sec:app:hyperprior}
+%
+%\input{bopp/gp.tex}
 
 \section{Experiments}
 \label{sec:bopp:exp}
 
 \input{bopp/experiments.tex}
 
-
-\subsection{Full Details for House Heating Experiment}
-\label{sec:app:heating}
-
-\input{bopp/house-heating.tex}
+%
+%\subsection{Full Details for House Heating Experiment}
+%\label{sec:app:heating}
+%
+%\input{bopp/house-heating.tex}
 
 \section{Discussion and Future Work}
 \label{sec:disc}
 
 \input{bopp/discussion}
 
-\section{Program Transformations in Detail}
-\label{sec:program-transformations}
-\input{bopp/program-transformations}
+%\section{Program Transformations in Detail}
+%\label{sec:program-transformations}
+%\input{bopp/program-transformations}
 
 \todo[inline]{Complications of MAP
 	
@@ -112,3 +112,8 @@ from their limited importance sampling setting, to a more powerful SMC framework
 	Why no need to include the inputs
 	
 	Lose transforms?}
+
+%which in the interest of clarity will our focus.  Other variations of COI, such as risk minimization and type-$\RN{2}$ maximum likelihood can be achieved by for switching between minimization and maximization, and, using Bayes' rule, removing the prior component on $\theta$.  These cases are also covered by BOPP and are discussed in the SM.
+%To carry out global optimization, it is necessary for the target to diminish away from a region of interest.  This is implicitly satisfied by \eqref{eq:MMAP} as $p(Y, \theta)$ is a probability distribution.  
+%We note that as finite bounds are equivalent to placing a uniform prior over the space of permissible solutions, this permits parameter optimization and standard BO (where $X=\emptyset$) as special cases\footnote{In some cases this may also require a mapping of the target to unnormalized probability distribution.  For example by noting that $\argmax_{\theta \in \mathcal{S} \subset \vartheta} f\left(\theta\right) = \argmax_{\theta \in \vartheta} \mathrm{Uniform}\left(\theta \in \mathcal{S}\right) \exp(f\left(\theta\right))$.}.
+%Although $X$ may be dynamically typed, we assume that $\theta$ is statically determinable.  This is because optimization, unlike inference, is not in general well defined on a variable defined relative to a mixed measure as some values may be infinity more probable than others.  We emphasise though that different $\phi$ may be of different type (i.e. some continuous and some discrete) and the type need not need be known prior to execution - the distribution from which $\phi$ is sampled may itself be dynamic provided the density is defined with respect to the same measure for all possible program traces.  We also apply the restriction that each target variable $\phi \in \theta$ is the direct output of a \sample statement.  As all variables in an Anglican query are either the result of a sample statement or deterministically calculable from previously invoked sample statements, this concession does not restrict the space of models in practise.  Further discussion on the rational behind these restrictions is provided in the supplementary material.
