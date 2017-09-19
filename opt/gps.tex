@@ -227,7 +227,7 @@ noisy evaluations.
 As the hyperparameters are rarely known upfront, one must typically either optimize
 them, or perform inference over them to produce a mixture of GPs output.
 
-\subsection{Weight-Space View, Reproducing Kernel Hilbert Space, and Derivation of a Gaussian Process}
+\subsection{Weight-Space View and Reproducing Kernel Hilbert Space}
 \label{sec:opt:gps:weight}
 
 One of the key advantages of GPs is that they can be used effectively without needing
@@ -333,12 +333,14 @@ More generally, the Moore-Aronszajin theorem \cite{aronszajn1950theory} states t
 	\label{the:opt:Moore-Aronszajin}
 	Any symmetric, positive definite kernel $k \colon \vartheta \times \vartheta \rightarrow \real$ has a unique RKHS for which $k$ is a reproducing kernel.
 \end{theorem}
-In other words, if we define a kernel function that is symmetric $k\left(\theta,\theta'\right) = k\left(\theta',\theta\right)$ and positive definite as per \eqref{eq:opt:posDef}, then at least one corresponding feature map $\Psi \colon \vartheta \rightarrow \mathcal{H}$ must exist.  Therefore a corresponding $Z \colon \vartheta \rightarrow \mathcal{H}$ and $C$ must also exist (for example we can trivially take $C$ as the identity matrix and $Z = \Psi$), and if we further ensure that $k$ is bounded $k\left(\theta,\theta'\right) < \infty, \; \forall \theta, \theta' \in \vartheta$, then finite realisations  $\left[f\left(\theta_1\right),\dots,f\left(\theta_t\right)\right]^T$ of equation \eqref{eq:opt:linModel} must be distributed to a finite multivariate Gaussian distribution with mean  $\left[\mu\left(\theta_1\right),\dots,\mu\left(\theta_t\right)\right]^T$ and covariance $k\left(\theta_i,\theta_j\right) \; \forall i,j \in {1,\dots,t}$.  We have therefore arrived at the following formal definition of a GP.
-
-\begin{definition}{}
-	\label{def:opt:GP}
-	A Gaussian process describes the probability distribution for the functional realisations $f \colon \vartheta \rightarrow \real$ of \eqref{eq:opt:linModel} in the limit of uncountably many basis functions, noting that this distribution is fully defined by a mean function $\mu \colon \vartheta \rightarrow \real$ and a covariance function $k\colon \vartheta \times \vartheta \rightarrow \real$, the latter of which must be a positive definite (or equivalently reproducing), bounded kernel.  
-\end{definition}{}
+In other words, if we define a kernel function that is symmetric $k\left(\theta,\theta'\right) = k\left(\theta',\theta\right)$ and positive definite as per \eqref{eq:opt:posDef}, then at least one corresponding feature map $\Psi \colon \vartheta \rightarrow \mathcal{H}$ must exist.  Therefore a corresponding $Z \colon \vartheta \rightarrow \mathcal{H}$ and $C$ must also exist (for example we can trivially take $C$ as the identity matrix and $Z = \Psi$), and if we further ensure that $k$ is bounded $k\left(\theta,\theta'\right) < \infty, \; \forall \theta, \theta' \in \vartheta$, then finite realisations  $\left[f\left(\theta_1\right),\dots,f\left(\theta_t\right)\right]^T$ of equation \eqref{eq:opt:linModel} must be distributed to a finite multivariate Gaussian distribution with mean  $\left[\mu\left(\theta_1\right),\dots,\mu\left(\theta_t\right)\right]^T$ and covariance $k\left(\theta_i,\theta_j\right) \; \forall i,j \in {1,\dots,t}$.  
+%
+%We have therefore arrived at the following formal definition of a GP.
+%
+%\begin{definition}{}
+%	\label{def:opt:GP}
+%	A Gaussian process describes the probability distribution for the functional realisations $f \colon \vartheta \rightarrow \real$ of \eqref{eq:opt:linModel} in the limit of uncountably many basis functions, noting that this distribution is fully defined by a mean function $\mu \colon \vartheta \rightarrow \real$ and a covariance function $k\colon \vartheta \times \vartheta \rightarrow \real$, the latter of which must be a positive definite (or equivalently reproducing), bounded kernel.  
+%\end{definition}{}
 
 We can therefore think of GP regression as Bayesian linear regression using
 a feature mapping to a RKHS.  This shows the power of a GP - for appropriate
