@@ -23,35 +23,34 @@
 Reasonable consideration has been given before to solving maximum likelihood and marginal 
 a posteriori (MAP) problems with PPSs and many systems provide some form of appropriate
 estimation scheme (see e.g.~\citep{carpenter2015stan,salvatier2016probabilistic}).  One simple
-approach is to apply an annealing to the \observe probabilities (for maximum likelihood estimation)
-or both the \sample and \observe probabilities (for MAP estimation) in
+approach is to apply an annealing to the \observe densities (for maximum likelihood estimation)
+or both the \sample and \observe densities (for MAP estimation) in
 a conventional MCMC sampler such as LMH (see Section~\ref{sec:proginf:str:lmh}).
 This results in a simulated annealing~\citep{aarts1988simulated} algorithm for general purpose programs.
-An alternative approach, introduced by~\cite{tolpin-socs-2015}, called Bayesian Monte Carlo ascent,
+An alternative approach, introduced by~\cite{tolpin-socs-2015}
 instead uses ideas from Monte Carlo tree search to construct a general purpose MAP estimator.
 However, all of these approaches to not permit the more challenging scenario
 where the target is to optimize a marginal distribution.  They are, therefore, not suitable for combined
 inference and optimization problems.
 
 One approach that does consider optimization of marginal probabilities of probabilistic
-programs is given by~\cite{vandemeent2016black} and thus perhaps presents the closest
-approach to our work.  The aim of~\cite{vandemeent2016black} is, on the surface, somewhat
+programs is given by~\cite{vandemeent2016black}, which thus perhaps presents the closest
+approach to our own work.  The aim of~\cite{vandemeent2016black} is, on the surface, somewhat
 different to our own as they look to automate policy search problems~\citep{deisenroth2013survey}
 using probabilistic programs.  However, policy search is a particular instance of MML estimation
 and so falls within our general problem class.  Moreover, their approach of maximizing an ELBO~\citep{blei2016variational}
 using stochastic gradient ascent~\citep{robbins1951stochastic} is, in principle, substantially
-more general than policy search problems and constitutes a MML estimation scheme in its own right.
+more general than policy search problems and constitutes a general MML estimation scheme in its own right.
 However, the approach has a number of restrictions and assumptions stemming from its variational 
-inference roots.  Perhaps most critically for our purposes, gradient estimates are based on importance
-sampling estimates that will generally become increasingly noisy as the dimensionality of the nuisance
-variables (i.e. those we wish to marginalize over) increases, such that the approach is not feasible
-when we wish to marginalize over many variables.  The approach also requires various mean field approximations
+inference roots.  Perhaps the most critical for our purposes is that gradients are estimated using
+importance sampling and thus will generally become increasingly noisy as the dimensionality of the nuisance variables (i.e. those we wish to marginalize over) increases.
+The approach also requires mean field approximations
 to be made, the appropriateness of which will vary from problem to problem, while, as with other
 stochastic gradient ascent approaches, a large number of optimization iterations is typically required
 to reach convergence, which can be prohibitive for some problems.  BOPP, on the other hand, requires
 very few assumptions to be made and is free to use more advanced inference approaches, for example
-SMC, for estimating the marginal likelihood.  One consequence of this is that is can scale to much
-high dimensions in the nuisance variables.  For example, our chaos example in Section~\ref{sec:bopp:exp}
+SMC, for estimating the marginal likelihood.  One consequence of this is that it can scale to far
+higher dimensions in the nuisance variables.  For example, our chaos model in Section~\ref{sec:bopp:exp}
 marginalizes over a 1500 dimensional space.
 
 Another interesting alternative approach,
@@ -63,10 +62,10 @@ on the calculation of the original estimate~\citep{le2017auto}.  This can be use
 of global parameters by using these gradients as input to a stochastic gradient ascent scheme.
 A key difference of this approach, to say~\cite{vandemeent2016black}, is that using SMC instead of importance
 sampling means that substantially lower variance gradient estimates can be achieved.
-Though, to the best of our knowledge, no such approach is currently implemented in a PPS, but doing so is 
+Though, to the best of our knowledge, no such approach is currently implemented in a PPS, doing so is 
 in theory perfectly possible given a system supporting automatic differentiation.  
 In~\cite{le2017auto}, we also show how this approach can be extended to perform simultaneous model
-and proposal adaptation and further to an amortized inference setting whereby we learn an inference
+and proposal adaptation and further to an amortized inference setting, whereby we learn an inference
 artifact that returns a proposal at run time.  This means that, when the model of interest comprises of
 a deep neural network, then the method can be viewed as extending so-called auto-encoding methods~\citep{kingma2014auto,burda2015importance}
 from their limited importance sampling setting, to a more powerful SMC framework.

@@ -1,11 +1,11 @@
 % !TEX root =  ../main.tex
 
-So far in this thesis, and in the literature more generally, probabilistic programming has focused
-on the problem of automating inference.  However, as we explained in Section~\ref{sec:opt:intro},
+So far in this thesis, and in the literature more generally, the focus has been on automating
+inference for probabilistic programs.  However, as we explained in Section~\ref{sec:opt:intro},
 optimization is also a very important tool in the machine learning toolbox.  Further, many problems
 require concurrent inference and optimization in the form of marginal maximum a posteriori (MMAP) estimation,
-maximum marginal likelihood (MML) estimation, or risk minimization.  In this chapter, we develop a framework
-for automating the solution of these mixed inference-optimization problems using probabilistic programming.
+maximum marginal likelihood (MML) estimation, or risk minimization.  In this chapter, we develop a probabilistic programming framework
+for automating the solution of these mixed inference-optimization problems.
 We will focus for the most part on
 MMAP estimation, returning to discuss MML estimation and risk minimization at the end of the chapter.
 
@@ -25,7 +25,7 @@ programming and Bayesian optimization literatures.  From a probabilistic program
 view BOPP as extending PPSs beyond their typical inference setting to a more
 general mixed inference-optimization framework.  It allows users to specify a model in the same manner 
 as existing systems, but then select some subset of the sampled variables in the query to be optimized, 
-with the rest marginalized out using existing inference algorithms.  Though the exact transformations we
+with the rest marginalized out using existing inference algorithms.  Though the exact code transformations we
 introduce are inevitably language specific and have been implemented for Anglican, the concepts we
 introduce apply more widely and the BO package itself, Deodorant, is not PPL specific and is provided
 as a stand-alone package.  More generally, the \textit{optimization query} we 
@@ -37,9 +37,9 @@ From a BO perspective, we can view BOPP as the first package to directly exploit
 This leads to a number of novel contributions to the BO literature, such as innovations in 
 problem-independent hyperpriors, unbounded optimization, and implicit constraint satisfaction.  
 The ability to do these is rooted
-in the ability provided by PPLs to manipulate the target source code to return artifacts suitable for carrying
+in the ability provided by PPLs to manipulate the target source code and return artifacts suitable for carrying
 out certain tasks on a model.  For example, we use a code transformation to produce a problem-specific
 optimizer for the acquisition function that ensures the implicit constraints specified by the query,
-including equality constraints no before considered by the BO literature, are automatically and exactly
-satisfied.  As a consequence, BOPP provides a substantial number of novel features and performance
+including equality constraints not before considered by the BO literature, are automatically and exactly
+satisfied.  As a consequence, BOPP provides a significant novel features and performance
 improvements even when used simply as a conventional BO package.

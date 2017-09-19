@@ -4,10 +4,13 @@ As we explained in Section~\ref{sec:probprog:models:general}, probabilistic prog
 define unnormalized distributions $\gamma(x_{1:n_x},\lambda)$ on program traces
  as defined in~\eqref{eq:probprog:universal-cond}.
 At a high level, our aim is to optimize with respect to some of the $x_{1:n_x}$ variables while marginalizing out
-the rest.  However, formalizing what we mean by ``some variables'' is less trivial than it would
+the rest, as per MMAP estimation, MML estimation, and risk minimization introduced in
+Section~\ref{sec:opt:intro}.
+However, formalizing what we mean by ``some variables'' is less trivial than it would
 first appear and will require specialist syntax for specifying models.  To this end,
 we introduce a new query macro \defopt.  The syntax of \defopt is identical to \defquery except 
 that it has an additional input identifying the variables to be optimized. 
+
 A possible na\"{i}ve strategy for identifying these target variables
 would be to simply predefine some subset of the \sample indices
 $c \subset \mathbb{N}^+$ and optimize for $\{x_j \}_{j\in c}$.  However, this is clearly not satisfactory
@@ -16,7 +19,7 @@ to optimize may not always be sampled at the same position in our trace (i.e. we
 \sample statements to effect which variables constitute our target variables).
 Unfortunately though, the more natural choice of specifying any variable in the program, including those
 which are deterministic functions of other variables, is not possible in general, because of complications
-originating from changes of variables, namely nonlinear deterministic mappings change the density
+originating from changes of variables, namely that nonlinear deterministic mappings change the density
 function in ways that it might not be possible to track.  Instead, we will still specify our target variables
 $\theta = \phi_{1:L}$ by name (i.e. using the lexical name of the variable as bound by a \clj{let} block in
 the raw program code), but we will place some restrictions, enforced at run time (see Section~\ref{sec:bopp:trans:error}), 
@@ -34,18 +37,19 @@ no longer admit a conventional interpretation.  Note that we impose no restricti
 variables which will be marginalized over.
 
 From a developer's perspective, these minor restrictions mean that all \sample statements are
-either not associated with any target variable or associated with a particular target variable $\phi_{\ell}$, that \sample
+either associated with a particular target variable $\phi_{\ell}$ or never associated with any target 
+variable. Further, \sample
 statements associated with the target variables will never be evaluated more than once (but might never
-be evaluated if there are multiple possible \sample statements associated with a particular $\phi_{\ell}$), and
-that the total number of \sample statements associated with the target variables is always $L$.
+be evaluated if there are multiple possible \sample statements associated with a particular $\phi_{\ell}$) and
+the total number of \sample statements associated with the target variables is always $L$.
 Therefore building on the notation from Section~\ref{sec:probprog:models:general}, we will redefine $x_{1:n_x}$
 as the variables that are to be marginalized over, with all associated terms similarly redefined (except $\gamma$).
 We next denote the $m_{\ell}$ lexical \sample statements associated with $\phi_{\ell}$ as 
-$h_{\ell,1},\dots,h_{\ell,m_{\ell}}$ with associated density function $h_{\ell,i}(\phi_{\ell} | \xi_{\ell})$ where
+$h_{\ell,1},\dots,h_{\ell,m_{\ell}}$ with associated density functions $h_{\ell,i}(\phi_{\ell} | \xi_{\ell})$ where
 $\xi_{\ell}$ is the provided distribution object (which can be a random variable but its reference measure
 must be deterministic).  We further denote $c_{\ell} \in \{1,\dots,m_{\ell}\}, \; 
 \forall \ell \in \{1,\dots,L\}$ as the (potentially random) variable used to index which lexical \sample statement
-the $\phi_{\ell}$ is drawn from.  We now have that the conditional distribution on the trace $\mT$ implied
+$\phi_{\ell}$ is drawn from in a particular execution.  We now have that the conditional distribution on the trace $\mT$ implied
 by the query is $p(\mT = \{\phi_{1:L},x_{1:n_x}\} | \lambda) \propto \gamma(\phi_{1:L},x_{1:n_x}, \lambda)$
 where
 \begin{align}
@@ -63,7 +67,7 @@ g_{b_k}(y_k | \psi_k) \; \text{if} \; \mathcal{B}(\phi_{1:L},x_{1:n_x},\lambda)=
 and we have redefined the trace validity function $\mathcal{B}(\phi_{1:L},x_{1:n_x},\lambda)$ appropriately.
 As before, although many of the terms in our trace probability are random variables, all are deterministic
 functions of $\{\phi_{1:L},x_{1:n_x}\}$.  Note that the relative ordering of the $\phi_{1:L}$ to the $x_{1:n_x}$
-does not actually effect the validity of the trace or the probability, as the \sample statements associated with
+does not affect the validity of the trace or the probability, as the \sample statements associated with
 each are mutually exclusive.
 
 \todo[inline]{Write out MMAP MML and risk min targets}
