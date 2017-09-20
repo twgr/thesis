@@ -4,7 +4,7 @@
 \label{sec:bayes:paradigm}
 
 At its core, the Bayesian paradigm is simple, intuitive, and compelling: for any task involving
-learning from data we start with some prior knowledge and then update that knowledge to
+learning from data, we start with some prior knowledge and then update that knowledge to
 incorporate information from the data.  This process is known as \emph{Bayesian inference}.
 
 Imagine we are trying to reason about some variables
@@ -22,7 +22,7 @@ incorporated
 \end{align}
 Here the denominator, $p(\mathcal{D})$, is a normalization constant know as the \emph{marginal
 	likelihood} and is necessary to ensure $p(\theta | \mathcal{D})$ is a valid probability distribution
-(or probability density for continuous problems).  One can therefore think of Bayes' rule in the even
+(or probability density for continuous problems).  One can, therefore, think of Bayes' rule in the even
 simpler form of the posterior being proportional to the prior times the likelihood.
 For such a fundamental theorem, Bayes' rule has a remarkably simple derivation, following directly
 from the product rule of probability as shown in Chapter~\ref{chp:prob}.
@@ -45,11 +45,11 @@ view will change.
 Furthermore, once we have developed
 a strong prior belief about something, we can take substantial convincing to change our mind, even
 if that prior belief is high illogical.  Perhaps this why humans seem to have a tendency to develop
-deep rooted prejudices.
+deep-rooted prejudices.
 
-There is similarly something distinctively Bayesian to the scientific process itself.  In science we construct models
+There is similarly something distinctively Bayesian to the scientific process itself.  In science, we construct models
 to explain observed phenomena and then run experiments to validate how well our model matches
-real observations.  We then update and improve our model accordingly in a never ending process of
+real observations.  We then update and improve our model accordingly in a never-ending process of
 increasing understanding for the world around us.  We can never hope to truly understand the workings
 of the universe  -- after all, it is, at least for practical purposes, fundamentally random~\citep{rainforth2013random} 
 -- and so we can hope only to construct increasingly accurate and pertinent models.
@@ -57,13 +57,13 @@ This sequential updating, at the very least, shares parallels with the process o
 and could be argued to be a fundamentally Bayesian process in its own right.
 
 To give a more concrete example of Bayesian modeling consider estimating
-the probability of getting a heads from a weighted coin.  Lets call this weighting $\theta \in [0,1]$ such
+the probability of getting a heads from a weighted coin.  Let's call this weighting $\theta \in [0,1]$ such
 that the probability of getting a heads  ($H$)  when flipping the coin is $p(Y=H | \theta)=\theta$
 where $Y$ is the outcome of the flip.  This will be our likelihood function, corresponding to a
 \emph{Bernoulli} distribution, noting that the probability
 of getting a tails ($T$) is $p(Y = T | \theta) = 1-\theta$.
 Before seeing the coin being flipped we have some prior belief about its weighting.  We
-can therefore define a prior $p(\theta)$, for which we take the beta distribution
+can, therefore, define a prior $p(\theta)$, for which we take the beta distribution
 \begin{align}
 \label{eq:bayes:beta}
 p(\theta) = \textsc{Beta}\left(\theta ; \alpha,\beta\right) = \frac{\Gamma(\alpha+\beta)}{\Gamma (\alpha) \Gamma(\beta)}
@@ -88,7 +88,7 @@ $\textsc{Beta}(\theta ; \alpha, \beta)$ then the posterior will be $\textsc{Beta
 if we observe a heads and $\textsc{Beta}(\theta ; \alpha, \beta+1)$ if we observe a tails.
 Figure~\ref{fig:inf:coin_flip:1} shows that our
 posterior incorporates the information from the prior and the observed data.  Namely, our observations 
-means the distribution
+mean the distribution
 has drifted towards it being more probable that $\theta<0.5$.  The posterior
 also reflects the fact that we are still uncertain about the value of $\theta$, it is not simply the
 empirical average of our observations which would give $\theta=0$.
@@ -128,14 +128,14 @@ p(\theta | Y_1,\dots,Y_6) = \frac{p(Y_2,\dots,Y_6 | \theta)p(\theta | Y_1)}
 {\int p(Y_2,\dots,Y_6 | \theta)p(\theta | Y_1) d\theta} = \textsc{Beta}\left(\theta ; 6,4\right),
 \end{align}
 which is shown in Figure~\ref{fig:inf:coin_flip:6}.  We see now that our belief for the probability of heads
-has shifted higher and that the the uncertain has reduced because of the increased number
+has shifted higher and that the uncertain has reduced because of the increased number
 of observations.
 After seeing a total of $1000$ observations as shown in Figure~\ref{fig:inf:coin_flip:1000}, we
 see that the posterior has predominantly collapsed down to a small range of $\theta$,
 close to the true value of $\theta$ which happens to be $0.7$.
 
 Now we have combined  our prior information with the information from data, a natural
-next question is how can we use this to make predictions.  In the Bayesian setting
+next question is how can we use this to make predictions.  In the Bayesian setting,
 this is done with the posterior predictive distribution which marginalizes out over
 the parameters.  For the coin flip case we have
 \begin{align}
@@ -151,7 +151,7 @@ p( Y_{N+1}=H | Y_{1:N}) &= \int p(Y_{N+1}=H, \theta | Y_{1:N}) d\theta
 \end{align}
 where we have used the known result for the mean of the Beta distribution.
 The role of the parameters $\alpha$ and $\beta$ in our prior now become apparent
--- they take on the role of pseudo observations.  Our prediction is in line with the
+-- they take on the role of pseudo-observations.  Our prediction is in line with the
 empirical average from seeing $\alpha+n_H$ heads and $\beta+n_T$ tails.  The larger
 $\alpha+\beta$ is then the strong our prior compared to the observations, while we
 can skew towards heads or tails being more likely by changing the relative values of $\alpha$
