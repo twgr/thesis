@@ -1,0 +1,102 @@
+\documentclass[a4paper,twoside,12pt]{article}
+
+\include{preamble}
+\usepackage{etoolbox}
+\usepackage{hyperref}
+% \patchcmd{<cmd>}{<search>}{<replace>}{<success>}{<failure>}
+\patchcmd{\abstract}{Abstract}{Overview}{}{}
+
+\thispagestyle{plain}
+
+\ShortHeadings{Declaration of Contribution}{Tom Rainforth}
+\firstpageno{1}
+
+\setlength{\parindent}{0em}
+\setlength{\parskip}{5pt}
+
+\begin{document} 
+
+\title{\vspace{-40pt} Declaration of Contribution for D.Phil Thesis}
+
+\author{\name Tom Rainforth \email twgr@robots.ox.ac.uk\\
+	        \addr 
+	        Department of Engineering Science \\
+	         University of Oxford}
+
+%\editor{}
+\maketitle
+
+
+\vspace{-30pt}
+
+Much of the work presented in this thesis originates from joint authored publications.  The declaration
+outlines my contributions to those papers, with all deviations in the thesis from the published work being my own.
+
+ 
+\section{Interacting Particle Markov Chain Monte Carlo}
+
+\textit{\bibentry{rainforth2016interacting}}
+
+I was co-lead author along with Christian.  The initial idea was developed concurrently by a number of the
+coauthors but not including myself.  Development of the idea into the final algorithm was spearheaded by
+myself, Christian, and Fredrik.  I carried out all of the code implementation and experiments.  Writing was carried
+out roughly evenly between myself and Christian will help from the other authors.  The main proof was done by
+Christian with help from Fredrik, Arnaud, and Brooks.
+
+\section{Bayesian Optimization for Probabilistic Programs}
+
+\textit{\bibentry{rainforth2015workshopbopp}}
+
+\textit{\bibentry{rainforth2016nips}}
+
+I was the lead author and carried developed the vast majority of the technical innovations myself, though Jan-Willem, Frank,
+and Mike all also had input in the original idea, while Jan-Willem and Frank assisted in the
+development the key marginal transformation.  The code implementation was lead by myself with assistance from
+Jan-Willem and Tuan Anh, the latter of which did the low level implementations of the code transformations based on my
+designs.  Experiments were a joint effort between myself, Jan-Willem, and Tuan Anh.  I did the majority of the writing,
+but had assistance from Jan-Willem, Tuan Anh, and Frank.  
+
+\section{Nested Monte Carlo}
+
+\textit{\bibentry{rainforth2016pitfalls}}
+
+\textit{\bibentry{rainforth2017pitfalls}}
+
+I was the lead author and developed the initial idea.  I provided the high level ideas for all of the theorems along with
+informal proofs, with were then developed into more formal proofs by myself, Rob, and Hongseok.  I took the
+lead on formalizing (using the numbering of~\cite{rainforth2017pitfalls}) Theorems 2, 5, and 7 myself, Rob took the lead on Theorems 1, 3 and 4, and
+Hongseok took the lead on Theorem 6.  Experiments were carried out myself, except for the cancer simulations which were assisted by Andrew.
+The derivation of the Bayesian experimental design was done by myself.  Writing was lead by myself with assistance from
+the other authors, in particular Rob.
+
+\section{Bayesian Experimental Design}
+
+\textit{\bibentry{vincent2017darc}}
+
+All machine learning and statistical contributions (derivation of estimator, design of inference scheme, development of
+optimizer etc) were done by myself, with Ben developing the model and applications specifics.  The code implementation
+was a joint venture, with myself carrying out the technical components of the code and providing the core code structure,
+but with Ben doing the experiments and adapting the code base further.
+
+\section{Anglican Probabilistic Programming System}
+
+My contribution to the Anglican PPS itself (other that with BOPP) is relatively limited.  Credit for Anglican goes primarily
+to David Tolpin, Jan-Willem van de Meent, and Frank Wood.
+
+\section{Other Papers}
+
+The thesis cites other papers for which I am coauthor, but does not include any substantial material from
+the original papers (some sentences have been duplicated, but only those which were written by myself in the original work).
+%
+%\textit{\bibentry{rainforth2015canonical}}
+%
+%\textit{\bibentry{janz2016probstruct}}
+%
+%\textit{\bibentry{le2017auto}}
+%
+%\textit{\bibentry{warrington2017Opt}}
+
+\nobibliography{refs} 
+
+\end{document} 
+
