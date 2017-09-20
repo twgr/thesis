@@ -5,7 +5,7 @@
 
 Given our results, it is now natural to ask the question what the implications
 for nesting probabilistic programming queries?  In particular, when is doing
-this valid and are their any precautions we can take to avoid problems?  Before
+this valid and are there any precautions we can take to avoid problems?  Before
 we get to these question though, we first need to explicitly define what we
 mean by a nested query.  To this end, we distinguish between nested calling
 structures (such as the example given in Figure~\ref{fig:probprog:schell}) and
@@ -18,18 +18,192 @@ for which the unnormalized target distribution can be evaluated exactly
 ~\eqref{eq:probprog:universal-cond}.  Therefore, although these models are
 of clear importance, they are not a fundamentally different problem class
 to standard Bayesian inference problems and so we assert that existing MC
-converge results directly apply.  However, the distinction between models that
-use nested calling and nested queries can be surprisingly difficult to establish.
+converge results directly apply.  However, the distinction between models that require
+query nesting and can be written using just nested calling
+can be surprisingly difficult to establish.
 For example, the Schelling coordination example we gave in Figure~\ref{fig:probprog:schell}
-was clearly an example of a nested calling structure, but was explicitly a single query.
-On the other hand, the original version of this problem in~\cite[]{stuhlmuller2014reasoning}
-is actually an (equivalent!) example of a nested query problem because the Church
-query 
+is clearly an example of a nested calling structure as it is explicitly a single query.
+On the other hand, the original version of this problem in~\cite[Figure 6]{stuhlmuller2014reasoning}
+is actually an (equivalent!) example of a true nested query.  It turns out that this original
+version constitutes one of our special cases that can be reformulated to a single estimate.
+In the rest of this section we will delineate some possible ways one might want
+to nested probabilistic program queries and
+assert their respective correctness (or lack thereof if conditions are not met).
+Namely, we will consider \emph{sampling} from the conditional distribution
+of another query, \emph{observing} another query, and using \emph{estimates as variables}
+in another query.  We will further identify special cases that will either provide Monte 
+Carlo convergence rates when expressed as nested queries, or which can be rearranged to single estimators.
 
-Conditional renormalization.
+\subsection{Nested Sampling}
+\label{sec:design:imp:sampling}
 
-Discrete and continuous problems are a fundamentally different problem class
-because of Theorem~\ref{the:finite-res}.
+One of the clearest ways one might want to nest queries is by sampling from the conditional
+distribution of one query inside another query.  Due to the ``sample then check'' setup of
+Church, all of the examples given in~\cite{stuhlmuller2014reasoning} are by proxy this
+type of query nesting,\footnote{Even though the nested calls are made inside the conditioning
+	predicate for these examples, the semantics of the language is to sample these
+	and then check if the predicate holds as a hard constraint.  This is equivalently to doing a nested
+	sampling in the program and then evaluating a deterministic predicate using our PPL notation.}
+as is any usage of the \conditional predicate in Anglican (as this is only currently supported for use
+with \sample statements and inference algorithms that do not required the density to be evaluated).
+Such problems fall under a more general framework of \emph{nested inference}~\cite{mantadelis2011nesting} or equivalently so-called
+\emph{doubly intractable} (or multiply intractable for repeated nesting~\citep{stuhlmuller2014reasoning}) 
+inference~\citep{murray2006mcmc}.  The key feature of these problems is that they include
+terms with unknown, \emph{parameter dependent}, normalization constants.  For nested probabilistic programming
+queries, this is manifested in \emph{conditional normalization} within another query.
+Consider as an example the following model using a nested calling structure
+\vspace{-15pt}
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,multicols=2,frame=none]
+(defm inner [y D]
+ (let [z (sample (gamma y 1))]
+  (observe (normal z y) D)
+  z))
+
+(defquery outer [D]
+ (let [y (sample (beta 2 3))
+       z (inner y D)]
+  (* y z)))
+\end{lstlisting}
+\vspace{-25pt}
+compared to a following nested query model
+\vspace{-15pt}
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,multicols=2,frame=none]
+(defquery inner [y D]
+ (let [z (sample (gamma y 1))]
+  (observe (normal z y) D)
+  z))
+  
+(defquery outer [D]
+ (let [y (sample (beta 2 3))
+       dist (conditional inner)
+       z (sample (dist y D))]
+  (* y z)))
+\end{lstlisting}
+\vspace{-15pt}
+where we have replaced the \defm with a nested query.  The unnormalized distribution on traces for the first model
+is straightforwardly given by
+\[
+\gamma_1(z,y,D) = p(y)p(z|y)p(D|y,z) = \textsc{Beta}(y;2,3) \textsc{Gamma}(z;y,1) \mathcal{N}(D;z,y^2)
+\]
+for which we can clearly use conventional Monte Carlo inference schemes.  The second model
+is only subtly, but critically different in that $p(z|y)p(D|y,z)$ is conditionally normalized 
+before being used in the outer query
+\[
+\gamma_2(z,y,D) = p(y)p(z|y,D) = p(y)\frac{p(z|y)p(D|y,z)}{\int p(z|y)p(D|y,z)dz} = p(y)\frac{p(z|y)p(D|y,z)}{p(D|y)} \neq \gamma_1(z,y,D).
+\]
+The key point here is that the partial normalization constant $p(D|y)$ depends on $y$ and so 
+$\gamma_2(z,y,D)$ is doubly intractable because we cannot evaluate our unnormalized target
+distribution exactly.  By normalizing $p(z|y)p(D|y,z)$ within the outer query, 
+ \conditional has changed the distribution defined by the program.  Another interesting way of looking at this
+ is that wrapping \clj{inner} in \conditional has ``protected'' $y$ from the conditioning -- noting
+ that $\gamma_1 (z,y,D) \propto p(y|D)p(z|y,D)$ -- such that the \observe statement only effects the probability
+ of $z$ given $y$ and not the probability of $y$.
+ 
+ Unfortunately the inverse function $f(x) = 1/x$ constitutes
+a nonlinear mapping and so expectations with respected the nested queries defined in this way using
+\conditional will generally require using nested estimation schemes unless we can find a means of
+sampling from $p(z|y,D)$ exactly with finite computational budget.
+The obvious question is therefore what behavior do we need for \conditional, or query nesting through sampling
+more generally, in order to ensure consistency?  
+
+One possible approach would be to attempt to
+use an exact sampling method for sampling from \conditional. Presuming we cannot
+do this analytically~\citep{cornish2017efficient}, the most obvious way to generate such exact
+samples is using rejection sampling (see Section~\ref{sec:inf:foundation:rejection}) as done in
+Church.\footnote{Note, though, that this
+is not the only way to generate exact samples from an unnormalized target distribution (see e.g. \citep{craiu2011perfection}).}
+However, even this opens up a minefield of theoretical
+and practical questions.  For example, because the acceptance rate of an inner query might depend on the
+value of the input variable, it would presumably not be valid to generate all the variables at once
+and then only accept the sample if every condition is satisfied (this would require more formally demonstration though).
+Instead, Church takes an approach whereby no sample ever returns until it passes its local acceptance criterion.
+Although doing this automatically for soft conditioning in a automated way might be insurmountably problematic (because of the
+need to choose a valid $C$ in~\eqref{eq:inf:rej-acc-criteria}), it does open up the intriguing prospect
+of providing a standard Monte Carlo convergence rate for a set of inherently nested problems.  This is because although the performance clearly
+gets exponentially worse with increased nesting (as the probability of a successful return is the
+product of an increasing number of expected acceptance rates), it is a change in the constant factor of the
+computation.  This perhaps easiest to see by noting that 
+generating a single exact sample of the distribution
+can be done in finite time using rejection sampling (and thus effectively requires a fixed $N_1,\dots,N_D$ for
+convergence), whereas in general NMC we had that $N_1,\dots,N_D$ need to increase as $N_0$ increases for convergence.
+If correct, this assertion is a somewhat startling result: it suggests that Monte Carlo estimates made use 
+nested rejection sampling have a fundamentally different
+convergence rate for nested inference problems (though not nested estimation problems more generally) than, say,
+nested self-normalized importance sampling (SNIS).  Amongst other things, this could lead, perhaps through combination of 
+the work of~\cite{moller2006efficient}, to a contradiction of the, ostensibly very reasonable, conjecture
+made by~\cite{murray2004bayesian} that there are no generic tractable MCMC schemes for doubly intractable distributions.
+It is beyond the scope of the work to analyze this hypothesis more formally, or the rabbit hole of
+nested exact sampling methods more generally, but highlight that this constitutes a potentially fascinating line of inquiry.
+
+%From a practical perspective, it becomes much easier to write programs which will never terminate
+%as, using the notation from our previous example, then for all possible $y$, there must be some $z$
+%for which $p(D|y,z)\neq0$ (or for which the condition holds true in the context of Church).
+
+%WRONG!
+%Imagine we take
+%a rejection sampling approach whereby no sample ever returns until
+%it passes the acceptance criterion (which seems to be the approach taken by Church).  One clear issues this throws up is that it might be the case
+%that the inner query has no valid outputs for a particular input.  Using the notation from our earlier example, we
+%might have that $p(z|y,D) = 0, \forall z$ for a particular value of $y$, e.g. if $p(D|y,z) = \mathbb{I}(|y|<1 \cap |z|<1)$
+%then any $|y|\ge1$ outside this range has zero probability.  
+%Our outer distribution here $\gamma_2(z,y,D)$
+%is still well defined, it just happens to be zero unless $|y|<1$.  Thus our depth-first rejection 
+%strategy could get permanently stuck for a fundamentally computable distribution.  On the other hand,
+%we could instead 
+
+Without access to exact sampling methods, it is straightforward to see from our NMC results and
+the fact that normalization constitutes a nonlinear mapping, that asymptotic bias (i.e. bias even if we take
+an infinite number of samples from the outer query) is, in general, unavoidable for
+query nesting if each call of \conditional only carries out finite computation.  For example, imagine we
+use SNIS to generate outputs from \conditional
+with a fixed number of internal samples proposed for each sample output.  As we showed in 
+Section~\ref{sec:inf:foundation:importance:self-norm} then expectations with respect to such samples will be
+biased, which we can think of in the NMC context as occurring because the inversion of the unbiased marginal likelihood estimate
+induces a bias.  It may therefore be beneficial to adapt the behavior of \conditional to account for this.\todo{Come back to this}
+
+One special case were consistency can be maintained when using \conditional (albeit not with Anglican's current
+setup) is if the inner query takes no random variables as inputs (as is the case for
+the Schelling coordinate example in~\cite[Figure 6]{stuhlmuller2014reasoning}) presuming that
+we use a method that provides an unbiased estimate of the marginal likelihood and weight the trace appropriately.  Using the notation
+from our earlier example we have here that $p(D|y)=p(D)$ and thus the normalization constant
+of the nested query can just be factored into that of the outer query as it is no longer parameter
+dependent -- the nested query now defines the same distribution as if conditional query were replaced
+simply with a \defm.  We can therefore actually view inference on such problems as taking a pseudo-marginal approach, provided
+that all samples returned from conditional are properly weighted~\cite{naessethLS2015nested} using the
+product of their local weight and the marginal likelihood estimate from whatever process was used to generate them.
+The correctness of this approach clearly follows from a combination of Theorems~\ref{the:finite-res} and \ref{the:prod}.
+However, the probabilistic semantics of \conditional need to be changed appropriately, such that it
+both produces a sample and simultaneously weights the trace using the unnormalized weight of the returned
+particle in the inner query.  For example we could redefine \conditional as following
+\todo[inline]{Add this, using a do block with a sampling and an observation of the probability}
+
+Another special case is problems where the variables passed to the inner query can only take on, say $C$, finite
+possible values. As
+explained in Section~\ref{sec:linear_case}, such problems can always be rearranged to
+$C$ separate estimators such that the standard Monte Carlo error rate can be achieved.
+For repeated nesting, this rearrangement can be recursively applied until one achieves
+a complete set of non-nested estimators.  This special case is one which requires rearrangement
+or a specialist consideration by the language back-end (as done by \cite{stuhlmuller2012dynamic,stuhlmuller2014reasoning,cornish2017efficient}),
+with na\"{i}ve implementations leading to NMC convergence rates.  It emphasizes that
+nested problems with continuous variables are a fundamentally different problem
+class to those with only discrete bounded variables (or only continuous variables at the bottom layer)
+and we must therefore be wary of presuming that results from the discrete case carry over.
+Nonetheless, in the same way it is often necessary to use Monte Carlo rather than enumeration
+for inference in discrete problems because there are too many possible outcomes to enumerate, 
+it will still often be necessary from a practical perspective
+to use NMC for discrete problems. Ideally one should then do this in a manner that identifies and exploits the fact that
+the inner estimator is often called multiple times with the same inputs such that the samples
+from these calling can be combined (e.g. as done by~\cite{stuhlmuller2012dynamic}).
+
+\subsection{Nested Observation}
+\label{sec:design:imp:obs}
+
+Using the BOPP transform to "observe" a program
+
+\subsection{Estimates as Variables}
+\label{sec:design:imp:expt}
+
+
 
 \todo[inline]{Voting probprog example?}
 

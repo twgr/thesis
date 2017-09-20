@@ -3,7 +3,7 @@
 \section{Discriminative vs Generative Machine Learning}
 \label{sec:bayes:discrim}
 
-In some machine learning applications, huge quantities of data are available that dwarf the information
+%In some machine learning applications, huge quantities of data are available that dwarf the information
 that can be provided from human expertise.  In such situations, the main challenge is in processing
 and extracting all the desired information from the data to form a useful characterization,
 typically an artifact providing accurate predictions at previous unseen inputs. 
@@ -38,7 +38,7 @@ or no input on behalf of the user, delivering state-of-the-art performance when 
 
 However, this black-box nature is also often their downfall.  Discriminative methods typically make
 such weak assumptions about the underlying process that is difficult to impart prior knowledge
-or domain specific expertise.  This can be disastrous if insufficient data is available as the data
+or domain-specific expertise.  This can be disastrous if insufficient data is available as the data
 alone is unlikely to possess the required information to make adequate predictions.  Even when
 substantial data is available, there may be significant prior information available that needs to be
 exploited for effective performance.  For example, in time series modelling the sequential nature
@@ -52,7 +52,7 @@ requires the model to grow and accommodate the new user~\citep{ravasz2003hierarc
 this situation it is essential to
 use an approach that respects the structure of the model, while the amount of data available
 for each individual user is often quite small, such that it will essential to use prior information
-by transferring insights gathered from some users to others.  Therefore even for such large scale
+by transferring insights gathered from some users to others.  Therefore even for such large-scale
 problems, the inflexibility of many discriminative approaches to incorporate known characteristics
 of the target problem can be problematic.
 
@@ -64,11 +64,11 @@ difficult to interpret and hampering the process of improving the system through
 revision of the algorithm.  Furthermore, this typically makes them inappropriate for more
 statistics orientated tasks, where it is the parameters themselves which are of interest, rather
 than the ability for the system itself to make predictions.  For example, the parameters may
-have real world physical interpretations we wish to learn about.
+have real-world physical interpretations we wish to learn about.
 
 Most discriminative methods are also poor at providing realistic uncertainty estimates.
 Because they are typically trained in a manner that optimizes the parameters to minimize
-some loss criterion (e.g. the predictive error), they do not in general encode any uncertainty
+some loss criterion (e.g. the predictive error), they do not, in general, encode any uncertainty
 in either their parameters or the subsequent predictions.  Though many methods can
 produce uncertainty estimates either as a by-product or from a post-processing step,
 these are typically mostly heuristic based, rather than stemming naturally from a statistically
@@ -84,14 +84,14 @@ approach~\citep{ng2002discriminative,bishop2006pattern}.  Rather than directly l
 predictor, generative methods look to explain the observed data using a \emph{probabilistic model}.
 Whereas discriminative approaches aim only to make predictions, generative approaches model
 how the data is actually generated; they model the joint probability $p(X,Y)$ of the inputs 
-$X$ and outputs $Y$.  By comparison we can think of discriminative approaches as
+$X$ and outputs $Y$.  By comparison, we can think of discriminative approaches as
 only modeling the outputs given the inputs $p(Y|X)$.  
 
 A key upshot of this difference
 is that generative approaches generally make stronger modeling assumptions about the problem.  Though
 this can be problematic when the model assumptions are wrong and is often unnecessary in
 the limit of large data, it is essential for combining prior information with information from data
-and therefore for constructing systems that exploit application specific human expertise.
+and therefore for constructing systems that exploit application-specific human expertise.
 In the words of the great George Box, ``\textit{all models are wrong, but some a useful}''
 \citep{box1979robustness,box2005statistics}.  In a way, this is a self-fulfilling statement: a model for
 any real phenomena
@@ -105,8 +105,8 @@ method is superior simply due to its asymptotic behavior in the limit of large d
 does not work then the solution is simply to get more data.\footnote{It should, of course, be noted
 	that the availability of data is typically the biggest bottleneck in machine learning.  At times, it feels 
 	like the machine learning community would we well served to remember that the differences in performance between
-	machine learning approaches is often, if not usually, dominated by variations in the inherently difficult of the
-	problem, which is itself not usually known up front, rather than differences between approaches.}  As such, the ease of which domain specific
+	machine learning approaches is often, if not usually, dominated by variations in the inherently difficultly of the
+	problem, which is itself not usually known up front, rather than differences between approaches.}  As such, the ease of which domain-specific
 expertise can be included in generative approaches is often essential to achieving effective performance
 on real world tasks.
 
@@ -130,7 +130,7 @@ any possible $x$.  Logistic regression is a discriminative approach as we have d
 a characterization for the predictive distribution, bypassing any direct reasoning about the joint
 probability of the inputs and the outputs.
 
-The na\"{i}ve Bayes classifier on the other hand starts by making the assumption that each feature
+The na\"{i}ve Bayes classifier, on the other hand, starts by making the assumption that each feature
 is \emph{independent} given the class label.  As such it reasons about both the distribution over both
 inputs and outputs, unlike logistic regression which only reasons about the conditional probability
 of the output given the input.   If we let $\{x^1,\dots,x^D\} =: x$ represent the dimensions of $x$, then
@@ -156,9 +156,9 @@ more depth in Section~\ref{sec:bayes:religions}.
 As we have shown, generative approaches are inherently probabilistic.  This is highly convenient
 when it comes to calculating uncertainty estimates or gaining insight from our trained model.
 They are generally more intuitive than discriminative methods as models are they denote the probability
-of events occurring, while the generative model is essence an explanation for how the data is
+of events occurring, while the generative model is, in essence, an explanation for how the data is
 generated.  As such, the parameters tend to have physical interpretation in the generative process and
-therefore provide not only prediction, but insight.  Generative approaches will not always be preferable,
-particularly when their is an abundance of data available, but they provide a very powerful framework
+therefore provide not only prediction, but also insight.  Generative approaches will not always be preferable,
+particularly when there is an abundance of data available, but they provide a very powerful framework
 that is essential in many scenarios.  Perhaps their greatest strength is in allowing the use of so-called
 Bayesian approaches which we now introduce.
