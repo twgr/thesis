@@ -16,9 +16,9 @@ typically unsuited to such settings.  We therefore introduce BOPP\footnote{Code 
 which uses a series of code transformations, existing inference algorithms,
 and a bespoke Gaussian process (GP) based Bayesian optimization (BO) package, which we call Deodorant\footnote{Code available
 at \url{http://www.github.com/probprog/deodorant/}}, to optimize the evidence of a query with respect to
-an arbitrary subset of its internally sampled variables.\footnote{As we will explain later, there is no need to
+an arbitrary subset of its internally sampled variables.\footnote{There is no need to
 	provide separate consideration for optimizing with respect to the inputs of the query as, if required,
-	variables can be trivially internalized.}
+	it is trivial to include variables internally to the program and then do MML estimation.}
 
 BOPP can be viewed from two different perspectives, providing distinct contributions to both the probabilistic
 programming and Bayesian optimization literatures.  From a probabilistic programming perspective, we can
@@ -40,6 +40,6 @@ The ability to do these is rooted
 in the ability provided by PPLs to manipulate the target source code and return artifacts suitable for carrying
 out certain tasks on a model.  For example, we use a code transformation to produce a problem-specific
 optimizer for the acquisition function that ensures the implicit constraints specified by the query,
-including equality constraints not before considered by the BO literature, are automatically and exactly
+including equality constraints which not before been considered by the BO literature, are automatically and exactly
 satisfied.  As a consequence, BOPP provides a significant novel features and performance
 improvements even when used simply as a conventional BO package.

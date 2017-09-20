@@ -29,7 +29,7 @@ a conventional MCMC sampler such as LMH (see Section~\ref{sec:proginf:str:lmh}).
 This results in a simulated annealing~\citep{aarts1988simulated} algorithm for general purpose programs.
 An alternative approach, introduced by~\cite{tolpin-socs-2015}
 instead uses ideas from Monte Carlo tree search to construct a general purpose MAP estimator.
-However, all of these approaches to not permit the more challenging scenario
+However, all of these approaches do not permit the more challenging scenario
 where the target is to optimize a marginal distribution.  They are, therefore, not suitable for combined
 inference and optimization problems.
 
@@ -50,8 +50,8 @@ stochastic gradient ascent approaches, a large number of optimization iterations
 to reach convergence, which can be prohibitive for some problems.  BOPP, on the other hand, requires
 very few assumptions to be made and is free to use more advanced inference approaches, for example
 SMC, for estimating the marginal likelihood.  One consequence of this is that it can scale to far
-higher dimensions in the nuisance variables.  For example, our chaos model in Section~\ref{sec:bopp:exp}
-marginalizes over a 1500 dimensional space.
+higher dimensions in the nuisance variables.  For example, our HMM model in Section~\ref{sec:bopp:exp}
+marginalizes over a $\tilde5000$ dimensional space.
 
 Another interesting alternative approach,
 developed since publication of BOPP, involves taking derivatives \emph{through} an SMC
@@ -96,7 +96,7 @@ from their limited importance sampling setting, to a more powerful SMC framework
 %
 %\input{bopp/house-heating.tex}
 
-\section{Discussion and Future Work}
+\section{Discussion}
 \label{sec:disc}
 
 \input{bopp/discussion}
@@ -104,12 +104,6 @@ from their limited importance sampling setting, to a more powerful SMC framework
 %\section{Program Transformations in Detail}
 %\label{sec:program-transformations}
 %\input{bopp/program-transformations}
-
-\todo[inline]{Complications of MAP
-	
-	MAP, ML, Risk Min
-	
-	Why no need to include the inputs}
 
 %which in the interest of clarity will our focus.  Other variations of COI, such as risk minimization and type-$\RN{2}$ maximum likelihood can be achieved by for switching between minimization and maximization, and, using Bayes' rule, removing the prior component on $\theta$.  These cases are also covered by BOPP and are discussed in the SM.
 %To carry out global optimization, it is necessary for the target to diminish away from a region of interest.  This is implicitly satisfied by \eqref{eq:MMAP} as $p(Y, \theta)$ is a probability distribution.  
