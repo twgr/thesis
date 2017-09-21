@@ -98,19 +98,48 @@ code, with known semantics, opens up many opportunities for new methods that wou
 not otherwise be possible.
 
 The underlying theme of this thesis is improving and extending probabilistic programs.  However,
-doing this will require us to make advancements in a number of different research areas such
-as particle Markov chain Monte Carlo methods~\citep{andrieu2010particle,rainforth2016interacting},
-Bayesian optimization~\citep{movckus1975bayesian,rainforth2016bayesian}, and \mc
-fundamentals~\cite{metropolis1949monte,rainforth2017pitfalls}.  Our aim is to both improve
-the performance of PPS by improving the underlying inference engines, increasing
-efficiency and the range of models for which inference can be tractably provided for, and to increase
-the scope of problems which can be covered by PPS more generally.  In particular, we
-will extend PPS beyond the standard Bayesian inference setting to more general frameworks
-such as marginal maximum a posteriori estimation and nested estimation.  This opens up a number
-of fascinating opportunities, such as the prospect of constructing systems for automating the
-design of adaptive experiments and for carrying out principled, probabilistic, engineering simulations
-that explicitly incorporate the uncertainty in the task at hand.
+doing this will involve making a number of noticeable advancements in  distinct research areas such
+as particle Markov chain Monte Carlo methods~\citep{andrieu2010particle},
+Bayesian optimization~\citep{movckus1975bayesian}, and \mc
+fundamentals~\citep{metropolis1949monte}.  Along with the direct merit of
+these advancements, our general aims from a probability programming perspective can be
+broken down into two themes: improving the underlying inference engines of PPSs and increasing the
+range of problems they can tackle.
 
-\todo[inline]{Build on this a bit so that is a full motivation section.  In particular, could do a better
-	job of linking it back to the real world.  Could also do more of a linking of my work to the aims, 
-	rather than just probabilistic programming in general.}
+Improving PPS inference engines is necessary both to increase their efficiency and,
+perhaps more importantly, because the limits on the
+complexity of models that can be tackled by a system are predominantly dictated by the 
+effectiveness of its inference engine(s).  
+ Though existing PPSs provide an effective means of performing
+inference in simple models or those with easily exploitable structures, they still tend to be
+some way off what is achievable using bespoke inference methods and even further away from
+what would be required to achieve our lofty ambitious of providing automated inference for
+the vast array of stochastic simulators used by the scientific community.  
+Improving inference engines is, therefore, essential for making PPSs practical and applicable 
+to a wider array of models.
+Our main contribution
+to this long term goal is in introducing the \emph{interacting particle Markov chain Monte Carlo}
+algorithm~\citep{rainforth2016interacting}, which represents a state-of-the-art inference method
+suitable for PPS and, arguably, the current go-to algorithm for the PPS Anglican~\citep{wood2014new}.
+
+Our second aim, of increasing the range of problems that can be tackled by PPSs, is all about
+going beyond the standard Bayesian inference setting.  As powerful as the Bayesian paradigm is,
+it is far from the only tool in the machine learning arsenal and there are many problems that fall
+outside of its framework.  For example, by extending PPSs to a more general mixed
+inference-optimization framework using BOPP~\cite{rainforth2016nips}, we open the door to
+a number of fascinating opportunities such learning models themselves or constructing
+principled, probabilistic, engineering design pipelines that explicitly incorporate
+the uncertainty in the task at hand.  We will also investigate the opportunities and pitfalls
+of \emph{nesting} inference problems and nesting estimation more
+generally~\citep{rainforth2017pitfalls}.  Such nesting is essential for expressing a wide array
+of problems from experimental design~\citep{chaloner1995bayesian} to
+theory of mind~\citep{stuhlmuller2014reasoning}.  PPSs provide a highly convenient means
+of encoding such problems, but previous results confirming the statistical validity of doing
+so remain substantially lacking.  We provide many of the required foundational theoretical results and
+demonstrate their importance by providing guidelines and precautions for carrying out such nesting,
+both in the specific probabilistic programming context and more generally, highlighting potential
+shortcomings in how this is dealt with by existing systems.  We also use our findings to start
+taking steps towards potentially building a general purpose system for automated adaptive
+experimental design, realizing this potential in the restricted setting of psychological trials
+investigating the impact of delays and uncertainty on the subjective values people place
+on rewards~\citep{vincent2017darc} .

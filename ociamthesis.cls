@@ -79,9 +79,9 @@
 %\usepackage[includehead,hmargin={3.6cm, 2.6cm}, vmargin={2.5cm,2.7cm}, headsep=.8cm,footskip=1.2cm]{geometry}
 %\fi
 \ifmc@nobind
-\usepackage[includehead,hmargin={2.8cm, 2.8cm}, vmargin={2.3cm,2.5cm}, headsep=.8cm,footskip=1.2cm]{geometry}
+\usepackage[includehead,hmargin={2.8cm, 2.8cm}, vmargin={2.2cm,2.3cm}, headsep=.8cm,footskip=1.2cm]{geometry}
 \else
-\usepackage[includehead,hmargin={2.9cm, 2.1cm}, vmargin={2.3cm,2.5cm}, headsep=.8cm,footskip=1.2cm]{geometry}
+\usepackage[includehead,hmargin={2.9cm, 2.1cm}, vmargin={2.2cm,2.3cm}, headsep=.8cm,footskip=1.2cm]{geometry}
 \fi
 
 \usepackage{xcolor}
@@ -246,7 +246,8 @@
 % own page and is set out in verse format.
 
 \newenvironment{dedication}
-{\begin{alwayssingle}
+{\renewcommand{\chapterheadstartvskip}{\vspace*{-30pt}}
+	\begin{alwayssingle}
   \thispagestyle{empty}
   \vspace*{\fill} \begin{center}}
 {\end{center}\vspace*{\fill}\vspace*{\fill} \end{alwayssingle}}
@@ -260,7 +261,7 @@
 % on its own page.
 
 \newenvironment{acknowledgements}%
-{   \begin{alwayssingle}\chapter*{Acknowledgements}
+{  \renewcommand{\chapterheadstartvskip}{\vspace*{-30pt}} \begin{alwayssingle}\chapter*{Acknowledgements}
     \thispagestyle{empty}
 	\pagestyle{empty}
 	\setlength{\baselineskip}{\frontmatterbaselineskip}
@@ -275,7 +276,8 @@
 %i.e. tabbed in at both sides, and on its own page.
 
 \renewenvironment{abstract}%
-{   \begin{alwayssingle}\chapter*{Abstract}
+{  \renewcommand{\chapterheadstartvskip}{\vspace*{-30pt}}
+	 \begin{alwayssingle}\chapter*{Abstract}
     \thispagestyle{empty}
     \pagestyle{empty}
    \setlength{\baselineskip}{\frontmatterbaselineskip}}
