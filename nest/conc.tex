@@ -1,38 +1,36 @@
-% !TEX root =  main.tex
+% !TEX root =  ../main.tex
 
 \section{Implications For Nesting Probabilistic Programs}
 \label{sec:design:imp}
 
-Given our results, it is now natural to ask the question what the implications
+Given our results, it is now natural to ask the question what are the implications
 for nesting probabilistic programming queries?  In particular, when is doing
 this valid and are there any precautions we can take to avoid problems?  Before
 we get to these question though, we first need to explicitly define what we
 mean by a nested query.  To this end, we distinguish between nested calling
 structures (such as the example given in Figure~\ref{fig:probprog:schell}) and
 queries that do not represent a single estimation, which we will refer
-to as nested queries.  Both of these cases have at times been referred to as
-nested queries in the literature.  Our motivation for defining only the later
-as nested is that the former can always be represented as a single
-query because they still represent a single expectation and define models
-for which the unnormalized target distribution can be evaluated exactly
-~\eqref{eq:probprog:universal-cond}.  Therefore, although these models are
+to as nested queries. Our motivation for defining only the later
+as nested is that cases of the former can always be represented as a single
+query, because they still represent a single expectation and define models
+for which the unnormalized target distribution~\eqref{eq:probprog:universal-cond}
+ can be evaluated exactly.  Therefore, although these models are
 of clear importance, they are not a fundamentally different problem class
-to standard Bayesian inference problems and so we assert that existing MC
-converge results directly apply.  However, the distinction between models that require
-query nesting and can be written using just nested calling
-can be surprisingly difficult to establish.
+to standard Bayesian inference problems and so we assert that existing \mc
+converge results directly apply.  However, it can be deceptively difficult to establish
+whether a model requires query nesting or just nested calling.
 For example, the Schelling coordination example we gave in Figure~\ref{fig:probprog:schell}
 is clearly an example of a nested calling structure as it is explicitly a single query.
 On the other hand, the original version of this problem in~\cite[Figure 6]{stuhlmuller2014reasoning}
 is actually an (equivalent!) example of a true nested query.  It turns out that this original
 version constitutes one of our special cases that can be reformulated to a single estimate.
-In the rest of this section we will delineate some possible ways one might want
+In the rest of this section we will delineate possible ways one might want
 to nested probabilistic program queries and
-assert their respective correctness (or lack thereof if conditions are not met).
+assert their respective correctness (or lack thereof) and required conditions.
 Namely, we will consider \emph{sampling} from the conditional distribution
 of another query, \emph{observing} another query, and using \emph{estimates as variables}
-in another query.  We will further identify special cases that will either provide Monte 
-Carlo convergence rates when expressed as nested queries, or which can be rearranged to single estimators.
+in another query.  We will further identify some special cases that which can be rearranged to single estimators or even provide Monte 
+Carlo convergence rates when expressed as nested queries.
 
 \subsection{Nested Sampling}
 \label{sec:design:imp:sampling}
@@ -44,11 +42,13 @@ type of query nesting,\footnote{Even though the nested calls are made inside the
 	predicate for these examples, the semantics of the language is to sample these
 	and then check if the predicate holds as a hard constraint.  This is equivalently to doing a nested
 	sampling in the program and then evaluating a deterministic predicate using our PPL notation.}
-as is any usage of the \conditional predicate in Anglican (as this is only currently supported for use
-with \sample statements and inference algorithms that do not required the density to be evaluated).
-Such problems fall under a more general framework of \emph{nested inference}~\cite{mantadelis2011nesting} or equivalently so-called
-\emph{doubly intractable} (or multiply intractable for repeated nesting~\citep{stuhlmuller2014reasoning}) 
-inference~\citep{murray2006mcmc}.  The key feature of these problems is that they include
+as is any usage of the \conditional predicate in Anglican.\footnote{This is because 
+	\conditional is only currently supported for use
+with \sample statements and inference algorithms that do not required the density to be evaluated.}
+Such problems fall under a more general framework of \emph{nested inference}~\cite{mantadelis2011nesting} or equivalently inference for so-called
+\emph{doubly intractable} distributions~\citep{murray2006mcmc} (or multiply intractable
+	distributions for repeated nesting~\citep{stuhlmuller2014reasoning}).
+	 The key feature of these problems is that they include
 terms with unknown, \emph{parameter dependent}, normalization constants.  For nested probabilistic programming
 queries, this is manifested in \emph{conditional normalization} within another query.
 Consider as an example the following model using a nested calling structure
@@ -80,8 +80,8 @@ compared to a following nested query model
   (* y z)))
 \end{lstlisting}
 \vspace{-15pt}
-where we have replaced the \defm with a nested query.  The unnormalized distribution on traces for the first model
-is straightforwardly given by
+where we have replaced the \defm with a query nesting.  The unnormalized distribution on
+traces for the first model is straightforwardly given by
 \[
 \gamma_1(z,y,D) = p(y)p(z|y)p(D|y,z) = \textsc{Beta}(y;2,3) \textsc{Gamma}(z;y,1) \mathcal{N}(D;z,y^2)
 \]
@@ -95,7 +95,8 @@ The key point here is that the partial normalization constant $p(D|y)$ depends o
 $\gamma_2(z,y,D)$ is doubly intractable because we cannot evaluate our unnormalized target
 distribution exactly.  By normalizing $p(z|y)p(D|y,z)$ within the outer query, 
  \conditional has changed the distribution defined by the program.  Another interesting way of looking at this
- is that wrapping \clj{inner} in \conditional has ``protected'' $y$ from the conditioning -- noting
+ is that wrapping \clj{inner} in \conditional has ``protected'' $y$ from the conditioning 
+ in \clj{inner} -- noting
  that $\gamma_1 (z,y,D) \propto p(y|D)p(z|y,D)$ -- such that the \observe statement only effects the probability
  of $z$ given $y$ and not the probability of $y$.
  
@@ -115,8 +116,8 @@ is not the only way to generate exact samples from an unnormalized target distri
 However, even this opens up a minefield of theoretical
 and practical questions.  For example, because the acceptance rate of an inner query might depend on the
 value of the input variable, it would presumably not be valid to generate all the variables at once
-and then only accept the sample if every condition is satisfied (this would require more formally demonstration though).
-Instead, Church takes an approach whereby no sample ever returns until it passes its local acceptance criterion.
+and then only accept the sample if every condition is satisfied.
+Church instead takes an approach whereby no sample ever returns until it passes its local acceptance criterion.
 Although doing this automatically for soft conditioning in a automated way might be insurmountably problematic (because of the
 need to choose a valid $C$ in~\eqref{eq:inf:rej-acc-criteria}), it does open up the intriguing prospect
 of providing a standard Monte Carlo convergence rate for a set of inherently nested problems.  This is because although the performance clearly
@@ -126,10 +127,11 @@ computation.  This perhaps easiest to see by noting that
 generating a single exact sample of the distribution
 can be done in finite time using rejection sampling (and thus effectively requires a fixed $N_1,\dots,N_D$ for
 convergence), whereas in general NMC we had that $N_1,\dots,N_D$ need to increase as $N_0$ increases for convergence.
-If correct, this assertion is a somewhat startling result: it suggests that Monte Carlo estimates made use 
-nested rejection sampling have a fundamentally different
+If correct, this assertion would be a somewhat startling result: it suggests that Monte Carlo 
+estimates made using nested rejection sampling have a fundamentally different
 convergence rate for nested inference problems (though not nested estimation problems more generally) than, say,
-nested self-normalized importance sampling (SNIS).  Amongst other things, this could lead, perhaps through combination of 
+nested self-normalized importance sampling (SNIS).  Amongst other things, this might lead, 
+perhaps through combination of 
 the work of~\cite{moller2006efficient}, to a contradiction of the, ostensibly very reasonable, conjecture
 made by~\cite{murray2004bayesian} that there are no generic tractable MCMC schemes for doubly intractable distributions.
 It is beyond the scope of the work to analyze this hypothesis more formally, or the rabbit hole of
@@ -151,31 +153,61 @@ nested exact sampling methods more generally, but highlight that this constitute
 %strategy could get permanently stuck for a fundamentally computable distribution.  On the other hand,
 %we could instead 
 
-Without access to exact sampling methods, it is straightforward to see from our NMC results and
-the fact that normalization constitutes a nonlinear mapping, that asymptotic bias (i.e. bias even if we take
+Without access to exact sampling methods, it is straightforward to see 
+that asymptotic bias (i.e. bias even if we take
 an infinite number of samples from the outer query) is, in general, unavoidable for
-query nesting if each call of \conditional only carries out finite computation.  For example, imagine we
+query nesting if each call of \conditional only carries out finite computation.  
+This follows from our general NMC results and
+the fact that normalization constitutes a nonlinear mapping,
+For example, imagine we
 use SNIS to generate outputs from \conditional
-with a fixed number of internal samples proposed for each sample output.  As we showed in 
+with a fixed number of internal samples proposed for each sample given as output.  As we showed in 
 Section~\ref{sec:inf:foundation:importance:self-norm} then expectations with respect to such samples will be
 biased, which we can think of in the NMC context as occurring because the inversion of the unbiased marginal likelihood estimate
-induces a bias.  It may therefore be beneficial to adapt the behavior of \conditional to account for this.\todo{Come back to this}
+induces a bias.  In addition to the possibility that we might be able to get around this
+problem using exact sampling as discussed in the last paragraph, it might also be possible to
+use debiasing techniques to remove the particular bias that is generated, see e.g.~\cite{glynn2014exact,jacob2017smoothing}.
 
-One special case were consistency can be maintained when using \conditional (albeit not with Anglican's current
-setup) is if the inner query takes no random variables as inputs (as is the case for
-the Schelling coordinate example in~\cite[Figure 6]{stuhlmuller2014reasoning}) presuming that
-we use a method that provides an unbiased estimate of the marginal likelihood and weight the trace appropriately.  Using the notation
-from our earlier example we have here that $p(D|y)=p(D)$ and thus the normalization constant
-of the nested query can just be factored into that of the outer query as it is no longer parameter
-dependent -- the nested query now defines the same distribution as if conditional query were replaced
-simply with a \defm.  We can therefore actually view inference on such problems as taking a pseudo-marginal approach, provided
-that all samples returned from conditional are properly weighted~\cite{naessethLS2015nested} using the
-product of their local weight and the marginal likelihood estimate from whatever process was used to generate them.
-The correctness of this approach clearly follows from a combination of Theorems~\ref{the:finite-res} and \ref{the:prod}.
-However, the probabilistic semantics of \conditional need to be changed appropriately, such that it
-both produces a sample and simultaneously weights the trace using the unnormalized weight of the returned
-particle in the inner query.  For example we could redefine \conditional as following
-\todo[inline]{Add this, using a do block with a sampling and an observation of the probability}
+One special case were consistency can be maintained, even without rearrangement,
+ is if the inner query takes no 
+random variables as inputs, as is the case for
+the Schelling coordinate example in~\cite[Figure 6]{stuhlmuller2014reasoning}.  
+A condition for this is that we use a method that provides an unbiased estimate of 
+the marginal likelihood (e.g. importance sampling or SMC) and weight the trace appropriately
+with the product of this marginal likelihood estimate and the internal self-normalized weight
+of the returned sample.  
+If this conditioned is maintained, we can demonstrate the validity of the approach by noting that
+the normalization constant of the nested query is not parameter dependent, i.e. $p(D|y)=p(D)$ 
+using the notation from our earlier example.  It can therefore 
+be factored into that of the outer query as the nested query now defines the same distribution 
+as if conditional query were replaced with a \defm.  We can therefore actually view inference 
+on such problems as taking a pseudo-marginal approach, provided that all samples returned from
+conditional are properly weighted~\cite{naessethLS2015nested} as previously described.
+The correctness of this approach then clearly follows from a combination of
+Theorems~\ref{the:finite-res} and \ref{the:prod}.
+However, Anglican's current use of \conditional does not
+satisfy our requirement as it only returns unweighted samples.\footnote{Unfortunately, this
+	means that, though still practically potentially useful, Anglican's current usage of \lsi{conditional}
+	for nesting never provides consistent estimates unless the inner query contains no conditioning, 
+	in which
+	case its behavior is equivalent to \lsi{defm} anyway.  It should be noted, though, that no claims 
+	to the contrary have ever been made, with \lsi{conditional} still very much a developmental feature
+	of the language.}
+Therefore, for Anglican to provide consistent estimates in such situations, we would need to
+change the probabilistic semantics of \conditional, such that it
+both produces a sample and simultaneously weights the trace using the unnormalized weight of the returned particle in the inner query.  In other words, it would need to operate in a similar fashion
+to the following simplified code
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,frame=none]
+(defn conditional-sample [inner-query inputs inf-alg M inf-opts]
+ (let [samp (nth M (doquery inf-alg inner-query inputs inf-opts))]
+  (observe (factor) (get-log-weight samp))
+  (:result samp)))
+\end{lstlisting}
+\vspace{-10pt}
+where we first run inference with budget \clj{M} to produce a sample, then weight the program trace
+using the (unnormalized) sample weight, and finally return the value of the sample.
+Remember though that this only address the special case where \clj{input} is not a random variable
+and \clj{inf-alg} is an inference algorithm producing properly weighted samples.
 
 Another special case is problems where the variables passed to the inner query can only take on, say $C$, finite
 possible values. As
@@ -188,7 +220,7 @@ with na\"{i}ve implementations leading to NMC convergence rates.  It emphasizes 
 nested problems with continuous variables are a fundamentally different problem
 class to those with only discrete bounded variables (or only continuous variables at the bottom layer)
 and we must therefore be wary of presuming that results from the discrete case carry over.
-Nonetheless, in the same way it is often necessary to use Monte Carlo rather than enumeration
+Nonetheless, in the same way that it is often necessary to use Monte Carlo rather than enumeration
 for inference in discrete problems because there are too many possible outcomes to enumerate, 
 it will still often be necessary from a practical perspective
 to use NMC for discrete problems. Ideally one should then do this in a manner that identifies and exploits the fact that
