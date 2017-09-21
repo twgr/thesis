@@ -65,7 +65,8 @@ implicitly used by \cite{myung2013tutorial} amongst others,
 - \log \left(\frac{1}{M} \sum_{m=1}^{M}p(y_n | \theta_{n,m},d)\right) \right]
 \end{align}
 where $\theta_{n,m} \sim p(\theta) \; \forall m \in 0:M, \;n \in 1:N$ and $y_n \sim p(y|\theta=\theta_{n,0}, d) \; \forall n \in 1:N$.
-This na\"{i}ve NMC estimator gives a convergence
+This na\"{i}ve NMC estimator, Anglican code for which is provided in 
+Figure~\ref{fig:nest:exp}, gives a convergence
 rate of $O(1/N+1/M^2)$ as per Theorem~\ref{the:Repeat}.
 
 We now show that if $y$ can only take on one of $C$ possible values ($y_1, \ldots, y_C$), 

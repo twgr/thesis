@@ -54,10 +54,10 @@ A common style of experiment for the toolbox comprises of asking questions of th
 to choose the question  variables $d = \{A,B,D^b\}$ in the manner that will give the most 
 incisive questions.  One possible participant model~\citep{vincent2016hierarchical}
 presumes that participants have parameters $\theta=\{\log k,\alpha\}$, where $\log k \sim \mathcal{N}(-4.5,0.5^2)$ 
-represents a $\log$ discount rate and $\alpha\sim \Gamma(2,2)$ a variability, and the following response model
+represents a $\log$ discount rate and $\alpha\sim \Gamma(2,0.5)$ (using the shape-rate parameterization) a variability, and the following response model
 \begin{equation}
 \label{eq:design:darc}
-y \sim \mathrm{Bernoulli} \left(0.01 + 0.98 \cdot \Phi\left(\frac{1}{\alpha} \left(\frac{B}{1+e^k D^b}-A\right)\right)\right)
+y \sim \mathrm{Bernoulli} \left(0.01 + 0.98 \cdot \Phi\left(\frac{1}{\alpha} \left(\frac{B}{1+k D^b}-A\right)\right)\right)
 \end{equation}
 where $y=1$ indicates choosing the delayed response and $\Phi$ represents the 
 cumulative normal distribution. As more questions are asked, the distribution 

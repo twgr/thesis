@@ -230,14 +230,131 @@ from these calling can be combined (e.g. as done by~\cite{stuhlmuller2012dynamic
 \subsection{Nested Observation}
 \label{sec:design:imp:obs}
 
-Using the BOPP transform to "observe" a program
+Alternative way one might wish to nest queries is through nested observation, whereby we
+observe the output of another query rather than sampling from it.  For hard-constraints such
+as used in Church, this is equivalent to query nesting through sampling.  However, for soft
+constraints it can be substantially different.  The distinction is the same as that between
+\sample and \observe -- we are observing an outcome of a program, rather than sampling
+from it.  As \observe returns no outputs, the mathematical interpretation of observing 
+the output of another query is that we are weighting the outer program trace by the
+partition function estimate of the inner trace.  Presuming that our partition function estimates
+are unbiased (which they will be if we use, say, SMC for the inner estimator), then
+this corresponds to a particular instance of the products of expectations special case
+discuss in Section~\ref{sec:products}.  It, therefore, immediately follows that if
+the outer estimator uses importance sampling, then such an approach is consistent.  More
+generally, this case corresponds to a pseudo-marginal approach where the samples
+from the inner estimator are never returned.  We can, therefore, use existing results
+to demonstrate the consistency of the approach for other choices of outer estimator.
+For example, consistency when using SMC in the outer estimator follows directly
+from a combination of Theorem~\ref{the:prod} and the results of~\cite{naessethLS2015nested}.
+It should also be possible to construct consistent approaches using MCMC samplers
+at the top level as per~\cite{andrieu2009pseudo}, but this would require more
+careful consideration.
+
+In addition to statistical complications just discussed,
+there are some significant semantical complications associated with observing
+another query.  There are actually two ways we might ``observe'' another query.
+The first is simply to run the other query unmodified and factor the trace probability
+by the marginal likelihood estimate.  This is a perfectly reasonable thing to want to do,
+allowing us to, for example, construct a PMMH sampler (see
+Section~\ref{sec:part:pmcmc:global}).  In fact, this was exactly what we did alongside
+some manual code transformations to
+construct the PMMH benchmarks for BOPP in Section~\ref{sec:bopp:exp}.  However,
+this is not really observing the output of the inner query: it is instead a means of
+replacing an analytic likelihood term with an unbiased estimate.  The other way we might thus
+want to observe a query is to estimate the likelihood of it producing a particular output.
+Unfortunately, in general, this will be infeasible (at least without code analysis) 
+because the density on the output variables is affected by deterministic computations in the query
+(see discussion of program outputs in Section~\ref{sec:probprog:models:first}).  
+This is identical to the
+problem we encountered for BOPP, where we could not optimize with respect to arbitrary
+variables in the program because of not being able to calculate their density.
+This now presents an interesting possibility -- we could use exactly the same
+marginal transformation as in BOPP, but then use this to estimate the partition
+function with certain variables ``clamped''.  We can actually think of BOPP as being
+a nested estimation scheme were the outer estimator is an optimizer.  Therefore, we
+could use exactly the framework as BOPP but replace the BO optimizer
+with an estimation scheme, i.e. the outer query.  In fact, if desired, we could even 
+maintain the same usage of the GP surrogate in BOPP to, for example, carry out estimation
+using Bayesian quadrature~\citep{osborne2012active} or the inference scheme laid out
+by~\citep{gutmann2016bayesian}.
+
+\begin{figure}[t]
+			\centering	
+			\vspace{-10pt}		
+			\rule{\linewidth}{0.4pt}
+			\vspace{-28pt}		
+	\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,multicols=2,frame=none]
+(defm prior [] (normal 0 1))
+(defm lik [theta d] (normal theta d))
+
+(defquery inner-q [y d]
+ (let [theta (sample (prior))]
+  (observe (lik theta d) y)))
+
+(defn inner-E [y d M]
+ (->> (doquery :importance 
+         inner-q [y d])
+      (take M)
+      log-marginal))
+      
+(with-primitive-procedures [inner-E]
+ (defquery outer-q [d M]
+  (let [theta (sample (prior))
+        y (sample (lik theta d))
+        log-lik (observe* 
+                  (lik theta d) y)
+        log-marg (inner-E y d M)]
+   (- log-lik log-marg))))
+
+(defn outer-E [d M N]
+ (->> (doquery :importance 
+         outer-q [d M])
+      (take N)
+      (map :result)
+      mean))
+	\end{lstlisting}
+	\vspace{-20pt}		
+	\rule{\linewidth}{0.4pt}
+	%\vspace{5pt}
+	\caption{Anglican code for Bayesian experimental design corresponding to the estimator
+		given in~\eqref{eq:exp-des-nmc}.  By changing the definitions of \clj{prior}
+		 and \clj{lik}, this code can be used as a
+		 NMC estimator (consistent as $N,M\rightarrow\infty$) for any static
+		 Bayesian experimental design problem.
+		 Here \lsi{observe*} is a function for returning the log likelihood (it does not
+		 effect the trace probability), \lsi{log-marginal} produces a marginal likelihood estimated
+		 from a collection of weighted samples,
+		 and \lsi{->>} successively applies a series of functions calls,
+		 plugging the result of one as the last input the next.  When \lsi{outer-E} is invoked,
+		 this runs importance sampling on \lsi{outer-q}, which, in additional to carrying out
+		 its own computation, calls \lsi{inner-E}.  This in turn invokes another inference over
+		 \lsi{inner-q}, such that a \mc estimate using \lsi{M} samples is constructed for
+		 each sampler of \lsi{outer-q}.  Thus \lsi{log-marg} is \mc estimate itself.
+		 The final return is the (weighted) empirical mean for
+		 the outputs of \lsi{outer-q}.
+	\label{fig:nest:exp}}
+\vspace{-5pt}
+\end{figure}
 
 \subsection{Estimates as Variables}
 \label{sec:design:imp:expt}
 
-
-
-\todo[inline]{Voting probprog example?}
+The third and final way we consider using nested estimation in probabilistic programming
+is to use expectation estimates as first class variables.  In our previous examples,
+nonlinear usage of expectations only ever manifested through inversion of the normalization
+constant.  These methods are therefore clearly insufficient for expressing more general
+nested estimation problems as would be required by, for example, experimental design.
+Anglican does not explicitly support such behavior inside pure Anglican code, but 
+one can still enforce such
+behavior by either calling \doquery inside a \defdist deceleration or in a \defn function
+passed to a query using \clj{with-primitive-procedures}.  An example of this is shown
+in Figure~\ref{fig:nest:exp} corresponding to a program for carrying out Bayesian experimental
+design (see Chapter~\ref{chp:design}).  The validity of this ``estimates as variables'' 
+approach is effectively
+equivalent to that of NMC more generally (as this effectively allows any nested estimation
+problem to be defined) and needs to be considered on a case-by-case basis as per
+the general guidelines we have provided throughout this chapter.
 
 %We have shown that it is theoretically possible for a nested Monte Carlo scheme to yield a
 %consistent estimator, and have quantified the convergence error associated with doing so.
