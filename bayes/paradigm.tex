@@ -69,7 +69,7 @@ can, therefore, define a prior $p(\theta)$, for which we take the beta distribut
 p(\theta) = \textsc{Beta}\left(\theta ; \alpha,\beta\right) = \frac{\Gamma(\alpha+\beta)}{\Gamma (\alpha) \Gamma(\beta)}
 \theta^{\alpha-1} (1-\theta)^{\beta-1}
 \end{align}
-where $\Gamma(\cdot)$ is the gamma function and we will take $\alpha=\beta=2$.  
+where $\Gamma(\cdot)$ is the gamma function and we will set $\alpha=\beta=2$.  
 A plot for this prior is shown in Figure~\ref{fig:inf:coin_flip:0}
 where we see that under our prior then it is more probable that $\theta$ is close to $0.5$ than the
 extremes $0$ and $1$.  
@@ -87,9 +87,7 @@ a posterior that is of the same form as the prior distribution.  More generally,
 $\textsc{Beta}(\theta ; \alpha, \beta)$ then the posterior will be $\textsc{Beta}(\theta ; \alpha+1, \beta)$
 if we observe a heads and $\textsc{Beta}(\theta ; \alpha, \beta+1)$ if we observe a tails.
 Figure~\ref{fig:inf:coin_flip:1} shows that our
-posterior incorporates the information from the prior and the observed data.  Namely, our observations 
-mean the distribution
-has drifted towards it being more probable that $\theta<0.5$.  The posterior
+posterior incorporates the information from the prior and the observed data.  For example, our observations mean that it becomes more probable that $\theta<0.5$.  The posterior
 also reflects the fact that we are still uncertain about the value of $\theta$, it is not simply the
 empirical average of our observations which would give $\theta=0$.
 
@@ -128,11 +126,11 @@ p(\theta | Y_1,\dots,Y_6) = \frac{p(Y_2,\dots,Y_6 | \theta)p(\theta | Y_1)}
 {\int p(Y_2,\dots,Y_6 | \theta)p(\theta | Y_1) d\theta} = \textsc{Beta}\left(\theta ; 6,4\right),
 \end{align}
 which is shown in Figure~\ref{fig:inf:coin_flip:6}.  We see now that our belief for the probability of heads
-has shifted higher and that the uncertain has reduced because of the increased number
+has shifted higher and that the uncertainty has reduced because of the increased number
 of observations.
 After seeing a total of $1000$ observations as shown in Figure~\ref{fig:inf:coin_flip:1000}, we
-see that the posterior has predominantly collapsed down to a small range of $\theta$,
-close to the true value of $\theta$ which happens to be $0.7$.
+find that the posterior has predominantly collapsed down to a small range of $\theta$.
+\todo[inline]{Add something about the consistency of Bayesian approaches with infinte data.}
 
 Now we have combined  our prior information with the information from data, a natural
 next question is how can we use this to make predictions.  In the Bayesian setting,
@@ -159,7 +157,7 @@ and $\beta$.
 
 More generally the posterior predictive distribution will depend on a queried input point.
 To demonstrate this, consider the example of a Bayesian linear regression from inputs $x\in\real^D$
-to outputs $y\in\real^D$.  Assume that we have seen $N$ observations $\mathcal{D} = \{x_n,y_n\}_{n=1}^N$
+to outputs $y\in\real^D$.  Assume that we have $N$ observations $\mathcal{D} = \{x_n,y_n\}_{n=1}^N$
 and let $\mathbf{x}=[x_1,\dots,x_N]^T$ and $\mathbf{y}=[y_1,\dots,y_N]^T$ respectively be 
 a $N\times D$ matrix and a column vector whose rows correspond to the different data points.
 Our regression is of the form $y_n= x_n^T\mathbf{w}+b+\epsilon_n$ where $\mathbf{w}\in\real^D$, $b\in\real$
@@ -188,10 +186,9 @@ where $C$ is a fixed covariance matrix.
 To make predictions, we first calculate the posterior
 \begin{align}
 p(\mathbf{w}| \mathcal{D}, b,\sigma) &= \mathcal{N}(\mathbf{w};\mathbf{0},C)
-\prod_{n=1}^{N} \mathcal{N}(y_n;x_n^T \mathbf{w}+b,\sigma^2) \nonumber \\
-&= \mathcal{N}\left(\mathbf{w} ; m, S\right) \\
-\mathrm{where} \quad m &= S^{-1} \mathbf{x}^T \left(\mathbf{y}-b\right)/\sigma^2, \nonumber \\
-S &= \left( C^{-1}+\frac{\mathbf{x}^T\mathbf{x}}{\sigma^2}\right)^{-1}. \nonumber
+\prod_{n=1}^{N} \mathcal{N}(y_n;x_n^T \mathbf{w}+b,\sigma^2) = \mathcal{N}\left(\mathbf{w} ; m, S\right) \\
+\mathrm{where} \quad m &= S^{-1} \mathbf{x}^T \left(\mathbf{y}-b\right)/\sigma^2 \quad
+\mathrm{and} \quad S = \left( C^{-1}+\frac{\mathbf{x}^T\mathbf{x}}{\sigma^2}\right)^{-1}. \nonumber
 %&= \mathcal{N}\left(\mathbf{w} ; \left( C^{-1}+\frac{\mathbf{x}^T\mathbf{x}}{\sigma^2}\right)^{-1} 
 %\frac{\mathbf{x}^T \left(\mathbf{y}-b\right)}{\sigma^2},
 %\left( C^{-1}+\frac{\mathbf{x}^T\mathbf{x}}{\sigma^2}\right)^{-1} \right),
@@ -217,9 +214,11 @@ Gaussian processes, can be viewed as linear regressions between a set of feature
 and the output $y$.
 
 The models we have introduced so far are specific examples of Bayesian modeling and will
-clearly only be applicable or appropriate in very particular scenarios.  However, the only restrictions we
-have in order to carry out Bayesian modeling is that the prior and likelihood are valid probability distributions
-(in practice even these requirements can often be relaxed).  Bayesian modeling is at its heart a
+clearly only be applicable or appropriate in very particular scenarios.  
+%However, the only restrictions we
+%have in order to carry out Bayesian modeling is that the prior and likelihood are valid probability distributions
+%(in practice even these requirements can often be relaxed).  
+Bayesian modeling is at its heart a
 generative approach and its real power will be when we design a rich and expressive \emph{generative model} 
 that reflects our application specific knowledge.  In other words, we can define our model
 by carefully constructing a stochastic process that describes how the data and parameters are generated.
@@ -234,7 +233,7 @@ a visual scene.  Here it is relatively straightforward to construct a model for 
 constructing a sampler for which objects appear in the scene and their respective positions.  Such
 graphics generators are used for computer games all the time.  Here our parameters are the objects and
 the data is the image.  Bayesian inference can now be thought of as the process of \emph{inverting} our generator:
-given objects we can generate images but we want to identify objects from images.  We will return
+given objects, we can generate images but we want to identify objects from images.  We will return
 to these ideas in Chapter~\ref{chp:probprog} where we show how, using probabilistic programming,
 one can think of all stochastic simulators as defining Bayesian models and as the process of inference as
 inverting these simulators.

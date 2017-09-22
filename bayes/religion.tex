@@ -1,13 +1,13 @@
 % !TEX root = ../main.tex
 
-\section{Frequentist vs Bayesian -- an Atheist's View on Two Religions}
+\section{Frequentism vs Bayesianism -- an Atheist's View on Two Religions}
 \label{sec:bayes:religions}
 
 We have just introduced the Bayesian approach to generative modeling, but this is far from
-the only possible approach.  In this section, we will briefly introduce the alternative, \emph{frequentist},
+the only possible approach.  In this section, we will briefly introduce and compare the alternative, \emph{frequentist},
 approach.
   Unfortunately, there is often a substantial, and sometimes acrimonious, divide between those
-who advocate Bayesian or frequentist methods within the statistics and machine learning communities.  Many people
+who advocate Bayesian or frequentist methods within the statistics and machine learning communities.  Many researchers
 have very strong views one way or another in the debate and it is easy, certainly as a graduate student,
 to be sufficiently isolated on one side of the divide to completely detract oneself from the considerations of the
 other.  It sometimes feels that the beliefs of some advocates of each side are so deep-rooted and 
@@ -45,16 +45,17 @@ minimize this loss, but what we mean by minimizing the loss changes between the 
 
 In the
 frequentist setting, $X$ is a random variable but $\theta$ is not.  Therefore, one takes an expectation of possible data
-that could have been generated to give the frequentist risk $R(\theta)$ which is thus a function of theta~\cite{vapnik1998statistical}
+that could have been generated, giving the frequentist risk $R(\theta)$~\cite{vapnik1998statistical}
 \begin{align}
 \label{eq:bayes:freq-risk}
-R(\theta)  = \E\left[L(a(X),\theta) | \theta \right].
+R(\theta)  = \E\left[L(a(X),\theta) | \theta \right]
 \end{align}
-The focus is therefore on \emph{repeatability}
+which is thus a function of theta.
+The frequentist focus is therefore on \emph{repeatability}, i.e.
 the generalization of the approach to different datasets that \emph{could} have been generated.
 Choosing the parameters $\theta$ is thus based on optimizing for the best average performance over possible datasets,
-which common approaches including cross-validation and minimax selection of $\theta$.  In some ways, this is a pessimistic
-approach and the emphasis is on repeat performance and ensuring satisfactory performance for repeated use on different possible
+with common approaches including cross-validation and minimax selection of $\theta$.  In some ways, this is a pessimistic
+approach: the emphasis is on repeat performance and ensuring satisfactory performance for repeated use on different possible
 datasets.  
 
 In the Bayesian setting, $\theta$ is a random variable but $X$ is not.  Therefore one takes an expectation over $\theta$
@@ -66,48 +67,48 @@ to make predictions conditioned on the value of $X$ giving the \emph{posterior e
 where $\pi(\theta)$ is a prior distribution on $\theta$.  Although $\varrho(\pi,X)$ is a function of the data, the Bayesian
 approach takes the data as given (after all we have a particular dataset) and so for a given prior, the posterior
 expected loss is a fixed value and, unlike in the frequentist case, further analysis is not required: the posterior
-conveys all the information required.  The focus of the Bayesian approach is generalizing over all the possible values of
+conveys all the information we need.  The focus of the Bayesian approach is generalizing over all the possible values of
 the parameters and using all the information at hand.  
 This can be quite an optimistic approach as it does not consider the fact that, even for a given $\theta$,
-other datasets might have been generated.  
+other datasets \emph{might} have been generated.  
 
 \subsection{Shortcomings of the Frequentist Approach}
 \label{sec:bayes:religion:freq}
 
 One of the key criticisms of the frequentist approach is that predictions depend on the experimental procedure and
-can violate the \emph{likelihood principle}.  The likelihood principle is that, for a given model and data, the only information relevant
+can violate the \emph{likelihood principle}.  The likelihood principle states that, for a given model and data, the only information relevant
 to the parameters $\theta$ is conveyed by the likelihood function.  In other words, the same data and the same model should
 always lead to the same conclusions about $\theta$.  Though this sounds intuitively obvious, it is actually violated by
-taking an expectation of $X$ in frequentist methods as this introduces a dependency from the experimental procedure, which
+taking an expectation of $X$ in frequentist methods, as this introduces a dependency from the experimental procedure, which
 is ancillary information to the data and the likelihood function.  
 
 As a classic example, 
 imagine that our data from flipping a coin is $3$ heads and $9$ tails.
 In a frequentist setting we make different inferences about whether the coin is biased 
-depending on whether our data originated from flipping the coin $12$ times and counting the number of heads or if we 
+depending on whether our data originated from flipping the coin $12$ times and counting the number of heads, or if we 
 flipped the coin until we got $3$ heads.  For example, at the $5\%$ level of a significance test we can reject the null
-hypothesis that the coin is unbiased in the latter case but not the former case.  This is obviously somewhat problematic but
-can be used to argue both against frequentist methods and the likelihood principle (and thus Bayesian methods).  Using it
+hypothesis that the coin is unbiased in the latter case, but not the former.  This is obviously somewhat problematic, but
+can be used to argue both against frequentist methods and against the likelihood principle (and thus Bayesian methods).  Using it
 to argue against frequentist methods, and in particular significance tests, is quite straightforward: the subjective
 differences in our experiment should not affect our conclusions about whether the coin is fair or not.  We can also take things
-further and make the results change for absurd reasons: if our experimenter had intended to flip until she got
+further and make the results change for absurd reasons.  For example, imagine our experimenter had intended to flip until she got
 $3$ heads but was then attacked and killed by a bear while the twelfth flip was in the air such that further flips would not
-have been possible regardless of the outcome, this again changes our conclusions
-about where the coin is biased.  Clearly, it is ridiculous that the occurrence or lack of a bear attack during the experiment
+have been possible regardless of the outcome.  In the frequentist setting, this again changes our conclusions
+about whether the coin is biased.  Clearly, it is ridiculous that the occurrence or lack of a bear attack during the experiment
 should change our inferences, but that is need-to-know information for frequentist approaches, particularly if using p-values.
 
-As we previously suggested though, one can also use this example to again for frequentist methods because it actually
+As we previously suggested though, one can also use this example to argue for frequentist methods because it actually
 suggests the likelihood principle is incorrect.  Although p-values are a terribly abused tool whose misuse has had
 severe detrimental impact on many applied communities~\citep{goodman1999toward,ioannidis2005most}, they are not incorrect if 
 interpreted correctly
 and are an extremely important part of the statistical arsenal when used appropriately.  If one very carefully considers
 the definition of a p-value as being the probability that the observed event or one more extreme is observed if the
 \emph{experiment is repeated}, we see that our bear attack does actually affect the outcome.  The chance of getting the same
-or more extreme data from repeating the experiment of ``\textit{flip coins until you get $3$ heads or make $12$ flips (at which
+or more extreme data from repeating the experiment of ``\textit{flip the coin until you get $3$ heads or make $12$ flips (at which
 	point you will be killed by a bear)}'' is different to the chance of getting the same or a more extreme result from
-repeating the experiment ``\textit{flip coins until you get $3$ heads}''.  As such, one can argue that the apparent absurd
+repeating the experiment ``\textit{flip the coin until you get $3$ heads}''.  As such, one can argue that the apparent absurd
 changes in conclusions originate from misinterpreting the results and that, in fact, these changes actually demonstrate
-that the likelihood principle is flawed by demonstrating why the experimental procedure actually matters because otherwise,
+that the likelihood principle is flawed, through showing why the experimental procedure actually matters because otherwise
 we have no concept of repeatability.  Imagine instead the scenario where a suspect researcher stops their experiment
 early as it looks like the results are likely to support their hypothesis and they do not want to take the risk that if they
 keep it running as long as they intended, then the results might no longer be so good.  Here the researcher has clearly
@@ -115,8 +116,8 @@ biased their results in a way that ostensibly violates the likelihood principle.
 
 Whichever view you take, two things are relatively indisputable.  Firstly a number of a frequentist concepts, such as p-values,
 are not compatible with the likelihood principle.  Secondly, frequentist methods are not always coherent such that they can
-return answers that are not consistent with each other or probabilities that do not sum to one.  For example, p-values
-for a hypothesis and its complement do not in general sum to $1$.  
+return answers that are not consistent with each other, e.g. probabilities that do not sum to one.  For example, p-values
+for a hypothesis and its complement do not in general sum to one.  
 
 Another major criticism of the frequentist approach is that it takes a point estimate for $\theta$, rather than averaging
 over different possible parameters.  This can be somewhat inefficient in the finite data case as it limits the information
@@ -125,8 +126,8 @@ only one possible set of parameters when our parameter estimates are not known t
 is done is to actively avoid placing a prior distribution on the parameters, either because this prior distribution might
 be ``wrong''\footnote{Whether a prior can be wrong, or what that even means, is a somewhat open question except in the
 	case where it fails to put any probability mass (or density for continuous problems) on the ground truth value of
-	the parameters.} or because at a more philosophical level, it is not a random variable under the frequentist definition
-of probability and so some people object to placing a distribution over it at a fundamental level (we will see this objection
+	the parameters.} or because, at a more philosophical level, it is not a random variable under the frequentist definition
+of probability.  Some people thus object to placing a distribution over it at a fundamental level (we will see this objection
 mirrored by Bayesians for the data in the next section).  For the Bayesian perspective (and a viewpoint we actively 
 argue for elsewhere in the paper), this is itself also a weakness of the frequentist approach as incorporating prior
 information is often essential for effective modeling.
@@ -135,8 +136,7 @@ information is often essential for effective modeling.
 \subsection{Shortcomings of the Bayesian Approach}
 \label{sec:bayes:religion:bayes}
 
-Now we have exposed some shortcomings of the frequentist approach, let's consider if the Bayesian approach does any better.
-Unfortunately, we find that the Bayesian approach is also not without its shortcomings.  We have already discussed one
+Unfortunately, the Bayesian approach is also not without its shortcomings.  We have already discussed one
 key criticism in the last section in that the Bayesian approach relies on the likelihood principle which itself may not
 be sound, or at the very least ill-suited for some statistical modeling problems.  More generally, it can be seen as
 foolhardy to not consider other possible datasets that might have been generated.  The rationale typically given for
@@ -145,8 +145,8 @@ some of this away.  For example, cross-validation approaches only ever use a sub
 However, a common key aim of statistics is generalization and repeatability.  Bayesian approaches will often reach
 spectacularly different conclusions for purely random changes between different datasets.  Consider, for example, a binary
 classification
-problem where using parameters $\theta_1$ classifies four billion of five billion points in the dataset correctly 
-while using parameters $\theta_2$
+problem where using parameter $\theta_1$ classifies four billion of five billion points in the dataset correctly 
+while using parameter $\theta_2$
 classifies four billion and one thousand of data points correctly.  This gives a difference in classification accuracy 
 of $0.00002\%$ but differences in the posterior probabilities for $\theta_1$ and $\theta_2$ will generally
 be huge.\todo{Make this concrete}
@@ -155,7 +155,7 @@ Now presume that we regenerate our data and that each new point is drawn i.i.d.,
 being correctly classified by $\theta_2$, and that these probabilities are equal to the empirical misclassification
 rates.  The probability that $\theta_1$ gives a better misclassification rate for the new dataset is around
 almost $50\%$, even though previous posterior suggested that $\theta_2$ was substantially better than $\theta_1$.
-Furthermore, if $\theta_1$ does give a much better misclassification rate for the new dataset, it is likely 
+Furthermore,\todo{Clairfy this sentance} if $\theta_1$ does give a much better misclassification rate for the new dataset, it is likely 
 to be assigned a substantially higher mass under then posterior that $\theta_2$, even though we know that 
 the latter is actually asymptotically preferable.  In terms of the posterior expected loss, this is not much of a problem
 as for most sensible loss functions this will not substantially change.  However, if our aim is actually to learn 

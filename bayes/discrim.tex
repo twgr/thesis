@@ -18,10 +18,10 @@ outputs $y\in\mathcal{Y}$ that can
 be used directly to make predictions 
 for new inputs $\tilde{x} \notin \left\{x_n\right\}_{n=1}^N$.  \emph{Training}
 uses the data $\mathcal{D}$ to estimate optimal values of the parameters $\theta^*$. \emph{Prediction}
-at a new input $\tilde{x}$ involves applying the mapping with the optimal parameters given an estimate for the output
+at a new input $\tilde{x}$ involves applying the mapping with the optimal parameters giving an estimate for the output
 $\tilde{y} = f_{\theta^*}(\tilde{x})$.  Perhaps the simplest example of this is linear regression: one finds
 the hyperplane that best represents the data and then uses this hyperplane to interpolate or extrapolate
-to predict the output at previously unseen points.  
+to previously unseen points.  
 As a more advanced example, in a neural network one uses training to learn the
 weights of the network, after which prediction can be done by running the network forwards.  
 
@@ -31,14 +31,14 @@ idea that if our objective is prediction, then it is simplest to solve that prob
 than try and solve some more general problem such as learning an underlying generative 
 process~\citep{vapnik1998statistical,breiman2001statistical}. Furthermore, if sufficient
 data is provided, discriminant approaches can be spectacularly successful in term of predictive
-performance.  Methods are typically highly flexible and can capture intricate structure in the data that
+performance.  Discriminant methods are typically highly flexible and can capture intricate structure in the data that
 would be hard or even impossible to establish manually.  Many approaches can also be run with little
 or no input on behalf of the user, delivering state-of-the-art performance when used
 ``out-of-the-box'' with default parameters~\citep{rainforth2015canonical}.  
 
 However, this black-box nature is also often their downfall.  Discriminative methods typically make
 such weak assumptions about the underlying process that is difficult to impart prior knowledge
-or domain-specific expertise.  This can be disastrous if insufficient data is available as the data
+or domain-specific expertise.  This can be disastrous if insufficient data is available, as the data
 alone is unlikely to possess the required information to make adequate predictions.  Even when
 substantial data is available, there may be significant prior information available that needs to be
 exploited for effective performance.  For example, in time series modelling the sequential nature
@@ -71,10 +71,10 @@ Because they are typically trained in a manner that optimizes the parameters to 
 some loss criterion (e.g. the predictive error), they do not, in general, encode any uncertainty
 in either their parameters or the subsequent predictions.  Though many methods can
 produce uncertainty estimates either as a by-product or from a post-processing step,
-these are typically mostly heuristic based, rather than stemming naturally from a statistically
-principled estimate of the target uncertainty distribution.   The lack of reliable uncertainty
+these are typically heuristic based, rather than stemming naturally from a statistically
+principled estimate of the target uncertainty distribution.   This lack of reliable uncertainty
 estimates can lead to overconfidence and can make discriminative methods inappropriate in
-many scenarios.  This can also reduce the composability of discriminative methods within
+many scenarios.  It can also reduce the composability of discriminative methods within
 larger systems, as information is lost when only providing a point estimate.
 Not representing uncertainty in the parameters can also restrict the power of the resultant
 models, compared with approaches that can average over different possible parameter values.
@@ -90,7 +90,7 @@ only modeling the outputs given the inputs $p(Y|X)$.
 A key upshot of this difference
 is that generative approaches generally make stronger modeling assumptions about the problem.  Though
 this can be problematic when the model assumptions are wrong and is often unnecessary in
-the limit of large data, it is essential for combining prior information with information from data
+the limit of large data, it is essential for combining prior information with data
 and therefore for constructing systems that exploit application-specific human expertise.
 In the words of the great George Box, ``\textit{all models are wrong, but some a useful}''
 \citep{box1979robustness,box2005statistics}.  In a way, this is a self-fulfilling statement: a model for
@@ -101,7 +101,7 @@ the world that only their approach is correct.  Only in artificial situations ca
 and so we must remember, particularly in generative machine learning, that the first, and often largest,
 error is in our original mathematical abstraction of the problem.  On the other hand, real situations
 have access to finite and often highly restricted data, so it is equally preposterous to suggest that a
-method is superior simply due to its asymptotic behavior in the limit of large data or that if our approach
+method is superior simply due to better asymptotic behavior in the limit of large data, or that if our approach
 does not work then the solution is simply to get more data.\footnote{It should, of course, be noted
 	that the availability of data is typically the biggest bottleneck in machine learning.  At times, it feels 
 	like the machine learning community would we well served to remember that the differences in performance between
@@ -116,9 +116,9 @@ example of the differences between logistic regression (a discriminative classif
 classification where the class label $y \in \{0,1\}$ is predicted from the input features $x \in \real^D$ using
 \begin{align}
 \label{eq:bayes:logistic}
-p(y|x,a,b) = \frac{1}{1+\exp(-y(a+b^Tx))}
+p(y|x,a,b) = \frac{1}{1+\exp(-y(a+b^Tx))},
 \end{align}
-where $a \in \real^D$ and $b \in \real^D$ are the parameters of the model.  The model is trained by finding the values
+and where $a \in \real^D$ and $b \in \real^D$ are the parameters of the model.  The model is trained by finding the values
 for $a$ and $b$ that minimize a loss function on the training data.  For example, a common approach
 is to find the \emph{most likely} parameters $a^*$ and $b^*$ by minimizing the negative log-likelihood
 (which is equivalent to the cross-entropy loss function)
@@ -138,7 +138,7 @@ the na\"{i}ve Bayes assumption is that
 \begin{align}
 p(x|y) = \prod_{i=1}^D p(x^i |y)
 \end{align}
-which in turn leads to the following joint distribution
+which in turn leads to the joint distribution
 \begin{align}
 p(x,y) = p(y) \prod_{i=1}^D p(x^i |y).
 \end{align}
@@ -155,8 +155,7 @@ more depth in Section~\ref{sec:bayes:religions}.
 
 As we have shown, generative approaches are inherently probabilistic.  This is highly convenient
 when it comes to calculating uncertainty estimates or gaining insight from our trained model.
-They are generally more intuitive than discriminative methods as models are they denote the probability
-of events occurring, while the generative model is, in essence, an explanation for how the data is
+They are generally more intuitive than discriminative methods, as, in essence, they constitute an explanation for how the data is
 generated.  As such, the parameters tend to have physical interpretation in the generative process and
 therefore provide not only prediction, but also insight.  Generative approaches will not always be preferable,
 particularly when there is an abundance of data available, but they provide a very powerful framework
