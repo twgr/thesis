@@ -11,12 +11,13 @@ chapter, referring back as needed for clarification on any conventions undertake
 will hopefully find it to be a gentle introduction to the key concepts that will be needed to
 be understood to follow the rest of the thesis.  Notation has been chosen with accessibility 
 as the primary aim and we will avoid
-the use measure theory where possible.  Nonetheless, we note that a measure theoretic
+the use measure theory where possible.  Nonetheless, a measure theoretic
 approach to probability is essential for a more rigorous understanding and refer
 the interested reader to~\cite{durrett2010probability}.
 
 \section{Random Variables, Outcomes, and Events}
 \label{sec:prob:random}
+\vspace{-5pt}
 
 A \emph{random variable} is a variable
 whose realization is currently unknown, such that it can take on multiple different
@@ -34,6 +35,7 @@ roll and even number and we roll a number greater than $3$ to occur.
 
 \section{Probabilities}
 \label{sec:prob:prob}
+\vspace{-5pt}
 
 A \emph{probability} is
 the chance of an event occurring.  For example, if we denote the output
@@ -42,12 +44,14 @@ $X=4$ and $X\le3$ are events for the random variable $X$ with probabilities of $
 respectively.   A probability of $0$ indicates that an event has no chance of happening, 
 for example the probability that we role an $8$, while
 a probability of $1$ indicates it is certain to happen, for example, the probability 
-that we roll a number less than $7$.  All probabilities much thus lie (inclusively) between $0$ and $1$.  
+that we roll a number less than $7$.  All probabilities must thus lie between $0$ and $1$ 
+(inclusively).  
 A \emph{distribution} of a random variable provides the probabilities of each possible 
 outcome for that random variable occurring.
 
-We will regularly use the shorthand $P(x)$ to denote the probability of the event $P(X=x)$.  
-We reiterate the important distinction between the random variable $X$ and the outcome $x$:
+Though, we will regularly use the shorthand $P(x)$ to denote the probability of the 
+event $P(X=x)$,
+we reiterate the important distinction between the random variable $X$ and the outcome $x$:
 the former has an unknown value (e.g. the result of the dice roll) and the latter is
 a fixed possible realization of the random variable (e.g. rolling a $4$).
 All the same, we will at times be intentionally carefree about delineating between
@@ -55,14 +59,14 @@ random variables and outcomes, except for when the distinction is explicitly nec
 
 Somewhat surprisingly, there are two competing (and often incompatible)
 formal definitions for what probabilities actually mean.  The frequentist definition of
-probability is that it is the average proportion of the time an event will occur if the trial is 
+probability is that it is the average proportion of the time an event will occur if a trial is 
 repeated infinitely many times.  The Bayesian definition of probability is that it is the subjective
 belief that an event will occur in the process of incomplete information.  Both viewpoints have
 strengths and weaknesses and we will avoid being drawn into one of the biggest debates in
 science, noting only that the philosophical differences between the two are typically completely
 detached from the practical differences between the resulting
-algorithms~\citep{steinhardt2012beyond}, despite the former all too often be used to argue
-the superiority of one approach over another.
+algorithms (see Section~\ref{sec:bayes:religions}), despite the former all too 
+often be used to argue the superiority of one approach over another.
 
 \section{Conditioning and Independence}
 \label{sec:prob:cond}
@@ -72,8 +76,7 @@ For example, the conditional probability that we roll a $4$ with a dice given th
 higher is $P(X=4 | X\ge3) = 0.25$.  More typically, we will condition on events that are separate but
 correlated to the event we care about.  For example, the probability of dying of lung cancer is higher
 if you smoke.  The process of updating a probability using the information from another event is
-known as conditioning on that event.  For example, one can condition the probability that a football team
-will win the league this seasons on the results from their first few games.
+known as conditioning on that event.  For example, one can condition the probability that a football team will win the league on the results from their first few games.
 
 Events are \emph{independent} if the occurrence of one event does not affect the probability of 
 the occurrence of the other event.  Similarly, random variables are independent if the outcome of
@@ -84,7 +87,7 @@ independence does not necessarily carry over when adding or removing a condition
 if $X$ and $Y$ are independent, this does not necessarily mean that $P(X=x|A) = P(X=x|A,Y=y)$
 for some event $A$.  For example, the probability that the next driver to pass a speed camera
 is speeding and that the speed camera is
-malfunctioning can be reasonably safely presumed to be independent.  However, conditioned on the
+malfunctioning can be reasonably presumed to be independent.  However, conditioned on the
 event that the speed camera is triggered, the two are clearly not independent as if the camera is working,
 this would indicate that the driver is speeding.
 If $P(X=x|A) = P(X=x|A,Y=y)$ holds, then $X$ and
@@ -97,7 +100,7 @@ imply conditional independence, conditional independence does not imply non-cond
 Though not technically axiomatic, the mathematical laws of probability can be summarized by the \emph{product rule}
 and the \emph{sum rule}.  Remarkably, almost all of probability stems from these two simple rules.
 The product rule states that the probability of two events occurring is the probability of one of the events
-occurring times the probability of the over event happening given the first event happened, namely
+occurring times the conditional probability of the other event happening given the first event happened, namely
 \begin{align}
 \label{eq:prob:prod}
 P(A,B) := P(A \cap B) = P(A|B) P(B) =  P(B|A) P(A)
@@ -115,14 +118,14 @@ The sum rule has a number of different representations, the most general of whic
 the probability that either $A$ or $B$ occurs, $P(A\cup B)$, is given by
 \begin{align}
 \label{eq:prob:sum}
-P(A\cup B) = P(A) + P(B) - P(A, B).
+P(A, B) = P(A) + P(B) - P(A, B).
 \end{align}
 The intuition of the sum rule is perhaps easiest to see by considering that
 \[
 P(B) - P(A \cap B) = P(B)(1-P(A|B)) = P(B, \neg A)
 \]
  is the probability of $B$ and 
-not $A$.  $A\cup B$ can only occur if $A$ occurs or if $B$ and not $A$ occurs.  As it is not
+not $A$.  Here $A\cup B$ can only occur if $A$ occurs or if $B$ occurs and not $A$.  As it is not
 possible for both these events to occur, the probability of either event must be the sum of the
 probability of each separate event.
 There are a number of immediate consequences of the sum rule.  For example, if $A$ and $B$ are
@@ -142,19 +145,20 @@ Conditional probabilities follow  the same key results as unconditional probabil
 should be noted that they do not define probability distributions over the conditioning term.  
 For example, $P(A|B)$ is a probability distribution over $A$ with all the corresponding 
 requirements, but is not a distribution over $B$.  Therefore,
-for example, it is possible to have for example $\sum_{i} P(A|B=b_i) >1$.
+for example, it is possible to have $\sum_{i} P(A|B=b_i) >1$.  We instead refer to $P(A|B)$
+as the \emph{likelihood} of $B$, given the occurrence of event $A$.
 
 \section{Probability Densities}
 \label{sec:prob:den}
 
 Thus far we have presumed that our random variables a discrete, i.e. that there is some fixed
 number of possible outcomes.\footnote{Technically speaking, discrete random variables can also
-	take on a \emph{countable} number of values.  For example, the Poisson distribution is defined
-	over $0,1,2,\dots,\infty$ and is a discrete distribution with infinite possible outcomes.  
+	take on a \emph{countably infinite} number of values, e.g. the Poisson distribution is defined
+	over $0,1,2,\dots,\infty$.  
 	However, this countable infinity is much smaller than the \emph{uncountably infinite} number
 	of possible outcomes for continuous random variables.}
 Things get somewhat more complicated if our variables are continuous.  Consider for example
-the probability that a runner takes exactly $\pi$ hours to run a marathon $P(X=\pi)$.  
+the probability that a runner takes exactly $\pi$ (i.e. $3.14\dots$) hours to run a marathon $P(X=\pi)$.  
 Clearly, the probability
 of this particular event is zero, $P(X=\pi)=0$, as is the probability of the runner taking any other exact time
 to complete the race: we have an infinite number of possible outcomes, each with zero probability
@@ -162,15 +166,15 @@ to complete the race: we have an infinite number of possible outcomes, each with
 introduced comes to our rescue.  For example, the event that the runner takes between $3$ and
 $4$ hours has non-zero probability: $P(3\le X \le 4) \neq 0$.  Here our event itself include
 an infinite number of possible outcomes and even though each individual outcome had
-zero probability, the combination of \emph{uncountably infinite} many such outcomes need
+zero probability, the combination of \emph{uncountably infinitely} many such outcomes need
 not also have zero probability.  To more usefully characterize probability in such cases, we can
 define a \emph{probability density function} which reflects the relative probability of areas of
-the space of outcomes.  We can define this more precisely by considering the probability
+the space of outcomes.  We can define this by considering the probability
 of being some small area of the space of size $\delta x$.  Presuming that the probability density
 $p_{X}(x)$ is roughly constant within our small area, we can say that 
 $p_{X}(x)\delta x \approx P(x\le X <x+\delta x)$ and thus 
-$p_{X}(x) = \lim\limits_{\delta\rightarrow0} \frac{P(x\le X <x+\delta x)}{\delta x}$.  More formally
-we can define the probability density as satisfying
+$p_{X}(x) = \lim\limits_{\delta\rightarrow0} \frac{P(x\le X <x+\delta x)}{\delta x}$.  More 
+precisely we can define the probability density as satisfying
 \begin{align}
 \label{eq:prob:density}
 P(X\in \mathcal{A}) = \int_{x\in\mathcal{A}} p_{X}(x) dx
@@ -183,7 +187,6 @@ that $X$ is less than equal to the outcome $x$
 P(X\le x) = \int_{-\infty}^{x} p_{X}(u) du,
 \end{align}
 where $u$ is a dummy variable.
-
 Most of the key rules of probability theory, such as the sum rule, the product rule, and Bayes
 rule, apply equally well to continuous and discrete random variables.  All that is required
 is that we replace the summations with integrals over the appropriate variable. 
@@ -193,10 +196,12 @@ The main rationale for this is will we regularly use probability density functio
 not actually sample from.  For example, in importance sampling, we will sample from one
 distribution but evaluate its density under another.  In these scenarios, it may not be possible
 to link a random variable to each density.  We will instead make it explicit what distribution
-of density a random variable is drawn from using the notation $X\sim p(x)$.  For the reasons
-outlined in the next section, we will also often be carefree at distinguishing between probabilities
-and probability densities as this oft-used convention will regularly be highly convenient when
-dealing with variables that could be discrete or continuous.  We will also regularly be carefree about
+of density a random variable is drawn from using the notation $X\sim p(x)$.  
+%For the reasons
+%outlined in the next section, we will also often be carefree at distinguishing between probabilities
+%and probability densities as this oft-used convention will regularly be highly convenient when
+%dealing with variables that could be discrete or continuous.  
+We will regularly be carefree about
 distinguishing between random variables and outcomes by using loose notations such as
 $x\sim p(x)$ when the delineation is not necessary in the context.
 
@@ -213,15 +218,15 @@ have thus-far introduced them, neither the concept of a probability or a probabi
 seem to be suitable for this case: every outcome other than $X=\infty$ has zero probability,
 but $X=\infty$ seems to have infinite probability density.  To solve this conundrum we 
 have to briefly break our promise to avoid measure theory.  A \emph{measure} can be thought of
-as something that assigns a size to a set of objects.  In the context of probability theory,
-\emph{probability measures} assign probabilities to events, remembering that events represent 
+as something that assigns a size to a set of objects.
+\emph{Probability measures} assign probabilities to events, remembering that events represent 
 sets of outcomes, and thus are used to define a more formal notion of probability that we have
 previously discussed. 
 The measure assigned to event including all possible outcomes is thus $1$,
 while the measure assigned to the empty set is $0$.  
 
 We can generalize the concept of a probability density to arbitrary random variables
-by formalizing its defining as being with respect to an appropriate \emph{reference measure}.  Somewhat confusingly,
+by formalizing its definition as being with respect to an appropriate \emph{reference measure}.  Somewhat confusingly,
 this reference measure  is typically not a probability measure.  Consider the case of the continuous densities examined
 in Section~\ref{sec:prob:den}.
 Here we have implicitly used the \emph{Lebesgue measure} as the reference measure, which corresponds to
@@ -235,8 +240,8 @@ $\int_{x\in\mathcal{A}} p(x)dx = P(x\in\mathcal{A})$.\footnote{More formally, th
 	from the probability measure and reference measure rather than the other way around:
 	it is the Radon-Nikodym derivative of the probability measure with respect to the reference measure.}
 In the discrete cases, we can define a probability density $p(x)=P(X=x)$ by
-using the notion of a \emph{counting measure} for reference which simply counts the number of outcomes which
-lead to a particular event.   Note that we were not free to choose an arbitrary measure for any given
+using the notion of a \emph{counting measure} for reference, which simply counts the number of outcomes which
+lead to a particular event.   Note that we were not free to choose any arbitrary measure for any given
 random variable.  
 We cannot use a counting measure as reference for continuous random variables
 or the Lebesgue measure for discrete random variables because, for example, the Lebesgue measure would assign zero
@@ -249,7 +254,7 @@ For the example where the runner might not finish, we can
 use a \emph{mixed measure}.  Perhaps the easiest way to think about this is to think about
 the runner's time $X$ as being a deterministic function of two random variables: the first
 a discrete random variable $Y\in\{0,1\}$ that dictates where the runner finishes ($Y=1$) or not ($Y=0$) and the second 
-a continuous random $Z\in\real^+$ variable that dictates a distribution over run times assuming the
+a continuous random variable $Z\in\real^+$ that specifies a distribution over run times assuming the
 runner finishes (such that $Z$ always existing but only equals $X$ if the runner finishes).  
 %We can now describe our joint density as $p(y=Y,z=Z) = p(Y=y)p(z=Z)$ where $p(Y=y)$
 %is defined with respect to a counting measure (such that $p(Y=y)=P(Y=y$) and $p(z=Z)$.
@@ -268,18 +273,18 @@ the fact that the measure now depends explicitly on the value of $x$, i.e. our m
 is non-stationary in $x$.  For $x\neq\infty$ then it is natural for $d\mu(x)$ to correspond to the
 Lebesgue measure, noting $\int_{x\in \real\backslash\infty} p(x) d\mu(x) = 1-P(X=\infty)$.
 For $x=\infty$ it is natural for $d\mu(x)$ to correspond to some scaling of the counting
-measure.  For discrete distributions it natural to use the counting measure (i.e. set the
+measure.  For discrete distributions it natural to use the counting measure exactly (i.e. set the
 scaling to one), but here this could lead to a slightly misleading density given that $X=\infty$
 is infinitely times more probable than any other $X$.  For example, this could mean that
 $\argmax p(x) \neq \infty$ which could quickly lead to confusion.  A more illustrative
 choice might use the counting measure scaled by an arbitrarily small value (such that
-the density is scaled by large value), though strict speaking this scaling should not be $0$.
+the density is scaled by large value), though strictly speaking this scaling should not be $0$.
 
 For most applications,\footnote{An important
 	exception to this is optimization (see Chapter~\ref{chp:opt}).}
 the choice between valid reference measures will turn out to be
 inconsequential (provided we are consistent in our choice when considering multiple
-densities) as it does not affect the distribution of random variables themselves 
+densities), as it does not affect the distribution of random variables themselves 
 or effect things such as expectations (see Section~\ref{sec:prob:expt}).  
 The key point we wish to instead make, is that regardless of variable type, we can
 (implicitly) always define a probability density function.\footnote{Well, almost always.  But we
@@ -288,7 +293,8 @@ The generalization also allows us
 to put probability distributions of variables that are neither discrete or continuous type.
 For example, we might want to put a distribution over the space of strings.  
 Because of this generalization, we will talk mostly in terms of probability densities throughout
-this thesis, even though variables may often be discrete.
+this thesis, even though variables may often be discrete (for which the density will 
+represent a probability).
 
 We finish the section by considering the relationship between random variables which
 are deterministic functions of one another.  This important case is known as a change of
@@ -314,18 +320,17 @@ variables does not change the value of actual probabilities or exceptions (see
 still has the important consequence that the optimum of a probability distribution
 depends on the parameterization.  For example, parameterizing the same model with
 either $X$ or $\log X$ will lead to a different most likely value of the parameter
-$x^*$, i.e.
+$x^*$, i.e., in general,
 \begin{align}
-x^* = \argmax_{x} p(x) \neq g^{-1} \left(\argmax_{g(x)} p(g(x))\right)
+x^* = \argmax_{x} p(x) \neq g^{-1} \left(\argmax_{g(x)} p(g(x))\right).
 \end{align}
-in general.
 
 \section{Expectations and Variances}
 \label{sec:prob:expt}
 
 The \emph{expected value} $\E [X]$, or mean, of a random variable $X$ is the average value that the variable
 will take if an infinite number of independent draws are made.  Its definition is easiest convey using 
-probability density notation
+probability density notation as follows
 \begin{align}
 \label{eq:prob:expt}
 \E [X] = \int x p(x)dx.
@@ -340,7 +345,6 @@ expectation for example
 \E [f(X,Y) | Y=y] = \int f(x,y) p(x|y) dx,
 \end{align}
 for which we will sometimes use the shorthand $\E [f(X,Y) | Y]$.
-
 It will also sometimes be convenient to implicitly define the random variable and conditioning for an 
 expectation for which we use the slightly loose notation
 \begin{align}
@@ -351,11 +355,12 @@ where we have implicitly defined the random variables $Y \sim p(y)$ and $X \sim 
 we are calculating $\E \left[f(X,Y,z) | Y=y\right]$,
 and this resulting expectation is a function of $z$.  One can informally think about this
 as being the expectation of $f(x,y,z)$ with respect to $p(x|y)dx$:
-our expectation is only over the randomness associated with drawing from $p(x|y)$.  Thus,
-for example, we are not taking an expectation over nor condition upon $z$ in this example
--- it is treated as a fixed input, even if it is a random variable externally to this expectation.
-Depending on the context, we will switch between these different notations for expectation
-and will sometimes simply using the integral form directly.
+our expectation is only over the randomness associated with drawing from $p(x|y)$.  
+%Thus,
+%for example, we are not taking an expectation over nor condition upon $z$ in this example
+%-- it is treated as a fixed input, even if it is a random variable externally to this expectation.
+%Depending on the context, we will switch between these different notations for expectation
+%and will sometimes simply using the integral form directly.
 
 Denoting the mean of a random variable $X$ as $\mu=\E [X]$, the \emph{variance} of $X$
 is defined using any one of the following equivalent forms
