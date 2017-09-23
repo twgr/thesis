@@ -18,14 +18,16 @@ possible values.  The cost of enumerating all the possible combinations scales a
 increases exponentially with $D$; even for modest values for $K$ and $D$ this will 
 be prohibitively large.
 
-The curse of dimensionality extends far beyond problems of enumeration.  It will be felt to
+However, the curse of dimensionality extends far beyond problems of enumeration.  It will be felt to
 some degree or another by almost all approaches for inference and modelling more generally,
 but its effect will be most pronounced for methods that try to explicitly model the target
 space.  As a geometrical demonstration of this, consider the effect of dimensionality on 
-the sampling by rejection approach introduced at the start of Section~\ref{sec:inf:foundation:rejection} where to
-sample uniformly from within some shape we sample uniformly from
-some bounding shape or box containing the target shape and then take only the samples
-that fall within the target.  For simplicity we will presume that the target shape is a hypersphere and that
+the sampling by rejection approach introduced at the start of Section~\ref{sec:inf:foundation:rejection}.
+% where to
+%sample uniformly from within some shape we sample uniformly from
+%some bounding shape or box containing the target shape and then take only the samples
+%that fall within the target.  
+For simplicity we will presume that the target shape is a hypersphere and that
 the bounding shape is the smallest hypercube that encloses that hypersphere.  Our acceptance rate,
 and thus the efficiency of the algorithm, will be equal to the ratio of the two Lebesgue 
 measures, i.e. the ratio of the two hyper-volumes.  
@@ -34,8 +36,8 @@ the hyper-volume of the $D$-dimensional hypersphere with radius $r$ is $V_{s} = 
 and the hyper-volume of the enclosing hypercube is $V_c = (2r)^D$, giving a ratio of
 $\frac{V_s}{V_c} = \frac{\pi^{D/2}}{(D/2)! 2^D} = \left(\frac{\sqrt{\pi}}{2}\right)^D\frac{1}{(D/2)!}$.
 The first of these terms decreases exponentially and second
-super-exponentionally with $D$ (noting that $(D/2)!>(D/6)^{(D/2)}$) and thus quickly becomes
-very small.  For example, $D=10, 20$, and $100$ respectively gives ratios of approximately
+super-exponentionally with $D$ (noting that $(D/2)!>(D/6)^{(D/2)}$).  
+For example, $D=10, 20$, and $100$ respectively gives ratios of approximately
 $2.5 \times 10^{-3}$, $2.5 \times 10^{-8}$, and $1.9\times 10^{-70}$.  
 Consequently, our acceptance rate will diminish
 super-exponentially with the number of dimensions and our approach will quickly become
@@ -47,7 +49,7 @@ increases and that we should choose
 a better approximation.  Although this is true, the key realisation is that achieving a good approximation
 is increasingly difficult in high dimensions, typically exponentially so.
 To demonstrate this, imagine we instead use an arbitrary bounding shape defined in polar
-co-ordinates such that the error on the radius at the any given point is at most $\varepsilon$
+co-ordinates such that the difference in the radius at the any given point is at most $\varepsilon$
 (i.e. the radius of our bounding shape is between $r$ and $r+\varepsilon$ at all points).
 The hyper-volume in which our approximation might live for an even number of dimensions
 is given by
@@ -58,7 +60,7 @@ V_{\varepsilon} = \frac{\pi^{D/2}(r+\epsilon)^D}{(D/2)!}-\frac{\pi^{D/2}r^D}{(D/
 \end{align}
 Consequently, we have that the ratio $\frac{V_{\varepsilon}}{V_s}$ increases exponentially with $D$
 and that for sufficiently large $D$ and a fixed $\varepsilon$ the amount of space in our tolerance
-region will become substantially larger than the target hyper-volume, leading to very low acceptance
+region will become substantially larger than the target hyper-volume, again leading to very low acceptance
 rates.
 
 Flipping this on its head, we can ask the question how does $\varepsilon$ need to vary
@@ -73,9 +75,9 @@ However, this misses the
 key difficulty caused by~\eqref{eq:inf:vol-edge}: the higher $D$ is, the more difficult it is
 to accurately model the target shape and keep $\varepsilon$ small.  
 It follows from~\eqref{eq:inf:vol-edge} that as $D$ increases, the more the hyper-volume
-of the sphere is concentrated at the surface.  This generalized to non-spherical targets and
+of the sphere is concentrated at the surface.  This generalizes to non-spherical targets and
 means that accurate modelling the surface of our target is essential in high dimensions.
-Unfortunately, the this task becomes rapidly more difficult with increasing dimensionality.  
+Unfortunately, this task becomes rapidly more difficult with increasing dimensionality.  
 
 Consider, for example,
 regressing the surface of the target by using a number of inducing points spread over the
@@ -111,14 +113,13 @@ w(\theta) = \frac{\pi(\theta)}{q(\theta)} &= \prod_{i=1}^{D} \frac{\exp(-\theta_
 {\frac{\Gamma(1.5)}{\sqrt{2\pi}}\left(1+\theta_d^2/2\right)^{-3/2} } =\prod_{i=1}^{D} \frac{2 \exp(-\theta_d^2/2) \left(1+\theta_d^2/2\right)^{3/2}}{\sqrt{\pi}}.
 \end{align}
 It follows that the variance of the weights under the proposal increases exponentially
-with $D$ as follows
+with $D$ as
 \begin{align}
 \var_{q(\theta)} \left[w(\theta)\right] &= \int w^2(\theta)q(\theta)d\theta -
-\left(\int w(\theta)q(\theta)d\theta\right)^2 \nonumber\\
-&=-1+ \prod_{i=1}^{D} \int_{-\infty}^{\infty} w^2(\theta_d)q(\theta_d)d\theta_d \nonumber\\
+\left(\int w(\theta)q(\theta)d\theta\right)^2 
+=-1+ \prod_{i=1}^{D} \int_{-\infty}^{\infty} w^2(\theta_d)q(\theta_d)d\theta_d \nonumber\\
 &=-1+\prod_{i=1}^{D} \int_{-\infty}^{\infty} \frac{\sqrt{2}\exp(-\theta_d^2)\left(1+\theta^2_d/2\right)^{(3/2)}}
-{\pi}d\theta_d \nonumber \\
-&\approx 1.1455^D-1
+{\pi}d\theta_d \approx 1.1455^D-1
 \end{align}
 where we have used the fact that the integral has a closed form solution.
 We thus see that our effective sample size
@@ -131,7 +132,7 @@ distribution will typically only have significant mass in a small proportion of 
 concentrated around a lower dimensional manifold of the larger space.  This means that if
 we use inference methods that in some way exploit the structure of the target distribution and only
 search the small subset of the space with significant mass, then effective inference can still be
-performed.  When this is not the case, practical inference will typically be futile in high dimensions
+performed.  When this is not the case, practical inference will typically be futile in high dimensions anyway
 and so many inference algorithms are geared towards exploit a particular type of structure.
 As we will show in the next section, the effectiveness of MCMC methods is mostly based on 
 exploiting single modality in the target by making local moves that cause the algorithm to have

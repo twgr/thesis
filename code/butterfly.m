@@ -14,7 +14,7 @@ rs = r(t);
 
 line_width = 5;
 Marker_size = 18;
-font_size = 70;
+font_size = 90;
 axlim = [-1,1];
 aylim = [-1,1];
 interpreter = 'latex';
