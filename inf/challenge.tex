@@ -1,8 +1,5 @@
 % !TEX root = ../main.tex
 
-\section{The Challenge of Bayesian Inference}
-\label{sec:inf:challenge}
-
 In Chapter~\ref{chp:bayes} we introduced the concept of Bayesian modeling and showed how we
 can combine prior information $p(\theta)$ and a likelihood model $p(\mathcal{D}|\theta)$ using Bayes' rule 
 (i.e.~\eqref{eq:bayes:bayes}), to produce a posterior $p(\theta|\mathcal{D})$ on variables $\theta$ that
@@ -13,8 +10,17 @@ At first this may seem like a straight forward problem: by Bayes' rule we have t
 $p(\theta|\mathcal{D})\propto p(\mathcal{D}|\theta)p(\theta)$ and so we already know the relative probability of any one
 value of $\theta$ compared to another.  In practice, this could hardly be further from the
 truth.  Bayesian inference for the general class of graphical models is in fact an 
-NP-hard problem \citep{cooper1990computational,dagum1993approximating}.  We can break
-it down into key challenges: calculating the normalization constant
+NP-hard problem \citep{cooper1990computational,dagum1993approximating}.  In this chapter
+we will outline these challenges and introduce methods for overcoming them in the form of \emph{inference algorithms}.
+We will focus, in particular, on Monte Carlo inference methods, for which we will introduce some
+key underlying, before introducing a number of foundational methods that form the building blocks
+for more advanced strategies such as those discussed in Chapter~\ref{chp:part}.  We will later
+use these methods to develop automated inference engines for PPS in Chapter~\ref{chp:proginf}.
+
+\section{The Challenge of Bayesian Inference}
+\label{sec:inf:challenge}
+
+We can break down Bayesian inference into two key challenges: calculating the normalization constant
 $p(\mathcal{D}) = \int p(\mathcal{D}|\theta)p(\theta)d\theta$ and providing a useful characterization of the posterior, for
 example an object we can draw samples from.  Many inference schemes, for example Markov
 chain Monte Carlo (MCMC) methods \citep{hastings1970monte}, will not
@@ -44,10 +50,10 @@ $p(\mathcal{D})=4$ gives $P(\theta=2 | \mathcal{D}) = 5/6$, while $p(\mathcal{D}
 example may seem far-fetched, this is the scenario almost always seen in practice for realistic
 models, at least those with non-trivial solutions.   Typically it is not
 possible to enumerate all the possible values of $\theta$ in reasonable time and we are left 
-wondering - how much probability mass is left that we have not seen?  The problem is even worse 
+wondering -- how much probability mass is left that we have not seen?  The problem is even worse 
 in the setting where $\theta$ is continuous, for
 which it is naturally impossible to evaluate all possible values for $\theta$.  
-Knowing the posterior only up to a normalization constant is deceptively unhelpful - we never
+Knowing the posterior only up to a normalization constant is deceptively unhelpful -- we never
 know how much of the probability mass we have missed and therefore whether the probability (or
 probability density) where we have looked so far is tiny compared to some other dominant region
 we are yet to explore.  At its heart, the problem of Bayesian inference is a problem
@@ -60,36 +66,30 @@ our second challenge -- knowing the posterior in closed form is often not enough
 \label{sec:inf:challenge:post}
 
 Once with have the normalization constant, it might seem that we are done; after all
-we now have the exact form the posterior using in Bayes' rule.  Unfortunately, it tends to
+we now have the exact form of the posterior using in Bayes' rule.  Unfortunately, it tends to
 be the case, at least when $\theta$ is continuous, that is this insufficient to carry out most
 tasks that we might want to use our posterior for.  There are a number of different, often
 overlapping, reasons for wanting to calculate a posterior including
 \begin{itemize}
+		\setlength\itemsep{0em}
 	\item To calculate the posterior probability or probability density for one or more particular
 	instances of the variables.
 	\item To calculate the expected value of some function, $\mu_f = \E_{p(\theta|\mathcal{D})}\left[f(\theta)\right]$.
 	For example, we might want to calculate the expected values of the variables themselves
-	$\mu_\theta = E_{p(\theta|\mathcal{D})} \left[\theta\right]$ as a point estimate.
-	\item To make predictions.  For example, in a supervised learning task then our data typically
-	comprises of a series of input output pairs $\mathcal{D} = \{x_n,y_n\}_{n=1:N}$ and we
-	wish to predict the output at some new input $\tilde{x}$.  In the fully Bayesian framework, one
-	does this using the \emph{posterior predictive distribution}
-	\[
-	p(\tilde{y} | \tilde{x}) = \int p(\tilde{y}|\tilde{x},\theta) p(\theta | \mathcal{D}) d\theta.
-	\]
-	Note that this is a particular case of calculating an expectation under the posterior.
+	$\mu_\theta = E_{p(\theta|\mathcal{D})} \left[\theta\right]$.
+	\item To make predictions as per the posterior predictive distribution introduced in Section~\ref{sec:bayes:paradigm}.
 	\item To find the most probable variable values $\theta^* = \argmax_{\theta} p(\theta|\mathcal{D})$.  
 	This is known
-	as maximum a posteriori estimation and will be discussed in Chapter~\ref{chp:opt}.
-	\item To produce samples from, or form some other useful characterization of, the posterior that can
-	then passed on to another part of a computational pipeline or directly observed by a user.
-	\item To estimate a marginal probability distribution over some variables of particular
-	interest.  For example, if $\theta=\{u,v\}$ then we might be interest in the marginal
+	as maximum a posteriori estimation and will be discussed in Chapters~\ref{chp:opt} and~\ref{chp:bopp}.
+	\item To produce a useful representation of the posterior, e.g. a set of samples,
+	for passing on to another part of a computational pipeline or to be directly observed by a user.
+	\item To estimate, or sample from, a marginal distribution over some variables of particular
+	interest.  For example, if $\theta=\{u,v\}$ then we might be interested in the marginal
 	$p(u|\mathcal{D})$.
 \end{itemize}
-If $\theta$ is continuous or some elements of $\theta$ are continuous then only the first of
+If $\theta$ is continuous, or some elements of $\theta$ are continuous, then only the first of
 these can be carried out directly using the form of the posterior provided by Bayes' rule
-with known normalization constant.  We, therefore, see that knowing the normalization alone
+with known normalization constant.  We see, therefore, that knowing the normalization alone
 will not be enough to fully solve the Bayesian inference problem in a useful manner.  In
 particular, it will generally not sufficient in order to be able to \emph{sample} from the
 posterior.  As we will see later, the ability to sample will be at the core of most practical uses
@@ -98,7 +98,7 @@ for the posterior as it allows use of Monte Carlo
  can in turn be used to carry out many of the outlined tasks.
 
 To further demonstrate why knowing the normalization constant is insufficient
-for most Bayesian inference tasks, we consider the following a simple example
+for most Bayesian inference tasks, we consider the following simple example
 \begin{subequations}
 \label{eq:inf:example}
 \begin{align}
@@ -117,26 +117,27 @@ output $y=5$.  Using a numerical integration over $\theta$ the normalization
 constant can be calculated to a high accuracy, giving the provided closed-form
 equation for the posterior.  This posterior, along with the prior and likelihood are shown Figure~\ref{fig:inf:inf-example}.
 
-\begin{figure}[t]
+\begin{wrapfigure}{r}{0.38\textwidth}
 	\centering
-	\includegraphics[width=0.65\textwidth]{inf_example}
+	\includegraphics[width=0.37\textwidth]{inf_example}
+	\vspace{-4pt}
 	\caption{Example inference for problem given
 		in~\eqref{eq:inf:example}. Also shown is the cumulative distribution for
 		the posterior as per~\eqref{eq:inf:cum-example}.  This is scaled by a factor
-		of $1/2$ for visualization.  \label{fig:inf:inf-example}}
-\end{figure}
-
+		of $0.4$ for visualization.  \label{fig:inf:inf-example}}
+	\vspace{4pt}
+\end{wrapfigure}
 Here knowing the marginal likelihood means that we have a 
 closed-form equation for the posterior.  Image though that we 
 wish to sample from it.  As it does not correspond to a standard distribution,
-we cannot simply call a standard sampling procedure.  There is, in fact, no way
-to directly sampling from this distribution without doing further calculations.  If
+ there is, in fact, no way
+to directly sampling from it without doing further calculations.  For example, if
 we also know the inverse of the cumulative density function of the posterior
 \begin{align}
 \label{eq:inf:cum-example}
 P(\Theta\le\theta | y=5) = \int_{\Theta=0}^{\Theta=\theta}  p(\theta=\Theta | y=5) d\Theta,
 \end{align}
-then we can sample from the posterior by sampling $\hat{u} \sim \textsc{Uniform}(0,1)$ and
+then we can sample from the posterior by first sampling $\hat{u} \sim \textsc{Uniform}(0,1)$ and
 then taking as our sample $\hat{\theta} = P^{-1}(\hat{u})$ such that 
 $\hat{u} = P(\Theta\le\hat{\theta} | y=5)$.  However, the cumulative distribution function
 and its inverse cannot be calculated analytically.  Though in this simple one dimensional

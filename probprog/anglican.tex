@@ -98,8 +98,9 @@ Anglican also allows custom distribution classes to be defined using
 the \defdist macro, which requires the user to provide parameterized code for sampling from that distribution
 class and evaluating the log density at given output.
 
-\begin{wrapfigure}{r}{0.5\textwidth}
+\begin{wrapfigure}{r}{0.45\textwidth}
 	\centering 
+	\vspace{-10pt}
 	\begin{lstlisting}[basicstyle=\ttfamily\small]
 (defquery my-query [data]
   (let [mu (sample (normal 0 1))

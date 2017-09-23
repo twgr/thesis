@@ -16,7 +16,7 @@ distribution will also have the correct marginal distribution over any of its in
 while sampling from the marginal distribution then sampling from the conditional distribution
 given these samples will give samples distributed according to the joint.  As \mc
 will be key to most methods for Bayesian inference that we will consider, we take the time
-in this section key related concepts.
+in this section to introduce Monte Carlo at a foundational level.
 
 The most common usage of \mc in this work will be the \mc estimation of expectations, 
 sometimes known as \mc integration.  
@@ -24,7 +24,7 @@ The critical importance of \mc estimation stems from the fact that most of the e
 target tasks laid out in~\ref{sec:inf:challenge:post} can be formulated as expectations.
 Even when our intention is simply to generate samples from a target distribution, we can
 usually think of this as being an implicit expectation of an, as-yet unknown, target function.
-Here our implicit aims is to minimize the bias and variance of whatever process the samples are eventually
+Here our implicit aim is to minimize the bias and variance of whatever process the samples are eventually
 used for, even if that process is simply visual inspection.  
 
 Consider the problem of calculating the expectation of some function
@@ -41,8 +41,7 @@ This can be approximated using the \mc estimator $I_N$ where
 	I \approx I_N := \frac{1}{N} \sum_{n=1}^{N}f(\hat{\theta}_n)
 	\quad \text{where} \quad \hat{\theta}_n \sim \pi(\theta).
 \end{align}
-The first result we note is that~\eqref{eq:inf:mc-est} is an \emph{unbiased} estimator for $I$.  This can
-be easily shown by noting that
+The first result we note is that~\eqref{eq:inf:mc-est} is an \emph{unbiased} estimator for $I$, i.e. we have
 \begin{align}
 \label{eq:inf:unbiased}
 \E \left[I_N\right] = \E \left[\frac{1}{N} \sum_{n=1}^{N}f(\hat{\theta}_n)\right]
@@ -68,9 +67,8 @@ get the true value of $I$.  This now hints at another important question -- do w
 recover the true value of $I$ when we conduct one infinitely large estimation, namely if we
 take $N\rightarrow\infty$?  This is known as \emph{consistency} of a statistical estimator,
 which we will now consider next.  Before moving
-on, we make the important note that many common \mc inference methods, for example MCMC as
-discussed in Section~\ref{sec:inf:foundation:mcmc}), are in fact biased.  
-This is because it is often not possible to $\hth_n \sim \pi(\theta)$
+on, we make the important note that many common \mc inference methods, for example MCMC, are in fact biased.  
+This is because it is often not possible to sample $\hth_n \sim \pi(\theta)$
 exactly as we have assumed in~\eqref{eq:inf:mc-est}, with the bias resulting from
 the approximation.  The convergence of such methods relies on the bias 
 diminishing to $0$ as $N\rightarrow\infty$, such that they remain unbiased in the limit.
@@ -83,11 +81,12 @@ law of large numbers (LLN).  Informally, the LLN states that the empirical avera
 independent and identically distributed (i.i.d.)  random variables converges to 
 the true expected value of the underlying process as the number of samples in the
 average increases.  We can there use it to prove the consistency of Monte Carlo estimators
-were the samples are drawn independently from the same distribution, as is the case
+where the samples are drawn independently from the same distribution, as is the case
 in for example rejection sampling and importance sampling.  The high level idea for the LLN can be shown by
 considering the  \emph{mean squared error} of a \mc estimator as 
-follows\footnote{Note here that we use the notation of expectation typically used within the statistics literature,
-whereby it corresponds to the expectation over all randomness contained in the system.}
+follows
+%\footnote{Note here that we use the notation of expectation typically used within the statistics literature,
+%whereby it corresponds to the expectation over all randomness contained in the system.}
 \begin{align}
 \E &\left[(I_N-I)^2\right] = \E\left[\left(\frac{1}{N}\sum_{n=1}^{N}f(\hth_n) - I\right)^2\right] \nonumber \\
 &= \frac{1}{N^2}\sum_{n=1}^{N} \E\left[ \left(f(\hth_n)-I\right)^2\right] + 
@@ -103,39 +102,42 @@ The first term in the third line follows from the equivalent term in the second 
 each $\hth_n$ has the same distribution.  The second term in the third line
 follows from the assumption that the samples are drawn independently such that
 \[
-\E\left[ (f(\hth_n)-I)(f(\hth_m)-I)\right] = \E\left[ (f(\hth_n)-I)\right] \E\left[(f(\hth_m)-I)\right].
+\E\left[ (f(\hth_n)-I)(f(\hth_m)-I)\right] = \E\left[ (f(\hth_n)-I)\right] \E\left[(f(\hth_m)-I)\right]=0.
 \]
-The last line simply notes that $\E\left[ \left(f(\hth_1)-I\right)^2\right]$ is a constant,
+by unbiasedness of the estimator. The last line simply notes that $\E\left[ \left(f(\hth_1)-I\right)^2\right]$ is a constant,
 namely the variance of $f(\theta)$.
   Our final result has a simple and intuitive form -- the mean squared error for
 our estimator using $N$ samples, is $1/N$ times the mean squared error of an estimator that only uses
 a single sample, which is itself equal to the variance of $f(\theta)$.  As $N\rightarrow\infty$, we thus
 have that our expected error goes to $0$.
 
-A key upshot of this result is that the difference$I_N-I$  between our empirical estimate and the true value
- should be of order $O(1/\sqrt{N})$.  In some way this is rather slow; deterministic numerical
+A key upshot of this result is that the difference between our empirical estimate and the true value (i.e. $I_N-I$)
+ should be of order $O(1/\sqrt{N})$.  In some way this is rather slow: deterministic numerical
 integration schemes of have much fast convergence theoretical convergence rates.  For example,
-Simpson's rule has a a convergence rate of $O(1/n^4)$ for one dimensional functions.  However, this
+Simpson's rule has a a convergence rate of $O(1/n^4)$ for one dimensional functions.  
+As such, \mc is often an inferior way of estimating integrals for smooth functions
+in low dimensions.  However, this
 requires smoothness assumptions on $f$ and, more critically, the convergence rate diminishes rapidly
-in higher dimensions.  As such, \mc is often an inferior way of estimating integrals for smooth functions
-in low dimensions.  However, \mc scales substantially more gracefully to higher dimensions than
-alternatives.  Looking at~\eqref{eq:inf:LLN-informal}, we see that the dimensionality of the problem
-only effects the \mc convergence rate through changes in the constant factor $\sigma_{\theta}$.  Though
-this will often increase with dimensionality, it will generally do so substantially less aggressively
-then typical exponential decrease in converge rate of deterministic numerical integration schemes
-with dimension.  \mc therefore tends to dominate for moderate to high dimensional problems.
+in higher dimensions.   
+The dimensionality only effects the \mc convergence rate through changes in the constant factor $\sigma_{\theta}$
+and though this will typically increase with the dimensionality, this 
+scaling will typically be substantially more graceful than deterministic numerical methods.
+%generally do so substantially less aggressively
+%then typical exponential decrease in converge rate of deterministic numerical integration schemes
+%with dimension.  
+%\mc therefore tends to dominate for moderate to high dimensional problems.
 
 \subsection{Convergence of Random Variables}
 \label{sec:inf:mc:conv}
 
 To introduce the concept the LLN more precisely, we now consider some more formal notations
-of convergence of random variables.  There will be times (in particular in Chapter~\ref{chp:nest})
-when mathematical rigour will require us to distinguish between these alternative notations of convergence.
-However, for most practical purposes, any one of these notions of convergence will be sufficient 
-to informally guarantee that an estimator will return the correct answer if provided 
-with sufficient samples.  Therefore those less interested in theoretical details may wish to
-skip Sections~\ref{sec:inf:mc:conv:prob},~\ref{sec:inf:mc:conv:as} and~\ref{sec:inf:mc:conv:dist}
-on first reading.
+of convergence of random variables.  There will be times (e.g. Chapter~\ref{chp:nest})
+when mathematical rigour will require us to distinguish between alternative notations of convergence.
+However, those less interested in theoretical details may wish to
+skip Sections~\ref{sec:inf:mc:conv:prob},~\ref{sec:inf:mc:conv:as}, and~\ref{sec:inf:mc:conv:dist}
+on first reading, as the notion of $L^p$ convergence will be sufficient, for most practical purposes,
+to guarantee that an estimator will return the correct answer if provided 
+with sufficient samples. 
 
 \subsubsection{$L^p$-Convergence}
 \label{sec:inf:mc:conv:Lr}
@@ -156,18 +158,18 @@ as being the space of random variables for which $\norm{X}_p < \infty$.  We can 
 formally define $L^p$-convergence as follow.
 \begin{definition}[$L^p$-convergence]
 A sequence of random variables $X_N$ converges in its $L^p$-norm to 
-$X$ where $p\ge1$ if $X\in L^p$, each $X_N \in L^p$, and
+$X$ (where $p\ge1$) if $X\in L^p$, each $X_N \in L^p$, and
 \begin{align}
 \lim\limits_{N\rightarrow\infty} \norm{X_N-X}_p=0. \label{eq:inf:Lp-conv-formal}
 \end{align}
 \end{definition}
-A key point to note is that $\Vert X_N-X\rVert_p\ge0 \; \forall X_N, X$ by definition of the $L^p$-norm and so
+\noindent A key point to note is that $\Vert X_N-X\rVert_p\ge0 \; \forall X_N, X$ by definition of the $L^p$-norm and so
 rather than this simply being a statement of asymptotic unbiasedness, $L^p$-convergence says that the expected
 \emph{magnitude} of the error tends to zero as $N\rightarrow\infty$.
 Different values of $p$ correspond to different metrics for the error, with larger values of
-$p$ constituting stronger converge guarantees, such that $L^{p_1}$-convergence implies
-$L^{p_2}$-convergence whenever $p_1>p_2$.  Similarly, if a a random variable satisfies
-$X \in L^{p_1}$, then it follows that $X \in L^{p_2}$.
+$p$ constituting stronger converge guarantees, such that $L^{p_2}$-convergence implies
+$L^{p_1}$-convergence whenever $p_2>p_1$.  Similarly, if a a random variable satisfies
+$X \in L^{p_2}$, then it follows that $X \in L^{p_1}$.
 
 %
 %\subsubsection{Convergence in Distribution}
@@ -180,7 +182,7 @@ $X \in L^{p_1}$, then it follows that $X \in L^{p_2}$.
 \label{sec:inf:mc:conv:prob}
 
 At a high level, convergence in probability between two random variables (or between a random variable and
-a constant) means that they become arbitrary close to one another with high probability.  More
+a constant) means that they become arbitrary close to one another.  More
 formally we have the following definition.
 \begin{definition}[Convergence in probability]
 A sequence of random variables $X_N$ converges in probability to $X$ if, for every $\varepsilon>0$,
@@ -188,34 +190,32 @@ A sequence of random variables $X_N$ converges in probability to $X$ if, for eve
 \lim\limits_{N\rightarrow\infty} P(\left|X_N-X\right|\ge\varepsilon)=0.
 \end{align}
 \end{definition}
-As $\varepsilon$ can be made arbitrarily small, this ensures that $X_N$ becomes arbitrarily
+\noindent As $\varepsilon$ can be made arbitrarily small, this ensures that $X_N$ becomes arbitrarily
 close to $X$ in the limit of large $N$.  Estimators are \emph{consistent} if they converge
 in probability.
-Convergence in probability is, in general, a weaker form of convergence that $L^p$ convergence
-as $L^p$ convergence for any $p\ge1$ implies convergence in probability~\citep{williams1991probability}.
 
 In~\eqref{eq:inf:LLN-informal} we demonstrated the $L^2$ convergence of the Monte Carlo
 estimator as we have that 
 \[
 \lim\limits_{N\rightarrow\infty} \norm{I_N-I}_2=\lim\limits_{N\rightarrow\infty} \frac{\sigma_\theta}{\sqrt{N}} = 0.
 \]
-By the above result we therefore also have the Monte Carlo estimator convergences in
-probability to the expectation and thus that it is consistent.  This is known as the
-\emph{weak law of large numbers}.  We can also prove this more explicitly as follows
+Convergence in probability is, in general, a weaker form of convergence than $L^p$ convergence
+as $L^p$ convergence implies convergence in probability~\citep{williams1991probability}.
+We therefore also have the Monte Carlo estimator convergences in
+probability to its expectation.  This is known as the
+\emph{weak law of large numbers}, which we can also prove more explicitly as follows
 \begin{theorem}[Weak law of large numbers]
 	\label{the:inf:weak-law}
 If $I$ and $I_N$ are defined as per~\eqref{eq:inf:expt} and~\eqref{eq:inf:mc-est} respectively,
 $I\in L^1$, each $I_N \in L^1$,
  and each $\hth_n$ in~\eqref{eq:inf:mc-est} is drawn independently, then $I_N$ converges to $I$
 in probability:
-\begin{align}
-	\lim\limits_{N\rightarrow\infty} P(\left|I_N-I\right|\ge \varepsilon)=0 \quad \forall \varepsilon>0.
-\end{align}
+	$\lim\limits_{N\rightarrow\infty} P(\left|I_N-I\right|\ge \varepsilon)=0 \quad \forall \varepsilon>0$.
 \end{theorem}
 \begin{proof}
 In the interest of exposition, we prove the result in the case where the stronger 
 assumptions that $I\in L^2$ and each $I_N \in L^2$ hold.  In practise this is not needed as
-the theorem can be proved by other means, see for example Theorem 2.2.7 of~\cite{durrett2010probability}.
+the theorem can be proved by other means, see for example~\cite[Theorem 2.2.7]{durrett2010probability}.
 
 By~\eqref{eq:inf:unbiased} we have that $\E [I_N]=I$ and by~\eqref{eq:inf:LLN-informal} we have that 
 $\norm{I_N-I}_2^2 = \frac{\sigma_{\theta}^2}{N}$
@@ -229,24 +229,23 @@ and therefore
 \[
 \lim\limits_{N\rightarrow\infty} P(\left|I_N-I\right|\ge\varepsilon)
 \le\lim\limits_{N\rightarrow\infty} \frac{\sigma_{\theta}^2}{\varepsilon^2 N}
-=0 \quad \forall \varepsilon>0
+=0 \quad \forall \varepsilon>0.
 \]
-as required.
 \end{proof}
-As an interesting aside, we can prove that convergence in probability follows from
-$L^p$ convergence more generally in a similar fashion.  This can be done
-by using the more general form of Chebyshev's inequality given in, for example,
-Theorem 1.6.4 and Lemma 2.2.2 of~\cite{durrett2010probability} to show that
-\begin{align}
-\label{eq:inf:prob-from-lp}
-\begin{split}
-\lim\limits_{N\rightarrow\infty} P(\left|I_N-I\right|\ge\varepsilon)
-&\le \lim\limits_{N\rightarrow\infty} \frac{\E \left[\left|I_N-I\right|^{p}\right]}{\varepsilon^p} = 
-\left(\frac{1}{\varepsilon}\lim\limits_{N\rightarrow\infty} \norm{I_N-I}_p\right)^p.
-\end{split}
-\end{align}
-If $I_N \Lp I$ then $\lim\limits_{N\rightarrow\infty} \norm{I_N-I}_p = 0$ by definition
-and we have convergence in probability as required.
+%\noindent As an interesting aside, we can prove that convergence in probability follows from
+%$L^p$ convergence more generally in a similar fashion.  This can be done
+%by using the more general form of Chebyshev's inequality given in, for example,
+%Theorem 1.6.4 and Lemma 2.2.2 of~\cite{durrett2010probability} to show that
+%\begin{align}
+%\label{eq:inf:prob-from-lp}
+%\begin{split}
+%\lim\limits_{N\rightarrow\infty} P(\left|I_N-I\right|\ge\varepsilon)
+%&\le \lim\limits_{N\rightarrow\infty} \frac{\E \left[\left|I_N-I\right|^{p}\right]}{\varepsilon^p} = 
+%\left(\frac{1}{\varepsilon}\lim\limits_{N\rightarrow\infty} \norm{I_N-I}_p\right)^p.
+%\end{split}
+%\end{align}
+%If $I_N \Lp I$ then $\lim\limits_{N\rightarrow\infty} \norm{I_N-I}_p = 0$ by definition
+%and we have convergence in probability as required.
 
 \subsubsection{Almost Sure Convergence}
 \label{sec:inf:mc:conv:as}
@@ -263,7 +262,7 @@ A sequence of random variables $X_N$ converges almost surely to $X$ if
 	P\left(\lim\limits_{N\rightarrow\infty} X_N=X\right)=1.
 \end{align}
 \end{definition}
-Almost sure convergence implies convergence in probability, but not vice-versa -- the rate
+\noindent Almost sure convergence implies convergence in probability, but not vice-versa -- the rate
 at which events occur might tend to zero without there ever being a point at which the
 event never occurs again.  It does not imply, nor is it implied by, $L^p$ convergence.
 The \emph{strong law of large numbers} is the dual for the weak law of large numbers as
@@ -275,12 +274,12 @@ follows.
 	\end{align}
 \end{theorem}
 The proof is somewhat more complicated than the weak law and so is not provided here, but can
-be found in, for example, Theorem 2.4.1 of~\cite{durrett2010probability}.
+be found in, for example,~\cite[Theorem 2.4.1]{durrett2010probability}.
 
 \subsubsection{Convergence in Distribution}
 \label{sec:inf:mc:conv:dist}
 
-At a  high level, convergence in distribution, also known as weak convergence, states that the a sequence of variables become
+At a  high level, convergence in distribution, also known as weak convergence, states that a sequence of variables become
 an increasingly closely distributed to a target distribution.  Whereas our previous notions of
 convergence ensure that our sequence of random variables converge to a particular value, 
 convergence in distribution only implies that our sequence of random variables tends towards
@@ -295,9 +294,10 @@ to zero. More formally, we can define convergence in distribution as follows.
 	for every $x$ at which $P(X\le x)$ is continuous, where $P(X_N \le x) $ and $P(X \le x)$
 	are the cumulative distribution functions for $X_N$ and $X$ respectively.
 \end{definition}
- Because it only requires that a variable has a particular distribution, rather then an
+\noindent Because it only requires that a variable has a particular distribution, rather then an
  exact value, convergence in distribution is a weaker form of convergence than those previously
  discussed and is implied by any of the other forms of convergence.  
+\vspace{5pt}
 
 \subsection{The Central Limit Theorem}
 \label{sec:inf:mc:clt}
@@ -306,12 +306,11 @@ The central limit theorem (CLT) is a core result in the study of \mc methods.  I
 it states that the sum of $N$ i.i.d. random variables tends towards a Gaussian in the limit $N\to\infty$.
 While the LLN demonstrated the convergence of the average of i.i.d. random variables towards
 the true mean, the CLT provides a means of constructing consistent confidence intervals of our estimate
-$I_N$ by exploiting its asymptotic normality.  Furthermore, the are variants of the CLT that do not
+$I_N$ by exploiting its asymptotic normality.  Furthermore, it has variants that do not
 require that the variables are i.i.d., meaning we can use it do demonstrate convergence in scenarios
 where samples are correlated, such as occurs when doing MCMC inference as shown in
 Section~\ref{sec:inf:foundation:mcmc}.
-
-In the i.i.d. case, the CLT is as follows.
+In the i.i.d.~case, the CLT is as follows.
 \begin{theorem}[Central Limit Theorem]
 	\label{the:inf:clt}
 Assume $X_1,\dots,X_N$ is a sequence of i.i.d. random variables with 
@@ -330,9 +329,9 @@ $\sqrt{N}\left(I_N-I\right)/\sigma_N$ also converges
 in distribution to the unit normal.
 \end{theorem}
 \begin{proof}
-	See, for example,~\cite{durrett2010probability}.
+	See, for example,~\cite[Chapter 3]{durrett2010probability}.
 \end{proof}
-The second result here is especially key as it will allow us to calculate consistent confidence intervals
+\noindent The second result here is especially key as it will allow us to calculate consistent confidence intervals
 on our estimates without needing to know $\sigma$ as we can instead use our empirical estimate
 \begin{align}
 	\label{eq:inf:emprical-var}
@@ -348,25 +347,22 @@ Note though that the estimator of the standard deviation, $\sigma_N$, is still b
 inequality.
 As a consequence of the unbiasedness, $\sigma_N^2 \asto \sigma^2$ by the strong LLN, 
 from which the second result
-in Theorem~\ref{the:inf:clt} follows from the first by Slutsky's theorem (see ~\cite{durrett2010probability}).
+in Theorem~\ref{the:inf:clt} follows from the first by Slutsky's theorem.
 
 Imagine we want to construct a confidence interval on our estimate $I_N$ such that there is
 a probability $0<\alpha<1$ that $I$ is in the range $[I_N-\varepsilon,I_N+\varepsilon]$.  Using
 the CLT we can do this as follows
 \begin{align}
 	\label{eq:inf:conf-int}
-	\alpha := P(I_N-\varepsilon &\le I \le I_N+\varepsilon ) = P(-\varepsilon \le I_N-I \le \varepsilon) \nonumber\\
+	\alpha :&= P(I_N-\varepsilon \le I \le I_N+\varepsilon ) = P(-\varepsilon \le I_N-I \le \varepsilon) \nonumber\\
 	&= P\left(-\frac{\sqrt{N}\varepsilon}{\sigma_N}\le \frac{\sqrt{N}\left(I_N-I\right)}{\sigma_N}
 				\le\frac{\sqrt{N}\varepsilon}{\sigma_N}\right) \nonumber\\
 	&\approx \Phi\left(\frac{\sqrt{N}\varepsilon}{\sigma_N}\right)-
-					\Phi\left(-\frac{\sqrt{N}\varepsilon}{\sigma_N}\right) = 2\Phi\left(\frac{\sqrt{N}\varepsilon}{\sigma_N}\right)-1
+					\Phi\left(-\frac{\sqrt{N}\varepsilon}{\sigma_N}\right) = 2\Phi\left(\frac{\sqrt{N}\varepsilon}{\sigma_N}\right)-1.
 \end{align}
-where as before $\Phi(\cdot)$ is the cumulative distribution function for the unit
-normal. Now rearranging for $\epsilon$ we have that
-\begin{align}
-	\varepsilon = \frac{\sigma_N\Phi^{-1}\left(\frac{\alpha+1}{2}\right)}{\sqrt{N}}
-\end{align}
-and therefore the confidence interval on $I_N$ that
+Rearranging for $\epsilon$ we have that 
+$\varepsilon = \left(\sigma_N/\sqrt{N}\right)\Phi^{-1}\left(\frac{\alpha+1}{2}\right)$
+and therefore the confidence interval
 \begin{align}
 P\left(I_N-\frac{\sigma_N\Phi^{-1}\left(\frac{\alpha+1}{2}\right)}{\sqrt{N}} 
 	\le I \le I_N+\frac{\sigma_N\Phi^{-1}\left(\frac{\alpha+1}{2}\right)}{\sqrt{N}} \right)  = \alpha.
@@ -375,7 +371,7 @@ Thus for example if we set $\alpha=0.99$ then $\Phi^{-1}\left(\frac{\alpha+1}{2}
 and our confidence interval $99\%$ confidence interval for $I$ is
  $I_N \pm \frac{2.576 \sigma_N}{\sqrt{N}}$.  We reiterate that these confidence intervals are exact
  in the limit $N\to\infty$, but approximate for finite $N$.  As one is often far from the asymptotic
- regime, care is often, therefore, required in interpreting them.  Nonetheless, the ability to
+ regime, care is often required in interpreting them.  Nonetheless, the ability to
  estimate realistic uncertainties for sufficiently large $N$ is an extremely powerful result.
  
 Through most of this section we have assumed that our random variables are i.i.d..
@@ -385,7 +381,7 @@ that variables sufficiently far apart in the sequence are independent, to genera
 setting~\citep{jones2004markov}.  This is critical for the numerous \mc inference schemes, 
 such as MCMC methods, that
 do not produce independent samples but instead rely on the samples converging in distribution
-to the target.  In most MCMC settings, one can also prove a CLT using reversibility of
+to a target distribution.  In most MCMC settings, one can also prove a CLT using reversibility of
 the Markov chain~\citep{kipnis1986central}.
 It is beyond the scope of this thesis to go into these more general forms of the CLT
 in depth, so we simply note their critical importance and refer the reader to~\cite{durrett2010probability}
