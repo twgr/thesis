@@ -1,7 +1,7 @@
 % !TEX root =  ../main.tex
 
 \section{Implications For Nesting Probabilistic Programs}
-\label{sec:design:imp}
+\label{sec:nest:imp}
 
 Given our results, it is now natural to ask the question what are the implications
 for nesting probabilistic programming queries?  In particular, when is doing
@@ -33,7 +33,7 @@ in another query.  We will further identify some special cases that which can be
 Carlo convergence rates when expressed as nested queries.
 
 \subsection{Nested Sampling}
-\label{sec:design:imp:sampling}
+\label{sec:nest:imp:sampling}
 
 One of the clearest ways one might want to nest queries is by sampling from the conditional
 distribution of one query inside another query.  Due to the ``sample then check'' setup of
@@ -228,7 +228,7 @@ the inner estimator is often called multiple times with the same inputs such tha
 from these calling can be combined (e.g. as done by~\cite{stuhlmuller2012dynamic}).
 
 \subsection{Nested Observation}
-\label{sec:design:imp:obs}
+\label{sec:nest:imp:obs}
 
 Alternative way one might wish to nest queries is through nested observation, whereby we
 observe the output of another query rather than sampling from it.  For hard-constraints such
@@ -338,7 +338,7 @@ by~\citep{gutmann2016bayesian}.
 \end{figure}
 
 \subsection{Estimates as Variables}
-\label{sec:design:imp:expt}
+\label{sec:nest:imp:expt}
 
 The third and final way we consider using nested estimation in probabilistic programming
 is to use expectation estimates as first class variables.  In our previous examples,

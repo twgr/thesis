@@ -61,7 +61,7 @@ such as a persistent cough.  Here we have the following natural breakdown of the
 p(a,b,c) = p(a) p(b|a) p(c|a,b).
 \end{align}
 \begin{wrapfigure}{r}{0.35\textwidth}
-	\vspace{-12pt}
+	%\vspace{-12pt}
 	\centering 
 	\resizebox{.32\textwidth}{!}{
 		\input{bayes/figures/simple_graph.tex}
@@ -212,6 +212,13 @@ animals~\citep{dhir2016tracking,dhir2017interpreting} to name but a few.
 %For example, in a dynamical system, then the next state
 %depends only on the dynamics of the system and its  current state (e.g. position velocity etc).
 
+\begin{figure}[t]
+	\centering 
+	\input{bayes/figures/hmm.tex}
+	\caption{DAG for a hidden Markov model.
+		\label{fig:bayes:hmm}}
+\end{figure}
+
 A key part of the appeal of HMMs is that the structure of the
 DAG can be exploited to give analytic solutions to the resulting Bayesian inference whenever each $p(y_t | x_t)$ 
 and $p(x_t | x_{t-1})$ is either a discrete or Gaussian distribution. Even when this does not hold, there 
@@ -227,10 +234,3 @@ into the decision processes of whether taking a Bayesian approach or not.
 %While taking a Bayesian approach for large projects, 
 %one should, in general, avoid making approximations or non-clearcut assumptions until absolutely necessary, but also 
 %keep in mind that it may be necessary to do so further down the line and account for this appropriately.
-
-\begin{figure}[t]
-	\centering 
-	\input{bayes/figures/hmm.tex}
-	\caption{DAG for a hidden Markov model.
-		\label{fig:bayes:hmm}}
-\end{figure}

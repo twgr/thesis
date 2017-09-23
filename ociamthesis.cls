@@ -445,7 +445,7 @@
 %\renewcommand{\chapterheadstartvskip}{\vspace*{40pt}}
 %\renewcommand{\chapterheadendvskip}{\vspace{30pt}}
 \renewcommand{\chapterheadstartvskip}{\vspace*{-30pt}}
-\renewcommand{\chapterheadendvskip}{\vspace{20pt}}
+\renewcommand{\chapterheadendvskip}{\vspace{10pt}}
 
 % JEM: combine all of the commands you run before appendices start
 \newcommand{\startappendices}

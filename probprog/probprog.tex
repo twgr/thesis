@@ -3,7 +3,7 @@
 \chapter{Probabilistic Programming -- the User's Perspective}
 \label{chp:probprog}
 
-Probabilistic programming systems (PPSs) allow (Bayesian) probabilistic models to be represented in the 
+Probabilistic programming systems (PPSs) allow probabilistic models to be represented in the 
 form of a generative model and statements for conditioning on data~\citep{gordon2014probabilistic,goodman2008church}.  
 Informally, one can think of the generative model as the definition of a prior, the conditioning 
 statements as the definition of a likelihood, and the output of the program as samples from a posterior distribution. 
@@ -21,16 +21,16 @@ even impossible, to convey using conventional frameworks like graphical models.
 %using a domain-specific programming language or modeling library. A probabilistic program implicitly 
 %defines a distribution on random variables, whilst the system back-end implements 
 %general-purpose inference methods.  
-Two key challenges for a PPS are in providing the
+Two key challenges for PPS are providing the
 syntax and semantics to allow easy definition of models, and in designing the solvers, i.e.
 inference engines, to provide effective inference for those models.
 In this chapter, we focus on the former of these, providing an introduction to 
-probabilistic programming from a user's perspective, explaining how it can be used for, and
+probabilistic programming from a user's perspective.  We will outline how it can be used for, and
 to extend, conventional Bayesian modeling and how it can also be used to reinterpret many computational simulation
 techniques not usually associated with Bayesian modeling in a more Bayesian mindset.
 We will mostly ignore the rather major issue of how to construct automated inference engines for probabilistic
 programs, returning to address this in Chapter~\ref{chp:proginf}.
-Here we will explain how general purpose PPSs aim to  provide 
+Instead, we will focus on how general purpose PPSs aim to  provide 
 the \emph{flexibility} to define
 wide ranging and potentially obscure models, the \emph{expressivity} of a framework for 
 model definition that is more in line we conventional scientific simulation than mainstream 
@@ -60,18 +60,14 @@ by removing many of the complications of one while developing the other.
 %standard inference frameworks and why we would want to do so.
 
 We note that it will be necessary at times during this chapter to refer briefly to some Bayesian inference
-algorithms that will not be properly introduced until Chapters\ref{chp:inf} and~\ref{chp:part}.  
+algorithms that will not be properly introduced until Chapters~\ref{chp:inf} and~\ref{chp:part}.  
 We have situated this chapter before those partly in order to emphasize the point that one should not 
 need an intricate knowledge of inference methods to \emph{use} PPSs.  Though it is difficult
 to introduce PPSs while completely omitting reference to inference methods, readers who
 are not familiar with inference methods should be able to safely ignore which methods are referred to
 at a first pass, noting only that different inference algorithms have different requirements and sets 
-of problems they perform well on, and thus that the design of a PPS is intricately linked to the inference
+of problems they perform well on, and thus that the design of a PPS is often intricately linked to the inference
 method(s) used.
-
-\todo[inline]{Avoiding bugs in code
-	
-	Relationship with ABC - Church pretty indistinguishable, while modern systems exploit program itself}
 
 \input{probprog/sim.tex}
 \input{probprog/two.tex}
