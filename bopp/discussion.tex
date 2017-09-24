@@ -1,9 +1,9 @@
 % !TEX root =  ../main.tex
 
-We have introduced a new method for carrying out MMAP estimation, MML estimation, or risk minimization
+We have introduced a new method for carrying out MMAP estimation, MML estimation, and risk minimization
 of probabilistic program variables using Bayesian optimization, representing the first unified framework for 
 optimization and inference of probabilistic programs.  By using a series of code transformations, 
-our method allows an arbitrary program to be optimized with respect to a defined subset of its variables, 
+our method allows an arbitrary program to be optimized with respect to an arbitrary defined subset of its sampled variables, 
 whilst marginalizing out the rest.  To carry out the required optimization, we have introducde a new GP-based 
 BO package that exploits the availability of the target source code to provide a number of novel features, 
 such as automatic domain scaling and constraint satisfaction.  
@@ -14,15 +14,13 @@ to smart initialization of inference algorithms, adaptive proposals, and nested 
 The main drawbacks of BOPP are inherited from GP-based BO more generally,
 most notably poor performance scaling in dimensionality of the target variables $\theta$ and poor 
 computational scaling in the number of iterations used (see Section~\ref{sec:opt:BO}).  The former is 
-arguably an almost inevitable consequence of the inherent difficult of such problems, though is perhaps
-more pronounced when using GPs then other regressors.  The problem can be alleviated by making alternative
+arguably an almost inevitable consequence of the inherent difficultly of global optimization, though is perhaps
+more pronounced for GP-based BO than alternatives.  It can be alleviated by making alternative
 assumptions, for example using a local optimization method (e.g. using stochastic gradient ascent), the
-suitability of which will be problem dependent.  The latter can be substantially alleviated by using 
-a more lightweight regressor for the surrogate, e.g a random forest~\citep{hutter2011sequential} or
-an approximation for the GP, at the expense of typically reduced per-sample performance.  From
-a practical usage perspective, there would be clear utility of such a system as an alternative or
-addition to BOPP for problems requiring more than a few hundred iterations to solve, e.g. by automatically
-making approximations to the GP once a certain number of iterations has passed.  Doing so would be
-more of a engineering challenge than research a problem nonetheless.
+suitability of which will be problem dependent.  The latter drawback can be substantially alleviated by using
+a more lightweight surrogate regressor, e.g a random forest~\citep{hutter2011sequential}, 
+at the expense of typically reducing per-sample performance.  From
+a practical usage perspective, there would be clear utility of such a system as an alternative or addition to BOPP, e.g. by automatically
+making approximations to the GP once a certain number of iterations has passed.
 
 %Although our implementation is currently restricted to optimize numerical variables of fixed dimensionality, it is possible to extend to a more general case using appropriate kernels, such as the arc kernels introduced by \cite{swersky2014raiders}, which cater to scenarios where certain variables may only exist conditioned on the values of other variables.

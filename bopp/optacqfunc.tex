@@ -3,9 +3,10 @@
 \subsection{Optimizing the Acquisition Function}
 \label{sec:optacqfunc}
 
-Optimizing the acquisition function for BOPP presents the issue that the query contains implicit constraints that are unknown to the surrogate function.  The problem of unknown constraints has been previously covered in the literature \citep{gardner2014bayesian,gelbart2014bayesian,hernandez2015general} by assuming that constraints take the form of a black-box function which is modeled with a second surrogate function and must be evaluated in guess-and-check strategy to establish whether a point is valid. Along with the potentially significant expense such a method incurs, this approach is inappropriate for \emph{equality} constraints or when the target variables are potentially discrete.  For example, the Dirichlet distribution in Figure~\ref{fig:house-heating-code} introduces an equality constraint on \lsi{powers}, namely that its components must sum to $1$.
-
-We therefore take an alternative approach based on directly using the program to optimize the acquisition function.  To do so we consider a transformed program \lsi{q-acq} that is identical to \lsi{q-prior} (see Section \ref{sec:bopp:domain}), but adds an additional \observe statement that assigns a weight $\zeta(\theta)$ to the execution such that the unnormalized joint distribution is now 
+As we previously alluded to, BOPP presents the issue that the query contains implicit constraints that are unknown to the surrogate function.  As we discussed in 
+Section~\ref{sec:opt:BO:exten:constraints}, constraints have previously been considered
+in the BO literature using a second surrogate model or an appropriate adaptation to the
+existing surrogate.  Along with the potentially significant expense such a method incurs, this approach is inappropriate for \emph{equality} constraints or when the target variables are potentially discrete.  We therefore take an alternative approach based on directly using the program to optimize the acquisition function.  To do so we consider a transformed program \lsi{q-acq} that is identical to \lsi{q-prior} (see Section \ref{sec:bopp:domain}), but adds an additional \observe statement that assigns a weight $\zeta(\theta)$ to the execution such that the unnormalized joint distribution is now 
 \begin{align}
 \label{eq:bopp:qacq}
 \gamma_{\text{acq}}(\theta,x_{1:n_{\theta}},\lambda) = \gamma_{\text{prior}}(\theta,x_{1:n_{\theta}},\lambda) \zeta(\theta)

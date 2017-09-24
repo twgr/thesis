@@ -26,7 +26,7 @@ which are deterministic functions of other variables, is not possible in general
 originating from changes of variables, namely that nonlinear deterministic mappings change the density
 function in ways that it might not be possible to track.  Instead, we will still specify our target variables
 $\theta = \phi_{1:L}$ by name (i.e. using the lexical name of the variable as bound by a \clj{let} block in
-the raw program code), but we will place some restrictions, enforced at run time (see~\cite{rainforth2016nips}), 
+the raw program code), but we will place some restrictions, enforced at run time (see~\cite{rainforth2017boppArxiv})
 to ensure validity of the model.  First, each optimization variable $\phi_{\ell}$ must be bound to a value directly 
 by a \sample statement to avoid change of variable complications.
 %Specifically if $\psi = g(\theta)$ then $p(Y,\theta) = \text{\bf D}_g(\psi) p(Y,\psi)$ where $\text{\bf D}_g$ represents the Jacobian associated with $g$, giving different maxima for $\theta$ and $\psi$ \cite{murphy2012machine}.
@@ -48,7 +48,7 @@ be evaluated if there are multiple possible \sample statements associated with a
 the total number of \sample statements associated with the target variables is always $L$.
 Therefore building on the notation from Section~\ref{sec:probprog:models:general}, we will redefine $x_{1:n_x}$
 as the variables that are to be marginalized over, with all associated terms similarly redefined (except $\gamma$).
-We next denote the $m_{\ell}$ lexical \sample statements associated with $\phi_{\ell}$ as 
+We next denote the $m_{\ell}$ lexical \sample statements associated with each $\phi_{\ell}$ as 
 $h_{\ell,1},\dots,h_{\ell,m_{\ell}}$ with associated density functions $h_{\ell,i}(\phi_{\ell} | \xi_{\ell})$ where
 $\xi_{\ell}$ is the provided distribution object (which can be a random variable but its reference measure
 must be deterministic).  We further denote $c_{\ell} \in \{1,\dots,m_{\ell}\}, \; 
@@ -69,7 +69,7 @@ g_{b_k}(y_k | \psi_k) \;\;\; \text{if} \;\;\; \mathcal{B}(\theta,x_{1:n_x},\lamb
 \end{cases}
 \end{align}
 and we have redefined the trace validity function $\mathcal{B}(\phi_{1:L},x_{1:n_x},\lambda)$ appropriately.
-As before, although many of the terms in our trace probability are random variables, all are deterministic
+As before, many terms in our trace probability might be random variables, but all are deterministic
 functions of $\{\phi_{1:L},x_{1:n_x}\}$.  Note that the relative ordering of the $\phi_{1:L}$ to the $x_{1:n_x}$
 does not affect the validity of the trace or the probability, as the \sample statements associated with
 each are mutually exclusive.
@@ -88,17 +88,51 @@ We can now use~\eqref{eq:bopp:joint} to define the MMAP estimate targeted by a \
 \prod_{j=1}^{n_x} f_{a_j}(x_j | \eta_j) \prod_{k=1}^{n_y} g_{b_k}(y_k | \psi_k) dx_{1:n_x}
 \end{split}
 \end{align}
-where $\vartheta (\lambda) := \{\theta : \{\exists x_{1:n_x} : \gamma(\theta,x_{1:n_x},\lambda)>0\}\}$
-is the support of $\theta$ given $\lambda$.  For risk minimization, the only thing that
-needs to change in this definition is that the $\argmax$ is replaced with an $\argmin$.
-For MML estimation, the $\prod_{\ell=1}^{L} h_{\ell,c_{\ell}} (\phi_{\ell} | \xi_{\ell})$
-term is instead removed from the formulation.  Because the $y_k$ could still depend on $\theta$,
-this definition does not necessarily always correspond to the conventional notion of a MML solution.
-However, this is a necessary design decision and it does not place any restrictions on the 
-problems that can be encoded as one can always manually remove the relevant 
-\observe statements if desired.
+where $\vartheta (\lambda) := \{\theta : \{\exists x_{1:n_x} : B(\theta,x_{1:n_x},\lambda)=1\}\}$
+is the support of $\theta$ given $\lambda$.  The target for the optimization is
+effectively the partition function of the program that results from ``clamping'' $\theta$ to a particular
+value.  Though, in theory, one can conduct GP based BO for non-numerical inputs by defining
+an appropriate kernel, we will not consider this case here for simplicity.  However, we will allow for
+inputs of unknown type (i.e. discrete or continuous) as well as unknown constraints.  We can
+therefore alternatively express our MMAP problem as the following constrained optimization
+\begin{align}
+\label{eq:bopp:mmapconstr}
+\begin{split}
+&\theta^* (\lambda) 
+= \argmax_{\theta \in \real^D} 
+\E \left[\gamma(\theta,x_{1:n_x}, \lambda) \middle| \theta \right] \\
+	&\subto \: \mathbb{I}(\exists x_{1:n_x} : B(\theta,x_{1:n_x},\lambda)=1) = 1
+\end{split}
+\end{align}
+where we have applied the constraint that there is at least one valid trace associated with $\theta$.
+For example, in Figure~\ref{fig:house-heating-code} the use of a Dirichlet distribution imposes
+the constraint $\sum_{\ell=1}^{L} \phi_{\ell} = 1$.
 
-For simplicity and notational consistency with our original paper~\citep{rainforth2016nips}, 
+For MML estimation, the $\prod_{\ell=1}^{L} h_{\ell,c_{\ell}} (\phi_{\ell} | \xi_{\ell})$
+term is removed from the target formulation, thereby removing the terms from the generative
+model on $\theta$, analogously to removing the prior in conventional frameworks.\footnote{Because the 
+	$y_k$ could still depend on $\theta$, this definition does not necessarily always correspond to 
+	the conventional notion of a MML solution.
+	However, this is a necessary design decision and it does not place any restrictions on the 
+	problems that can be encoded as one can always manually remove the relevant 
+	\observe statements if desired.}
+The generative
+model on $\theta$ is still important here, specifying the constraints
+on $\theta$.  Thus, for example, doing MML estimation for the model defined in 
+Figure~\ref{fig:house-heating-code} would retain the constraint $\sum_{\ell=1}^{L} \phi_{\ell} = 1$.
+Almost all BO problems
+are constrained in some way: if nothing else, one almost always needs to define some sort of bounding
+box for GP based BO, which can be encoded using uniform distributions in BOPP.   
+Therefore, in addition to providing the first  MML estimation scheme for PPS, BOPP forms a highly convenient means
+of specifying, and automating the solution for, conventional constrained BO problems.  In particular,
+BOPP is, to the best of our knowledge, the first system to support \emph{equality} constraints.
+
+The only thing that
+needs to change from the MML definition for the risk minimization case is that the $\argmax$ is replaced with an $\argmin$.
+As we presume that $\lambda$ is fixed, this is analogous to solving~\eqref{eq:opt:riskmin} with a fixed $Y$ such that
+the expectation is only over $X$.
+
+For simplicity and notational consistency with our original paper~\citep{rainforth2016bayesian}, 
 we will now drop the dependency on $\lambda$ and switch to
 the standard graphical model notation given in~\eqref{eq:opt:MMAP}
 with $Y$ representing data, $X$ are variables marginalized over, and $\theta$ the target variables
@@ -108,7 +142,7 @@ We note though that
 is not always completely accurate as per Section~\ref{sec:probprog:models:general} and 
 \eqref{eq:bopp:mmap}.
 
-To carry out the interleaving of inference and optimization required in MMAP estimation, we
+To carry out the interleaving of inference and optimization required by BOPP, we
 introduce \doopt, which, analogous to \doquery, takes a compiled output from \defopt and
 an estimation type to carry out (i.e. MMAP, MML, or risk minimization), and
 returns a lazy sequence $\{\hat{\theta}^*_m,\hat{\Omega}^*_m,\hat{u}^*_m\}_{m=1,\dots}$

@@ -40,7 +40,7 @@ Comparisons here are more difficult due to the dearth of existing alternatives f
 In particular, simply running inference on the original query does not return estimates 
 for $p\left(Y,\theta\right)$.  We consider the possible alternative of using our 
 conditional code transformation to design a particle marginal Metropolis Hastings 
-(PMMH, \cite{andrieu2010particle}) sampler which operates in a similar fashion to 
+(PMMH, see Section~\ref{sec:part:pmcmc:global}) sampler which operates in a similar fashion to 
 BOPP except that new $\theta$ are chosen using either an LMH or RMH step instead 
 of actively sampling with BO. For these experiments we will only provide summaries 
 here and refer the reader to~\cite{rainforth2017boppArxiv} for full details and an 
