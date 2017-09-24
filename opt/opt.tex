@@ -3,6 +3,17 @@
 \chapter{A Predominantly Bayesian Approach to Optimization}
 \label{chp:opt}
 
+From designing engineering components to managing portfolios and tuning control systems,
+optimization is used ubiquitously throughout engineering and the sciences.   Whereas inference
+dealt with cases where we desire to calculate an expectation or approximate a probability distribution
+given data, optimization considers cases where only a single output is desired.  For example, in
+a decision problem only a single action can be taken, meaning a single optimal action must be
+found.  It it is also often used in machine learning as a tractable alternative when full inference
+is infeasible~\citep{murphy2012machine}.  In the next Chapter we discuss a method for introducing
+optimization into the probabilistic programming framework.  Before doing this though, we provide
+background on optimization in general and detail a particular approach called Bayesian
+optimization~\cite{jones1998efficient,shahriari2016taking}.
+
 \input{opt/intro}
 \input{opt/sga}
 \input{opt/gps}

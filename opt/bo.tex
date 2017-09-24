@@ -10,9 +10,10 @@ naturally incorporates noisy evaluations, and is typically highly efficient
 in the number of function evaluations.  It is therefore suited to
 problems where the target function corresponds to the output of a simulator,
 estimation scheme, algorithm performance evaluation, or other cases where
-the target is not known in closed form.  It has been successfully applied to 
-a number of applications \todo{ADD} and remains a fast growing area of
-active research.
+the target is not known in closed form.  It remains a fast growing area of
+active research and has been successfully applied to 
+a wide range of applications such as hyperparameter tuning~\citep{snoek2012practical},
+robotics~\citep{calandra2016bayesian}, and sensor networks~\citep{garnett2010bayesian}.
 
 The key idea of BO is to place a prior on $f$ that expresses belief about the space of functions within which $f$ might live.  When the function is evaluated, the resultant information is incorporated by conditioning upon the observed data to give a posterior over functions.  
 This allows estimation of the expected value and uncertainty in $f\left(\theta\right)$ for all $\theta \in \vartheta$.  
@@ -24,25 +25,50 @@ $f$ is a Gaussian process (GP) \citep{rasmussen2006gaussian}.  Their are a numbe
 of characteristics that make GPs suitable for the surrogate model.  For example, they are very powerful
 regressors that can accurately represent the function from relatively few evaluations, especially
 for low-dimensional smooth functions.  They also naturally produce uncertainty estimates
-that are typically more accurate that those produced by alternatives \todo{Citation?} which often
+that are typically more accurate that those produced by alternatives which often
 have to resort to post-processing or heuristics to estimate uncertainty.
-It also leads to simple and tractable acquisition functions.  Similarly, their ability to incorporate
+This also leads to simple and tractable acquisition functions.  Similarly, their ability to incorporate
 noisy observations is often helpful, though because GP inference is only analytic for Gaussian
 likelihoods, it is often impractical to incorporate non-Gaussian noise.  This problem can be
 particularly manifest when the observations are bounded, such as when the target is a probability
 and thus always positive.  A common way of dealing with this is to optimize a mapping of the
-original function, for example optimizing the log probability in MAP problem~\citep{osborne2010bayesian}.
+original function, for example optimizing the log probability in (M)MAP problems~\citep{osborne2010bayesian}.
 
-\begin{figure}[p]
+When prior information is known about the function, the
+flexibility in choosing the covariance kernel can also be very helpful, for example allowing known
+smoothness to be incorporated.  However, this can also be a curse as an inappropriate choice of
+kernel can severely happen the performance.  In particular, it will typically be necessary to
+do inference over, or at least optimize, the GP hyperparamters.  Another drawbacks to using GPs
+is poor scaling in the number of iterations -- training is a $O(N^3)$ operation due to the required
+matrix inversion.  This typically restricts BO using GPs to using on the order of hundreds of iterations
+unless appropriate approximations are made~\citep{snelson2006sparse,hensman2013gaussian}.
+Another drawback can be poor scaling in the dimensionality of the inputs -- most common kernels
+only encode information about the inputs through the (scaled) Euclidean distances between points,
+which can break down in high dimensions because all points are typically
+``far away'' from one another \citep{bengio2006curse}.  
+
+\begin{figure}[t]
 	\centering
-	\begin{tabular}{m{0.15\textwidth} m{0.65\textwidth}}
-		10 Iterations & \includegraphics[width=0.6\textwidth]{10_with_acq_opt}
-		\\
-		11 Iterations & \includegraphics[width=0.6\textwidth]{11_with_acq_opt}
-		\\
-		20 iterations & \includegraphics[width=0.6\textwidth]{20_with_acq_opt}
-	\end{tabular}
-	\caption{Illustration of using Bayesian optimization method to optimize the
+		\begin{subfigure}[b]{0.32\textwidth}
+			\includegraphics[width=\textwidth]{10_with_acq_opt}
+			\caption{10 iterations \label{fig:opt:bayes-opt:10}}
+		\end{subfigure}
+			\begin{subfigure}[b]{0.32\textwidth}
+			\includegraphics[width=\textwidth]{11_with_acq_opt}
+			\caption{11 Iterations \label{fig:opt:bayes-opt:11}}
+		\end{subfigure}
+			\begin{subfigure}[b]{0.32\textwidth}
+			\includegraphics[width=\textwidth]{20_with_acq_opt}
+			\caption{20 Iterations \label{fig:opt:bayes-opt:20}}
+		\end{subfigure}
+%	\begin{tabular}{m{0.15\textwidth} m{0.65\textwidth}}
+%		10 Iterations & \includegraphics[width=0.6\textwidth]{10_with_acq_opt}
+%		\\
+%		11 Iterations & \includegraphics[width=0.6\textwidth]{11_with_acq_opt}
+%		\\
+%		20 iterations & \includegraphics[width=0.6\textwidth]{20_with_acq_opt}
+%	\end{tabular}
+	\caption{Illustration of using Bayesian optimization to optimize the
 		toy one dimensional problem given in~\eqref{eq:opt:toy}.  Red dots show
 		the function evaluations,  the dotted red line shows the true function, 
 		the solid blue line is the GP mean, the shaded region is the GP mean $\pm 2$
@@ -51,19 +77,7 @@ original function, for example optimizing the log probability in MAP problem~\ci
 		function. See main text for further description.\label{fig:opt:bayes-opt}}
 \end{figure}
 
-When prior information is known about the function, the
-flexibility in choosing the covariance kernel can also be very helpful, for example allowing known
-smoothness to be incorporated.  However, this can also be a curse as an inappropriate choice of
-kernel can severely happen the performance.  In particular, it will typically be necessary to
-do inference over, or at least optimize, the GP hyperparamters.  Another drawbacks to using GPs
-is poor scaling in the number of iterations - training is a $O(N^3)$ operation due to the required
-matrix inversion.  This typically restricts BO using GPs to using at most hundreds of iterations
-unless appropriate approximations are made~\citep{snelson2006sparse,hensman2013gaussian}.
-Another drawback can be poor scaling in the dimensionality of the inputs - most common kernels
-rely on local modelling which can break down in high dimensions because points are typically
-far away from one another \citep{bengio2006curse}.  
-
-Figure~\ref{fig:opt:bayes-opt} shows BO being used to optimize the 
+Figure~\ref{fig:opt:bayes-opt}\todo{Sort out rastering} shows BO being used to maximize the 
 following simple one dimensional function
 \begin{align}
 \label{eq:opt:toy}
@@ -73,21 +87,23 @@ with noisy observations $v\sim\mathcal{N}(f(\theta),0.01^2)$.  As we
 explained before, BO employs only point-wise function
 evaluations and so the optimization problem boils down to deciding 
 \begin{enumerate}
+		\setlength\itemsep{0em}
 	\item What input point should be evaluated at each iteration?
-	\item Which point of those evaluated is most optimal?
+	\item Where do we think the optimum is given our evaluations?
 \end{enumerate}
 Both of these are done using a GP regressed to the existing evaluations,
 which therefore forms the first step of each BO iteration.  As shown in
 Figure~\ref{fig:opt:bayes-opt}, this gives an estimated value and uncertainty for the function
 at every point in the form of the GP posterior mean $\mu_{\text{post}}(\theta)$ and 
-marginal standard deviation $\sigma_{\text{post}}(\theta) = \sqrt{k_{\text{post}}(\theta,\theta)}$
+marginal standard deviation $\sigma_{\text{post}}(\theta) = \sqrt{k_{\text{post}}(\theta,\theta)}$,
 where $\mu_{\text{post}}$ and $k_{\text{post}}$ are as per~\eqref{eq:opt:GP-posterior}.  We will
 drop the $_{\text{post}}$ subscript in the rest of this chapter to avoid clutter.
-The second decision is now straight forward - our
+The second decision -- deciding the location of the optimum -- is now straight forward: our
 estimate for the most optimal point of those evaluated is simply the point with
-the highest mean.  
+the highest mean, or if we allow our estimate to be a non-evaluated point, we can the instead take
+the maximum of the mean function.
 
-To solve the first decision - where to evaluate next - we specify a so-called 
+To solve the first decision -- where to evaluate next -- we specify a so-called 
 \emph{acquisition function}  $\zeta : \vartheta \rightarrow \real$
 that encodes the relative utility of evaluating a new point.  The optimum of this
 acquisition function is then the optimal point to evaluate at the next iteration.
@@ -96,14 +112,14 @@ of a point is based on a trade off between \emph{exploration},
 namely the desire to evaluate points where our uncertainty is high to reduce the
 uncertainty in those regions, and \emph{exploitation}, namely the desire to evaluate points
 where the expected function value is high so that we get a good characterization
-of the function in promising regions.  One could alternative think about this as wanting to refine 
+of the function in promising regions.  One could alternatively think about this as wanting to refine 
 the estimates of promising local optima and sample in places that are likely to contain a
 missing mode.
 We will return to discuss specific acquisition
 functions in depth in the next section and for now we simply note that the most
 desirable points to evaluate will be those that provide both exploration and exploitation.
 For example, consider the expected improvement acquisition function (see~\eqref{eq:opt:EI})
-after 10 iterations shown in green in Figure~\ref{fig:opt:bayes-opt}.  This is reasonably
+after 10 iterations shown in green in Figure~\ref{fig:opt:bayes-opt:10}.  This is reasonably
 large in the two regions of highest uncertainty, but it is highest in the region near the 
 true global optima where both
 the expected value and uncertainty are high.  After 11 iterations on the other hand,
@@ -118,7 +134,7 @@ to evaluate next.  This new optimization problem is itself a global
 optimization of a typically highly multi-modal function and we need to carry it out
 at each iteration of the BO algorithm.  Indeed if the target function $f$ is cheap to
 evaluate, taking such an approach would be rather foolish.
-The key difference though
+The key difference
 is that the surrogate optimization problem can be solved without the need to evaluate
 the original target function.  Therefore, if $f$ is expensive to evaluate, this additional
 computation can be justified if it keeps the number of required evaluations of $f$ to
@@ -129,7 +145,7 @@ is used then it is guaranteed to be smooth.  It is also not typically necessary 
 that the acquisition function is optimized exactly, as evaluating a point that is
 sub-optimal under the acquisition function simply means that a point expected to be less
 helpful is evaluated at the next iteration.  This can be useful when the time for a BO
-iteration is comparable to a function evaluation as the amount of computational effort
+iteration is comparable to a function evaluation, as the amount of computational effort
 undertaken by the BO can be tuned to the problem at hand.  It is also worth noting that
 the computational complexity for optimizing the acquisition function is theoretically less
 (in terms of BO iterations) than the GP training ($O(N^2)$ instead of $O(N^3)$), though in
@@ -152,38 +168,37 @@ for the expected value and uncertainty in the function in the form of the GP pos
 $\mu (\theta)$ and marginal standard deviation $\sigma (\theta)$ respectively.  We now
 introduce a number of common acquisition functions, many, but not all, of which will use
 these representations directly.
-
 The choice of acquisition function can be critical to the performance of Bayesian optimization
 and its choice forms a basis for a significant proportion of the Bayesian optimization
 literature~\citep{shahriari2016taking}.  In particular, some acquisition functions have
-pathologies, for example a tendency to insufficiently explore, which can severely impede the
+pathologies, for example probability of improvement has a tendency to insufficiently explore, which can severely impede the
 performance of BO.  This has lead to the development of some very powerful, but computationally
 intensive and algorithmically complicated, acquisition strategies (e.g.~\cite{hernandez2014predictive}), 
 such that there is often a speed / simplicity vs per iteration performance trade-off in their selection.
 
-\begin{figure}[t]
-	\centering
-	\includegraphics[width=0.95\textwidth]{prob_imp_brochu}
-	\caption{Explanation figure for probability of improvement, taken from~\cite{brochu2010tutorial}.
-		The best point so far (i.e. evaluated point with the highest GP mean) occurs at $\mathbf{x}^+$,
-		with corresponding GP mean $\mu(\mathbf{x}^+)$ (for some reason $f(\mathbf{x}^+)$ is shown
-		instead).  The probability of improvement at any point corresponds to the marginal probability that the 
-		the true function value at that point is larger than $\mu(\mathbf{x}^+)$.  An example of which is 
-		shown at the point $\mathbf{x}_3$, corresponding to the green shaded region, which is clearly
-		substantially larger than at two other hypothetical points $\mathbf{x}_1$ and $\mathbf{x}_2$.
-		Note also that the expected improvement of $\mathbf{x}_3$ corresponds to the expectation 
-		of $\mathbf{x}_3-\mathbf{x}^+$ under the distribution of the green shaded region, while the 
-		point $\mu(\mathbf{x}_3)+\sigma(\mathbf{x}_3)$ corresponds to the UCB acquisition function
-		with $\kappa=1$.
-		REPLACE WITH OWN FIGURE\label{fig:opt:prob-imp}}
-\end{figure}
+%\begin{figure}[t]
+%	\centering
+%	\includegraphics[width=0.95\textwidth]{prob_imp_brochu}
+%	\caption{Explanation figure for probability of improvement, taken from~\cite{brochu2010tutorial}.
+%		The best point so far (i.e. evaluated point with the highest GP mean) occurs at $\mathbf{x}^+$,
+%		with corresponding GP mean $\mu(\mathbf{x}^+)$ (for some reason $f(\mathbf{x}^+)$ is shown
+%		instead).  The probability of improvement at any point corresponds to the marginal probability that the 
+%		the true function value at that point is larger than $\mu(\mathbf{x}^+)$.  An example of which is 
+%		shown at the point $\mathbf{x}_3$, corresponding to the green shaded region, which is clearly
+%		substantially larger than at two other hypothetical points $\mathbf{x}_1$ and $\mathbf{x}_2$.
+%		Note also that the expected improvement of $\mathbf{x}_3$ corresponds to the expectation 
+%		of $\mathbf{x}_3-\mathbf{x}^+$ under the distribution of the green shaded region, while the 
+%		point $\mu(\mathbf{x}_3)+\sigma(\mathbf{x}_3)$ corresponds to the UCB acquisition function
+%		with $\kappa=1$.
+%		REPLACE WITH OWN FIGURE\label{fig:opt:prob-imp}}
+%\end{figure}
 
 \subsubsection{Probability of Improvement}
 \label{sec:opt:BO:acq:prob}
 
 One of the conceptually simplest acquisition functions is the probability of improvement (PI, \cite{kushner1964new}), namely
-the probability that the function value at a point is higher than the current estimated optimum.  A
-characterization of this is shown in Figure~\ref{fig:opt:prob-imp}.  As shown by, for example,
+the probability that the function value at a point is higher than the current estimated optimum.
+ As shown by, for example,
 \cite{brochu2010tutorial}, the probability of improvement has a simple analytic form because the
 marginal distributions for function evaluations are Gaussian.  Specifically, let
 \begin{align}
@@ -195,7 +210,7 @@ denote the point with the highest expected value and define
 \label{eq:opt:gamDef}
 \gamma\left(\theta\right) = \frac{\mu \left(\theta\right)-\mu^+-\xi}{\sigma\left(\theta\right)},
 \end{align}
-where $\xi \ge 0$ is a user set parameter ($\xi=0$ in Figure~\ref{fig:opt:prob-imp}).
+where $\xi \ge 0$ is a user set parameter.
 The probability of improvement is then defined as the probability of improving the 
 objective function by at least an amount $\xi$
 \begin{align}
@@ -250,7 +265,7 @@ the function value~\citep{lai1985asymptotically,srinivas2009gaussian}, namely
 \end{align}
 where $\kappa \ge 0$ is again a parameter that will control the exploration / exploitation trade off.
 This bound represents point at which the probability the function is less than this value is $\Phi (\kappa)$.
-A particularly nice feature of the UCB acquisition function is that given certain constraints on 
+A particularly nice feature of the UCB acquisition function is that given certain conditions on 
 $\vartheta$ and $k$, $\kappa$ can be chosen in a manner such that acquisition has bounded 
 cumulative regret with high probability, this is known as GP-UCB \citep{srinivas2009gaussian}. 
 However, the need to (often adaptively) set $\kappa$ can be a noticeable drawback.
@@ -268,7 +283,7 @@ points as per Section~\ref{sec:opt:GPs}.
 
 The simplest way this can be done is using Thompson sampling\citep{thompson1933likelihood}, 
 where instead of optimizing an acquisition function directly, one looks to sample the next
-point to evaluate from $p(\theta^* | \Theta, V)$~\citep{shahriari2014entropy,kandasamy2017asynchronous}.  
+point to evaluate from $p(\theta^* | \Theta, V)$~\citep{shahriari2014entropy,bijl2016sequential,kandasamy2017asynchronous}.  
 In the GP setting, this is equivalent to sampling a particular function realisation $f$ and then taking 
 $\theta_{\text{next}}$
 as the optimum of this particular realisation.  This can prove surprisingly expensive, as sampling
@@ -291,12 +306,12 @@ $v\sim\mathcal{N}\left(\mu(\theta),\sigma(\theta)^2+\sigma_n^2\right)$ as
 explained in Section~\ref{sec:opt:GPs:function}.
 Entropy search methods are closely linked to the idea of Bayesian experimental design, in which an equivalent
 target has been used for some time~\cite{chaloner1995bayesian}.  We return to Bayesian experimental
-design in detail in Chapter INSERT.
+design in detail in Chapter~\ref{chp:design}.
 
 Unfortunately,~\eqref{eq:opt:ent-search} is not analytically tractable and so entropy
 search methods must rely on methods for approximately solving~\eqref{eq:opt:ent-search}.  
 This can be particularly difficult as~\eqref{eq:opt:ent-search} represents a nested estimation
-problem that cannot be solved simply by, for example, Monte Carlo~\citep{rainforth2017pitfalls}.
+problem that cannot be solved simply by, for example, Monte Carlo (see Chapter~\ref{chp:nest}).
 An important advancement in this regard was the development of an estimation scheme
 by~\cite{hernandez2014predictive} that uses a combination of analytic approximations
 and Monte Carlo sampling.  Despite these approximations, the resulting predictive ES algorithm
@@ -309,19 +324,20 @@ evaluations and remains arguably the state-of-the-art acquisition function for B
 Many more acquisition strategies have been developed than we have space 
 to cover here.  However, some of other strategies of particular note include
 \begin{itemize}
-	\item \cite{contal2014gaussian} construct an acquisition function from a combination
+		\setlength\itemsep{0em}
+	\item \cite{contal2014gaussian} use a combination
 	of the GP mean and an approximation of the mutual information between the
-	function and the noisy evaluations at the chosen input points.  This leads to impressive
+	function and the noisy evaluations at the chosen input points, providing impressive
 	theoretical and empirical results.
-	\item \cite{osborne2009gaussian,gonzalez2016glasses} develop
+	\item \cite{osborne2009gaussian} and \cite{gonzalez2016glasses} develop
 	non-myopic methods that incorporate the effect of future hypothetical evaluations on
 	the relative optimality of evaluating a point at the current iteration.  Such lookahead methods
 	can improve performance, but at the expensive of substantially increased computational cost.
-	\item \cite{wang2016optimization} introduce a strategy explicitly estimating then using
-	the value of function maximum $f(\theta^*)$ and establish links connections between their
+	\item \cite{wang2016optimization} introduce a strategy explicitly estimating, then using,
+	the value of $f(\theta^*)$ and establish links connections between their
 	approach, UCB, and PI.
 	\item \cite{swersky2013multi,shah2016pareto,hernandez2016predictive,feliot2017bayesian}
-	introduce various acquisition functions for dealing with multi-objective problems where we
+	introduce acquisition functions for dealing with multi-objective problems, for which we
 	wish to optimize many functions simultaneously.  For example, they may try to approximate
 	the so-called Pareto front, constituting of the set of non-dominated solutions.
 \end{itemize}
@@ -332,7 +348,7 @@ to cover here.  However, some of other strategies of particular note include
 Generally the performance of BO will be strongly dependent on the choice of GP
  hyperparameters $\alpha$.  Rather than optimizing for $\alpha$ it is natural, 
  when tractable, to take a fully Bayesian view and marginalize
- over $\alpha$ \cite{osborne2009gaussian, snoek2012practical}, leading to
+ over $\alpha$ \cite{osborne2009gaussian}, leading to
  mixture of GPs posterior.  This was shown
  by~\cite{snoek2012practical} to substantially improve the performance of BO.
  An easy way to do this for simple acquisition functions is to consider an
@@ -341,16 +357,28 @@ Generally the performance of BO will be strongly dependent on the choice of GP
 \begin{align}
 \label{eq:opt:intAcq}
 \bar{\zeta}\left(\theta \right) &= \E_{p\left(\alpha | \Theta, V\right)}
-\left[  \zeta\left(\theta  ; \alpha\right)  \right] \\
-&= \frac{1}{p\left(V | \Theta \right)} \E_{p\left(\alpha \right)}
+\left[  \zeta\left(\theta  ; \alpha\right)  \right] = \frac{1}{p\left(V | \Theta \right)} \E_{p\left(\alpha \right)}
 \left[  \zeta\left(\theta  ; \alpha\right)  p\left(V | \Theta, \alpha\right)\right]
 \end{align}
-where $p(\alpha)$ is a prior over the hyperparmaeters, $p\left(V | \Theta \right)$ is
+where $p(\alpha)$ is a prior on the hyperparmaeters, $p\left(V | \Theta \right)$ is
 a constant that can be ignored as it does not effect the position of the optimum, and
-$p\left(V | \Theta, \alpha\right)$ is the GP marginal likelihood as given in~\eqref{eq:opt:GP-ML}.
+$p\left(V | \Theta, \alpha\right)$ is the GP marginal likelihood as per~\eqref{eq:opt:GP-ML}.
 The expectation can be approximated using Monte Carlo inference, with slice sampling
-\citep{neal2003slice,murray2010slice} and Hamiltonian Monte Carlo \citep{duane1987hybrid,hensman2015mcmc}
+\citep{murray2010slice} and Hamiltonian Monte Carlo \citep{hensman2015mcmc}
 being common choices.
+
+\subsection{Parallelization}
+\label{sec:opt:BO:parallel}
+
+In recent years there has been increased interest in performing Bayesian optimization in the setting
+where function evaluations can be performed in parallel
+\citep{contal2013parallel,desautels2014parallelizing,gonzalez2016batch,kathuria2016batched}. 
+Such methods usually predict a batch of
+evaluation points that are then evaluated simultaneously.
+It is desirable for the batch to both include points that have high acquisition functions values, but
+which as well separated to minimize the correlation between their outputs.  Recent work by~\cite{kandasamy2017asynchronous}
+has also looked at the case where evaluation times can vary greatly, such that is desirable to
+carry out evaluations asynchronously in parallel, rather than in batches.
 
 \subsection{Constraints}
 \label{sec:opt:BO:exten:constraints}
@@ -359,7 +387,7 @@ Bayesian optimization approaches mostly assume that the target function
 is constrained by a bounding box, i.e. that each input is independently constrained.
 In practice, this assumption is rarely fulfilled, though for technically unbounded 
 problems then it is not uncommon
-for the user to be able to specify a box conveying the region where it is reasonable to
+for the user to be able to specify a box conveying a region where it is reasonable to
 assume to the true optimum falls within the box.  To go beyond this assumption, it is
 necessary to design strategies that can deal with constraints and strategies that deal
 with unbounded problems.  Dealing with the former when using a GP surrogate can
@@ -392,23 +420,9 @@ and will similarly perform poorly for constraint functions that are not well mod
 %regression.  
 They also do not guarantee that the target function with only be evaluated at places where the
 constraints are satisfied.  This can be inefficient as evaluations are wasted and makes the method inappropriate
-for scenarios where it is essential that the constraints are never violated, for example if the constraints
-correspond to the failure of a component.
-In recent work that will be discussed at length in Chapter~\ref{chp:bopp}~\citep{rainforth2016bayesian}, we show how
+for scenarios where it is essential that the constraints are never violated.  
+In the next Chapter, we show how
 probabilistic programming can be used to overcome both these problems, creating a BO strategy that
 automatically satisfies the problem constraints at every evaluation, even when these constraints
 are equality constraints.  Our method also introduces an approach for dealing with
 unconstrained BO problems.
-
-\subsection{Parallelization}
-\label{sec:opt:BO:parallel}
-
-In recent years there has been increased interest in performing Bayesian optimization in the setting
-where function evaluations can be performed in parallel
-\citep{contal2013parallel,desautels2014parallelizing,gonzalez2016batch,kathuria2016batched}. 
-Such methods usually predict a batch of
-evaluation points that are then evaluated simultaneously.
-It is desirable for the batch to both include points that have high acquisition functions values, but
-which as well separated to minimize the correlation between their outputs.  Recent work by~\cite{kandasamy2017asynchronous}
-has also looked at the case where evaluation times can vary greatly, such that is desirable to
-carry out evaluations asynchronously in parallel, rather than in batches.

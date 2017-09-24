@@ -3,14 +3,6 @@
 \section{Introduction}
 \label{sec:opt:intro}
 
-From designing engineering components to managing portfolios and tuning control systems,
-optimization is used ubiquitously throughout engineering and the sciences.   Whereas inference
-dealt with cases where we desire to calculate an expectation or approximate a probability distribution
-given data, optimization considers cases where only a single output is desired.  For example, in
-a decision problem only a single action can be taken, meaning a single optimal action must be
-found.  It it is also often used in machine learning as a tractable alternative when full inference
-is infeasible~\cite{murphy2012machine}.
-
 In general, all optimization problems can be expressed in the form
 \begin{align}
 	\begin{split}
@@ -26,12 +18,13 @@ $g_i(\theta) = c_i$ are equality constraints, $h_i(\theta) \ge d_i$ are
 inequality constraints, and $\theta^*$ is the optimum value of $\theta$.
 We note that careful definition of $\vartheta$ can remove the need to
 define constraints explicitly, a fact which we exploit in Chapter~\ref{chp:bopp},
-while minimization problems can be dealt with by maximizing $-f\left(\theta\right)$.
+while minimization problems can be dealt with by maximizing $-f\left(\theta\right)$
+instead of $f\left(\theta\right)$.
 
 A large range of problems are covered by~\eqref{eq:opt:funcMax}.  For example, 
 there are arbitrary different types $\vartheta$ might correspond to from the set of real
 values to the setup of race car.  There is also a wide range of information that might
-be known about $f$ - we might have access to the exact function and all its derivatives,
+be known about $f$ -- we might have access to the exact function and all its derivatives,
 or it might be that the only way to evaluate it is to conduct an expensive real world 
 experiment with stochastic results at a given value of $\theta$.  Naturally this leads 
 to a plethora of different techniques to suit the different problems at hand such
@@ -41,20 +34,20 @@ methods~\citep{papadimitriou1982combinatorial}, gradient based
 methods~\citep{boyd2004convex}, and Monte Carlo based methods~\citep{robert2004monte}.
 Such optimization algorithms can be split into two key categories:
 local optimization approaches and global optimization approaches.  
-The latter strictly aims to solved the true target as laid out in~\eqref{eq:opt:funcMax}, but
+The latter strictly aims to solve the true target as laid out in~\eqref{eq:opt:funcMax}, but
 is in often infeasible in practice.
 The former instead only tries to find a point where there is no better point in its immediate vicinity. 
 Local optimization is generally
 used either when the problem is known or expected to be convex (such that there is only
 one such local optimum), or when global optimization is infeasible and a local
-optimum is expected to still for a good approximate solution.  
+optimum is expected to still for a good approximate solution, as is typically the case in,
+for example, neural network training.
 
 In a probabilistic machine learning context, common optimization problems 
 include maximum likelihood (ML) estimation,
 maximum a posterior (MAP) estimation, maximum marginal likelihood (MML) estimation, 
 marginal maximum a posteriori (MMAP) estimation,
 and risk minimization.  
-
 ML estimation looks to find the most probable set of parameters
 for a given distribution, namely given data $Y$ they look to find
 \begin{align}
@@ -62,9 +55,9 @@ for a given distribution, namely given data $Y$ they look to find
 \theta^* &= \argmax_{\theta \in \vartheta} p(Y|\theta).
 \end{align}
 Many classical statistical and machine learning techniques on based on 
-ML estimation~\citep{hastie01statisticallearning} as it is intuitively the most probable
+ML estimation as it is intuitively the most probable
 set of parameters given data and a model.  However, this can be prone to overfitting and
-so it is typically requires the inclusion of regularization terms.
+so it is typically requires some form of regularization~\citep{hastie01statisticallearning}.
 
 MAP estimation extends ML estimation to also include a prior term
 \begin{align}
@@ -75,9 +68,7 @@ This provides regularization compared to ML estimation (indeed many priors and
 ML regularization methods are exactly equivalent~\citep{bishop2006pattern}),
 but still has a number of drawbacks compared to full inference when the latter is
 possible.  For example, the position of the MAP estimate is dependent of the
-parametrization of the problem: if some mapping to input variables is
-provided $\phi = \eta (\theta)$, this changes the position of the optimum, i.e.
-in general $\phi^* \neq \eta (\theta^*)$.  Using a MAP estimate also of course
+parametrization of the problem (see Section~\ref{sec:prob:measure}).  Using a MAP estimate also, of course,
 incorporates less information into the predictive distribution than using a
 fully Bayesian approach.  Nonetheless, MAP estimation is still an important
 tool of Bayesian machine learning, necessary when a single estimate or decision is required,
