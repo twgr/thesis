@@ -15,7 +15,7 @@ whereby psychologists want to learn how delays and uncertainties affect the subj
 on (typically monetary) rewards or costs. Given a model, the toolbox uses the framework from the
 previous section to automate in an online fashion 
 both the inference of the model parameters and the sequential adaptation of the experiment itself through
-choosing the questions the participant is asked.  It therefore automates the full run-time experimental 
+choosing the questions the participant is asked.  It, therefore, automates the full run-time experimental 
 pipeline  by using the responses from previous questions to perform inference 
 and update the internal representation
 of the participant and then using information to ask the most informative questions for a particular
@@ -65,7 +65,7 @@ over the parameters $\theta$ is updated in the standard Bayesian fashion, such
 that the most optimal question to ask at a particular time depends on the previous questions
 and responses.  
 
-Rather than considering the full BED pipeline, we will first examine the convergence and empirical
+Before considering the full BED pipeline, we will first examine the convergence and empirical
 performance of our
 reformulated estimator~\eqref{eq:u_bar_MC}  compared to the na\"{i}ve alternative~\eqref{eq:exp-des-nmc}.
 For simplicity, we will consider the case 
@@ -74,6 +74,7 @@ We first examine the convergence in the estimate of $\bar{U}(d)$ for the case $A
 for which Figure~\ref{fig:exp-conv} demonstrates similar behavior for the na\"{i}ve NMC estimator
 as seen in the experiments of Chapter~\ref{chp:nest} and, as expected, substantial improvements
 for the the reformulated estimator in the form of a $O(1/N)$ convergence rate.
+
 We next consider setting a total sample budget $T=10^4$ and look at the variation in the 
 estimated values of $\bar{U}(d)$ for different values of $A$ for the two methods as 
 shown in Figure~\ref{fig:exp-d-scan}. This shows that the improvement in MSE leads 
@@ -85,7 +86,7 @@ will translate to improvements in seeking the optimum.
 		\includegraphics[width=\textwidth]{darc_results}
 	\caption{Comparison of the DARC toolbox to alternative methods for two behavior styles: major
 		depressive disorder (top) which indicates a relatively strong desire for immediate rewards ($k=0.04$)
-		and anorexia nervosa (bottom) which indicates relatively low discounting rate ($k=0.0028$).  Solid lines show
+		and anorexia nervosa (bottom) which indicates relatively low discounting rate ($k=0.0028$).  Lines show
 		posterior samples from the final learned predictive distribution for the indifference curve (i.e. the curve
 		along which the participant is equally likely to choose the immediate or dealy reward), circles represent
 		questions where the delayed reward was preferred, and the filled dots correspond to the questions were
@@ -97,9 +98,10 @@ will translate to improvements in seeking the optimum.
 	}
 \end{figure}
 
-We next examine the performance of the DARC toolbox compared to alternatives in the
-psychology literature~\citep{Kirby:2009eu,Frye:2016eu} as shown in Figure~\ref{fig:design:darc}.  Here
-we fix $\alpha=$ and fix the prior as $\log k \sim \mathcal{N}(-4.5,0.5^2)$.  We fixed $B=100$ and
+Finally, we examine the performance of the DARC toolbox compared to alternatives in the
+psychology literature~\citep{Kirby:2009eu,Frye:2016eu} as shown in Figure~\ref{fig:design:darc}.  Using the
+same likelihood model as~\ref{eq:design:darc},
+we fix $\alpha=2$ and set the prior on $k$ as $\log k \sim \mathcal{N}(-4.5,0.5^2)$.  We fixed $B=100$ and
 then use three different methods for sequentially selecting designs $d_t = \{A_t,D^b_t\}$, for
 two different hypothetical participants with respective ground truth parameters of $k=0.04$ and $k=0.0028$.
 Responses are generated presuming the likelihood model is correct and sampling directly from
@@ -111,4 +113,4 @@ method.  The non-adaptive scheme of~\cite{Kirby:2009eu} always asks the same que
 the participant's responses.  The heuristic method of~\cite{Frye:2016eu} does better, but is still somewhat
 wasteful.  The DARC toolbox on the other hand, takes only a couple of questions before achieving a
 reasonable representation of the response surface, such that almost all of the questions asked are clearly
-pertinent and the final posterior predictive far lower entropy than the other approaches.
+pertinent and the final posterior predictive distribution has far lower entropy than the other approaches.

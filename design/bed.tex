@@ -6,7 +6,7 @@
 In this section we will introduce the BED equations more formally.
 Let the parameters of interest be denoted by $\theta \in \Theta$, for which we define a prior distribution $p(\theta)$.
 Let the probability of achieving outcome $y\in\mathcal{Y}$, given parameters $\theta$ 
-and a design $d \in \mathcal{D}$, be defined by likelihood model $p(y | \theta, d)$.
+and a design $d \in \mathcal{D}$, be defined by the likelihood model $p(y | \theta, d)$.
 Under our model, the outcome of the experiment given a chosen $d$ is distributed according to
 \begin{equation}
 \label{eq:marginal_def}
@@ -47,5 +47,5 @@ discussed in Section~\ref{sec:opt:BO:acq:inf} are particular cases of BED.
 The main draw back to the Bayesian experimental design 
 approach is, in fact, that it is typically difficult and computationally intensive to carry out.  
 Not only does it represent an optimization 
-of an intractable expectation, this expectation is itself a nested estimation because
+of an intractable expectation, this expectation is itself a nested because
 the integrand is itself intractable due to the $p\left(\theta | y, d\right)$ term.

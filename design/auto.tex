@@ -33,7 +33,7 @@ In the rest of this section we will outline a framework for automating such sequ
 adaptive design problems.  This takes on a somewhat probabilistic programming flavor, as
 the aim is to develop a system where the user provides only information about the model and
 design space, with the next chosen design calculated automatically when provided with
-the outcome of the last.  However, as we will discuss in Section INSERT, this actually goes
+the outcome of the last.  However, as we will discuss in Section INSERT\todo{add}, this actually goes
 beyond the capabilities of current PPS.  What we present is by no means a complete solution to
 this problem and certainly does not represent a PPS itself, but it does perhaps provide an important
 step towards such building such a hypothetical system.   Indeed the framework has already been
@@ -71,9 +71,9 @@ based methods, see Chapter~\ref{chp:part}) are likely to be particularly efficie
 We have now derived an estimator for $\bar{U}_t(d)$ and demonstrated how we can generate the
 samples required to evaluate this estimator.  We will now look at how to optimize for $d$.  
 Our problem requires the optimization of an intractable expectation and thus shares substantial
-similarity to the problems considered in~\ref{chp:bopp}.  Indeed BOPP could forms a suitable
+similarity to the problems considered in Chapter~\ref{chp:bopp}.  Indeed BOPP could forms a suitable
 approach to estimating $d^*$ at each iteration for many problems.  However, BOPP is a somewhat heavy
-duty MMAP estimation process that may not be suitable for problems that are relatively simpler,
+duty estimation algorithm that may not be suitable for problems that are relatively simpler,
 but for which speed is paramount.  Many of the possible applications of our approach, such
 as the DARC toolbox, require rerunning in real-time with human participants, for which BOPP would
 thus be inappropriate.\footnote{It is worth noting, nonetheless, that if the surrogate in BOPP
@@ -122,7 +122,7 @@ a technique commonly used in the bandit literature~\citep{agrawal2012analysis}.
 		\EndFor	
 		\State $\tilde{q}_k \leftarrow \hat{U}_k^{\gamma(\ell+1)} \quad \forall k = 1,\dots,K$ 
 		\label{line:des-opt:set-p}
-		\Comment Unnormalized selection probability, $=\text{annealed} ~\hat{U}_k$
+		\Comment Unnormalized selection probability $= \text{annealed} ~\hat{U}_k$
 		\State $Z \leftarrow \sum_{k=1}^{K} \tilde{q}_k $ \Comment Normalization constant.
 		\State $q_k \leftarrow \max\left(\frac{\rho}{N},\frac{\tilde{q}_k }{Z}\right) \quad \forall k = 1,\dots,K$ \Comment Ensure probabilities are all at least minimum value
 		\State $q_k \leftarrow \frac{q_k}{\sum_{k=1:K} q_k} \quad \forall k = 1,\dots,K$ 
@@ -159,7 +159,7 @@ allocation~\cite{neufeld2014adaptive}, and the Hyperband algorithm~\citep{li2016
 	note that our approach was independently developed prior to publication of~\cite{li2016hyperband} (the relevant
 	code for the DARC toolbox dates back to 2015), but remained unpublished until~\cite{vincent2017darc}.}
 We emphasise though that our method has important differences
-to these previous approaches and is constitutes a new algorithm in its own right.
+to these previous approaches and constitutes a new algorithm in its own right.
 
 Imagine that we are considering $K$ designs with a total sample budget $\bar{N}K$
 and decide to use the same number of samples, $\bar{N}$, to calculate an estimate $\hat{U}_{1:K}$ for the 
