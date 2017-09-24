@@ -13,6 +13,7 @@ such as a variational approximation~\citep{blei2016variational} or Bayesian
 quadrature~\citep{o1991bayes}.
 %A characterization of this result is shown in Figure~\ref{fig:bias-plot} and more formally
 %in the following Theorem.
+\vspace{-5pt}
 \begin{theorem}
   Suppose that the random variables $\hat{\zeta}_n$ satisfy
     $\mathbb{P}(\hat{\zeta}_n \neq \gamma(y_n)) > 0$.
@@ -20,6 +21,7 @@ quadrature~\citep{o1991bayes}.
     $\E\left[\frac{1}{N} \sum_{n=1}^N f(y_n, \hat{\zeta}_n)\right] \neq I(f)$ for any
     $N$ (including $N\rightarrow\infty$).
 \end{theorem}
+\vspace{-5pt}
 \begin{proof}
 	Take $f(y, w) = (\gamma(y) - w)^2$. Then $f(y, \gamma(y)) = 0$, so that $I(f) = 0$.  On
 	the other hand, $f(y_n, \hat{\zeta}_n) \geq 0$ since $f$ is non-negative.
@@ -38,7 +40,7 @@ quadrature~\citep{o1991bayes}.
 %  used. However, we do not require this: apart from implicit measurability properties, our
 %  assumption is only that $\hat{\zeta}_n$ is an \emph{imperfect} estimator of
 %  $\gamma(y_n)$, which is by definition the case for any approximate estimation method
-%  such as MC, variational approximations, or Bayesian quadrature~\cite{o1991bayes}.
+%  such as \mc, variational approximations, or Bayesian quadrature~\cite{o1991bayes}.
 %\end{remark}
 %
 %
@@ -52,7 +54,7 @@ quadrature~\citep{o1991bayes}.
 %strictly convex or concave $f$ entails a biased estimator 
 %when $\hat{\zeta}_n$ is unbiased but has non-zero variance
 %given $y_n$. This covers the
-%case where $\hat{\zeta}_n$ is a MC estimate.
+%case where $\hat{\zeta}_n$ is a \mc estimate.
 %\begin{theorem}
 %  \label{the:bias-conv}	
 %  Suppose that $y_n \sim p(y)$ and that each $\hat{\zeta}_n$ satisfies $\E \left[\hat{\zeta}_n \middle| y_n\right] = \gamma(y_n)$.
@@ -88,7 +90,7 @@ quadrature~\citep{o1991bayes}.
 By Jensen's inequality, it also follows relatively straight forwardly (see~\cite{rainforth2017pitfalls}) 
 that \emph{any} strictly convex or concave $f$  entails a biased estimator 
 when $\hat{\zeta}_n$ is unbiased but has non-zero variance given $y_n$, e.g.
-when $\hat{\zeta}_n$ is a MC estimate.
+when $\hat{\zeta}_n$ is a \mc estimate.
 For certain nonlinear $f$, it may still be possible to develop unbiased estimation
 schemes using Russian roulette sampling~\citep{lyne2015russian} or other debiasing techniques.  
 However, this induces its own complications: for some problems the resultant estimates

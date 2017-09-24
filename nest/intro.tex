@@ -3,10 +3,10 @@
 \section{Background}
 \label{sec:intro}
 
-%Although interesting alternatives have recently been suggested \cite{briol2015probabilistic}, MC integration is almost exclusively used to calculate the expectation, given the generated samples.
-%the method used in practise for calculating these expectations, given the generated samples, is almost exclusively MC integration.  
-%The calculation of expectations using MC can be considered intertwined with that of MC inference.  
-%After all, convergence rates that are often quoted for MC inference schemes, actually correspond to the convergence of the final MC integration estimate.
+%Although interesting alternatives have recently been suggested \cite{briol2015probabilistic}, \mc integration is almost exclusively used to calculate the expectation, given the generated samples.
+%the method used in practise for calculating these expectations, given the generated samples, is almost exclusively \mc integration.  
+%The calculation of expectations using \mc can be considered intertwined with that of \mc inference.  
+%After all, convergence rates that are often quoted for \mc inference schemes, actually correspond to the convergence of the final \mc integration estimate.
 
 There are various problems involving nested expectations that require the use of nested
 estimation schemes such as NMC. For example, the expected information gain used in
@@ -17,14 +17,14 @@ divergence where one of the terms is a marginal distribution also involves a nes
 inference \citep{hoffman2015stochastic,naesseth2017variational,maddison2017filtering} and deep generative models
 \citep{burda2015importance,maaloe2016auxiliary,le2017auto}.
 %Here the nonlinearity provided by the logarithm prevents a simple reformulation to a
-%single expectation in the general case, and thus presents conventional MC estimation.
+%single expectation in the general case, and thus presents conventional \mc estimation.
 Another common nested estimation scenario is calculating expectations with respect to so-called
 doubly-intractable distributions~\citep{moller2006efficient,murray2006mcmc,liang2010double}, whereby
 the target distribution is only known up to a parameter-dependent normalizing constant.  Here
 the normalization constant itself represents an intractable expectation
 nested within the overall expectation.
 NMC can also arise in contexts demanding the use
-of direct MC simulations, for example in portfolio risk management
+of direct \mc simulations, for example in portfolio risk management
 \citep{gordy2010nested} and stochastic control \citep{belomestny2010regression}. 
 In particular, 
 simulations of agents that reason about decisions of other agents or which
@@ -40,11 +40,10 @@ These consider cases of Bayesian inference where the likelihood is intractable,
 %such as
 %when it originates from an Approximate Bayesian Computation (ABC)
 %\citep{csillery2010approximate}, 
-but (unlike doubly-intractable distributions in general) can
-be estimated unbiasedly.
+but can be estimated unbiasedly.
 % or when sequential Monte Carlo \cite{smith2013sequential} is used to approximate a high
 % dimensional distribution.  
-They involve reformulating the problem in an extended space with auxiliary variables that
+From a theoretical perspective, they involve reformulating the problem in an extended space with auxiliary variables that
 are used to represent the stochasticity in the likelihood computation. This then enables the
 problem to be expressed as a single expectation.
 Our work goes beyond this by also considering cases in which a non-linear mapping is
@@ -64,12 +63,13 @@ Our proofs apply to a more general class of problems than existing approaches.
 For example, we provide the first convergence bounds for cases of multiple levels of estimator nesting
 as might occur in a probabilistic programming system.
 We further lay out novel methods for reformulating certain classes of nested expectation problems
-into a single expectation, allowing the use of conventional MC estimation 
+into a single expectation, allowing the use of conventional \mc estimation 
 schemes with superior convergence rates than the na\"{i}ve use of NMC, one of which we
-exploit in Chapter~\ref{chp:design} to derive an improve estimator for discrete
+exploit in Chapter~\ref{chp:design} to derive an improved estimator for discrete
 Bayesian experimental design problems.
-Finally, we provide theoretical results showing that any MC
-estimator using imperfect nested estimates is, in general, biased.
+Meanwhile, we provide theoretical results showing that any \mc
+estimator using imperfect nested estimates is, in general, biased.  Finally we provide numerical
+experiments, corroborating our theoretical results.
 
 %\tom{Policy search?}
 

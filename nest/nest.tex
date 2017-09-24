@@ -3,31 +3,41 @@
 \chapter{Nested Estimation}
 \label{chp:nest}
 
-The convergence of Monte Carlo (MC) estimators has been considered extensively in 
+The convergence of Monte Carlo estimators has been considered extensively in 
 literature (see Chapter~\ref{chp:inf}).  However, the theoretical implications
-arising from the \emph{nesting} of MC estimators, where terms in the integrand depend on the
-result of separate, nested, MC estimators, is generally less well known.
+arising from the \emph{nesting} of \mc estimators, where terms in the integrand depend on the
+result of separate, nested, \mc estimators, is generally less well known.
 This chapter examines the convergence of such nested Monte Carlo (NMC) 
 methods~\citep{rainforth2016pitfalls,rainforth2017pitfalls}.
 We demonstrate that NMC can provide consistent estimates of 
 nested expectations, including cases of repeated nesting, under mild conditions;
 establish corresponding rates of convergence;
 and provide empirical evidence that suggests these rates are observed in practice.
-We further establish a number of pitfalls that can arise from na\"{i}ve nesting of MC estimators
+We further establish a number of pitfalls that can arise from na\"{i}ve nesting of \mc estimators
 and provide guidelines about how they can be avoided.
 Our results show that whenever an outer estimator depends nonlinearly on an inner
 estimator, then the number of samples used in \emph{both} the inner and outer estimators
-must, in general, be driven to infinity for convergence.  
+must, in general, be driven to infinity for convergence.  In other words, an infinite number samples
+need to be used for each term in the outer estimator.
 
 A key motivation behind this work is the ability of some PPSs to allow
-arbitrary nesting of models~\cite{mantadelis2011nesting,stuhlmuller2014reasoning}, for example using
- the \conditional construct in Anglican,
+arbitrary nesting of models~\citep{mantadelis2011nesting,stuhlmuller2014reasoning} (for example using
+ the \conditional construct in Anglican)
 such that it is easy to define and run nested inference problems, such as done
 by \citep{ouyang2016practical,le2016nested}. These nested inference problems fall outside the
-scope of the conventional proof of the convergence of MC estimation. Thus additional
+scope of the conventional proof of the convergence of \mc estimation. Thus additional
 work is required to prove the validity of the corresponding back-end inference engines.
 However, the prevalence of NMC goes far beyond PPSs and so we will introduce it in
-a more general context, before returning to assess the implications for PPSs in Section~\ref{sec:design:imp}.
+a more general context, before returning to assess the implications for PPSs in Section~\ref{sec:nest:imp}.
+
+We note that NMC should not be confused with a number of similarly named methods such
+as nested sampling~\citep{skilling2004nested}, nested SMC~\citep{naessethLS2015nested}, or multilevel 
+\mc~\citep{heinrich2001multilevel}, none of
+which target explicitly nested estimation problems.  Of these, only nested SMC ``nests'' \mc
+methods as per our definition, but, as we will show later, it is based on one of our special cases
+were the problem can be rearranged to a single, non-nested, estimation problem.  
+\emph{Nested simulation}, on the other hand, is an alternative term for NMC
+used in, for example, the financial statistics literature~\citep{gordy2010nested}.
 
 %\vspace{-10pt}
 
@@ -44,4 +54,4 @@ a more general context, before returning to assess the implications for PPSs in 
 %
 %\todo[inline]{Regression stuff}
 
-\input{nest/supp}
+%\input{nest/supp}

@@ -4,7 +4,7 @@
 \label{sec:discrete}
 
 If $y$ must take one of finitely many values $y_1, \cdots, y_C$, then it is possible to
-use another approach to ensure the same convergence rate as standard MC.
+use another approach to ensure the same convergence rate as standard \mc.
 The key observation is to note that in this case we can convert the nested problem
 \eqref{eq:MC} into $C$ separate non-nested problems
 \begin{align}
@@ -26,17 +26,22 @@ We can now show the following result, noting that as the same set of $y_n$'s is 
 $(\hat{P}_N)_c$, calculating $I_N$ requires $N$ samples of $y$, 
 $CN$ samples of $z$ (each
 drawn independently to the samples of $y$), $CN$ evaluations of $\phi$, and $C$ evaluations of $f$.
+\vspace{-5pt}
 \begin{restatable}{theorem}{thefiniteres}
 	\label{the:finite-res}
   If $f$ is Lipschitz continuous, then the mean squared error of $I_N  = \sum_{c=1}^C (\hat{P}_N)_c \, (\hat{f}_N)_c$ 
   as an estimator for $I= \sum_{c=1}^C P(y = y_c) \, f(y_c, \gamma(y_c))$ converges at rate $O(1/N)$.
 \end{restatable}
+\vspace{-12pt}
+\begin{proof}
+	See~\citep{rainforth2017pitfalls}.
+\end{proof}
 %
 %
 %If there are only finite possible values which $y$ can take on, there is another approach
-%we can take to ensure standard MC results apply.  Unlike the previous special cases, here
+%we can take to ensure standard \mc results apply.  Unlike the previous special cases, here
 %it will be necessary to carry out the estimation in a particular way for the standard
-%MC results to apply, with na\"{i}ve application of~\eqref{eq:nested-mc} reverting the 
+%\mc results to apply, with na\"{i}ve application of~\eqref{eq:nested-mc} reverting the 
 %problem to the more general NMC case discussed in the next section.  The key realisation
 %is to note that if there are only finite, say $T$, possible realisations of $y$, then we
 %can convert the single nested estimation problem into $T$ separate un-nested problems
@@ -54,7 +59,7 @@ drawn independently to the samples of $y$), $CN$ evaluations of $\phi$, and $C$ 
 %where $K$ is an unknown constant associated with mapping the error through $f$ and the
 %multiplication by $P(y=y_{t})$.
 %Here our error is a constant times the largest error for the finite number of inner estimators, 
-%and so we can bound our error using the MC error from this estimator, which is $O(1/M)$,
+%and so we can bound our error using the \mc error from this estimator, which is $O(1/M)$,
 %noting that this is independent of $N$.
 %
 %We can also think about this approach as grouping the samples from each evaluation of the

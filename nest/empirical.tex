@@ -8,7 +8,9 @@ The convergence rates proven in Section~\ref{sec:convergence} are only
 examine whether these convergence rates are tight in practice, investigate what happens
 when our guidelines are not followed, and examine the effect of different strategies for
 choosing $N_k$ under a sample budget.  We note that one of the main applications of
-our results is provided later in Chapter~\ref{chp:design}.
+our results is provided later in Chapter~\ref{chp:design}, while an additional real-world
+example is given in~\citep{rainforth2017pitfalls}.
+
 
 \subsection{Simple Analytic Model}
 \label{sec:simple}
@@ -52,7 +54,7 @@ for finite budgets.
 		convergence in total samples for different ways of setting $M$ and $N$.  
 		Results are averaged over 1000 independent runs, while shaded regions give the 25\%-75\% quantiles. We
 		see that the theoretical convergence rates (as shown by the dash lines) are observed. 
-		The fixed $M$ case converges at the MC error rate, but to a biased solution.
+		The fixed $M$ case converges at the \mc error rate, but to a biased solution.
 		Shown right is the final error for different total sample budgets
 		as a function of $\alpha$ where $N=T^{\alpha}$ and $M=T^{1-\alpha}$ iterations are used for the outer
 		and inner estimators respectively.  This shows that even though $\alpha=2/3$ is the
@@ -62,53 +64,53 @@ for finite budgets.
 \end{figure}	
 
 \input{nest/repeat-nest.tex}
-
-\subsection{Planning Cancer Treatment}
-\label{sec:cancer}
-
-We now introduce a real-world example to show the applicability of NMC in a scenario
-where the solution is not analytically tractable and conventional MC is insufficient.
-Consider a treatment center assessing a new policy for planning cancer treatments, subject to a budget. 
-Clinicians must decide on a patient-by-patient basis whether to administer chemotherapy in the
-hope that their tumor will reduce in size sufficiently to be able to perform surgery at a later date.
-A treatment is considered to have been successful if the size of the tumor drops below a threshold value in a fixed time window.
-The clinicians have at their disposal a simulator for the evolution of tumors with time,
-parameterized by both observable values, $y$, such as tumor size, and unobservable values, $z$, such as the patient-specific response to treatment.
-Given a set of input parameters, the simulator deterministically returns a binary response $\phi(y,z)\in\left\lbrace 0,1\right\rbrace $, with $\phi(y,z) = 1$ indicating a successful treatment.
-To estimate the probability of a successful treatment for a given patient, the clinician must calculate the expected
-success over these unobserved variables, namely $\E_{p(z|y)} [\phi(y,z)]$ where $p(z|y)$ represents a probabilistic
-model for the unobserved variables, which could, for example, be constructed based on empirical data.
-The clinician then decides whether to go ahead with the treatment for that
-patient based on whether the calculated probability of success exceeds a certain threshold $T_{\mathrm{treat}}$.
-
-\begin{figure}[t]
-	\centering
-		\includegraphics[width=0.49\textwidth,trim={1.5cm 0 3.5cm 0},clip]{canver_conv2}
-	\caption{Convergence of NMC for cancer simulation.
-		A ground truth estimate was calculated
-		using a single run with $M=10^5$ and $N=10^5$.
-		Results are averaged over 1000 independent runs, while shaded regions give the 25\%-75\% quantiles. We
-		see that the theoretical convergence rates are observed in all cases.
-		When $M=\sqrt{N}$ an interesting fluctuation behavior is observed.  
-		Further testing suggests that this originates because the bias of the estimator depends in
-		a fluctuating manner on the value of $M$ as the binary output of $\phi(y,z)$ creates a quantization
-		effect on the possible estimates for $\hat{\gamma}$.  This effect is also observed for the $M=N$ case,
-		but is less pronounced. \label{fig:emperical-conv-cancer} \vspace{-5pt}}
-\end{figure}
-
-The treatment center now wishes to estimate the expected number of patients that will be treated for a given $T_{\mathrm{treat}}$ so that it can minimize this threshold without exceeding its budget.
-To do this, it needs to calculate the expectation of the clinician's decisions to administer 
-treatment, giving the complete nested expectation for calculating the number of treated patients as
-\begin{equation}
-	\label{eq:cancer}
-I(T_{\mathrm{treat}}) = \E_{p(y)} \left[\mathbb{I}\left(\E_{p(z|y)} [\phi(y,z)]>T_{\mathrm{treat}}\right)\right],
-\end{equation}
-where the identity function $\mathbb{I}(\cdot > T_{\mathrm{treat}})$ imposes a non-linear
-mapping, such that conventional Monte Carlo estimation is not possible. Full details on $\phi$, $p(y)$, and $p(z|y)$ are 
-provided in~\cite{rainforth2017pitfalls}.
-
-To verify the convergence rate, we repeat the analysis from Section~\ref{sec:simple} for the problem defined 
-by~\eqref{eq:cancer} at a fixed value of $T_{\mathrm{treat}}=0.35$. 
-The results, shown in Figure~\ref{fig:emperical-conv-cancer}, again verify the theoretical rates. 
-By further testing different values of $T_{\mathrm{treat}}$, we found $T_{\mathrm{treat}} \ge 0.125$ (i.e.
-go ahead with treatment if the probability of success is 0.125 or greater) to be the optimal under the budget.
+%
+%\subsection{Planning Cancer Treatment}
+%\label{sec:cancer}
+%
+%We now introduce a real-world example to show the applicability of NMC in a scenario
+%where the solution is not analytically tractable and conventional \mc is insufficient.
+%Consider a treatment center assessing a new policy for planning cancer treatments, subject to a budget. 
+%Clinicians must decide on a patient-by-patient basis whether to administer chemotherapy in the
+%hope that their tumor will reduce in size sufficiently to be able to perform surgery at a later date.
+%A treatment is considered to have been successful if the size of the tumor drops below a threshold value in a fixed time window.
+%The clinicians have at their disposal a simulator for the evolution of tumors with time,
+%parameterized by both observable values, $y$, such as tumor size, and unobservable values, $z$, such as the patient-specific response to treatment.
+%Given a set of input parameters, the simulator deterministically returns a binary response $\phi(y,z)\in\left\lbrace 0,1\right\rbrace $, with $\phi(y,z) = 1$ indicating a successful treatment.
+%To estimate the probability of a successful treatment for a given patient, the clinician must calculate the expected
+%success over these unobserved variables, namely $\E_{p(z|y)} [\phi(y,z)]$ where $p(z|y)$ represents a probabilistic
+%model for the unobserved variables, which could, for example, be constructed based on empirical data.
+%The clinician then decides whether to go ahead with the treatment for that
+%patient based on whether the calculated probability of success exceeds a certain threshold $T_{\mathrm{treat}}$.
+%
+%\begin{figure}[t]
+%	\centering
+%		\includegraphics[width=0.49\textwidth,trim={1.5cm 0 3.5cm 0},clip]{canver_conv2}
+%	\caption{Convergence of NMC for cancer simulation.
+%		A ground truth estimate was calculated
+%		using a single run with $M=10^5$ and $N=10^5$.
+%		Results are averaged over 1000 independent runs, while shaded regions give the 25\%-75\% quantiles. We
+%		see that the theoretical convergence rates are observed in all cases.
+%		When $M=\sqrt{N}$ an interesting fluctuation behavior is observed.  
+%		Further testing suggests that this originates because the bias of the estimator depends in
+%		a fluctuating manner on the value of $M$ as the binary output of $\phi(y,z)$ creates a quantization
+%		effect on the possible estimates for $\hat{\gamma}$.  This effect is also observed for the $M=N$ case,
+%		but is less pronounced. \label{fig:emperical-conv-cancer} \vspace{-5pt}}
+%\end{figure}
+%
+%The treatment center now wishes to estimate the expected number of patients that will be treated for a given $T_{\mathrm{treat}}$ so that it can minimize this threshold without exceeding its budget.
+%To do this, it needs to calculate the expectation of the clinician's decisions to administer 
+%treatment, giving the complete nested expectation for calculating the number of treated patients as
+%\begin{equation}
+%	\label{eq:cancer}
+%I(T_{\mathrm{treat}}) = \E_{p(y)} \left[\mathbb{I}\left(\E_{p(z|y)} [\phi(y,z)]>T_{\mathrm{treat}}\right)\right],
+%\end{equation}
+%where the identity function $\mathbb{I}(\cdot > T_{\mathrm{treat}})$ imposes a non-linear
+%mapping, such that conventional Monte Carlo estimation is not possible. Full details on $\phi$, $p(y)$, and $p(z|y)$ are 
+%provided in~\cite{rainforth2017pitfalls}.
+%
+%To verify the convergence rate, we repeat the analysis from Section~\ref{sec:simple} for the problem defined 
+%by~\eqref{eq:cancer} at a fixed value of $T_{\mathrm{treat}}=0.35$. 
+%The results, shown in Figure~\ref{fig:emperical-conv-cancer}, again verify the theoretical rates. 
+%By further testing different values of $T_{\mathrm{treat}}$, we found $T_{\mathrm{treat}} \ge 0.125$ (i.e.
+%go ahead with treatment if the probability of success is 0.125 or greater) to be the optimal under the budget.
