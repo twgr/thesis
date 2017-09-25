@@ -297,8 +297,9 @@ each sample.
 Secondly, the unbiased marginal likelihood estimate means that we can \emph{nest} SMC within other 
 methods as a unbiased estimate of the likelihood.
 Methods that make use of such unbiased likelihood estimates are known as pseudo-marginal
-methods~\citep{andrieu2009pseudo} and will be discussed in Chapter~\ref{chp:nest}
-Some PMCMC methods we introduce in Section~\ref{sec:part:pmcmc} can also be interpreted as pseudo-marginal methods.
+methods~\citep{andrieu2009pseudo} and will be discussed in Chapter~\ref{chp:nest}.
+Some PMCMC methods we introduce in Section~\ref{sec:part:pmcmc} (namely PIMH and PMMH) 
+can also be interpreted as pseudo-marginal methods.
 %
 %The sequential nature of SMC and the resampling step are crucial in making SMC scalable to large $T$.
 %The former makes it easier to design efficient proposal distributions as each step need only target 

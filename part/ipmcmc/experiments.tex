@@ -6,18 +6,19 @@
 
 To demonstrate the %validity and
 empirical performance of iPMCMC we report experiments on two state space models.  
-Although both the models considered are Markovian, we emphasise that iPMCMC goes far beyond this and can be applied to arbitrary graphical models. 
+Although both the models considered are Markovian, we emphasise that iPMCMC goes far beyond this and can be applied to arbitrary graphical models
+and even probabilistic programs as explained in Section~\ref{sec:proginf:str:part:ipmcmc}. 
 %For exposition we will focus our comparison to the trivial distribution, whereby $M$ independent PMCMC samplers are run in parallel, of PG, particle independent Metropolis-Hastings (PIMH) \cite{andrieuDH2010} and the alternate move PG sampler (APG) \cite{holenstein2009particle}. 
-We will focus our comparison on the trivially distributed alternatives, whereby $M$ independent PMCMC samplers are run in parallel--these are PG, particle independent Metropolis-Hastings (PIMH) \cite{andrieuDH2010} and the alternate move PG sampler (APG) \cite{holenstein2009particle}. Comparisons to other alternatives, including independent SMC, serialized implementations of PG and PIMH, and running a mixture of independent PG and PIMH samplers, are provided in the supplementary material of~\cite{rainforth2016interacting}.  
+We will focus our comparison on the trivially distributed alternatives, whereby $M$ independent PMCMC samplers are run in parallel--these are PG, particle independent Metropolis-Hastings (PIMH) \citep{andrieuDH2010} and the alternate move PG sampler (APG) \citep{holenstein2009particle}. Comparisons to other alternatives, including independent SMC, serialized implementations of PG and PIMH, and running a mixture of independent PG and PIMH samplers, are provided in the supplementary material of~\cite{rainforth2016interacting}.  
 None outperformed the methods considered here, with the exception of running a serialized PG implementation with an increased number of particles, requiring significant additional memory ($O(MN)$ as opposed to $O(M+N)$).
 
-In PIMH a new particle set is proposed at each \mcmc step using an independent \smc sweep, which is then either accepted or rejected using the standard Metropolis-Hastings acceptance ratio. % \cite{andrieuDH2010}. %\cite{hastings1970monte}. 
 APG interleaves PG steps with PIMH steps
 %, alternating between \csmc updates and a Metropolis-Hastings step with an independent \smc proposal,
 in an attempt to overcome the issues caused by path degeneracy in PG.  We refer to the trivially distributed versions of these algorithms as multi-start PG, PIMH and APG respectively (mPG, mPIMH and mAPG). 
-We use Rao-Blackwellization, as described in \ref{sec:part:ipmcmc:allparticles}, to average over all the generated particles for all methods, weighting the independent Markov chains equally for mPG, mPIMH and mAPG. We note that mPG is a special case of iPMCMC for which $P=M$.  Because our interest is in alleviating degeneracy multinomial resampling was used in the experiments,\footnote{We recommend
-	using systematic resampling,, as is the default in the provided implementations, and setting $N$ as large as possible for iPMCMC in general.}
- with the prior transition distribution of the latent variables taken for the proposal.  $M=32$ nodes and $N=100$ particles were used unless otherwise stated.  Initialization of the retained particles for iPMCMC and mPG was done by using standard SMC sweeps.
+We use Rao-Blackwellization, as described in \ref{sec:part:ipmcmc:allparticles}, to average over all the generated particles for all methods, weighting the independent Markov chains equally for mPG, mPIMH and mAPG. We note that mPG is a special case of iPMCMC for which $P=M$.  Because our interest is in alleviating degeneracy, we used the bootstrap proposal and multinomial resampling in our experiments.\footnote{However, we recommend
+	using systematic resampling, as is the default in the provided implementations, and setting $N$ as 
+	large as possible for iPMCMC in general.}
+ $M=32$ nodes and $N=100$ particles were used unless otherwise stated.  Initialization of the retained particles for iPMCMC and mPG was done by using standard SMC sweeps.
 
 \subsubsection{Linear Gaussian State Space Model}
 \label{sec:LGSS}

@@ -2,7 +2,7 @@
 
 \todo[inline]{Add in figures from poster}
 
-In this section we introduce \emph{interacting particle Markov chain Monte Carlo} (\ipmcmc)~\citep{rainforth2016interacting}
+In this section we introduce \emph{interacting particle Markov chain Monte Carlo} (\ipmcmc)~\citep{rainforth2016interacting},
 a \pmcmc method based on an interacting pool of standard and conditional sequential Monte Carlo samplers. Like 
 other PMCMC methods, \ipmcmc is a Markov chain Monte Carlo sampler on an extended space. In \ipmcmc we run a pool of 
 \csmc and unconditional \smc algorithms as parallel processes that we refer to as nodes. After each run of this pool, 
@@ -20,12 +20,12 @@ However, with \ipmcmc we extend this further to allow for an arbitrary number of
 with interaction.
 
 The interaction between nodes requires only minimal communication; each node must report an estimate of the marginal likelihood 
-and receive a new role (\smc or \csmc) for the next sweep. This means that \ipmcmc is embarrassingly parallel 
-and can be run in a distributed manner on multiple computers.  However, the advantages of \ipmcmc go far beyond
+and receive a new role (\smc or \csmc) for the next sweep. This means that \ipmcmc 
+can be run in a distributed manner on multiple computers.  However, the advantages of \ipmcmc go far beyond
 simple parallelization: our experimental evaluation shows that \ipmcmc outperforms both equivalent
 non-interacting \pmcmc samplers as well as a single \pg sampler with the same number of particles run longer
 to give a matching computational budget.
 An implementation of iPMCMC is provided in the probabilistic programming system
-\emph{Anglican}\footnote{\angurl} \citep{wood2014new} as we discuss in Chapter~\ref{chp:proginf}.  A general 
+\emph{Anglican}\footnote{\scriptsize \url{http://www.robots.ox.ac.uk/~fwood/anglican}} \citep{wood2014new} as we discuss in Chapter~\ref{sec:proginf:str}.  A general 
 purpose toolbox for carrying out iPMCMC and other SMC / PMCMC inference in MATLAB is also provided by the custom
-made \emph{probabilistic MATLAB} package.\footnote{\url{https://github.com/twgr/probabilistic_matlab}}
+made \emph{probabilistic MATLAB} package.\footnote{\scriptsize \url{http://github.com/twgr/probabilistic_matlab}}
