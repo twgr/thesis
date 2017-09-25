@@ -7,8 +7,8 @@ Particle-based inference methods (PBIM), such as sequential Monte Carlo (SMC)~\c
 particle Markov chain Monte Carlo (PMCMC) methods~\citep{andrieu2009pseudo,rainforth2016interacting},
 are a powerful class of inference algorithms based on propagating populations of samples
 known as \emph{particles}.  By working with populations of samples, also known as \emph{particle systems},
- at the same time (rather than individual
-samples in turn) they allow information to be shared across the population and computational
+ at the same time, rather than individual
+samples in turn, they allow information to be shared across the population and computational
 resources to be adaptively reallocated to where they are needed.  A common feature of PBIMs is
 that they make use \emph{intermediate information} available during the inference process and thereby
 exploit the structure of the problem.  For example, SMC uses a series of intermediate target distributions
@@ -16,7 +16,9 @@ which act a stepping stones to the full posterior.  By using the information gat
 solutions, they can better allocate computational resources for the next target and combat the curse of
 dimensionality.  As such, PBIMs can be highly effective for problems with rich, exploitable, structures, 
 for example time series models, but are generally less effective for problems that do not lend themselves
-to a series of intermediate targets.
+to a series of intermediate targets.  For our purposes, an particularly important feature of particle based
+methods is that they can be used for, and are often very effective at, conducting inference in PPS~\citep{wood2014new}, as we will
+explain in the next chapter.
 
 \input{part/smc.tex}
 \input{part/pmcmc.tex}
