@@ -11,13 +11,13 @@ either an interpreter controlling the probabilistic semantics or a compiler to c
 suitable form for input to the inference engine.   Our focus will be on the compiled case. 
 
 For the inference
-driven systems discussed in Section~\ref{sec:probprog:two:inf}, the inference engine typically comprises of
+driven PPS discussed in Section~\ref{sec:probprog:two:inf}, the inference engine typically comprises of
 a standard Bayesian inference method for graphical models such as those discussed in Chapters~\ref{chp:bayes}
 and~\ref{chp:part}.  Developing these in a way to robustly work for a wide range of problems typically
 requires careful engineering and algorithmic innovation -- e.g. because many inference methods require the definition of
 a proposal, upon which performance can critically depend -- but does not generally require the development 
 of approaches distinct to those used outside a probabilistic programming context.  In these 
-systems, the inference algorithm(s) is/are usually chosen first, with the language and its restrictions built around it.
+systems, the inference algorithm(s) is usually chosen first, with the language and its restrictions built around it.
 Therefore the challenges of the designing the system are generally rooted in generalizing and increasing the robustness of the 
 specific inference method(s) used.  Similarly, the language itself and associated compiler is generally built
 around providing the easiest representation to work with the target model class, while the fact that most of

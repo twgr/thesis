@@ -1,6 +1,6 @@
 % !TEX root = ../main.tex
 
-\section{General Purpose Inference Strategies}
+\section{Inference Strategies}
 \label{sec:proginf:str}
 
 %Before jumping into describing some specific inference algorithms for
@@ -9,36 +9,43 @@
 %Section~\ref{sec:probprog:models:general} and consider what classes of inference
 %algorithms might be able to operate in such settings. 
 
-As we previously alluded to, the simplest inference strategy we can carry out is important
+As we previously alluded to, the simplest inference strategy we can carry out is importance
 sampling.  This is in fact so simple in a current framework that it uses the default behavior
 of all the checkpoints, while the \anginfer function only involves constructing a lazy infinite
 sequence of the output from independent calls of \clj{exec} on the full program.
+Keeping the default behavior for the \sample implicitly means that our
+inference will use a bootstrap proposal (i.e. the generative model is taken as the proposal).
+Though not technical required, this is still a highly convenient choice of proposal as
+amongst other things, this ensures that we can always sample from the proposal and
+that the proposal is valid in terms of its tail behavior (presuming the conditional probabilities
+are bounded).
 
 \subsection{MCMC Strategies}
 \label{sec:proginf:str:lmh}
 
 We have already explained why it might be difficult to construct a global MH proposal for
 our program due to the difficulties in varying dimensionality and unknown variable supports.
-Once solution to this is to try and use compilation to establish this support so that
-a valid proposal can be specified.  However, doing this is general manner is a somewhat
+One solution to this is to try and use compilation to establish this support so that
+a valid proposal can be specified.  However, doing this in a general manner is a somewhat
 challenging and remains a open problem in field.  Another, more immediately viable,
 approach is to use a proposal that looks to update particular $x_j$ in the trace in a
 component-wise MH manner (see Section~\ref{sec:inf:foundation:gibbs}), potentially rerunning
 the rest of the program after that choice if necessary.  In the context of PPSs such
-approaches are generally known as either single-site MH, random database sampling, or lightweight MH (LMH) and were
+approaches are generally known as either single-site MH, random database sampling, or lightweight MH (LMH), and were
 originally suggested by~\citep{wingate2011lightweight}.\footnote{The MH acceptance ratio in the original version of this work
 	is incorrect so we point the reader to the following updated version
 	\url{https://stuhlmueller.org/papers/lightweight-mcmc-aistats2011.pdf}.} There are two key factors
-that make such approaches viable.  Firstly, if we update term $x_j$ in our trace, there is
+that make such approaches viable.  Firstly, if we update a term $x_j$ in our trace, there is
 no need to update any of the factors in our trace probability that occur before the sampling
 $x_j$, while we may be able to avoid evaluating many of those after as well by establishing
-conditional independence.  Secondly, the support for a particular $x_j$ is typically known (as 
+conditional independence.  Secondly, the support for a particular $x_j$ given
+$x_{1:j-1}$ is typically known (as 
 we have access to the appropriate distribution object) and so it is generally possible to specify
 an appropriate proposal for an individual $x_j$.  Even if that transpired not to be possible, 
-simply using the prior as the proposal is still often reasonable as individual $x_j$ will typically
+simply using the prior as the proposal is still often reasonable as individual $x_j$ terms will typically
 be low dimensional.  However, a key downside of this approach is that changing a particular $x_j$
-might lead to an invalid trace and checking might require revaluation of the entire rest of the
-trace, making it an $O(n_x+n_y)$.  Perhaps even more problematically, if $n_x$ is not fixed
+might lead to an invalid trace and checking for this might require revaluation of the entire rest of the
+trace, making it an $O(n_x+n_y)$ operation.  Perhaps even more problematically, if $n_x$ is not fixed
 then, unless we make adjustments to the algorithm, the approach will not produce a 
 valid Markov chain.  Similarly, as we showed in Section~\ref{sec:inf:foundation:gibbs},
 there are models for which component-wise MH approaches lead to reducible Markov chains
@@ -54,12 +61,14 @@ issues of LMH as we will discuss later, but
 they still represent noticeable practical and theoretical hurdles.
 
 As a simple illustrative approach that avoids some of the theoretical pitfalls associated
-with LMH approaches~\citep{wood2014new}, consider an MH sampler whose proposal is simply to choose one
-of the \sample statements, $m$, uniformly at random from $\{1,\dots,n_x\}$, propose a new $x_m'$ using a local reversible
+with LMH approaches, consider an MH sampler whose proposal simply chooses one
+of the \sample statements, $m$, uniformly at random from $\{1,\dots,n_x\}$, proposes
+ a new $x_m'$ using a local reversible
 MH kernel for that \sample statement $\kappa(x_m' | x_{m})$ (which can always be independently sampling
-from $f_m(x_m|\eta_m)$ if necessary) and then rerun the entire rest of the program
-from that point.  This equates to using the proposal (omitting our trace validity term on the
-basis that this always holds because we are sampling from the generative model)
+from $f_m(x_m|\eta_m)$ if necessary) and then reruns the entire rest of the program
+from that point~\citep{wood2014new}.  This equates to using the 
+proposal\footnote{We omit our trace validity term on the
+basis that this always holds because we are sampling from the generative model.}
 \begin{align}
 q(x_{1:n_x'}' | x_{1:n_x}) &= q(m|x_{1:n_x}) q(x_m' | x_{m}, m) q(x_{m+1:n_x}' | x_{1:m-1}, m, x_m') \mathbb{I}(x_{1:m-1}'=x_{1:m-1}) \nonumber \\
 &=\frac{1}{n_x} \kappa(x_m' | x_{m}) \mathbb{I}(x_{1:m-1}'=x_{1:m-1})  \prod_{j=m+1}^{n_x'} f_{a_{j}'} (x_{j}' | \eta_{j}')
@@ -73,19 +82,20 @@ P(\text{Accept}) &= \min\left(1, \frac{\gamma(x_{1:n_x'}',\lambda) q(x_{1:n_x} |
 {\prod_{k=k_0(x_{1:m})+1}^{n_y} g_{b_{k}} (y_{k} | \psi_{k}) }\right) \label{eq:proginf:lmh-A}
 \end{align}
 where $k_0(x_{1:m})$ is equal to the number of \observe statements encountered by the partial
-trace $x_{1:m}$.  Here we have used the fact that the trace probability factors before $x_m$ cancel
+trace $x_{1:m}$.  Here we have used the fact that the trace probability factors for terms 
+before $x_m$ cancel
 exactly, while the \sample terms for $m+1$ onwards cancel between the target and the proposal.
 We can intuitively break down the terms in~\eqref{eq:proginf:lmh-A} by first noting that the first
-ratio of terms is what we would get from
+ratio of terms, $\frac{\kappa(x_m | x_{m}') f_{a_m} (x_m' | \eta_m)} {\kappa(x_m' | x_{m}) f_{a_m} (x_m' | \eta_m)}$, is what we would get from
 doing MH targeting $f_{a_m}(x_m|\eta_m)$ (note also that these terms cancel if we propose ``from the 
 prior'' by just independently sampling a new $x_m'$ from the \sample statement).  The next ratio of terms,
-$n_x / n_x'$ reflect the fact that if our new trace is longer it is less likely that we would have chosen the
+$n_x / n_x'$ reflects the fact that if our new trace is longer it is less likely that we would have chosen the
 point $m$ to resample and vice versa.  The final ratio of terms reflects the ratio of the likelihood weight
 for the new generated section of the trace over the existing section of the trace.
 
 This approach avoids the reducibility issues because it
 includes as a possible step generating a completely new trace from the generative model.  However,
-it will clearly be heavily limited in practical performance because, for modest typical $n_x$, each iteration
+it will clearly be heavily limited in practical performance because each iteration
 is effectively using importance sampling in $n_x-m$ dimensions such that, once the sampler has burnt in,
 its acceptance rate will typically decrease dramatically with dimension.  Each iteration is also $O(n_x+n_y)$ as
 the complete new trace needs to be proposed each time.  To get around these issues, we would like
@@ -179,12 +189,7 @@ trivial and is perhaps missing from the literature.\todo{Should be able to do be
 
 Going from importance sampling to SMC in our framework is remarkably simple
 from an implementation perspective~\citep{wood2014new}.  The behavior of the \sample and \clj{result} 
-checkpoints is kept as per the default.  Keeping the default behavior for the former implicitly means that our
-inference will use a bootstrap proposal (i.e. the generative model is taken as the proposal).
-Though not technical required, this is still a highly convenient choice of proposal as
-amongst other things, this ensures that we can always sample from the proposal and
-that the proposal is valid in terms of its tail behavior (presuming the conditional probabilities
-are bounded).
+checkpoints is kept as per the default.  
 The \observe checkpoints are redefined
 to carry out the same operations, but return a \clj{trap.observe} record rather
 than a thunk, returning control to the \anginfer function.  This means that 

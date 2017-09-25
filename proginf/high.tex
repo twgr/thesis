@@ -7,15 +7,15 @@ Before getting into the nitty-gritty of designing a compiler and inference engin
 first consider at a high-level how we might hope to do inference in such systems.  The simplest
 thing we could do is self normalized importance sampling (SNIS) using the generative model specified by the \sample
 statements as a proposal.  This strategy is sometimes known as \emph{likelihood weighting} in the probabilistic
-programming literature and simple involves directly sampling from the forward model an accumulating
+programming literature and simply involves directly sampling from the forward model an accumulating
 weights from the \observe conditioning statements in a sequential importance sampling fashion (see 
 Section~\ref{sec:part:smc:sis}).
 In Section~\ref{sec:probprog:models:general}, we specified with~\eqref{eq:probprog:universal-cond}
 the unnormalized conditional distribution of the program using execution traces generated
 by the program.  If we sample from the generative model then it is clear that all samples will satisfy
-$\mB(x_{1:n_x},\lambda)=1$ while our the support of our proposal will clearly cover that of
+$\mB(x_{1:n_x},\lambda)=1$ while  the support of our proposal will clearly cover that of
 the posterior provided the conditioning density terms are always finite.  This is also a proposal
-we can always sample from because our \observe terms will only effect the probability of a trace, not
+we can always sample from because our \observe terms will only affect the probability of a trace, not
 the variables it generates.  Using the notation from Section~\ref{sec:probprog:models:general} 
 this approach leads to the following SNIS characterization of the posterior
 \begin{align}
@@ -27,7 +27,7 @@ w_n = \prod_{k=1}^{\hat{n}_{y}^n} g_{\hat{b}_{k}^n}(\hat{y}_{k}^n | \hat{\psi}_{
 $\delta_{\hxnx^n} (\cdot)$ is a delta function centered at $\hxnx^n$; $\eta_j$ and $a_j$ are deterministic functions of $\hxnx^n$ 
 and $\lambda$; and $\hat{n}_{y}^n$, $\hat{b}_{k}^n$, $\hat{y}_{k}^n$, and $\hat{\psi}_{k}^n$ are random variables
 that are deterministic functions of $\hxnx^n$ and $\lambda$.  Here we are sampling $\hxnx^n$ from
-the generative model defined by the program which is equivalent to a running the forward program
+the generative model defined by the program, which is equivalent to a running the forward program
 ignoring all of the \observe statements.  Our unnormalized likelihood weights $w_n$ correspond to
 product of all the probabilities accumulated from the \observe terms.  We remind the reader that each 
 $x_j$ corresponds to the direct output of a sample statement, not an explicit variable in the program, 
@@ -39,7 +39,8 @@ that these are a deterministic function of $\xnx$ and so an expectation over $\O
 represented as an expectation over $\xnx$.
 This convergence follows in the standard way for SNIS provided our program terminates with probability $1$.
 
-In practice, we will not sample a full $\hxnx^n$ before evaluating its weight in one go -- we will use
+In practice, our importance sampling inference engine will not sample a full $\hxnx^n$ before 
+evaluating its weight in one go -- it will use
 sequential importance sampling strategy whereby we sample directly from any \sample statement as we encounter it
 and accumulate weights from \observe statements as we go (see Figure~\ref{fig:probprog:poisson} in
 Section~\ref{sec:probprog:models:general}).
