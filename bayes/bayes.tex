@@ -19,16 +19,15 @@ will be the main focus of this thesis.  We will explain how the \emph{Bayesian p
 a powerful framework for generative machine learning that allows us to combine data with existing
 expertise.  We will then go on to show how \emph{graphical models} can be used as a convenient
 framework to express Bayesian models and extract important features.  
-We continue by introducing one of the main competitors to the Bayesian approach -- frequentist
-modeling -- and present arguments for why neither a Bayesian nor a frequentist approach is
-entirely satisfactory.  In particular, we will carefully outline the, oft forgotten, fundamental underlying
+We continue by introducing the main counterpart to the Bayesian approach -- frequentist
+approaches -- and present arguments for why neither alone provides the full story
+In particular, we will outline the fundamental underlying
 assumptions made by each approach and explain why the differing suitability of these
 assumptions to different tasks means that both are  essential tools in the machine learning
-arsenal.
-Though the focus of this thesis will be on Bayesian approaches, understanding its limitations
+arsenal, with many problems requiring both Bayesian and frequentist elements in their analysis.
+Though much of the focus of this thesis will be on Bayesian approaches, understanding their limitations
 is essential for understanding when the methods we discuss should be used and critically when they
-should definitely not be.  We finish the chapter by discussing some of the key practical challenges for Bayesian modeling and outline how we hope to address these in the present
-work.
+should not.  We finish the chapter by discussing some of the key practical challenges for Bayesian modeling.
 
 \input{bayes/discrim.tex}
 \input{bayes/paradigm.tex}
@@ -40,6 +39,35 @@ work.
 \label{sec:bayes:challenges}
 
 The challenges for Bayesian modeling are remarkably straightforward to identify.  As all information
-is encoded through the prior and the likelihood model, the ``only'' challenges are in specifying these
-and then carrying out the required Bayesian inference to estimate the posterior.  Though simply to
-quantify, 
+is encoded through the prior and the likelihood, the ``only'' challenges are in specifying these
+and then carrying out the required Bayesian inference to estimate the posterior.  In other words, we need
+to be able to specify good models and we need to be able to solve them.  Though simple to
+quantify, actually overcoming both these challenges can be extremely difficult in practice.  The problem
+of Bayesian inference, which we discuss in Chapters~\ref{chp:inf},~\ref{chp:part}, and~\ref{chp:proginf}
+ is at least a clearly defined and one usually has a reasonable idea
+how effective we have addressed it when conducting Bayesian modeling, i.e. even if our efforts are
+futile, we usually know when we have failed.  
+
+The problem of specifying good models is somewhat more subjective.  It is inevitably impossible
+to design a model that covers all potential eventualities, both from the perspective of actually writing
+down such a model and in having a realistic chance of performing inference on the model.  Such a model
+would also most likely have limited predictive power.  However, for practical problems one can almost always
+add further refinements to the model at the expense of additional computational cost. For example, we can
+elaborate our likelihood model, or even a combination of different possible models, to provide more 
+potential means  for generating the data and therefore a more flexible model that is less likely to 
+succumb to misspecification issues.  We can also augment our prior with a \emph{hyperprior} that 
+expresses uncertainty in the prior parameters themselves, e.g. for our coin flip example instead of
+taking a Beta distribution prior with fixed parameters, we could place a distribution on these parameters
+as well.  However, at some point increasing the complexity of our likelihood and our prior inevitably 
+has to stop, at which point we either have to fix the values for some parameters, conduct
+\emph{model learning} by optimizing those parameter values as discussed in Chapters~\ref{chp:opt}
+and~\ref{chp:bopp}, or try to define a non-informative prior~\citep{robert2007bayesian}.
+
+
+Probabilistic programming, as introduced in the next Chapter, is an
+attempt to address the challenges of both specifying and solving models.  
+Firstly, by providing a highly flexible and expressive framework for specifying models, 
+they provide a platform for writing models that are true to the assumptions the user wishes
+to make.  Secondly, they democratize the Bayesian inference process by providing automated
+inference engines that can be run on any model the user might write, thereby streamlining the Bayesian
+modeling process and reducing barriers to entry for those with non statistical backgrounds.
