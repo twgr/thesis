@@ -143,30 +143,95 @@ foolhardy to not consider other possible datasets that might have been generated
 this is that we should use all the information available in the data and by calculating a frequentist risk we are throwing
 some of this away.  For example, cross-validation approaches only ever use a subset of the data when training the model.
 However, a common key aim of statistics is generalization and repeatability.  Bayesian approaches will often reach
-spectacularly different conclusions for purely random changes between different datasets.  Consider, for example, a binary
-classification
-problem where using parameter $\theta_1$ classifies four billion of five billion points in the dataset correctly 
-while using parameter $\theta_2$
-classifies four billion and one thousand of data points correctly.  This gives a difference in classification accuracy 
-of $0.00002\%$ but differences in the posterior probabilities for $\theta_1$ and $\theta_2$ will generally
-be huge.\todo{Make this concrete}
-Now presume that we regenerate our data and that each new point is drawn i.i.d.,
- that the probability of it being correctly classified using $\theta_1$ is independent to the probability of
-being correctly classified by $\theta_2$, and that these probabilities are equal to the empirical misclassification
-rates.  The probability that $\theta_1$ gives a better misclassification rate for the new dataset is around
-almost $50\%$, even though previous posterior suggested that $\theta_2$ was substantially better than $\theta_1$.
-Furthermore,\todo{Clairfy this sentance} if $\theta_1$ does give a much better misclassification rate for the new dataset, it is likely 
-to be assigned a substantially higher mass under then posterior that $\theta_2$, even though we know that 
-the latter is actually asymptotically preferable.  In terms of the posterior expected loss, this is not much of a problem
-as for most sensible loss functions this will not substantially change.  However, if our aim is actually to learn 
-about $\theta$ then this is quite worrying.  At the very least it shows why we should view posteriors with
-a degree of skepticism, rather than taking them as ground truth.
+spectacularly different conclusions for purely random changes between different datasets, though this is arguably more
+of an issue with generative approaches than Bayesian methods in particular.
+At least when making the standard assumption of i.i.d.~data in Bayesian analysis, then likelihood terms are multiplicative 
+and so typically when one adds more data, the relative probability of two parameters quickly diverge.  This divergence is
+necessary for Bayesian methods to converge to the correct ground truth parameters for data distributed exactly as per the
+model, but it also means any slight misspecifications in the likelihood model
+become heavily emphasized very quickly.  As a consequence, Bayesian methods tend to chronically underestimate uncertainty 
+in the parameters for large datasets (and often also surprisingly small datasets) because they do not account for
+the unknown unknowns and what were considered  inconsequential features of the likelihood model when it was constructed,
+lead to massively different conclusions about the parameters.
+In terms of the posterior expected loss, this is often not much of a problem as the assumptions might be similarly
+inconsequential for predictions.  However, if our aim is actually to learn 
+about the parameters then this is quite worrying.  At the very least it shows why we should view posteriors with
+a serious degree of skepticism (particularly in their uncertainty estimates), rather than taking them as ground truth.
+Though techniques such as cross-validation can reduce sensitivity to model
+misspecification, generative frequentist methods still often do not fare much better than Bayesian
+methods for misspecified models (after all they produce no uncertainty estimates on $\theta$).
+Discriminative methods (which are by proxy frequentist), on the other hand, do not have
+an explicit model to specify in the same way and so are far less prone to the same issues.
+Therefore, though  much of the criticisms of Bayesian modeling stem
+from the use of a prior, issues with model misspecification are often much more severe and predominantly
+shared with generative frequentist approaches.  It is, therefore, often the question of discriminative
+vs generative machine learning that is most critical.
 
-Another concern for Bayesian approaches is the choice of the prior \dots \todo[inline]{write me}
+%
+%Consider, for example, a binary
+%classification problem where, as in common in the Bayesian framework, we will presume
+%that our observations $y_{1:N}$ are independent such that our likelihood is a product of 
+%likelihood terms for individual datapoints, i.e.
+%$p(y_{1:N} | \theta) = \prod_{n=1}^{N} p(y_n | \theta)$.  We now presume that using
+%hyperparameter\footnote{Mathematically is no hard distinction between a hyperparameter and a parameter, but the
+%	former is often used to refer to ``higher-level'' parameters.  For example, we might have a prior over model parameters, with
+%	the parameters of the prior itself referred to as hyperparameters.  Here we are implicitly presuming that there are some latent
+%	variables that have been marginalized over to make the setup realistic, hence $\theta$ corresponding to a ``hyperparameter''.}
+% $\theta_1$ classifies four billion of the five billion points in the dataset ``correctly''
+%while using hyperparameter $\theta_2$, which has the same prior probability,
+%classifies four billion and one thousand of data points ``correctly'', where by correct we mean that $p(y_n | \theta) = 0.8$
+%(otherwise $p(y_n | \theta) = 0.2$).  We thus have that the difference in classification accuracies of the
+%approaches is $0.00002\%$, but under our posterior $\theta_2$ is $(0.8/0.2)^{1000}\approx10^{602}$ times
+%more probable than $\theta_1$.  Intuitively this is preposterous and no sensible gambler would ever take odds
+%that $\theta_2$ is even twice as likely to give better performance on the a test dataset of the same size.  
+%Though somewhat oversimplified, this example is not actually unrepresentative to behavior often experienced.  
+%To explain the dichotomy between the theoretical correctness of Bayes' rule and our intuitions, we consider what
+%happens if we let the universe regenerate the dataset.  We will draw datapoints independently
+%and we presume that the probability of a new datapoint being correctly classified using $\theta_1$ is independent to the probability of
+%it being correctly classified by $\theta_2$, and that these probabilities are equal to the empirical misclassification
+%rates from our first dataset.  The probability that $\theta_1$ gives a better misclassification rate for the new dataset is
+%almost $50\%$, even though the previous posterior suggested that $\theta_2$ was astronomically better than $\theta_1$.
+%Furthermore, there is almost a $50\%$ chance that $\theta_1$ will have an equally astronomically higher
+%posterior mass for our second dataset!  The problem here is that the Bayesian approach does not taken into 
+%account that datasets are usually sampled from a population or possible samples that \emph{could} have been generated.
+%Our analysis was perfectly reasonable under the assumption that the our dataset was fixed and absolute, but it
+%lead to somewhat preposterous conclusions when we generalized to other possible data.
+%In terms of the posterior expected loss, this is not much of a problem
+%as for most sensible loss functions this will not substantially change.  However, if our aim is actually to learn 
+%about $\theta$ then this is quite worrying.  At the very least it shows why we should view posteriors with
+%a degree of skepticism, rather than taking them as ground truth.
 
-Lack of ability to take discriminant approach
+Naturally one of the biggest concerns with Bayesian approaches is their use of a prior, with this being
+perhaps the biggest difference to generative frequentist approaches.  The prior is typically a double-edged
+sword.  On the one hand, it is necessary for combining existing knowledge and information from data 
+in a principle manner, on the other hand, priors are inherently subjective and so all produced posteriors are
+similarly subjective.  Given the same problem, different practitioners will use different priors and reach
+potentially different conclusions.  In the Bayesian framework their is not such thing as incorrect prior 
+and so there is equally no such thing as a correct posterior for a given likelihood (presuming finite data).
+Consequently, ``all bets are off'' for repeated experimentation with Bayesian methods as their is no
+quantification for how wrong our posterior predictive might be compared with the true generating
+distribution.  This makes them somewhat inappropriate for tasks where the focus is on repeated use,
+e.g. providing reliable confidence intervals for medical trials.  Such cases both predicate a need for
+considering that there are many possible datasets that might occur and, ideally, an objective approach
+that means the conclusions are independent to the whims of the analyst.
 
-Computational intensity, particularly in terms of prediction compared to using point estimate for $\theta$.
+Another issue that comes up with the prior is that it is often easy to end up 
+``using the data twice''~\citep{gelman2008objections}.  The Bayesian paradigm requires that the
+prior is independent from the data and this means that there should not be any human induced
+dependency.  In other words, it is necessary that the user sets their prior before themselves
+observing the data they condition on, otherwise the data will both influence their choice of prior
+and then be incorporated in the choice of likelihood.  This is not a of problem with Bayesian 
+methods per se, but it can be a common shortfall in their application.
+
+Another practical issue with Bayesian methods is their computational complexity and both
+train time and test time.  Firstly, using Bayesian methods requires one to carry out inference,
+which, as we explain in Chapter~\ref{chp:inf}, is typically a challenging and computationally
+expensive process, often prohibitively so.  Some frequentist approaches can also
+be similarly expensive at train time, but others can be substantially cheaper, particularly
+generative approaches.  Further, Bayesian methods tend to also be somewhat expensive
+for making predictions with the posterior predictive itself being a predictive.  Frequentist
+methods tend to instead predict using point estimates such that prediction is typically
+much cheaper.
 
 \subsection{Are there Alternatives?}
 \label{sec:bayes:religion:correct}
@@ -192,6 +257,8 @@ to give focus to the work, rather than a point of principle.
 \todo[inline]{Missing points:
 	
 Bayesian models are slow in prediction
+
+Although Bayesianism and frequentism are exact frameworks, their applications to real problems is not.
 
 mean vs median
 
