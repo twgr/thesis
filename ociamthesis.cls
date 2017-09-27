@@ -79,9 +79,9 @@
 %\usepackage[includehead,hmargin={3.6cm, 2.6cm}, vmargin={2.5cm,2.7cm}, headsep=.8cm,footskip=1.2cm]{geometry}
 %\fi
 \ifmc@nobind
-\usepackage[includehead,hmargin={2.8cm, 2.8cm}, vmargin={2.2cm,2.3cm}, headsep=.8cm,footskip=1.2cm]{geometry}
+\usepackage[includehead,hmargin={2.8cm, 2.8cm}, vmargin={2.1cm,2.4cm}, headsep=.6cm,footskip=1.0cm]{geometry}
 \else
-\usepackage[includehead,hmargin={2.9cm, 2.1cm}, vmargin={2.2cm,2.3cm}, headsep=.8cm,footskip=1.2cm]{geometry}
+\usepackage[includehead,hmargin={2.9cm, 2.1cm}, vmargin={2.1cm,2.4cm}, headsep=.6cm,footskip=1.0cm]{geometry}
 \fi
 
 \usepackage{xcolor}
