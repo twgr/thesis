@@ -1,21 +1,176 @@
 % !TEX root = ../main.tex
 
-\chapter{Challenges, Criticisms, and Future Directions}
+\chapter{Discussions, Conclusions, and Future Directions}
 \label{chp:discussion}
 
-\begin{itemize}
-	\item Relationships with ABC
-	\item Reinvention of priors in deep learning by generating data
-	\item Is amortization just a learning a different decomposition of the joint 
-	$p(\theta | \mathcal{D}_1)p(\mathcal{D}_2|\theta)$ that shifts more to the
-	prior to make inference easier?  Does it actually implicitly define a different
-	joint distribution that is otherwise difficult to express or is it just proposal
-	adaptation as Tuan Anh's paper says.
-	\item Randomness vs no randomness - blog post for Michi
-	\item Fully automated experimental design discussion.
-	\item Sort out PPS vs PPL and PPS vs PPSs
-	\item Add reference somewhere to the paper with Andrew
-\end{itemize}
+In this thesis we have introduced a \emph{Bayesian} approach to machine learning and demonstrated
+how \emph{probabilistic programming systems} (PPSs) provide an exciting framework for
+encoding rich and expressive models.  We have shown how by \emph{automating inference} for
+arbitrary models and allowing models to be written in a manner more in line with conventional
+scientific coding, PPS also make effective statistical methods accessible to non-experts.
+We highlighted the importance of taking such an approach in scenarios where one has
+access to substantial \emph{prior knowledge} or domain specific expertise, but noted that taking
+\emph{discriminative} machine learning approaches can be more effective, and typically substantially
+easier to implement, when one has access to large quantities of data but little prior information.
+When opting for a Bayesian approach, we explained that thee key challenges are in writing good models
+and solving the resultant \emph{Bayesian inference} problem needed to characterize the posterior.
+PPSs can in some ways help in addressing both of these challenges, providing an expressive framework
+that allows users to write models true to their assumptions and removing the burden of inference
+from the user.  However, in many ways, PPSs actually hamper the Bayesian inference problem, because
+they require developers to design inference engines capable of working on any model.
+ This problem is especially pronounced
+for so-called \emph{universal} PPSs, which, as we explained, place almost no restrictions on the
+models the user can write.  Consequently,
+universal PPSs will rarely produce state-of-the-art performance on any particular task, though
+by directly using the source code of the target, they are still often able to exploit many salient
+features of models and thus still provide effective inference for wide array of tasks.
+  Their main
+utility is thus in \emph{automation} and in allowing models that would difficult, or even impossible,
+to encode otherwise.  In particular, they allow us to go beyond
+the confines of conventional Bayesian  modeling, allowing, for example, one to \emph{nest} 
+inference problems within one another.
+
+There have been two core thrusts to the novel contributions of this thesis: improving the inference
+for PPSs and extending the range of problems to which they can be applied.  For
+the former, we introduced the \emph{interacting particle Markov chain Monte Carlo} (iPMCMC)
+algorithm~\citep{rainforth2016interacting}, a particle based inference method delivering
+better per-sample performance than existing methods for a given memory budget, while also introducing the opportunity for
+parallelization.  We then showed how iPMCMC is suitable for universal PPSs, detailing its implementation
+in Anglican.  Towards the aim of increasing the range of problems to which PPSs can be applied, 
+we have firstly introduced \emph{Bayesian optimization for probabilistic 
+	programs} (BOPP)~\citep{rainforth2016bayesian}, providing
+the first framework for mixed inference-optimization problems in probabilistic programs, allowing things
+such as model learning and principled engineering design to be automated in the same manner a inference.
+BOPP also provides a significant contribution to the Bayesian optimization literature, constituting a
+convenient and efficient package for solving conventional optimization problems that exploits the
+source code of its target to provide innovations in problem-independent hyperpriors, unbounded
+ optimization, and implicit constraint satisfaction.
+We have further undertaken theoretical work looking into the convergence of \emph{nested Monte Carlo} (NMC)~\citep{rainforth2017pitfalls}, for which \emph{nested inference} problems are an
+example use case.   We demonstrated that the convergence
+of NMC is possible, but that this some additional assumptions need
+to be satisfied, e.g. the number of samples used for \emph{each} inner estimate needs to be driven
+to infinity.  Our results go beyond the cases considered
+by previous results and, in particular, apply to cases of repeated nesting, as can occur in PPSs.
+We then carefully considered the implications of our results for PPSs and provided recommendations
+about how to ensure consistency is maintain.  Our final contribution to extending PPSs was in
+applying our theoretical results from nested estimation to consider the specific problem of Bayesian
+experimental design, deriving an improved estimator for discrete problems and outlining a framework
+for automating the solution of sequential design problems, as might be experienced in, for example,
+psychological trials.  Our technical innovations were applied to automating
+a specific class of problems relating to delay and probability discounting experiments by
+introducing the DARC toolbox, perhaps providing a first step in demonstrating how one might
+be able to construct a general purpose PPS for automating sequential design problems.
+
+A natural question is now where do we go next?  In addition to the obvious ongoing challenges
+of improving inference and range of problems covered by PPS, perhaps the most clear cut 
+extensions for our
+work is in its direct application.  We have introduced various frameworks which, while someway off
+our lofty long term aims of tractability and automatically solving almost any problem the 
+user might write, are nonetheless clearly already useful for a number of existing applications.  
+More generally, the biggest
+potential impact of PPSs is arguably not in what they provide for seasoned machine learning or 
+statistics researchers, but in the democratization of Bayesian approaches to anybody with sufficient
+scientific programming background to write a stochastic simulator.  The best example of this is
+perhaps the BUGS system~\cite{spiegelhalter1996bugs}, which has seen effective widespread use across
+many fields.
+More recently, Stan~\cite{carpenter2015stan} and PyMC~\citep{salvatier2016probabilistic} 
+are seeing particularly widespread usage that extends well beyond
+the machine learning community.  Though some universal PPSs are already relatively 
+mature and user-friendly with a small base of users, they are arguably still more
+at the stage of predominantly being a framework for probabilistic programming
+research than a commonly used tool by applied communities.  Perhaps this is not surprising given
+their inference engines inevitably tend to be less efficient than more inference-driven packages.
+However, we would argue that as inference engines improve and people's modeling ambitions
+increase, the flexibility that such systems provide will become increasing important,
+particularly if we want to achieve our long term aims regarding arbitrary simulators.
+Existing applications requiring this flexibility are already to be found in the form of Bayesian
+nonparametrics~\citep{dhir2017interpreting} and theory-of-mind style 
+modeling~\citep{stuhlmuller2014reasoning}.
+
+We now finish by outlining a number of more specific possible future directions for research
+and by briefly discussing some interesting high level questions.
+
+\section{A General Purpose Experimental Design Toolbox}
+\label{sec:disc:design}
+
+One direct possible extension of our work would be to develop the framework we introduced 
+in Chapter~\ref{chp:design} to a general purpose tool for automating sequential design problems.
+The potential applications for such a system would be huge,  ranging from designing clinical trials to
+smart online surveys and classic autonomous agent problems.  In  the same way all Bayesian modeling
+problems can be reduced to a common inference framework, such problems can be reduced to a
+common Bayesian experimental design framework, suggesting that they are highly suited to a
+probabilistic programming style approach.  However, their are a number of reasons existing systems
+are not suited to such problems.  Firstly, such problems require concurrent inference 
+an optimization.  Our introduction of BOPP could be a big help for overcoming this problem,
+but its computationally intensive nature means that it is perhaps not suitable for
+some scenarios, e.g. the psychological trials we considered in Section~\ref{sec:design:darc},
+for which the approach we outlined in Section~\ref{sec:design:seq}, or an extension thereof,
+might be more suitable.  If BOPP were to be used, suitable adjustments would also be necessary
+to account for \emph{sequential} design problems.
+Secondly, Bayesian experiment design problems, in general, require the calculation of a nested 
+estimation.  For discrete outputs, we showed how a superior estimator can be derived and so
+it would be important to exploit this when possible in any hypothetical system.  For continuous problems that
+cannot be rearranged, then as we explained in Section~\ref{sec:nest:imp}, we need to be careful
+to avoid the pitfalls of nested estimation, for which existing systems potentially need suitable
+adaptation.  It is may also to be beneficial to develop application specific estimation schemes
+for this setting, potentially exploiting the known form of the nonlinear mapping to
+devise methods for bias reduction.  Finally, to make such a system user friendly, it would
+be important to provide a convenient means of encoding a suitable design space alongside the
+model.  It might, for example, be possible to do in a similar manner as constraints were enforced
+in BOPP, noting that each each iteration in a sequential design is effectively a maximum marginal likelihood
+problem.
+
+\section{Amortizing Inference}
+
+An interesting recent advancement in PPSs is the idea of \emph{amortizing} the process of 
+inference~\citep{paige2016inference,ritchie2016deep,le2017inference}.  At a high level, 
+that we often repeatedly use the same models for multiple different datasets and therefore
+it can be wasteful to attempt to do inference from scratch each time.  Instead, one can, before any data is
+actually seen, look to learn a regressor from the space of data to, for example, proposals, such that
+when any particular dataset is actually observed, one can use this regressor to produce an
+artifact to assist with the resulting inference.  To do this, methods exploit the fact that generative
+approaches specify a distribution over both data and parameters, such that it is theoretically possible
+to learn the form of the posterior as a function of the dataset by sampling parameter-data pairs from
+the joint distribution and using these to train a regressor from data to some characterization of
+parameters.  In practice, doing this is can be very challenging -- learning a posterior for any possible
+dataset is inevitably far harder than learning one for a particular dataset -- but in applications where
+the same model is repeatedly used, the additional cost can be easily justified.  Current methods share
+a number of weaknesses, such as being restricted by the fidelity of the underlying regressor, mostly
+only allowing importance sampling for the final inference, and being potentially even more sensitive to
+model misspecification than conventional Bayesian approaches.  Nonetheless, they represent a very interesting avenue
+for future research and offer the potential for substantial long term impact.  In particular, as current methods
+are already effective at amortizing inference for low dimensional problems, the utility of such approaches
+might be dramatically increased if one can develop methods for breaking an overall inference problem down
+into an number of smaller problems that can be amortized separately and then usefully combined at run time.
+
+\section{Shouldn't we All Just be Using Deep Learning?}
+
+No.  As successful as deep learning, or artificial neural network (ANN) training as it was known before the hype,
+has been in recent years, it is not a panacea for machine learning.  Instead, it is a particular discriminative
+machine learning approach that has been particularly successful on certain kinds of machine learning tasks,
+namely those with huge quantities of, usually high dimensional, data with rich underlying structure.   
+To suggest that ANNs are universally dominant even among discriminative machine learning tasks is
+somewhat preposterous, e.g. they are often, if not usually, inferior to Gaussian processes on low dimensional,
+small-data regime, tasks, and still arguably trail behind decision tree ensemble approaches for ``out-of-the-box''
+usage on, for example, generic classification tasks~\citep{rainforth2015canonical}.   Perhaps more significantly,
+many problems call for a generative, rather than discriminative, approach,
+particularly when data is scarce or significant prior information is available as we explained
+in Section~\ref{sec:bayes:discrim}.  Interestingly, however, this is perhaps
+where a lot of the success for ANNs actually originates.  Compared to say random forests, ANNs constitute a very
+flexible and composible framework for discriminative machine learning and perhaps provide a means of 
+indirectly imposing prior knowledge on the ANN through its structuring.  Arguably, a major weakness of
+declarative generative approaches, such as those employed by PPSs, is that we almost
+always have to impose more assumptions on the model then we would like -- all models will inevitably be
+misspecified.  For ANNs, on the other hand, when there is not an abundance of training data,
+ one often struggles to impose enough assumptions, sometimes
+for example, resorting to generating synthetic data to train the network.  Doing this is, in effect, a somewhat convoluted,
+though often very effective, method for imposing prior information on the model~\citep{le2017using}.  From this
+perspective, the Bayesian approach, and in particular probabilistic programming, is perhaps also of significant
+consequence to the ANN literature, as for example characterized  by the rise of so called 
+``Bayesian deep-learning''~\citep{gal2016uncertainty}.
+  In particular, there may be a bright future for methods which
+take a model based approach, but without having to assumptions as strict and prone to misspecification
+as conventional Bayesian modeling, for which ANNs are likely to be highly useful tool~\citep{siddharth2017learning}.
 
 \section{Do we need Random Numbers?}
 	
@@ -109,3 +264,19 @@ frequentist settings even our data is a random variable and probability is defin
 experiment.  In short, regardless of whether we take a Bayesian or frequentist viewpoint, arguing for the 
 removal of all randomness from our system is tantamount to arguing that we should do away with probability
 theory entirely.
+
+
+\begin{itemize}
+	\item Relationships with ABC
+	\item Reinvention of priors in deep learning by generating data
+	\item Is amortization just a learning a different decomposition of the joint 
+	$p(\theta | \mathcal{D}_1)p(\mathcal{D}_2|\theta)$ that shifts more to the
+	prior to make inference easier?  Does it actually implicitly define a different
+	joint distribution that is otherwise difficult to express or is it just proposal
+	adaptation as Tuan Anh's paper says.
+	\item Fully automated experimental design discussion.
+	\item Sort out PPS vs PPL and PPS vs PPSs
+	\item Add reference somewhere to the paper with Andrew
+	\item Frequentist probabilistic programming
+	\item Learning intermediate targets in SMC
+\end{itemize}
