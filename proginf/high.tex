@@ -12,8 +12,9 @@ weights from the \observe conditioning statements in a sequential importance sam
 Section~\ref{sec:part:smc:sis}).
 In Section~\ref{sec:probprog:models:general}, we specified with~\eqref{eq:probprog:universal-cond}
 the unnormalized conditional distribution of the program using execution traces generated
-by the program.  If we sample from the generative model then it is clear that all samples will satisfy
-$\mB(x_{1:n_x},\lambda)=1$ while  the support of our proposal will clearly cover that of
+by the program.  If we sample from the generative model then it is clear that all samples will constitute valid
+traces, i.e. they will satsify
+$\mB(x_{1:n_x},\lambda)=1$, while  the support of our proposal will clearly cover that of
 the posterior provided the conditioning density terms are always finite.  This is also a proposal
 we can always sample from because our \observe terms will only affect the probability of a trace, not
 the variables it generates.  Using the notation from Section~\ref{sec:probprog:models:general} 
@@ -46,13 +47,13 @@ and accumulate weights from \observe statements as we go (see Figure~\ref{fig:pr
 Section~\ref{sec:probprog:models:general}).
 Another way of viewing this is that we will repeatedly run our query as if it were an ordinary
 program, except for the fact that we accumulate a weight as a side effect that is then returned with
-the produced sample.  Such a guess an check strategy will obviously be ineffective except in very low
+the produced sample.  Such a guess-and-check strategy will obviously be ineffective except in very low
 dimensions.  However, it will both be a go-to strategy for the most extreme possible problems that
 fail to satisfy any of the required assumptions for more advanced methods and a basis for more complex 
 inference strategies.  For example, as we will shown in Section~\ref{sec:proginf:str}, we can
 convert this to an SMC strategy, provided $n_y$ is fixed, by running a number of separate executions
 in parallel and performing resampling at each of the \observe statements.  Alternatively, we can
 develop component-wise MCMC strategies by proposing changes to individual $x_j$ and then
-re-evaluating the weights.  However, doing so will require our inference strategy to have more
-control that simply running the program forwards in its entirety and this will require both a compilation
-and an interface for inference, which will be the focus of the next two sections.
+re-evaluating the weights.  However, doing this will require our inference strategy to have more
+control that simply forward sampling the program in its entirety.  More specifically, we will need both a compiler
+(or interpreter) and an interface for inference, which will be the focus of the next two sections.

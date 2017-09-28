@@ -68,9 +68,10 @@ function and means of sampling from that density.
 
 It will also often be helpful for our compiler to delineate between probabilistic and deterministic
 elements of the code.  Other than potentially trying to make efficiency gains by avoiding
-repeated computation, we know that any deterministic parts of our code (namely code in between
-consecutive \sample and/or \observe statements) can be safely run without the need
-to worry about the implications this has on the inference.  The execution of these segments of
+repeated computation, we know that any deterministic parts of our code, namely code in between
+consecutive \sample and or \observe statements, can be safely run without the need
+to worry about the implications this has on the inference (remembering that we have presumed
+that our program has no side effects of than cause by \sample and \observe).  The execution of these segments of
 the program in isolation can thus be as per the semantics of the language being compiled to, without needing to
 worry about the probabilistic implication.  On the other hand, we will generally desire the identification
 of \emph{checkpoints} for positions in the program where \sample or \observe statements are
@@ -86,9 +87,9 @@ engine.
 This example list of desirable features for our compiler is far from exhaustive.
 In particular, there will be many inference specific features required for some
 systems, such as the need to have a representation of the derivations, to carry out 
-Hamiltonian Monte Carlo inference~\cite{carpenter2015stan}
+Hamiltonian Monte Carlo inference~\citep{carpenter2015stan}
 or common variational inference methods~\citep{kucukelbir2015automatic}.  
-This is often done using automatic differentiation~\cite{baydin2015automatic}.
+This is often done using automatic differentiation~\citep{baydin2015automatic}.
 As we
 said earlier, we will often also want our compilation to, when possible,
 pick out salient features of the model, carry out simplifications, and even automatically 
@@ -104,8 +105,9 @@ geared towards different models or inference algorithms.
 As it is infeasible to detail the inner workings of a PPL compiler in a general
 manner, we now provide a more in depth introduction to the compilation
 employed by Anglican.  Our introduction is inevitably not exhaustive, focusing more on
-intuition than being exactly true to the implementation details; we refer the reader
-to~\citep{tolpin2016design} for a more complete introduction.
+intuition than being exactly true to the implementation details. We refer the reader
+to~\citep{tolpin2016design} for a more complete introduction, emphasizing that what
+follows is an exposition of their excellent work, rather than a novel contribution of our own.
 
 As we explained in Section~\ref{sec:probprog:anglican:models},
 Anglican programs, or queries, are compiled using the macro \query which provides a
@@ -123,10 +125,8 @@ which invokes the rest of the program.  This is perhaps easiest to see through
 example.  Consider the simple function \clj{+}, which in Clojure has syntax \clj{(+ a b)}.  The
 CPS transformed version of \clj{+}, which we will call \clj{+&} takes an extra input
 of the continuation $\mP$ and invokes it after evaluation such that we have
-\clj{(defn +& [a b } ~$\mP$\clj{] (}$\mP$ \clj{(+ a b)))}.  More generally, for any simple function \clj{f}, we have
-that its the CPS transformation is \clj{(defn f& [args} ~$\mP$\clj{] (}$\mP$ \clj{(f args)))}.\footnote{Note that
-	in practice, the continuation is usually set to be the first argument in order to provide support
-	for functions with a variable number of inputs.}
+\clj{(defn +& [a b } ~$\mP$\clj{] (}$\mP$ \clj{(+ a b)))}.  More generally, for any anonymous function \clj{f}, we have
+that its CPS transformation is \clj{(defn f& [args} ~$\mP$\clj{] (}$\mP$ \clj{(f args)))}.
   We 
 will use this notation of adding an \clj{&} to an expression name to denote its CPS transformation throughout.
 To give a more detailed example, the CPS transform of the program \clj{(max 6 (* 4 (+ 2 3)))} would be
@@ -137,8 +137,7 @@ where \clj{*&} and
 \clj{max&} are analogous to \clj{+&} defined as before.
 Here we respectively have that \clj{(fn [x] (*& 4 x (fn [y] (max& 6 y}~$\mP$\clj{))))} and
 \clj{(fn [y] (max& 6 y}~$\mP$\clj{))} are our first and second continuations.  Note that the CPS 
-transformed code is itself a function because
-it itself takes a continuation.  
+transformed code is itself a function because it takes a continuation.  
 
 Things are a little
 trickier for general expression that are neither literals nor simple first order functions, for example,
@@ -181,7 +180,7 @@ Compilation of an Anglican query, triggered through the \query macro, is done in
 in a top down manner.  The key function in doing this, called \clj{cps-of-expression},
 dispatches to the individual CPS transformations by matching types of expression, or, if necessary,
 directly by name.  Individual CPS transformations then recursively call \clj{cps-of-expression}
-until the full query is is transformed.  
+until the full query is transformed.  
 These individual Anglican CPS transformations are marginally more complicated than the
 framework we have laid out thus far.  This is because it is necessary to not just run the
 program, but also track its state from a probabilistic perspective, storing things such
@@ -190,10 +189,10 @@ continuations take as input an \emph{internal state}, which we will denote as \a
 in additional to the computed value.
 Thus, for example, the transformation for a generic function \clj{f} becomes
 \begin{lstlisting}[basicstyle=\ttfamily\small,frame=none]
-  (defn f& [args $\mP~\dollar$state] ($\mP$ (f args) $\dollar$state)).
+  (defn f& [args $\mP~\angstate$] ($\mP$ (f args) $\angstate$)).
 \end{lstlisting}\vspace{-8pt}
 More generally, we will simply pass on \angstate unchanged except for the Anglican
-special forms which can use and/or manipulate the internal state.  \angstate itself
+special forms which can use and or manipulate the internal state.  \angstate itself
 is defined to be a hash map, initialized as follows
 \begin{lstlisting}[basicstyle=\ttfamily\small,frame=none]
   (def initial-state {:log-weight 0.0 :result nil ...})
@@ -222,7 +221,7 @@ think of a Clojure record as defining a new class type (here {\small \texttt{tra
 and {\small \texttt{trap.result}} respectively) with given fields (here \clj{:id}, \clj{:dist} etc).  Our constructors thus create
 an object of the given type with appropriately set fields.  The significance of this is that
 it allows definition of a multimethod, which we call \checkpoint, to provide a runtime polymorphism
-(i.e. single interface) for dispatching depending on the checkpoint
+(exposing a single interface) for dispatching depending on the checkpoint
 type and the inference algorithm.  In other words, we will have one function, \checkpoint, whose
 behavior can be redefined for different checkpoint types and inference algorithms.  There are many
 consequences of this.  Firstly, our compiler does not need to be inference algorithm specific
@@ -233,7 +232,8 @@ we will discuss later, new methods describing the behavior of \checkpoint at \sa
 checkpoints.  Furthermore, these methods can be inherited from other inference algorithms, for example,
 the \observe checkpoints for particle Gibbs are inherited from SMC in Anglican's implementation.
 
-A slightly more subtle consequence of compiling the Anglican special forms to a constructor with typed output is that
+A slightly more subtle consequence of compiling the Anglican special forms to a constructor with explicit output
+type is that
 we can use this to catch the checkpoints themselves.  Once compiled, individual instances of
 a program in the Anglican inference engines are run using a function called \clj{exec}.  The role of
 \clj{exec} is to run the program until it reaches a checkpoint that requires control to be transferred
@@ -249,13 +249,13 @@ require no input arguments) that when called by the trampolining function (calle
 invokes the full set of nested calls without requiring a stack to be constructed or stored, as would be necessary
 for an ordinary nested function structure.  In the context of our CPS transformations, we can do this by simply
 wrapping each call with an anonymous function, namely converting \clj{(foo args }~$\mP$ ~\angstate\clj{)}
-to \clj{(fn [] (foo args }~$\mP$ ~\angstate\clj{))}, which will be carried out for all continuations
+to \clj{(fn [] (foo args }~$\mP$ ~\angstate\clj{))} to delay execution until trampolined, which will be carried out for all continuations
 except the checkpoints.  Though a large part of the motivation for doing this in
 Anglican is similarly to maintain the stack size, it is also highly useful for using the checkpoints to trigger
 control to be transferred to the \anginfer function.  To be precise, the \clj{exec} function is defined as
 \begin{lstlisting}[basicstyle=\ttfamily\small,frame=none]
-  (defn exec [algorithm prog value $\dollar$state]
-    (loop [step (trampoline prog value $\dollar$state)]
+  (defn exec [algorithm prog value $\angstate$]
+    (loop [step (trampoline prog value $\angstate$)]
       (let [next (checkpoint algorithm step)]
        (if (fn? next) (recur (trampoline next)) next))))
 \end{lstlisting}\vspace{-8pt}
@@ -294,7 +294,7 @@ will need to externally control the sampling behavior and so it may be necessary
 
 \begin{figure}[t]
 	\centering
-	\begin{minipage}[t]{0.49\textwidth}
+	\begin{minipage}[t]{0.55\textwidth}
 		\centering	
 		\begin{lstlisting}[basicstyle=\ttfamily\footnotesize]
 (query [y]
@@ -311,20 +311,20 @@ will need to externally control the sampling behavior and so it may be necessary
 				\label{fig:proginf:comp}}
 	\end{minipage}
 	~~
-	\begin{minipage}[t]{0.47\textwidth}
+	\begin{minipage}[t]{0.42\textwidth}
 		\centering	
 		\begin{lstlisting}[basicstyle=\ttfamily\footnotesize]
-(fn [y $\dollar$state]
+(fn [y $\angstate$]
  (->sample 'S30744
   (gamma 1 2) 
-  (fn var30743 [s $\dollar$state] 
+  (fn var30743 [s $\angstate$] 
    (->observe 'O30742
      (normal 0 s) 
      y
-     (fn do30741 [_ $\dollar$state] 
-      (->result s $\dollar$state)) 
-     $\dollar$state)) 
-  $\dollar$state))
+     (fn do30741 [_ $\angstate$] 
+      (->result s $\angstate$)) 
+     $\angstate$)) 
+  $\angstate$))
 		\end{lstlisting}	
 	\end{minipage}
 \end{figure}

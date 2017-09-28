@@ -15,7 +15,7 @@ of all the checkpoints, while the \anginfer function only involves constructing 
 sequence of the output from independent calls of \clj{exec} on the full program.
 Keeping the default behavior for the \sample implicitly means that our
 inference will use a bootstrap proposal (i.e. the generative model is taken as the proposal).
-Though not technical required, this is still a highly convenient choice of proposal as
+Though not technically required, this is still a highly convenient choice of proposal as
 amongst other things, this ensures that we can always sample from the proposal and
 that the proposal is valid in terms of its tail behavior (presuming the conditional probabilities
 are bounded).
@@ -27,7 +27,7 @@ We have already explained why it might be difficult to construct a global MH pro
 our program due to the difficulties in varying dimensionality and unknown variable supports.
 One solution to this is to try and use compilation to establish this support so that
 a valid proposal can be specified.  However, doing this in a general manner is a somewhat
-challenging and remains a open problem in field.  Another, more immediately viable,
+challenging and remains an open problem in the field.  Another, more immediately viable,
 approach is to use a proposal that looks to update particular $x_j$ in the trace in a
 component-wise MH manner (see Section~\ref{sec:inf:foundation:gibbs}), potentially rerunning
 the rest of the program after that choice if necessary.  In the context of PPSs such
@@ -76,7 +76,7 @@ which in turn gives an acceptance probability of
 \begin{align}
 P(\text{Accept}) &= \min\left(1, \frac{\gamma(x_{1:n_x'}',\lambda) q(x_{1:n_x} | x_{1:n_x'}') }
 {\gamma(x_{1:n_x},\lambda) q(x_{1:n_x'}' | x_{1:n_x}) }\right) \nonumber\\
-&= \min\left(1, \frac{\kappa(x_m | x_{m}') f_{a_m} (x_m' | \eta_m)} {\kappa(x_m' | x_{m}) f_{a_m} (x_m' | \eta_m)} \;
+&= \min\left(1, \frac{\kappa(x_m | x_{m}') f_{a_m} (x_m' | \eta_m)} {\kappa(x_m' | x_{m}) f_{a_m} (x_m | \eta_m)} \;
 \frac{n_x}{n_x'} \; \frac{\prod_{k=k_0(x_{1:m})+1}^{n_y'} g_{b_{k}'} (y_{k}' | \psi_{k}')}
 {\prod_{k=k_0(x_{1:m})+1}^{n_y} g_{b_{k}} (y_{k} | \psi_{k}) }\right) \label{eq:proginf:lmh-A}
 \end{align}
@@ -110,9 +110,8 @@ issues can be guarded against, in order to avoid the terrible scaling in the acc
 of~\ref{eq:proginf:lmh-A}  with $n_x-m$.  One way to do this would be to propose
 a new $x_m'$ in the same way but then deterministically run the program forward with the old
 $x_{m+1:n_x}$ to evaluate whether the trace is valid, noting that if it is, it must also be the case that any 
-extension or reduction of the trace (i.e. increasing or decreasing
-$n_x$) is invalid as the program is deterministic given $\xnx$ (remembering that we
-have defined $x_{1:n_x}$ as the raw \sample outputs not program variables).  If $x_m \rightarrow x_m'$ gives
+extension or reduction of the trace, i.e. increasing or decreasing
+$n_x$, is invalid as the program is deterministic given $\xnx$.  If $x_m \rightarrow x_m'$ gives
 a valid trace, then $\gamma([x_{1:m-1},x_m',x_{m+1:n_x}],\lambda)$ will be well defined (though not necessarily
 non-zero) and we can use the update as a proposal without needing to regenerate $x_{m+1:n_x}$.  Note though
 that as the $a_j$, $b_k$, $\eta_j$, and $\psi_k$ terms downstream of $m$ can change, the 
@@ -128,7 +127,7 @@ If, on the other hand, our trace becomes invalid
 at any point (noting that we can evaluate the validity of sub traces as we rerun them), we can resort to
 resampling the trace anew from the required point onwards.  Note that we can do this validity evaluation
 and regeneration during the same single forward pass through trace and that whether we do regeneration
-is deterministic for given $x_m$ - $x_m'$ pair (and thus does not affect the MH acceptance ratio by symmetry).
+is deterministic for given $\{x_m,x_m'\}$ pair (and thus does not affect the MH acceptance ratio by symmetry).
 If we regenerate from \sample $\ell$ onwards then we now have
 \begin{align}
 P(\text{Accept}) &= \min\left(1, \frac{\gamma(x_{1:n_x}',\lambda) \kappa(x_m | x_{m}') n_x \prod_{j=\ell}^{n_x} f_{a_{j}} (x_j | \eta_j)}
@@ -151,7 +150,6 @@ statement at the same point, i.e. points in the trace for which both the \sample
 the lexical \sample identifier $a_j$ are the same.  Our database can be used to store previous samples and
 deterministically return them when revisiting a \sample statement with the same identifier if this old
 value still constitutes a valid sample with non-zero probability, regenerating it if not.  
-Thus triggering regeneration of $x_j$ no longer necessarily requires regeneration of $x_{j+1}$.
 If we use $\mathbb{D}(j)=0$ to denote terms taken from
 the database and $\mathbb{D}(j)=1$ to indicate terms that are redrawn, then our acceptance ratio now becomes
 \begin{align}
@@ -225,7 +223,7 @@ to the product of the sweep marginal likelihood and local sample weight.\footnot
 From a theoretical perspective, running SMC in Anglican
 requires us to make one small model assumption -- that the number of observations $n_y$ is fixed.  In
 practice, this assumption is usually satisfied, particularly if their are no observations of
-internally samples variables.  Violations are caught at run time.  Given
+internally sampled variables.  Violations are caught at run time.  Given
 a fixed $n_y$, we can define the series of targets for SMC as being the distributions
 induced by running the program up to the $t^{\text{th}}$ \observe statement, namely
 \begin{align}
@@ -311,7 +309,7 @@ The particle cascade~\citep{paige2014asynchronous} is an asynchronous and anytim
 	variant of SMC that can provide improved in-sweep parallelization compared to SMC
 	and an alternative to PMCMC methods for overcoming memory restrictions in
 	SMC.  It has the crucial advantage over PMCMC methods of maintaining an unbiased estimate
-	of the marginal likelihood, but it can suffer issues in instability in the number of particles produced
+	of the marginal likelihood, but it can suffer instability issues in the number of particles produced
 	by the schedule strategy during a sweep. It also does not permit any distinct treatment of global
 	variables.
 
@@ -321,13 +319,13 @@ Particle Gibbs with ancestor sampling (PGAS)~\citep{lindstenJS2014,vandemeent_ai
 	result in very large computational overheads, sometimes requiring $O(Nn_y^2)$ computation
 	(compared to $O(Nn_y)$).  This can be partly 
 	mitigated by using database techniques to avoid unnecessary
-	repeated computation~\citep{vandemeent_aistats_2015}, but is still typically substantially more computationally intensive that
+	repeated computation~\citep{vandemeent_aistats_2015}, but is still typically substantially more computationally intensive than
 	standard particle Gibbs.  
 	%Nonetheless, this extra computation is sometimes justified for challenging
 	%problems with severe degeneracy.
 
-Some black-box variational methods~\citep{ranganath_aistats_2014,kucukelbir2015automatic} 
-	have been developed for general purpose PPSs~\citep{wingate2013automated} including Anglican~\citep{vandemeent2016black,paige2017thesis}.  Though these can suffer from difficulties
+Some black-box variational methods~\citep{ranganath_aistats_2014} 
+	have been developed for general purpose PPSs~\citep{kucukelbir2015automatic} including Anglican~\citep{vandemeent2016black,paige2017thesis}.  Though these can suffer from difficulties
 	in finding effective addressing schemes and or high variance of the ELBO gradients, they can still
 	form an effective approximate approach for certain problems.
 

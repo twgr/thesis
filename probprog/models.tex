@@ -269,7 +269,10 @@ PPL other than to relax a number of the restrictions made for our simplified cas
 we will allow branching, higher order functions, (potentially infinite) recursion, stochastic memoization~\citep{goodman2008church},
 conditioning on internally sampled
 variables, and the use of the ``data'' inputs $y_{1:T}$ in the definition of our generate model (instead of
-just allowing them to be observed).  We will maintain the syntax of our simplified
+just allowing them to be observed).  |One assume we will make, here and throughout the rest of this thesis,
+is that our program terminates with probability $1$,
+asserting that any program that does not satisfy this assumption does not define a valid model.  
+We will maintain the syntax of our simplified
 setup, along with the assumption that functions are pure other than the effect of \sample and \observe.
 An important point to note though for why such a language is universal, is that arbitrary distributions
 with countable parameters can be defined through a series of uniform $[0,1]$ draws followed
