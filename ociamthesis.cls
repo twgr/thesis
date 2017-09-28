@@ -100,7 +100,7 @@
 \fancyhead[RE]{\emph{\rightmark}} 
 \fancyhead[RO,LE]{\emph{\thepage}}
 
-\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\emph{\thepage}}}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot{}}
 
 % JEM fix header on cleared pages for openright
 \def\cleardoublepage{\clearpage\if@twoside \ifodd\c@page\else
