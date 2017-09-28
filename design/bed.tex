@@ -38,14 +38,20 @@ the observations $y$.  The Bayesian-optimal design is then given by
 \label{eq:d_star}
 d^* = \argmax_{d \in \mathcal{D}} \bar{U}(d).
 \end{equation}
-
 We can intuitively interpret $d^*$ as being the design that most reduces the uncertainty in $\theta$
-on average over possible experimental results.  Nonetheless \Bad remains a very powerful and
+on average over possible experimental results.  If our likelihood model is correct, i.e. if experimental outcomes
+are truly distributed according to $p(y | \theta, d)$ for a given $\theta$ and $d$, then it is easy to see 		
+from the above definition that		
+$d^*$ is the true optimal design, in terms of information gain, given our current information about		
+the parameters $p\left(\theta \right)$.  		
+In practice, our likelihood model is an approximation of		
+the real world.
+Nonetheless \Bad remains a very powerful and
 statistically principled approach that is typically significantly superior to other, more heuristic based,
 alternatives.  For example, the state-of-the-art entropy based Bayesian optimization acquisition strategies we 
 discussed in Section~\ref{sec:opt:BO:acq:inf} are particular cases of BED.
-The main draw back to the Bayesian experimental design 
-approach is, in fact, that it is typically difficult and computationally intensive to carry out.  
+However, a major drawback to the \Bad
+approach is that it is typically difficult and computationally intensive to carry out.  
 Not only does it represent an optimization 
 of an intractable expectation, this expectation is itself a nested because
 the integrand is itself intractable due to the $p\left(\theta | y, d\right)$ term.

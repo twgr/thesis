@@ -3,9 +3,29 @@
 \section{Automating Sequential Design Problems}
 \label{sec:design:seq}
 
-We have thus-far assumed that there is no previous data (i.e. design-outcome pairs), but in practice many 
-experiments are sequential and previous data must be incorporated in choosing future designs.
-This previous data is incorporated in the standard Bayesian fashion such that
+We have thus-far assumed that there is no previous data (i.e. design-outcome pairs).
+Though this static experimental design setup is of use in its own right, the real potential
+of \Bad is not realized until one considers using it in \emph{sequential} settings.
+Here \Bad provides a framework for adaptively making an optimal series of decisions
+in an online fashion in the presence of uncertainty.  For example, imagine a psychology
+trial where we ask a participant a series of questions to learn about certain behavior
+characteristics.  If a human is conducting this experiment they are likely to adapt
+the questions they ask as they learn about the participant to try and maximize the information
+gathered.  Similarly, a detective conducting an investigation will
+adapt the questions they ask about a suspect as they learn information from previous
+answers.  Sequential \Bad provides a mathematical framework for reasoning about and optimizing
+such processes, thereby providing a means of developing effective machine learning systems to
+carry out such tasks.
+  It is quite incredibly general and can, at least in theory, be applied to any
+situation where we aim to sequentially gather information.  For example, in Section~\ref{sec:opt:BO:acq:inf}
+we described strategies for Bayesian optimization which explicitly use the \Bad equations
+to sequentially gather information about the location of the optimum.  One could envisage similarly
+using the framework for conducting proposal adaptation for inference problems.  We could
+use it in vision tasks to prioritize where to look in a scene.  The number of potential
+applications is endless.
+
+From a mathematical perspective, we can generalize to the sequential design setting by 
+incorporating data in the standard Bayesian fashion such that
 at experiment iteration $t$, we replace $p\left(\theta\right)$ with 
 $p\left(\theta | d_{1:t-1}, y_{1:t-1}\right)$, where $d_{1:t-1}$ and  $y_{1:t-1}$ are 
 respectively the designs and outcomes at previous iterations.
@@ -26,8 +46,7 @@ p(y_t | \theta, d_t) \log(p(y_t | \theta, d_t)) d\theta dy_t \\
 We can now see that these terms are the same as in the non-sequential case,
 except that expectations are taken with respect to $p\left(\theta | d_{1:t-1}, y_{1:t-1}\right)$
 rather than $p(\theta)$.  Therefore, we can use the same Monte Carlo estimators
-\eqref{eq:exp-des-nmc} and \eqref{eq:u_bar_MC}, simply changing the distribution from which
-the $\theta_n$ are sampled.
+\eqref{eq:exp-des-nmc} and \eqref{eq:u_bar_MC}, but instead drawing $\theta_n\sim p\left(\theta | d_{1:t-1}, y_{1:t-1}\right)$.
 
 In the rest of this section we will outline a framework for automating such sequential
 adaptive design problems.  This takes on a somewhat probabilistic programming flavor, as
@@ -76,8 +95,8 @@ approach to estimating $d^*$ at each iteration for many problems.  However, BOPP
 duty estimation algorithm that may not be suitable for problems that are relatively simpler,
 but for which speed is paramount.  Many of the possible applications of our approach, such
 as the DARC toolbox, require rerunning in real-time with human participants, for which BOPP would
-thus be inappropriate.\footnote{It is worth noting, nonetheless, that if the surrogate in BOPP
-	was replaced with a more lightweight regressor, e.g. a random forest as per~\cite{hutter2011sequential},
+thus be inappropriate.\footnote{Nonetheless, if the surrogate in BOPP
+	was replaced with a more lightweight regressor, e.g. a random forest~\cite{hutter2011sequential},
 	then the result algorithm could prove a viable alternative even under strict time pressure.}
 We instead construct a new approach
 that exploits the fact that~\eqref{eq:u_bar_MC} need not generate distinct $\theta_n$ to evaluate
@@ -141,7 +160,7 @@ a \emph{reservoir} of samples $\{\theta_m\}_{m=1:M}$ instead of drawing samples 
 $p\left(\theta | d_{1:t-1}, y_{1:t-1} \right)$ on-demand.  In short, we draw $M$ samples from the
 posterior upfront to create the reservoir, then instead of sampling directly from 
 $p\left(\theta | d_{1:t-1}, y_{1:t-1} \right)$ during the design optimization,
-we draw a sample from the reservoir instead.  Careful coding (not shown in the algorithm block) ensures 
+we draw a sample from the reservoir.  Careful coding (not shown in the algorithm block) ensures 
 that each sample in the reservoir is not used more than once in any particular estimate $\hat{U}_k$, while by using
 a reservoir that is larger than the number of samples we will need for any individual estimate, we
 ensure that the reservoir itself does not cause any approximation in the posterior (though it can cause correlation
@@ -152,15 +171,15 @@ produces a reservoir as output and the optimizer can then run without having to 
 inference algorithm.
 
 The second key innovation of our approach is that rather than calculating each estimate $\hat{U}_k$ in one go, we
-exploit in the intermediate information from incomplete evaluations to reallocate computational
+exploit the intermediate information from incomplete evaluations to reallocate computational
 resources in a manner that has parallels with SMC, SMC search~\citep{amzal2006bayesian}, annealed
 importance sampling~\citep{neal2001annealed}, adaptive Monte Carlo via bandit 
-allocation~\cite{neufeld2014adaptive}, and the Hyperband algorithm~\citep{li2016hyperband}.\footnote{We
-	note that our approach was independently developed prior to publication of~\cite{li2016hyperband} (the relevant
-	code for the DARC toolbox dates back to 2015), but remained unpublished until~\cite{vincent2017darc}.}
-We emphasise though that our method has important differences
-to these previous approaches and constitutes a new algorithm in its own right.
-
+allocation~\cite{neufeld2014adaptive}, and the Hyperband algorithm~\citep{li2016hyperband}.
+%\footnote{We
+%	note that our approach was independently developed prior to publication of~\cite{li2016hyperband} (the relevant
+%	code for the DARC toolbox dates back to 2015), but remained unpublished until~\cite{vincent2017darc}.}
+%We emphasise though that our method has important differences
+%to these previous approaches and constitutes a new algorithm in its own right.
 Imagine that we are considering $K$ designs with a total sample budget $\bar{N}K$
 and decide to use the same number of samples, $\bar{N}$, to calculate an estimate $\hat{U}_{1:K}$ for the 
 utility of each design.  

@@ -1,6 +1,6 @@
 % !TEX root = ../main.tex
 
-\chapter{Automated Bayesian Experimental Design}
+\chapter{Automated Adaptive Design}
 \label{chp:design}
 
 From tuning microscopes to designing surveys on politics, all problems of 
@@ -15,18 +15,20 @@ that maximizes the expected information gathered by the experiment.
 If the model is correct, this forms a design strategy that is optimal from
 an information-theoretic viewpoint \citep{sebastiani2000maximum}.  
 The general nature of its formulation means that BED can, at least in principle, be applied
-to almost any experimental design situation and it has been successfully applied to a wide
+to almost any experimental design situation and it has been successfully used in a wide
 array of fields such as psychology~\citep{myung2013tutorial,Cavagnaro:discounting,vincent2017darc},
 Bayesian optimization~\citep{hennig2012entropy,hernandez2014predictive}, and
-bioinformatics~\citep{vanlier2012bayesian}.
+bioinformatics~\citep{vanlier2012bayesian}. \Bad can be particularly useful in \emph{sequential}
+design settings, where it provides a means constructing adaptive strategies that use
+previous experience in order to make decisions which optimize the sequential learning process.
 
 Unfortunately, as we alluded to in the previous chapter, BED problems, in
 general,  require the calculation of a nested estimation.
-In this section we will provide a brief introduction to BED and show how our results
+In this chapter we will provide a brief introduction to BED and show how our results
 from the last chapter can be used to derive a new estimator for BED equations 
 which has a better convergence rate for discrete output problems than the na\"{i}ve
 estimator often used.  We will further introduce a novel framework for automating the
-design of \emph{sequential} experiments and demonstrate how this can be
+design of sequential experiments and demonstrate how this can be
 effectively applied to automating psychological trials~\citep{vincent2017darc}.  
 
 \input{design/bed.tex}
