@@ -81,7 +81,7 @@
 \ifmc@nobind
 \usepackage[includehead,hmargin={2.8cm, 2.8cm}, vmargin={2.1cm,2.4cm}, headsep=.6cm,footskip=1.0cm]{geometry}
 \else
-\usepackage[includehead,hmargin={2.9cm, 2.1cm}, vmargin={2.1cm,2.4cm}, headsep=.6cm,footskip=1.0cm]{geometry}
+\usepackage[includehead,hmargin={2.85cm, 2.07cm}, vmargin={2.1cm,2.4cm}, headsep=.6cm,footskip=1.0cm]{geometry}
 \fi
 
 \usepackage{xcolor}
@@ -95,12 +95,12 @@
 \pagestyle{fancy}
 \renewcommand{\chaptermark}[1]{\markboth{\thechapter. #1}{\thechapter. #1}}
 \renewcommand{\sectionmark}[1]{\markright{\thesection. #1}} 
-\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\headrulewidth}{0.4pt}
 \fancyhead[LO]{\emph{\leftmark}} 
 \fancyhead[RE]{\emph{\rightmark}} 
 \fancyhead[RO,LE]{\emph{\thepage}}
 
-\fancypagestyle{plain}{\fancyhf{}\fancyfoot{}}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot{}\renewcommand{\headrulewidth}{0pt}}
 
 % JEM fix header on cleared pages for openright
 \def\cleardoublepage{\clearpage\if@twoside \ifodd\c@page\else

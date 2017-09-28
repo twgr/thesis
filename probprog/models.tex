@@ -133,7 +133,7 @@ respectively.
 		  }
 	\end{subfigure}
 		\begin{subfigure}[t]{\textwidth}
-			\vspace{10pt}
+			\vspace{20pt}
 \centering	
 \begin{minipage}[t]{0.45\textwidth}
 	\begin{algorithmic}[1]
@@ -183,6 +183,7 @@ respectively.
 				\label{fig:probprog:LGSSM}
 				}
 		\end{subfigure}
+		\vspace{5pt}
 \caption{Example pseudo-queries for our simplified probabilistic programming setup with
 	corresponding graphical models and joint distributions.\label{fig:probprog:example-progs}}
 \end{figure}
@@ -422,7 +423,7 @@ required).
 
 \begin{figure}[p]
 	\centering
-	\vspace{-10pt}
+	\vspace{-5pt}
 	\begin{minipage}[t]{\textwidth}
 		\centering
 		\includegraphics[width=0.75\textwidth]{probprog/figures/traces.pdf}			
@@ -435,7 +436,7 @@ a particular execution path which gives output $k=1$ and has $n_x=2$, $n_y=2$, $
 Valid traces for this particular path must have $x_1>\exp(-\lambda)$ and $x_2 \le \exp(-\lambda)/x_1$.
 						\label{fig:probprog:poi-traces}
 					}
-	\vspace{10pt}
+	\vspace{15pt}
 	\end{minipage}
 		\begin{minipage}[b]{0.49\textwidth}
 			\begin{algorithmic}[1]
@@ -457,10 +458,11 @@ Valid traces for this particular path must have $x_1>\exp(-\lambda)$ and $x_2 \l
 		\end{minipage}
 				\begin{minipage}[b]{0.49\textwidth}
 					\centering	~~
-					\includegraphics[width=0.95\textwidth]{probprog/figures/poisson_plot.pdf}			
+					\includegraphics[width=0.87\textwidth]{probprog/figures/poisson_plot.pdf}			
 					\subcaption{Conditional distribution on $k$ for $\lambda=4$.\label{fig:probprog:poi-res}
 					}
 				\end{minipage}
+				\vspace{5pt}
 	\caption{Demonstration of stochastic execution traces using a warper
 		Poisson sampler, adapted from~\cite[Figure 3.3]{paige2017thesis}.  The query defined in 
 		\textbf{(b)} would output $k$ as per a Poisson

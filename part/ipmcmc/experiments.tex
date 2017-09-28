@@ -16,8 +16,7 @@ APG interleaves PG steps with PIMH steps
 %, alternating between \csmc updates and a Metropolis-Hastings step with an independent \smc proposal,
 in an attempt to overcome the issues caused by path degeneracy in PG.  We refer to the trivially distributed versions of these algorithms as multi-start PG, PIMH and APG respectively (mPG, mPIMH and mAPG). 
 We use Rao-Blackwellization, as described in \ref{sec:part:ipmcmc:allparticles}, to average over all the generated particles for all methods, weighting the independent Markov chains equally for mPG, mPIMH and mAPG. We note that mPG is a special case of iPMCMC for which $P=M$.  Because our interest is in alleviating degeneracy, we used the bootstrap proposal and multinomial resampling in our experiments.\footnote{However, we recommend
-	using systematic resampling, as is the default in the provided implementations, and setting $N$ as 
-	large as possible for iPMCMC in general.}
+	using systematic resampling, as is the default in the provided implementations.}
  $M=32$ nodes and $N=100$ particles were used unless otherwise stated.  Initialization of the retained particles for iPMCMC and mPG was done by using standard SMC sweeps.
 
 \subsubsection{Linear Gaussian State Space Model}
@@ -25,9 +24,13 @@ We use Rao-Blackwellization, as described in \ref{sec:part:ipmcmc:allparticles},
 We first consider a linear Gaussian state space model (LGSSM) with 3 dimensional latent states $x_{1:T}$, 20 dimensional observations $y_{1:T}$ and dynamics given by %\cn{It seems you use deterministic initial conditions for $x_0$, reformulate the model so you have a prior $\mu(x_1)$ instead? (also follows notation above)}
 \begin{subequations}
 	\label{eq:LGSS}
+	\vspace{-6pt}
 	\begin{align}
-	x_1 & \sim \mathcal{N} \left(\mu, V\right) \label{eq:LGSSa}\\
-	x_t & = \alpha x_{t-1} + \delta_{t-1} \quad & \delta_{t-1} \sim \mathcal{N} \left(0, \Omega\right) \label{eq:LGSSb}\\
+	\vspace{-6pt}
+	x_1 & \sim \mathcal{N} \left(\mu, V\right) \label{eq:LGSSa} \displaybreak[0]\\
+	\vspace{-6pt}
+	x_t & = \alpha x_{t-1} + \delta_{t-1} \quad & \delta_{t-1} \sim \mathcal{N} \left(0, \Omega\right) \label{eq:LGSSb} \displaybreak[0] \\
+	\vspace{-6pt}
 	y_t & = \beta x_{t} + \varepsilon_{t} \quad & \varepsilon_{t} \sim \mathcal{N} \left(0, \Sigma\right).
 	\label{eq:LGSSc}
 	\end{align}
@@ -37,14 +40,14 @@ We set $\mu = [0, 1, 1]^T$, $V = 0.1 \; \mathbf{I}$, $\Omega = \mathbf{I}$ and $
 \begin{figure*}[t]
 	\centering
 	\begin{subfigure}[t]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{mean_conv_lss}
+		\includegraphics[width=0.98\textwidth]{mean_conv_lss}
 		\caption{Convergence in mean for full sequence}
 		\label{fig:meanConv}
 	\end{subfigure}
 	~  %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
 	%(or a blank line to force the subfigure onto a new line)
 	\begin{subfigure}[t]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{mean_pos_lss}
+		\includegraphics[width=0.98\textwidth]{mean_pos_lss}
 		\caption{Final error in mean for latent marginals}
 		\label{fig:meanPos}
 	\end{subfigure}
@@ -61,9 +64,12 @@ We set $\mu = [0, 1, 1]^T$, $V = 0.1 \; \mathbf{I}$, $\Omega = \mathbf{I}$ and $
 	%		\caption{Final error in standard deviation for latent marginals}
 	%		\label{fig:stdPos}
 	%	\end{subfigure}	
+	\vspace{5pt}
 	\caption{Mean squared error averaged over all dimensions and steps in the state sequence as a function of MCMC iterations (left) and mean squared error after $10^4$ iterations averaged over dimensions as function of position in the state sequence (right) for \eqref{eq:LGSS} with 50 time sequences.  The solid line shows the median error across the 10 tested synthetic datasets, while the shading shows the upper and lower quartiles.  Ground truth was calculated using the Rauch--Tung--Striebel smoother algorithm \cite{rauch1965maximum}. 
 		\label{fig:groundTruth}}
 \end{figure*}
+
+Figure \ref{fig:meanConv} shows convergence (in MCMC iterations) in the estimate of the latent variable means to the ground-truth solution for iPMCMC and the benchmark algorithms.  It shows that iPMCMC comfortably outperforms the alternatives from around 200 iterations onwards, with only iPMCMC and mAPG demonstrating behaviour consistent with the Monte Carlo convergence rate, suggesting that mPG and mPIMH are still far from the ergodic regime.  Figure \ref{fig:meanPos} shows the same errors after $10^4$ MCMC iterations as a function of position in state sequence.  It demonstrates that iPMCMC outperformed all the other algorithms for the early stages of the state sequence, for which mPG performed particularly poorly. Toward the end of state sequence, iPMCMC, mPG and mAPG all gave similar performance, whilst that of mPIMH was significantly worse.
 
 \begin{figure*}[t]
 	\centering
@@ -77,12 +83,11 @@ We set $\mu = [0, 1, 1]^T$, $V = 0.1 \; \mathbf{I}$, $\Omega = \mathbf{I}$ and $
 		\includegraphics[width=\textwidth]{ess_nlss}
 		\caption{NLSSM}
 	\end{subfigure}
-
+	\vspace{5pt}
 	\caption{Normalized effective sample size  (NESS) for LGSSM (left) and NLSSM (right).
 		\label{fig:ESS}}
+	\vspace{-5pt}
 \end{figure*}
-
-Figure \ref{fig:meanConv} shows convergence in the estimate of the latent variable means to the ground-truth solution for iPMCMC and the benchmark algorithms as a function of MCMC iterations.  It shows that iPMCMC comfortably outperforms the alternatives from around 200 iterations onwards, with only iPMCMC and mAPG demonstrating behaviour consistent with the Monte Carlo convergence rate, suggesting that mPG and mPIMH are still far from the ergodic regime.  Figure \ref{fig:meanPos} shows the same errors after $10^4$ MCMC iterations as a function of position in state sequence.  This demonstrates that iPMCMC outperformed all the other algorithms for the early stages of the state sequence, for which mPG performed particularly poorly. Toward the end of state sequence, iPMCMC, mPG and mAPG all gave similar performance, whilst that of mPIMH was significantly worse.\todo{Sort out rastering in the figures}
 
 \subsubsection{Nonlinear State Space Model}
 \label{sec:nlss}
@@ -91,8 +96,8 @@ We next consider the one dimensional nonlinear state space model (NLSSM) conside
 \begin{subequations}
 	\label{eq:NLSS}
 	\begin{align}
-	x_1 & \sim \mathcal{N} \left(\mu, v^2\right) \label{eq:NLSSa}\\
-	x_t & = \frac{x_{t-1}}{2} + 25 \frac{x_{t-1}}{1+x_{t-1}^2} + 8 \cos \left(1.2t\right) + \delta_{t-1} \label{eq:NLSSb} \\
+	x_1 & \sim \mathcal{N} \left(\mu, v^2\right) \label{eq:NLSSa} \displaybreak[0]\\
+	x_t & = \frac{x_{t-1}}{2} + 25 \frac{x_{t-1}}{1+x_{t-1}^2} + 8 \cos \left(1.2t\right) + \delta_{t-1} \label{eq:NLSSb} \displaybreak[0]\\
 	y_t & = \frac{{x_{t}}^2}{20} + \varepsilon_{t} \label{eq:NLSSc}
 	\end{align}
 \end{subequations}
@@ -106,6 +111,7 @@ Further, the multi-modal nature of the latent space makes full posterior inferen
 	\includegraphics[width=1\textwidth]{nlss_histograms_minus_190.pdf}
 	%\end{subfigure}
 	\caption{Histograms of generated samples at $t=1, 100, \text{ and } 200$ for a single dataset generated from \eqref{eq:NLSS} with $T=200$.  Dashed red line shows an approximate estimate of the ground truth, found by running a kernel density estimator on the combined samples from a small number of independent SMC sweeps, each with $10^7$ particles. \label{fig:nlssHists}}
+	\vspace{-10pt}
 \end{figure*}
 
 To examine the relative mixing of iPMCMC we calculate an effective sample size (ESS) for different steps in the state 

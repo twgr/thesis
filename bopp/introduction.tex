@@ -37,6 +37,7 @@ Figure~\ref{fig:houses} illustrates how BOPP can be applied to engineering desig
 \end{figure*}
 
 \begin{figure}[t]
+	\vspace{5pt}
 	\begin{lstlisting}[basicstyle=\ttfamily\small]
 (defopt house-heating [alphas target-temps] [powers]
  (let [solar-intensity (sample weather-prior)
@@ -47,7 +48,7 @@ Figure~\ref{fig:houses} illustrates how BOPP can be applied to engineering desig
 	\vspace{-6pt}
 	\caption{BOPP query for optimizing the power allocation to radiators in a house.  Here \lstinline{weather-prior} is a distribution over the solar intensity and a uniform Dirichlet prior with concentration \lsi{alpha} is placed over the powers. Calling \simulatec performs an Energy2D simulation of house temperatures. The utility of the resulting output is incorporated using \abcl, which measures a discrepency from the \texttt{target-temps}. Calling \doopt on this query invokes BOPP to perform MMAP estimation, with the second input \lstinline{powers} indicating the variable(s) to be optimized. Full details on the model and
 		experiment are provided in~\cite{rainforth2017boppArxiv}.\label{fig:house-heating-code}}
-	\vspace{-10pt}
+	\vspace{-5pt}
 \end{figure}
 
 %Figure~\ref{fig:houses} illustrates how BOPP can be applied to engineering design, taking the example of optimizing the distribution of power between radiators in a house so as to homogenize the temperature, while marginalizing out possible weather conditions and subject to a total energy budget. The probabilistic program shown in Figure~\ref{fig:house-heating-code} allows us to define a prior over the uncertain weather, while conditioning on the output of a deterministic simulator (here Energy2D \citep{xie2012energy2d}-a finite element package for heat transfer) using an ABC likelihood.  BOPP now allows the required coincident inference and optimization to be carried out automatically, directly returning increasingly optimal configurations. 

@@ -97,8 +97,8 @@ defining ${c_{1:P\backslash j} = \{c_1,\ldots,c_{j-1},c_{j+1},\ldots,c_P\}}$.  W
 One \mcmc iteration $r$ is concluded by setting the new samples $\xb_{1:P}'[r]$ by simulating from the corresponding conditional node's, $c_j$, internal particle system in the same way as $b$ was sampled for the \pg algorithm
 \begin{align}
 \label{eq:simTrajectory}
-\Prb(b_j = i | c_j) &= \nw_{T,c_j}^i, \nonumber\\%\frac{w_{T,c_j}^{i}}{\sum_\ell w_{T,c_j}^{\ell}}, \nonumber\\
-\xb_j'[r] &= \xb_{c_j}^{b_j}.
+\Prb(b_j = i | c_j) &= \nw_{T,c_j}^i, \quad %\frac{w_{T,c_j}^{i}}{\sum_\ell w_{T,c_j}^{\ell}}, \nonumber\\
+\xb_j'[r] = \xb_{c_j}^{b_j}.
 \end{align}
 The potential to pick from updated nodes $c_j$, having run independent \smc algorithms, decreases correlation and improves mixing of the  \mcmc sampler. Furthermore, as each Gibbs update corresponds to a one-to-many comparison for maintaining the same conditional index, the probability of switching is much higher than in an analogous non-interacting system.
 %A summary of the \ipmcmc algorithm can be found in Algorithm~\ref{alg:ipmc}. % and a high-level overview of the algorithm flow can be found in Figure~\ref{fig:algorithm}.
@@ -215,7 +215,7 @@ Now we are ready to state the main theoretical result.
 	%q_{\text{CSMC}}\left(\xb_m^{1:N},\ab_m^{1:N} \backslash \{\xb_m^k, \bb_m^k\} \mid \xb_m^k, \bb_m^k, m, k \right) &= \prod_{\substack{i=1\\i\neq b_{1,m}}}^N q_1(x_{1,m}^i) \prod_{t=2}^T \prod_{\substack{i=1\\i\neq b_{t,m}}}^N\frac{W_{t-1,m}^{a_{t-1,m}^i}}{\sum_\ell W_{t-1,m}^\ell} q_t(x_{t,m}^i|x_{1:t-1,m}^{a_{t-1,m}^i}),
 	%\end{align}
 	%where $\bb_m^k = (b_{1,m},\ldots,b_{T,m})$ with the conditional trajectory indices defined recursively as follows $b_{T,m} = k$ and $b_{t,m} = a_{t,m}^{b_{t+1,m}}$.
-	With $\tilde\pi(\cdot)$ with as per \eqref{eq:targetdistribution}, we will show that the Gibbs sampler on the extended space, $\Upsilon$, defined as follows	
+	With $\tilde\pi(\cdot)$ with as per \eqref{eq:targetdistribution}, we will show that following the Gibbs sampler on $\Upsilon$
 	\begin{subequations}
 		\label{eq:gibbs}
 		\begin{align}
@@ -230,7 +230,7 @@ Now we are ready to state the main theoretical result.
 	First, the initial step \eqref{eq:particles} corresponds to sampling from
 	\begin{align*}
 	\tilde\pi(\xib_{1:M} &\backslash\{\xb_{c_{1:P}}^{b_{1:P}}, \bb_{c_{1:P}} \} | \xb_{c_{1:P}}^{b_{1:P}}, \bb_{c_{1:P}},c_{1:P}, b_{1:P}) = \\ 
-	& \prod_{\substack{m=1\\m\notin c_{1:P}}}^M q_{\text{SMC}}\left(\xib_m\right) \prod_{j = 1}^P q_{\text{CSMC}}\left(\xib_{c_j} \backslash \{\xb_{c_j}^{b_j}, \bb_{c_j}\} \mid \xb_{c_j}^{b_j}, \bb_{c_j}, c_j, b_j \right).
+	& \prod_{m=1,m\notin c_{1:P}}^M q_{\text{SMC}}\left(\xib_m\right) \prod_{j = 1}^P q_{\text{CSMC}}\left(\xib_{c_j} \backslash \{\xb_{c_j}^{b_j}, \bb_{c_j}\} \mid \xb_{c_j}^{b_j}, \bb_{c_j}, c_j, b_j \right).
 	\end{align*}
 	Given the conditional trajectories, this just corresponds to steps 3--4 in Algorithm~\ref{alg:ipmc}, 
 	\ie running $P$ \csmc and $M-P$ \smc algorithms independently.
@@ -276,10 +276,12 @@ Now we are ready to state the main theoretical result.
 	This corresponds to step 7 in Algorithm~\ref{alg:ipmc}. We now have that the procedure defined 
 	by \eqref{eq:gibbs} is a partially collapsed Gibbs sampler, derived from \eqref{eq:targetdistribution}, 
 	and we have shown that it is exactly equal to the \ipmcmc sampler described in Algorithm~\ref{alg:ipmc}.
+	\vspace{-8pt}
 \end{proof}
 \newtheorem{rem}{Remark}
 \begin{rem}
 	The marginal distribution of $(\xb_{c_{1:P}}^{b_{1:P}},c_{1:P},b_{1:P})$, with $\xb_{c_{1:P}}^{b_{1:P}} = (\xb_{c_1}^{b_1},\ldots,\xb_{c_P}^{b_P})$, under \eqref{eq:targetdistribution} is by construction given by
+	\vspace{-4pt}
 	\begin{align}
 	\label{eq:marginaldistribution}
 	&\tilde \pi\left(\xb_{c_{1:P}}^{b_{1:P}},c_{1:P},b_{1:P}\right) = \frac{\prod_{j = 1}^P \pi\left(\xb_{c_j}^{b_j}\right) \iden_{c_j \notin c_{1:j-1}}}{N^{PT} \binom{M}{P}}
@@ -292,8 +294,9 @@ Now we are ready to state the main theoretical result.
 	be independent draws from $\pi$.  Note similarly that it follows that~\eqref{eq:mcestimate}
 	is a consistent estimator (as $R\rightarrow\infty$).
 	% , by targeting \eqref{eq:targetdistribution} with an \mcmc sampler we will, in the limit, equivivalently draw $P$ exact samples from $\pi$ as a byproduct at each iteration.
+	\vspace{-8pt}
 \end{rem}
-Note that adding a backward or ancestor simulation step can drastically increase mixing when sampling the conditional trajectories $\xb_j'[r]$ \citep{lindsten2013backward}. In the \ipmcmc sampler we can replace simulating from the final weights on line~7 by a backward simulation step. Another option for the \csmc nodes is to replace this step by internal ancestor sampling \citep{lindstenJS2014} steps and simulate from the final weights as normal.
+\noindent Note that adding a backward or ancestor simulation step can drastically increase mixing when sampling the conditional trajectories $\xb_j'[r]$ \citep{lindsten2013backward}. In the \ipmcmc sampler we can replace simulating from the final weights on line~7 by a backward simulation step. Another option for the \csmc nodes is to replace this step by internal ancestor sampling \citep{lindstenJS2014} steps and simulate from the final weights as normal.
 %According to the above remark if we can generate samples from \eqref{eq:targetdistribution} we will equivivalently draw exact samples from $\pi$ as a byproduct. We formalize this and show a basic convergence result of the \mcmc samples $\xb^{1:P}[r]$ generated by running Algorithm~\ref{alg:ipmc}.
 %\begin{theorem}[Convergence]
 %\begin{align}
@@ -313,7 +316,7 @@ Note that adding a backward or ancestor simulation step can drastically increase
 % How to use all particles when estimating expectations
 \subsection{Using All the Particles}
 \label{sec:part:ipmcmc:allparticles}
-
+\vspace{-4pt}
 As we discussed for the PIMH and \pg cases in Section~\ref{sec:part:pmcmc:all},
 it can be wasteful to throw away most of our generated samples.  Thankfully we
 can again carry out a Rao-Blackwellization for \ipmcmc to 
@@ -339,15 +342,15 @@ depends on which indices are sampled earlier in the index reassignment loop.
 To derive this we first note that for iteration $r$ we calculate
 $\frac{1}{P}\sum_{j=1}^P f(\xb_j'[r]) = \frac{1}{P}\sum_{j=1}^P f(\xb_{c_j}^{b_j})$
 where we can Rao-Blackwellize the selection of the retained particle along with each individual Gibbs update
-and thereby replace $f(\xb_{c_j}^{b_j})$ with its expectation over $c_j$ and $b_j$ given all the other variables
+and thereby replace $f(\xb_{c_j}^{b_j})$ with its expectation over $c_j$ and $b_j$
 as follows
 \begin{align*}
-\frac{1}{P}\sum_{j=1}^P \E \left[f(\xb_{c_j}^{b_j}) \middle| \xi_{1:M}, c_{1:P\backslash j} \right] =& 
+\frac{1}{P} & \sum_{j=1}^P \E \left[f(\xb_{c_j}^{b_j}) \middle| \xi_{1:M}, c_{1:P\backslash j} \right] =
 \frac{1}{P}\sum_{j=1}^P \E \left[\sum_{i=1}^N \bar w_{T,c_j}^i  f(\xb_{c_j}^{i}) \middle| \xi_{1:M}, c_{1:P\backslash j} \right] \\ 
 %=& \frac{1}{P}\sum_{j=1}^P \sum_{i=1}^N \E \left[\bar w_{T,c_j}^i  f(\xb_{c_j}^{i}) \middle| \xi_{1:M}, c_{1:P\backslash j}  \right] \\
-=& \frac{1}{P}\sum_{j=1}^P \sum_{i=1}^N \sum_{m=1}^M \hat \zeta_m^j \bar w_{T,m}^i  f(\xb_{m}^{i}) \\
+&\quad \quad = \frac{1}{P}\sum_{j=1}^P \sum_{i=1}^N \sum_{m=1}^M \hat \zeta_m^j \bar w_{T,m}^i  f(\xb_{m}^{i})
 %=& \frac{1}{P}\sum_{j=1}^P \sum_{m=1}^M \hat \zeta_m^j \sum_{i=1}^N \bar w_{T,m}^i  f(\xb_{m}^{i})\\
-=& \frac{1}{P} \sum_{m=1}^M  \left[\left(\sum_{j=1}^P \hat \zeta_m^j \right) \cdot \left(\sum_{i=1}^N \bar w_{T,m}^i  f(\xb_{m}^{i}) \right)\right].
+= \frac{1}{P} \sum_{m=1}^M  \left[\left(\sum_{j=1}^P \hat \zeta_m^j \right) \cdot \left(\sum_{i=1}^N \bar w_{T,m}^i  f(\xb_{m}^{i}) \right)\right].
 %&\E_{c_j|c_{1:P\backslash j}}\left[\E_{b_{1:P}}\left[\frac{1}{P}\sum_{j=1}^P f(\xb_{c_j}^{b_j})\right]\right] = \frac{1}{P}\sum_{j=1}^P \E_{c_j|c_{1:P\backslash j}}\left[\E_{b_{1:P}}\left[ f(\xb_{c_j}^{b_j})\right]\right] = \frac{1}{P}\sum_{j=1}^P \E_{c_j|c_{1:P\backslash j}}\left[ \sum_{i=1}^N \bar w_{T,c_j}^i  f(\xb_{c_j}^{i})\right] \\
 %&= \frac{1}{P}\sum_{j=1}^P \sum_{i=1}^N \E_{c_j|c_{1:P\backslash j}}\left[ \bar w_{T,c_j}^i  f(\xb_{c_j}^{i})\right] = \frac{1}{P}\sum_{j=1}^P \sum_{i=1}^N \sum_{m=1}^M \hat \zeta_m^j \bar w_{T,m}^i  f(\xb_{m}^{i}) = \frac{1}{P}\sum_{j=1}^P \sum_{m=1}^M \hat \zeta_m^j \sum_{i=1}^N \bar w_{T,m}^i  f(\xb_{m}^{i}),
 \end{align*}
@@ -369,7 +372,7 @@ that at least one conditional node switches with an unconditional, is given by
 \Prb(\{\text{switch}\}) 
 = 1 - \E\Big[\prod_{j=1}^P \frac{\hat Z_{c_j}}{\hat Z_{c_j} +\sum_{m \notin c_{1:P}}^M \hat Z_{m}}\Big].
 \end{align}
-There exist theoretical and experimental results \citep{pitt2012some,berard2014lognormal,doucet2015efficient} that show that the distributions of the normalisation constants are well-approximated by their log-Normal limiting distributions. Now, with $\sigma^2$ ($\propto \frac{1}{N}$) being the variance of the (C)\smc estimate, it means we have $\log \left(Z^{-1} \hat Z_{c_j} \right) \sim \N(\frac{\sigma^2}{2},\sigma^2)$ and $\log \left(Z^{-1} \hat Z_{m} \right) \sim \N(-\frac{\sigma^2}{2},\sigma^2)$, $m\notin c_{1:P}$ at stationarity, where $Z$ is the true normalization constant. Under this assumption, we can accurately estimate the probability \eqref{eq:switchingprob} for different choices of $P$ an example of which is shown in Figure~\ref{fig:theSwitchingProb} along with additional analysis given in the supplementary material of~\cite{rainforth2016interacting}. These provide strong empirical evidence that the switching probability is maximised for $P=M/2$.
+There exist theoretical and experimental results \citep{pitt2012some,berard2014lognormal,doucet2015efficient} that show that the distributions of the normalisation constants are well-approximated by their log-Normal limiting distributions. With $\sigma^2$ ($\propto \frac{1}{N}$) being the variance of the (C)\smc estimate, we have $\log \left(Z^{-1} \hat Z_{c_j} \right) \sim \N(\frac{\sigma^2}{2},\sigma^2)$ and $\log \left(Z^{-1} \hat Z_{m} \right) \sim \N(-\frac{\sigma^2}{2},\sigma^2)$, $m\notin c_{1:P}$ at stationarity, where $Z$ is the true normalization constant. Under this assumption, we can accurately estimate the probability \eqref{eq:switchingprob} for different choices of $P$ an example of which is shown in Figure~\ref{fig:theSwitchingProb} along with additional analysis given in the supplementary material of~\cite{rainforth2016interacting}. These provide strong empirical evidence that the switching probability is maximised for $P=M/2$.
 
 \begin{figure}[t]
 	\centering
@@ -382,6 +385,7 @@ There exist theoretical and experimental results \citep{pitt2012some,berard2014l
 		\includegraphics[height=0.75\textwidth]{big_font_p_sweep}
 		\caption{Gaussian state space model\label{fig:Psweep}}
 	\end{subfigure}
+	\vspace{5pt}
 	\caption{a) Estimation of switching probability for different choices of P and M assuming the log-Normal limiting distribution for $\hat{Z}_m$ with $\sigma=3$. b) Median error in mean estimate for different choices of P and M over 10 different synthetic datasets of the linear Gaussian state space model given in~\eqref{eq:LGSS} after 1000 MCMC iterations. Here errors are normalized by the error of a multi-start PG sampler which is a special case of iPMCMC for which $P=M$ (see Section \ref{sec:experiments}).
 	}
 \end{figure}
@@ -394,4 +398,4 @@ There exist theoretical and experimental results \citep{pitt2012some,berard2014l
 
 In practice we also see that best results are achieved when $P$ makes up roughly half of the nodes, see Figure~\ref{fig:Psweep} for performance on the state space model introduced in~\eqref{eq:LGSS}. Note also that the accuracy seems to be fairly robust with respect to the choice of $P$. % At least for this model, three things are clear from this sweep - firstly the optimal choice for the ratio of P/M is roughly 1/2, secondly that the performance of iPMCMC is relatively robust to changes in P around this optimum and thirdly that as $M$ increases, to relatively more preferable iPMCMC is to the trivial distribution of PG given by $P=M$ (this reason this occurs is discussed in more detail in Section \ref{sec:discussion}). 
 %
-Based on these results, we set the value of $P=\frac{M}{2}$ for the rest of our experiments.
+Based on these results, we set the value of $P=M/2$ for the rest of our experiments.

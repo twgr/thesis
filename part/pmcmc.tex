@@ -8,7 +8,7 @@ sequential Monte Carlo (\smc) algorithms \citep{gordon1993novel,doucet2001sequen
 efficient proposals for an \mcmc sampler. This allows them to both utilize the ability of SMC to
 exploit the structure of the target problem and the hill climbing behavior of MCMC methods.
 The critical difference from running independent SMC sweeps is that information can be transferred
-from sweep to the next. 
+from one sweep to the next. 
 %The core reason for wanting to do this is that
 %one is typically memory restricted in the number of particles that can be run $N$.  Though as we explained
 %before, we can run multiple sweeps and combine these using the marginal likelihood estimates, if $N$ is
@@ -49,14 +49,14 @@ an \emph{extended space} whose marginal on the returned particles is the target.
 		\begin{algorithmic}[1]
 			\renewcommand{\algorithmicrequire}{\textbf{Inputs:}}
 			\renewcommand{\algorithmicensure}{\textbf{Outputs:}}				 
-			\Require SMC sampler, number of MCMC iterations R, initial output particle $\xb'[0]$ and marginal likelihood
+			\Require number of MCMC iterations R, initial output particle $\xb'[0]$ and marginal likelihood
 			$\mathbf{Z}'[0]$ (typically both generated from an \smc sweep)
 			\Ensure MCMC samples $\{\xb'[r]\}_{r=1}^R$ where each $\xb'[r] \in \mathbb{X}_T$
 %			\State Run SMC giving particle set $X_{1:T} = \{x_{1:T}^{i},\nw_T^{i}\}_{i=1}^N$ and marginal likelihood $\hat{Z}$
 %			\State Sample retained particle index $b$ using weights as per~\eqref{eq:part:b}
 %			\State Initialize output particle $\xb'[0] \leftarrow x_{1:T}^b$ and marginal likelihood $\mathbf{Z}'[0] \leftarrow \hat{Z}$
 			\For{$r=1:R$}
-			\State Run SMC giving candidate $X_{1:T} = \{x_{1:T}^{i},\nw_T^{i}\}_{i=1}^N$
+			\State Run Algorithm~\ref{alg:part:smc} (\smc) giving candidate $X_{1:T} = \{x_{1:T}^{i},\nw_T^{i}\}_{i=1}^N$
 				 and $\hat{Z}$
 			\If{$u\le \min \left(1,\hat{Z}/\mathbf{Z}'[r-1]\right)$ where $u\sim \textsc{Uniform}(0,1)$}
 			\State Sample output particle index $b$ in proportion to weights as per~\eqref{eq:part:b}
@@ -78,8 +78,8 @@ step that  utilizes the marginal likelihoods of the sweeps.
 To be more precise, let $\xib \eqdef \{x_{t}^i\}_{\substack{i=1:N\\t=1:T}} \bigcup \{a_{t}^i\}_{\substack{i=1:N\\t=1:T-1}}$
 denote all generated particles and ancestor variables of a \smc sampler, and let the associated
 marginal likelihood estimate be denoted as $\hat{Z}$ which is calculated as per~\eqref{eq:part:ML}.
-Let $\xb^i = x_{1:T,m}^i$ denote one of the final particles and let the index of the final
-particle we sample be denote as $b$ we is sampled according to
+Let $\xb^i = x_{1:T}^i$ denote one of the final particles and let the index of the final
+particle we sample be denote as $b$ which is sampled according to
 \begin{align}
 \label{eq:part:b}
 b \sim \Discrete\left(\left\{\nw_{T}^\ell\right\}_{\ell=1}^N\right).
@@ -98,14 +98,14 @@ is accepted with probability
 P(\text{Accept}) = \min \left(1,\frac{\hat{Z}}{\mathbf{Z}'[r-1]}\right)
 \end{align}
 forming a MH sampler.
-Given our MCMC samples, the resulting Monte Carlo estimator is defined in normal way as
+Given our MCMC samples, the resulting Monte Carlo estimator is defined in the normal way as
 \begin{align}
 \label{eq:part:pimh-est}
-\E_{\pi (x_{1:T})} \left[f(x_{1:T})\right] \approx \frac{1}{R} \sum_{r=1}^{R} f(\xb'[r])
+\E_{\pi (x_{1:T})} \left[f(x_{1:T})\right] \approx \frac{1}{R} \sum_{r=1}^{R} f(\xb'[r]).
 \end{align}
 Because our proposal
 is independent of our current point, this is strictly worse than just running independent SMC sweeps
-(which can also be thought of as applying waste recycling to PIMH ~\citep{frenkel2006waste}).  
+(which can also be thought of as applying waste recycling~\citep{frenkel2006waste} to PIMH).  
 It might seem particularly wasteful to only use
 one particle from each sweep, but we will be able to use Rao-Blackwellization to justify
 returning all the particles at each step as we explain in Section~\ref{sec:part:pmcmc:all}. 
@@ -115,48 +115,48 @@ returning all the particles at each step as we explain in Section~\ref{sec:part:
 %now be straightforward to construct a valid sampler on this distribution by constructing an independent
 %MH proposal and accept/reject the particle sets in the standard way.
 The key component of proving the correctness of the PIMH algorithm is in showing that it is a valid
-MH sampler on an \emph{extended target distribution} whose marginal distribution on $\xb^b$ is the distribution of interest $\pi(\xb^b)$.
+MH sampler on an \emph{extended target distribution} whose marginal distribution on $\xb^b$ is the distribution of interest $\pi(\xb)$.
 %The two key components of proving
 %the correctness of the PIMH algorithm are in showing that running and SMC sweep then sampling
 %one of the samples produced an extended target distribution whose normalized marginal distribution is
 %the posterior of interest $\pi(x_{1:T}|y_{1:T})$ and that our MH algorithm remains valid when
 %provided with an \emph{unbiased estimate} of the target distribution rather than an exact calculation.
-The density of the distribution induced by running a SMC sweep is given by
+The density of the distribution induced by running an SMC sweep is given by
 \begin{align}
 \label{eq:part:smc:proposal}
 q_{\text{SMC}}(\xib) &= \prod_{i=1}^N q_1(x_{1}^i) \cdot \prod_{t=2}^T \prod_{i=1}^N \left[ 
 \nw_{t-1}^{a_{t-1}^i}
 %\frac{w_{t-1}^{a_{t-1}^i}}{\sum_\ell w_{t-1}^{\ell}}
-q_t(x_{t}^i|x_{1:t-1}^{a_{t-1}^i}) \right]
+q_t(x_{t}^i|x_{1:t-1}^{a_{t-1}^i}) \right]  \quad \text{where} \quad \bar{w}_t^i = \frac{{w}_t^i}{\sum_{\ell=1}^{N}w_t^{\ell}}
 \end{align}
 and the distribution induced by running an SMC sweep and then choosing particle $b$
 \begin{align}
-q_{\text{PIMH}}(\xib,b) = \bar{w}_T^b q_{\text{SMC}}(\xib) \quad \text{where} \quad \bar{w}_t^i = \frac{{w}_t^i}{\sum_{\ell=1}^{N}w_t^{\ell}}.
+q_{\text{PIMH}}(\xib,b) = \bar{w}_T^b q_{\text{SMC}}(\xib)
 \end{align}
 Our extended target distribution is now constructed using the following hypothetical process
 \begin{enumerate}
 	\setlength\itemsep{-0.1em}
-	\item Sample a particle exactly from the target $\xb^b \sim \pi(\xb^b)$,
-	\item Sample an ancestral path for the retained particle uniformly at random by independently sampling each $\beta_t \sim \textsc{UniformDiscrete}(1,N)$ and setting $\bb = (\beta_1,\dots,\beta_T)$,
-	\item Sample all of the other particles and ancestor indices conditioned on $\{\xb^{b},\bb\}$ using \begin{align}
+	\item Sample a particle exactly from the target $\xb^b \sim \pi(\xb)$.
+	\item Sample an ancestral path for the retained particle uniformly at random by independently sampling each $\beta_t \sim \textsc{UniformDiscrete}(1,N)$ and setting $\bb = (\beta_1,\dots,\beta_T)$.
+	\item Sample all of the other particles and ancestor indices conditioned on $\{\xb^{b},\bb\}$ using
+		\begin{align}
 	\label{eq:part:csmc}
 	q_{\text{CSMC}}\left(\xib \backslash \{\xb^b, \bb\} \mid \xb^b, \bb \right) = 
-	\prod_{\substack{i=1\\i\neq b_{1}}}^N  q_1(x_{1}^i) \cdot \prod_{t=2}^T \prod_{\substack{i=1\\i\neq b_{t}}}^N \left[
+	\prod_{i=1, i\neq\beta_1}^N  q_1(x_{1}^i) \cdot \prod_{t=2}^T \prod_{\substack{i=1\\i\neq b_{t}}}^N \left[
 	\nw_{t-1}^{a_{t-1}^i}q_t(x_{t}^i|x_{1:t-1}^{a_{t-1}^i})\right],
 	\end{align}
 	which corresponds to $q_{\text{SMC}}(\xib)$ as per~\eqref{eq:part:smc:proposal},
-	except for having one particle and path, $\{\xb^{b},\bb\}$, predefined.
+	except for having one particle and path, $\{\xb^{b},\bb\}$, predefined, such that we can think
+	of the sweep as being \emph{conditioned} on $\{\xb^{b},\bb\}$.
 \end{enumerate}
 We can informally think of this as doing the PIMH process in reverse.  Rather than
-running an SMC sweep and sampling one of the produced particles to produce $\{\xb^{b},\bb\}$, it
-first samples the $\{\xb^{b},\bb\}$ and then the rest of the variables in the SMC sweep conditioned
+running an SMC sweep and sampling one of the produced particles to give $\{\xb^{b},\bb\}$, it
+first samples $\{\xb^{b},\bb\}$ and then the rest of the variables in the SMC sweep conditioned
 on this particle and accompanying ancestral path.
 Together these steps induce the distribution
 \begin{align}
 \label{eq:part:pimh-target}
-\tilde{\pi}(\xi,b) = \frac{\pi(\xb^{b})}{N^T} \prod_{i=1, i\neq\beta_1}^N q_1(x_{1}^i) \cdot \prod_{t=2}^T \prod_{i=1, i\neq\beta_t}^N \left[ 
-\nw_{t-1}^{a_{t-1}^i}
-q_t(x_{t}^i|x_{1:t-1}^{a_{t-1}^i}) \right]
+\tilde{\pi}(\xi,b) = \frac{\pi(\xb^{b})}{N^T} \; q_{\text{CSMC}}\left(\xib \backslash \{\xb^b, \bb\} \mid \xb^b, \bb \right)
 \end{align}
 remembering that as $\xi$ includes all the particles and ancestral paths, sampling $\xi$
 and $b$ implies a particular $\{\xb^{b},\bb\}$.
@@ -171,18 +171,17 @@ We can now show that this is exactly what the
 PIMH algorithm does by explicitly calculating the importance weight implied by
 targeting $\tilde{\pi}(\xi,b)$ using the proposal $q_{\text{PIMH}}(\xib,b)$
 \begin{align}
-\frac{\tilde{\pi}(\xi,b)}{q_{\text{PIMH}}(\xib,b)} &= \frac{\pi(\xb^{b}) q_{\text{CSMC}}\left(\xib \backslash \{\xb^b, \bb\} \mid \xb^b, \bb \right)}
-{N^T \bar{w}_T^b q_{\text{SMC}}(\xib)} \\
-&= \frac{\pi(\xb^{b})}{N^T \bar{w}_T^b q_1(x_1^{\beta_1}) \prod_{t=2}^{T} \bar{w}_{t-1}^{\beta_{t-1}} q_t(x_t^{\beta_t} | x_{t-1}^{\beta_{t-1}})} \nonumber \\
-&= \left(\frac{\gamma(\xb^{b})/Z}{
+&\frac{\tilde{\pi}(\xi,b)}{q_{\text{PIMH}}(\xib,b)} = \frac{\pi(\xb^{b}) q_{\text{CSMC}}\left(\xib \backslash \{\xb^b, \bb\} \mid \xb^b, \bb \right)}
+{N^T \bar{w}_T^b q_{\text{SMC}}(\xib)} = \frac{\pi(\xb^{b})}{N^T \bar{w}_T^b q_1(x_1^{\beta_1}) \prod_{t=2}^{T} \bar{w}_{t-1}^{\beta_{t-1}} q_t(x_t^{\beta_t} | x_{t-1}^{\beta_{t-1}})} \nonumber \\
+&\quad = \left(\frac{\gamma(\xb^{b})/Z}{
 	q_1(x_1^{\beta_1}) \prod_{t=2}^{T} q_t(x_t^{\beta_t} | x_{t-1}^{\beta_{t-1}})}\right) \cdot
-	\left( \frac{1}{N^T \bar{w}_T^b\prod_{t=2}^{T} \bar{w}_{t-1}^{\beta_{t-1}}} \right) \nonumber \\
-&= \left(\frac{w_T^b}{Z}
-	 \prod_{t=2}^{T} w_{t-1}^{\beta_{t-1}}\right)\cdot\left(
-	\frac{1}{N^T \bar{w}_T^b \prod_{t=2}^{T} \bar{w}_{t-1}^{\beta_{t-1}}}\right) \nonumber \\
-&= \left(\frac{w_T^b}{Z}
-	\prod_{t=2}^{T} w_{t-1}^{\beta_{t-1}}\right)\cdot\left(
-	\frac{\prod_{t=1}^T \frac{1}{N} \sum_{\ell=1}^N w_{t}^{\ell}}{w_T^b \prod_{t=2}^{T} w_{t-1}^{\beta_{t-1}}}\right) 
+	\left( \frac{1}{N^T \bar{w}_T^b\prod_{t=2}^{T} \bar{w}_{t-1}^{\beta_{t-1}}} \right) 
+	= \left(\frac{1}{Z}
+	 \prod_{t=1}^{T} w_{t}^{\beta_{t}}\right)\cdot\left(
+	\frac{1}{N^T \prod_{t=1}^{T} \bar{w}_{t}^{\beta_{t}}}\right) \nonumber \\
+&\quad = \left(\frac{1}{Z}
+\prod_{t=1}^{T} w_{t}^{\beta_{t}}\right)\cdot\left(
+	\frac{\prod_{t=1}^T \frac{1}{N} \sum_{\ell=1}^N w_{t}^{\ell}}{\prod_{t=1}^{T} w_{t}^{\beta_{t}}}\right) 
 	= \frac{1}{Z} \prod_{t=1}^T \frac{1}{N} \sum_{\ell=1}^N w_{t}^{\ell}
 = \frac{\hat{Z}}{Z}. \label{eq:part:pimh-w}
 \end{align}
@@ -205,17 +204,20 @@ as we see that
 
 One particularly widely used \pmcmc algorithm is particle Gibbs (\pg). The \pg algorithm modifies the 
 \smc step in the \pmcmc algorithm to sample the latent variables conditioned on an existing particle
- trajectory, resulting in what is called a conditional sequential Monte Carlo (\csmc) step. The \pg method
+ trajectory, resulting in what is called a \emph{conditional sequential Monte Carlo} (\csmc) step. The \pg method
   was first introduced as an efficient Gibbs sampler for latent variable models with static parameters 
   \citep{andrieuDH2010}. Since then, the \pg algorithm and the extension by \citet{lindstenJS2014} have 
   found numerous applications in \eg Bayesian non-parametrics \citep{ValeraFSPC2015,tripuraneni2015}, 
   probabilistic programming \citep{wood2014new,vandemeent_aistats_2015} and graphical models 
-  \citep{everitt2012,naessethLS2014,naessethLS2015nested}.  
+  \citep{everitt2012,naessethLS2014,naessethLS2015nested}.  Whereas PIMH used independent proposals, 
+  \pg transfers information from one MCMC iteration to the next by using \emph{retained particles}.  It, therefore,
+  introduces, typically desirable, hill-climbing behavior, often resulting in improved performance
+  compared with running independent SMC sweeps, particularly for the latter states in the state sequence.
 
 The \pg algorithm targets the same extended target $\tilde{\pi}(\xib,b)$ as the PIMH algorithm defined
 in~\eqref{eq:part:pimh-target}, but rather than constructing a MH sampler with independent proposals for
 this target, it constructs a Gibbs sampler.  This is done by iteratively 
-running \emph{conditional} sequential Monte Carlo (\csmc) sweeps. As described in Algorithm~\ref{alg:csmc},
+running \csmc sweeps. As described in Algorithm~\ref{alg:csmc},
 a \csmc sweep is similar to a standard, unconditional \smc sweep, except that it starts
 with an existing \emph{conditional trajectory} $x_{1:T}'$, known as a \emph{retained particle} in the \pg
 context, and runs the sweep conditioned on this conditional trajectory being present in the final sample
@@ -225,7 +227,7 @@ ancestor but not vice versa, with the values and ancestral path of the retained 
 Note that running Algorithm~\ref{alg:csmc} corresponds to using a fixed
 choice for the index variables $\bb = (N\,\ldots,N)$. While these indices are used to facilitate the
 proof of validity of the proposed method, they have no practical relevance (all path are marginally equivalent
-by symmetry) and can thus be set to arbitrary
+by symmetry), and can thus be set to arbitrary
 values, as is done in Algorithm~\ref{alg:csmc}, in a practical implementation.
 \begin{algorithm}[tb]
 	\caption{Conditional sequential Monte Carlo}
@@ -255,7 +257,7 @@ particle in the same manner ancestor indices are sampled and running \csmc sweep
 retained particle.  This is know as iterated \csmc (ICSMC) and, considerations about global parameters 
 aside (see Section~\ref{sec:part:pmcmc:global}),  constitutes the \pg algorithm.
 Note that the resampling step must always be done for \csmc sweeps (i.e. the techniques introduced in
-Section~\ref{sec:part:smc:prat:ad-re} cannot be used), as unlike in an \smc sweep, the resampling for
+Section~\ref{sec:part:smc:prat:ad-re} cannot be used), as, unlike in an \smc sweep, the resampling for
 a \csmc sweep does not maintain the target distribution.  Another
 important difference is that, unlike \smc, a \csmc sweep does not provide an unbiased estimate for the
 marginal likelihood (expect in the limit $N\rightarrow\infty$).
@@ -267,9 +269,9 @@ words, we alternate between sampling
 \begin{subequations}
 	\label{eq:part:pg-updates}
 	\begin{align}
-	b &\sim \tilde{\pi}(b | \xib) = \frac{\tilde{\pi}(\xi,b)}{\int \tilde{\pi}(\xi,b) d\xi} \label{eq:part:pg-updates1}\\
+	b &\sim \tilde{\pi}(b | \xib) = \frac{\tilde{\pi}(\xi,b)}{\int \tilde{\pi}(\xi,b) db} \label{eq:part:pg-updates1}\\
 	\xib \backslash \{\xb^b,\bb\} & \sim \tilde{\pi}(\xib \backslash \{\xb^b,\bb\}  | \xb^b,\bb) =
-	\frac{\tilde{\pi}(\xi,b)}{\iint \tilde{\pi}(\xi,b) d\xb^b d\bb}. \label{eq:part:pg-updates2}
+	\frac{\tilde{\pi}(\xi,b)}{\iint \tilde{\pi}(\xi,b) d\xib \backslash \{\xb^b,\bb\}}. \label{eq:part:pg-updates2}
 		\end{align}
 \end{subequations} 
 The key step to seeing that the \pg
@@ -279,17 +281,22 @@ then $\tilde{\pi}(\xib \backslash \{\xb^b,\bb\}  | \xb^b,\bb) = q_{\text{CSMC}}(
 and so each \csmc sweep samples exactly from~\eqref{eq:part:pg-updates2}.  To complete the derivation
 we need to show that $\tilde{\pi}(b | \xib) = \bar{w}_T^b$ so that choosing the retained particle corresponds
 exactly to sampling from~\eqref{eq:part:pg-updates1}.    This can be done by noting that
-\begin{align}
-\int \tilde{\pi}(\xi,b) d\xi = \int q_{\text{PIMH}}(\xib,b) \frac{\hat{Z}}{Z} d\xi
-= p(b|\xi)\int q_{\text{SMC}}(\xib) \frac{\hat{Z}}{Z} d\xi
-= \bar{w}_T^b \int q_{\text{SMC}}(\xib) \frac{\hat{Z}}{Z} d\xi = \bar{w}_T^b
-\end{align}
+\begin{align*}
+\int \tilde{\pi}(\xi,b) db = \int q_{\text{PIMH}}(\xib,b) \frac{\hat{Z}}{Z} db
+= \int \bar{w}_T^b q_{\text{SMC}}(\xib) \frac{\hat{Z}}{Z} db
+= q_{\text{SMC}}(\xib) \frac{\hat{Z}}{Z} \int \bar{w}_T^b  db = q_{\text{SMC}}(\xib) \frac{\hat{Z}}{Z}
+\end{align*}
+and therefore
+\begin{align*}
+\tilde{\pi}(b | \xib) = \frac{\tilde{\pi}(\xi,b)}{q_{\text{SMC}}(\xib) \frac{\hat{Z}}{Z}} 
+= \frac{q_{\text{PIMH}}(\xib,b) \frac{\hat{Z}}{Z}}{q_{\text{SMC}}(\xib) \frac{\hat{Z}}{Z}} = \bar{w}_T^b
+\end{align*}
 as required.  We thus have that both~\eqref{eq:part:pg-updates1} and ~\eqref{eq:part:pg-updates2} are valid
 Gibbs updates on our extended target $\tilde{\pi}(\xi,b)$.  Now applying each 
 of~\eqref{eq:part:pg-updates1} and~\eqref{eq:part:pg-updates2} once can change all of the variables in
 our target as it can change the retained particle, the index $b$, and all the other particles.\footnote{Note
 	also that applying the update cycle twice can potentially completely remove the retained particle from the
-	system and we need not worry about the possibility of the retained particle simply being ``passed around''.}
+	system and so we need not worry about the possibility of the retained particle simply being ``passed around''.}
 Therefore the combination of the two updates forms a valid Gibbs sampler for the target $\tilde{\pi}(\xi,b)$.
 Because $\tilde{\pi}(\xi,b)$ has a marginal distribution on the returned samples $\pi (\xb^b)$ which is equal to
 the desired target, we have thus proven that using the \pg algorithm and calculating estimates in the manner 
@@ -306,10 +313,11 @@ in the final particle set $\{x_{1:T}^i,\nw_{T}^i\}_{i=1}^T$ and therefore there 
 for the earlier steps by the end of the sweep.  It is not uncommon for the ancestral paths to collapse back to a single sample for
 small $t$, an example of which is demonstrated in the bottom right of Figure~\ref{fig:part:smc_explan}
 where there is a collapse to a single trajectory for $t\le6$.
-Degeneracy can be especially detrimental when observations late in the sequences have noticeable
-effect on the early later variables, as it means that these early latent variables are already effectively
-fixed before the information from these observations is incorporated.   This is why observations should
-be made as early as possible in the state sequence when taking a particle-based inference approach.
+Degeneracy can be especially detrimental when the posterior on the early latent variables is significantly
+affected by later observations, e.g. when some of the early latent variables correspond to global parameters,
+as this creates a significant mismatch between the intermediate targets.  Consequently, observations should
+be made as early as possible in the state sequence when taking a particle-based inference approach, e.g.
+placing \observe statements as early as possible in probabilistic programming query.
 
 For methods that run independent \smc sweeps such as \smc itself and PIMH, the detrimental impact
 of path degeneracy is generally seen through high variance of the marginal likelihood estimates,  resulting
@@ -320,8 +328,16 @@ to this trajectory.  For a \pg sampler, any common ancestor is, by construction,
 to the retained particle, such that the early part of the trajectory in the retained particle cannot
 change from one iteration to the next if the particle set has coalesced to a single ancestor.
 This results in high correlation between the samples, and poor mixing of the Markov chain.
-In Section~\ref{sec:part:ipmcmc} we introduce the interacting PMCMC algorithm~\citep{rainforth2016interacting}
-which forms one method for trying to overcome this problem.
+Approaches for alleviating this degeneracy include resample-move methods~\citep{chopin2013smc2},
+which rejuvenate the particle set by interleaving resampling with MCMC updates for the \emph{full} trace,
+and, for the particular case of \pg, ancestor sampling \citep{lindstenJS2014} methods, 
+which sample new ancestors for the retained particle as the 
+\csmc sweep is run.  Though highly effective, for many models these methods cause a quadratic increase
+in the computational cost with the length of the state space, meaning that they are often prohibitively expensive
+in practice.  In Section~\ref{sec:part:ipmcmc} we introduce an alternative, and often complementary, 
+means of overcoming degeneracy
+problems in the form of the interacting PMCMC algorithm~\citep{rainforth2016interacting}.
+
 
 \subsection{Global Parameters}
 \label{sec:part:pmcmc:global}
@@ -364,26 +380,22 @@ Using only one of these as in \eqref{eq:part:pimh-est} might seem a bit wasteful
 We can however make use of all particles to estimate expectations of interest for all
 of the PMCMC methods introduced so far by analytically averaging over the possible
 values of $b$ that could be sampled at each iteration. 
-We can do this by replacing $f(\xb'[r])$ in \eqref{eq:part:pimh-est}  by
+We can do this noting that $\E\left[\frac{1}{R} \sum_{r=1}^{R} f(\xb'[r]) \right]
+= \frac{1}{R} \sum_{r=1}^{R} \E\left[\E\left[ f(\xb'[r]) \middle| \xib\right]\right]$,
+and then replacing $f(\xb'[r])$ in \eqref{eq:part:pimh-est}  by the analytically calculable
 \begin{align}
 \label{eq:part:rao-pg}
-\E\left[f(\xb'[r]) \middle| \xib \right] 
+\E\left[f(\xb'[r]) \middle| \xib \right] = \E\left[f(x_{1:T}^b) \middle| \xib \right]
 = \sum_{i=1}^N \nw_{T,m}^i f(\xb_{m}^i),
 \end{align}
-where the expectation is over the sampling of $b$.
-This procedure is known as \emph{Rao-Blackwellization} of a statistical estimator and is (in terms of variance) 
-never detrimental.  At a high level, we are taking an analytic expectation over part of
-the randomness of the system (namely the sampling of $b$) to reduce the variance.  We can 
-show the validity of this by noting that
-\begin{align}
-\E\left[f(\xb'[r]) \middle| \xib \right] = 
-\E\left[f(x_{1:T}^b) \middle| \xib \right]
-= \sum_{i=1}^N \nw_{T,m}^i f(\xb_{m}^i)
-\end{align}
-where the second equality follows from the definition of the expectation of a discrete distribution,
+where the expectation is over the sampling of $b$ and  the second equality follows 
+from the definition of the expectation of a discrete distribution,
 remembering $b \sim \Discrete\left(\left\{\nw_{T}^i\right\}_{i=1}^N\right)$.
-When also doing parameter updates, we can think of the samples being returned immediately after
-sampling $b$ and so that we can still Rao-Blackwellize in the same manner.
+This procedure is known as \emph{Rao-Blackwellization} of a statistical estimator and is (in terms of variance) 
+never detrimental~\citep{casella1996rao}.  At a high level, we are taking an analytic expectation over part of
+the randomness of the system, namely the sampling of $b$.
+%When also doing global parameter updates, we can think of the samples being returned immediately after
+%sampling $b$ and so that we can still Rao-Blackwellize in the same manner.
 
 %In the same way as above for the standard \smc algorithm we can define a joint probability distribution induced by running Algorithm~\ref{alg:csmc} %$q_{\text{CSMC}}(\xb^{1:N},\ab^{1:N}\backslash\{\xb^N,\bb^N\} | \xb^N,\bb^N)$, induced by running Algorithm~\ref{alg:csmc}, where $\xb^N, \bb^N$ is the retained (conditioning) particle. 
 %\begin{align}

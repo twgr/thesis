@@ -66,7 +66,7 @@ $\theta_1$ must converge to this distribution.
 The former of these will be satisfied if 
 \begin{align}
 \label{eq:inf:stationary}
-\pi(\theta') = \int_{\theta} T(\theta' \leftarrow \theta) \pi(\theta)d\theta
+\pi(\theta') = \int T(\theta' \leftarrow \theta) \pi(\theta)d\theta
 \end{align}
 where we see that the target distribution is \emph{invariant} under the application of the transition kernel.
 Thus if $p(\theta_n)=\pi(\theta)$ for some $n$, all subsequent points will have the desired distribution.
@@ -99,9 +99,9 @@ For a target $\pi(\theta)$ then detailed balanced is defined as
 It is straightforward to see that Markov chains satisfying detailed balance will admit $\pi(\theta)$
 as a stationary distribution by noting that
 \begin{align}
-\pi(\theta') &= \int_{\theta} T(\theta' \leftarrow \theta) \pi(\theta)d\theta = \pi(\theta') = 
-\int_{\theta} T(\theta \leftarrow \theta') \pi(\theta')d\theta = \pi(\theta') \\
-&= \int_{\theta} p(\theta|\theta') \pi(\theta')d\theta = \pi(\theta') \int_{\theta} p(\theta|\theta') d\theta = \pi(\theta')
+\pi(\theta') &= \int T(\theta' \leftarrow \theta) \pi(\theta)d\theta = \pi(\theta') = 
+\int T(\theta \leftarrow \theta') \pi(\theta')d\theta = \pi(\theta') \\
+&= \int p(\theta|\theta') \pi(\theta')d\theta = \pi(\theta') \int p(\theta|\theta') d\theta = \pi(\theta')
 \end{align}
 as required.  Thus any ergodic Markov chain we construct that satisfies~\eqref{eq:inf:det-bal}
 will converge to the target distribution.  From an inference perspective, this means that

@@ -156,7 +156,9 @@ function, giving behavior synonymous to the original
 Another special case of particular note is \clj{loop}-\clj{recur} blocks.  These can be CPS
 transformed by explicitly redefining them as a self-recursive function which can then
 be transformed in the normal way.  For example,
-\clj{(loop [x 10] (if (> x 1) (recur (- x 2)) x))}
+\begin{lstlisting}[basicstyle=\ttfamily\small,frame=none]
+(loop [x 10] (if (> x 1) (recur (- x 2)) x))
+ \end{lstlisting}\vspace{-8pt}
 becomes
 \begin{lstlisting}[basicstyle=\ttfamily\small,frame=none]
  (fn [$\mP$] ((fn foo [x] (if (> x 1) (foo (- x 2)) ($\mP$ x))) 10))
