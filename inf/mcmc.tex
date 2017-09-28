@@ -3,14 +3,12 @@
 \subsection{Markov Chain Monte Carlo}
 \label{sec:inf:foundation:mcmc}
 
-\todo[inline]{This section needs quite a bit of cleaning such as transitioning the notation}
-
 Markov chain Monte Carlo (MCMC) methods \cite{metropolis1953equation,hastings1970monte,gilks1995markov} 
 form one of the key approaches to circumventing the curse of dimensionality
 and are perhaps the most widely used class of algorithms for Bayesian inference, though they
 are also used extensively outside the Bayesian inference setting.  The key idea is to construct
 a valid Markov chain that has the target distribution as its equilibrium distribution.  They are suitable
-for Bayesian inference because this can typically done when the target distribution is only known
+for Bayesian inference because this can still be done when the target distribution is only known
 up to a normalization constant.  
 
 The reason that they are often able to overcome, or at least alleviate,
@@ -18,60 +16,60 @@ the curse of dimensionality is that rather then trying to independently sample f
 at each iteration, they instead make \emph{local} moves from their current position.  As with
 rejection sampling and importance sampling, they use a proposal distribution, but unlike these
 alternatives, the proposal is defined conditionally on the current location, namely they propose
-according to $x' \sim q(x' | x)$ where $x$ is the current state and $x'$ is the new
+according to $\theta' \sim q(\theta' | \theta)$ where $\theta$ is the current state and $\theta'$ is the new
 state to sample.  The underlying intuition behind this is that in high dimensions the proportion of the
 space with significant probability mass is typically very small.  Therefore, if the target is single modal (or
 we have a proposal that is carefully designed to jump between modes), then once we have a sample
 in the mode, all the other points with significant mass should be close to that point.  Therefore we can
 explore the mode by restricting ourselves to local moves, overcoming the curse of dimensionality by
-predominantly ignoring the majority of the space as this has insignificant probability mass.  As the
+predominantly ignoring the majority of the space which has insignificant probability mass.  As the
 dimensionality increases, the proportion of the space with significant mass decreases, counteracting
 many of the other complications that arise from the increasing dimension.  When away from a mode,
-they often behave like hill-climbing algorithms, emphasizing their close links with simulated annealing~\citep{aarts1988simulated}
-methods for optimization.  Therefore they can be highly effective for both finding the mode
+MCMC methods often behave like hill-climbing algorithms, emphasizing their close links with simulated annealing~\citep{aarts1988simulated}
+methods for optimization.  Therefore, they can be highly effective for both finding the mode
 of a posterior and then sticking to that mode.
 
 \subsubsection{Markov Chains}
 \label{sec:inf:foundation:mcmc:markov}
 
 We first introduced the concept of the \emph{Markov property} in Section~\ref{sec:bayes:paradigm:graph}
-in the concept of a hidden Markov model, where we explained how in Markovian system
+in the concept of a hidden Markov model, where we explained how in a Markovian system each state
 is independent of all the previous states given the last state, i.e. 
 \begin{align}
 \label{eq:inf:markov-prop}
-p(X_n = x | X_1 = x_1, \dots, X_{n-1} = x_{n-1}) = p(X_n = x_n  | X_{n-1} = x_{n-1}).
+p(\Theta_n = \theta_n | \Theta_1 = \theta_1, \dots, \Theta_{n-1} = \theta_{n-1}) = p(\Theta_n = \theta_n  | \Theta_{n-1} = \theta_{n-1}).
 \end{align}
-In other words, it transitions from
-one state to the next based only on the current state.  Here the series $X_1,\dots,X_n,\dots$ 
+In other words, the system transitions based only on its current state.  Here the series $\Theta_1,\dots,\Theta_n,\dots$ 
 is known as a Markov chain.  We see that a probability of a Markov chain is fully defined
-by the probability of its initial state $p(X_1 = x_1)$ and the probability of its transitions
-$p(X_n = x_n  | X_{n-1} = x_{n-1})$.  If each transition has the same distribution, i.e.
+by the probability of its initial state $p(\Theta_1 = \theta_1)$ and the probability of its transitions
+$p(\Theta_n = \theta_n  | \Theta_{n-1} = \theta_{n-1})$.  If each transition has the same distribution, i.e.
 \begin{align}
 \label{eq:inf:homo}
-p(X_{n+1} = x_{n+1}  | X_{n} = x_{n}) = p(X_{n} = x_{n+1}  | X_{n-1} = x_{n}),
+p(\Theta_{n+1} = \theta'  | \Theta_{n} = \theta) = p(\Theta_{n} = \theta' | \Theta_{n-1} = \theta),
 \end{align}
 then the Markov chain is known as homogeneous.  Most MCMC methods are based on
 homogeneous Markov chains (the exception being adaptive MCMC methods, see Section~\ref{sec:inf:proposal-adapt})
-and so we will assume that~\eqref{eq:inf:homo} hold from now on.  In such situations,
-$p(X_{n+1} = x_{n+1}  | X_{n} = x_{n})$ is typically known as a \emph{transition kernel}
-$T(x_{n+1} \leftarrow x_n)$.
+and so we will assume that~\eqref{eq:inf:homo} holds from now on.  In such situations,
+$p(\Theta_{n+1} = \theta_{n+1}  | \Theta_{n} = \theta_{n})$ is typically known as a \emph{transition kernel}
+$T(\theta_{n+1} \leftarrow \theta_n)$.
 
-The marginal probability density of any particular point in a homogenous Markov chain is given by
-\begin{align}
-p(x_n) = \int_{x_1,\dots,x_{n-1}} p(x_1) \prod_{i=2}^{n} T(x_{i-1} \leftarrow x_{i}) dx_1\dots dx_{n-1}.
-\end{align}
- For a Markov chain to converge to a target distribution $\pi (x)$, we will need that
-$\lim\limits_{n\rightarrow\infty} p(X_n=x) = \pi(x)$ for any possible starting position $x_1$, i.e.
+ For a Markov chain to converge to a target distribution $\pi (\theta)$, we will need that
+$\lim\limits_{n\rightarrow\infty} p(\Theta_n=\theta) = \pi(\theta)$ for any possible starting position $\theta_1$, i.e.
 that the chain converges in distribution to the target for all possible starting positions.   For this
-to happen we need two things -- $\pi(x)$ must be a \emph{stationary distribution} of the Markov
-chain, such that if $p(X_n=x) = \pi(x)$ then $p(X_{n+1}=x) = \pi(x)$, and all possible starting points
-$x_1$ must converge to this distribution.  The former of these will be satisfied if 
+to happen we need two things: $\pi(\theta)$ must be a \emph{stationary distribution} of the Markov
+chain, such that if $p(\Theta_n=\theta) = \pi(\theta)$ then $p(\Theta_{n+1}=\theta) = \pi(\theta)$, and all possible starting points
+$\theta_1$ must converge to this distribution.  
+%Noting that the marginal probability density of any particular point in a homogenous Markov chain is given by
+%\begin{align}
+%p(\theta_n) = \int_{\theta_1,\dots,\theta_{n-1}} p(\theta_1) \prod_{i=2}^{n} T(\theta_{i-1} \leftarrow \theta_{i}) d\theta_1\dots d\theta_{n-1},
+%\end{align}
+The former of these will be satisfied if 
 \begin{align}
 \label{eq:inf:stationary}
-\pi(x') = \int_{x} T(x' \leftarrow x) \pi(x)dx
+\pi(\theta') = \int_{\theta} T(\theta' \leftarrow \theta) \pi(\theta)d\theta
 \end{align}
 where we see that the target distribution is \emph{invariant} under the application of the transition kernel.
-Thus if $p(x_n)=\pi(x)$ for some $n$, all subsequent points will have the desired distribution.
+Thus if $p(\theta_n)=\pi(\theta)$ for some $n$, all subsequent points will have the desired distribution.
 The requirement that all starting points converge to the desired target distribution is known
 as \emph{ergodicity} which guarantees both the uniqueness of the stationary distribution
 and that all points converge to this distribution.  Ergodicity requires that the Markov chain is
@@ -88,64 +86,64 @@ A common sufficient (but not necessary) condition used for constructing valid Ma
 is to ensure that the chain satisfies the condition of \emph{detailed balance}.  Chains that
 satisfy detailed balance are known as 
 \emph{reversible}.\footnote{An interesting area of current research is in the study
-	of non-reversible MCMC algorithms~\cite{bouchard2015bouncy,bierkens2016zig}.  These can
+	of non-reversible MCMC algorithms~\citep{bouchard2015bouncy,bierkens2016zig}.  These can
 	be beneficial because traditional reversible processes are only able to move by drifting over time -- generally
 	at least half of the proposed samples (and generally much more) will be in a direction at odds to
 	this drift.  By forcing multiple steps in a particular direction before changing the direction can thus
 	help  the chain to mix faster.}
-For a target $\pi(x)$ then detailed balanced is defined as
+For a target $\pi(\theta)$ then detailed balanced is defined as
 \begin{align}
 \label{eq:inf:det-bal}
-\pi(x) T(x' \leftarrow x) = \pi(x') T(x \leftarrow x').
+\pi(\theta) T(\theta' \leftarrow \theta) = \pi(\theta') T(\theta \leftarrow \theta').
 \end{align}
-It is straightforward to see that Markov chains satisfying detailed balance will admit $\pi(x)$
+It is straightforward to see that Markov chains satisfying detailed balance will admit $\pi(\theta)$
 as a stationary distribution by noting that
 \begin{align}
-\pi(x') &= \int_{x} T(x' \leftarrow x) \pi(x)dx = \pi(x') = \int_{x} T(x \leftarrow x') \pi(x')dx = \pi(x') \\
-&= \int_{x} p(x|x') \pi(x')dx = \pi(x') \int_{x} p(x|x') dx = \pi(x')
+\pi(\theta') &= \int_{\theta} T(\theta' \leftarrow \theta) \pi(\theta)d\theta = \pi(\theta') = 
+\int_{\theta} T(\theta \leftarrow \theta') \pi(\theta')d\theta = \pi(\theta') \\
+&= \int_{\theta} p(\theta|\theta') \pi(\theta')d\theta = \pi(\theta') \int_{\theta} p(\theta|\theta') d\theta = \pi(\theta')
 \end{align}
-as required.  Thus any Markov chain we construct that satisfies~\eqref{eq:inf:det-bal}
+as required.  Thus any ergodic Markov chain we construct that satisfies~\eqref{eq:inf:det-bal}
 will converge to the target distribution.  From an inference perspective, this means that
 we can eventually generate samples according to our desired target by choosing an 
-arbitrary start point $X_1$ and then repeated sampling from our transition kernel $T(X_n \leftarrow X_{n-1})$.
+arbitrary start point $\Theta_1$ and then repeatedly sampling from our transition kernel $T(\Theta_n \leftarrow \Theta_{n-1})$.
 
 \subsubsection{Metropolis Hastings}
 \label{sec:inf:foundation:mcmc:mh}
 
 One of the simplest and most widely used MCMC methods is Metropolis Hastings (MH)~\cite{hastings1970monte}.
-Given an unnormalized target $\gamma(x)$, the MH algorithm then at each iteration one samples 
-a new point $x'$ according to the a proposal $x' \sim q(x' | x_n)$ conditioned on the current point $x_n$ 
+Given an unnormalized target $\gamma(\theta)$, then at each iteration of the MH algorithm, one samples 
+a new point $\theta'$ according to the a proposal $\theta' \sim q(\theta' | \theta_n)$ conditioned on the current point $\theta_n$ 
 and then accepts the new sample with probability
 \begin{align}
 \label{eq:inf:accept-prob}
-P(\text{Accept}) = \min \left(1, \frac{\gamma(x') q(x_n | x')}{\gamma(x_n) q(x' | x_n)}\right).
+P(\text{Accept}) = \min \left(1, \frac{\gamma(\theta') q(\theta_n | \theta')}{\gamma(\theta_n) q(\theta' | \theta_n)}\right).
 \end{align}
-At iteration $n$ then we set $x_{n+1} \leftarrow x'$ if the sample is accepted and otherwise
-set $x_{n+1} \leftarrow x_{n}$.  Critically this process does not require access to the normalized
-target $\pi(x)$.  It is trivial to show that~\eqref{eq:inf:accept-prob} satisfies detailed
+At iteration $n$ then we set $\theta_{n+1} \leftarrow \theta'$ if the sample is accepted and otherwise
+set $\theta_{n+1} \leftarrow \theta_{n}$.  Critically this process does not require access to the normalized
+target $\pi(\theta)$.  It is trivial to show that~\eqref{eq:inf:accept-prob} satisfies detailed
 balance and therefore produces a valid Markov chain as follows
 \begin{align*}
-\pi(x_n) T(x_{n+1} \leftarrow x_n) &= \min \left(1, \frac{\gamma(x_{n+1}) q(x_n | x_{n+1})}{\gamma(x_n) q(x_{n+1} | x_n)}\right)
-\pi(x_n) q(x_{n+1} | x_n) \\
-&= \min \left(\gamma(x_n) q(x_{n+1} | x_n),\gamma(x_{n+1}) q(x_n | x_{n+1})\right) / Z \\
-&= \min \left(\frac{\gamma(x_n) q(x_{n+1} | x_n)}{\gamma(x') q(x_n | x_{n+1})},1\right) \pi(x_{n+1}) q(x_n | x_{n+1}) \\
-&=\pi(x_{n+1}) T(x_n \leftarrow x_{n+1}),
+\pi(\theta_n) T(\theta_{n+1} \leftarrow \theta_n) &= \min \left(1, \frac{\gamma(\theta_{n+1}) q(\theta_n | \theta_{n+1})}{\gamma(\theta_n) q(\theta_{n+1} | \theta_n)}\right)
+\pi(\theta_n) q(\theta_{n+1} | \theta_n) \\
+&= \min \left(\gamma(\theta_n) q(\theta_{n+1} | \theta_n),\gamma(\theta_{n+1}) q(\theta_n | \theta_{n+1})\right) / Z \\
+&= \min \left(\frac{\gamma(\theta_n) q(\theta_{n+1} | \theta_n)}{\gamma(\theta') q(\theta_n | \theta_{n+1})},1\right) \pi(\theta_{n+1}) q(\theta_n | \theta_{n+1}) \\
+&=\pi(\theta_{n+1}) T(\theta_n \leftarrow \theta_{n+1}).
 \end{align*}
-as required.
-
-Though MH is valid for any reasonable choice of the proposal distribution\todo{Be more specific},
-the practical performance will depend heavily on the choice of the proposal $q(x'|x)$.
-For example, if $q(x'|x)$ is independent of $x$ then no information is passed from one iteration
+Though MH is valid for any reasonable choice of the proposal distribution~\citep{tierney1994markov},
+the practical performance will depend heavily on the choice of the proposal $q(\theta'|\theta)$.
+For example, if $q(\theta'|\theta)$ is independent of $\theta$ then no information is passed from one iteration
 to the next and gives and one gets an algorithm that is strictly worse than importance sampling
 because samples are independently generated in the same way, but information is lost in the accept-reject
 step.  Instead, one will generally want to propose points close to the current point so the advantages
-of \emph{local moves} can be exploited.  However, this has complications as explained in the next
+of \emph{local moves} can be exploited, namely through the hill climbing behavior we previously discussed.  
+However, this has complications as explained in the next
 section, while choosing the a proposal with the right characteristics is still rather challenging.
-For example, image we use an isotropic Gaussian proposal, corresponding to a random walk without the
-accept reject step.  If the variance of our proposal is too high then we will rarely propose good points
+For example, image we use an isotropic Gaussian proposal.  If the variance of our proposal 
+is too high then we will rarely propose good points
 and so the acceptance rate will become very low, giving few distinct samples.  If the variance is too low,
 the Markov chain will move very slowly as it can only take small steps.  This will increase correlation
-between all our samples and reduce the fidelity of our estimates.  Chain that quickly cover the full
+between all our samples and reduce the fidelity of our estimates.  Chains that quickly cover the full
 probability space are said to \emph{mix} quickly.
 
 \subsubsection{Intuitions, Complications, and Practical Considerations}
@@ -153,92 +151,105 @@ probability space are said to \emph{mix} quickly.
 
 Though MCMC methods can be exceptionally effective, they are not without their weaknesses.
 Most of these weakness stem from the fact that all the generated samples are correlated, leading to, for
-example, biased estimates.  Clearly this reduces the amount of distinct information conveyed by 
+example, biased estimates.  
+Correlation reduces the amount of distinct information conveyed by 
 each sample and this will reduce the accuracy of the estimator.  However, it also causes more fundamental
 issues.
 Most of the convergence results we have presented so far have relied on samples being generated in a i.i.d. 
 fashion which is clearly not the case in the MCMC setting.  MCMC methods therefore require their own
-unique convergence proofs, based in general on ergodic theory.
-\todo[inline]{Add these, e.g. Birkhoff Ergodic Theorem,
-	pointwise ergodic theorem.  Probably worth its own section or a least a paragraph to talk about the
-	requirements for ergodicity} 
+unique convergence proofs, based in general on ergodic theory (see e.g.~\cite[Chapter 6]{durrett2010probability}).
+Furthermore, whereas importance sampling and rejection sampling lead to
+unbiased estimates of the marginal likelihood, MCMC produces no natural estimate and methods
+that do produce marginal likelihood estimates for MCMC are often extremely biased~\citep{chib2001marginal}.
 
-These convergence results show that the bias of MCMC tends to zero
-as the number of iterations tends to infinity, but it is often very difficult to magnitude of the bias for
+The aforementioned convergence results mean that the bias of estimates made using MCMC samples tends to zero
+as the number of iterations tends to infinity, but it is often very difficult estimate to magnitude of the bias for
 finite numbers of iterations.  Whereas importance sampling and rejection sampling had reasonable
 diagnostics for the performance of the inference, such as the effective sample size and the acceptance
 rate respectively, estimating the bias from MCMC samplers is typically fiendishly difficult and it can
 often look like an MCMC sampler is performing well (e.g. in terms of its acceptance rate) when in fact it is doing disastrously.  
 One of the most common ways this is manifested is in the sampler becoming stuck in a particular 
-mode of the target.  If a target has more than a single mode then using localized proposals can make
-it prohibitively difficult to move between the modes.  Though convergent MCMC samplers must eventually
+mode of the target.  Using localized proposals can make
+it prohibitively difficult to move between modes.  Though convergent MCMC samplers must eventually
 visit every mode infinitely often, it can take arbitrarily long to even visit each mode once.  Even worse,
 getting the correct estimate relies on spending the correct relative proportion of time in each mode which
 will typically take many orders of magnitude more time to get an reasonable estimate for than just to
 have the sampler visit each significant mode at least once.  The issues associated with multiple modes
 provides a demonstration of why it is difficult to estimate the bias of an MCMC sampler: we do not in
-generally know or are even able to provide reasonable estimates for if we have missed another mode or 
+generally know, or are even able to provide reasonable estimates for, if we have missed another mode or 
 whether our sampler has spent an appropriate amount of time in different modes.
 
 Because of these drawbacks, MCMC is rarely used on multi-modal problems unless an appropriate mechanism
-for transitioning between the modes can be found.  Thankfully, many problems become increasingly single-modal
-in high dimensions CITE SOMETHING and so there are a surprisingly wide array of models that actually 
-fit these restrictions, particularly if we can find an appropriate parameterization of the model.  Remembering
-from section~\ref{sec:prob:measure} that changing the parameterization of a model changes its probability
+for transitioning between the modes can be found.  One also tends to throw away some of the earlier samples
+in the Markov chain to allow the chain to \emph{burn in}, remembering that samples are only distributed according
+to the target of interest asymptotically and so the earlier samples, which have marginal distributions very far away
+from the distribution of interest, can add substantial bias to the resultant estimator.
+Thankfully, there are a surprisingly wide array of models that actually 
+fit these restrictions, particularly in high dimensions or if we can find an appropriate parameterization of the model.  
+Remembering from Section~\ref{sec:prob:measure} that changing the parameterization of a model changes its probability
 density function in a non-trivial manner, the performance of MCMC methods is often critically dependent on
-their parameterization.  There are two effects at play here. Firstly changing the parameterization will change
+their parameterization.  Changing the parameterization will change
 the concept of what parameter values are close to which other parameter values.  In an ideal world we
 would make moves in the raw sample space where all points are equally probable before calculating the
 random variables from the position in sample space.  Typically this is not practical, but it is still usually the
 case that some parameterizations will tend to be more single-modal and more generally have all points of
 interest close together in the parameter space.  Note that there is often an equivalence here between a good proposal,
-and a good warping of the space to one where an isotropic proposal will be effective.  
+and a good warping of the space to one where an isotropic proposal will be effective.  One possible way for
+achieving a good parameterization is through the use of  
+\emph{auxiliary variables}~\citep{higdon1998auxiliary,andrieu2010particle},
+which can improve mixing by allowing more degrees of freedom in the proposal, decreasing the chance of getting
+``stuck'', e.g. in a particular mode.  Somewhat counterintuitively, projecting
+to higher dimensional spaces can actually substantially improve the mixing of an MCMC sampler.
 
-Secondly, higher dimensional parameterizations are less likely to become stuck in a local mode.\todo{Need some citations}
-At a high level, the more variables that can be changed to some significant effect, the less likely that
-it is detrimental to change any one of the variables.  In essence, projecting into a higher dimensional
-space provides more degrees of freedom for changes in the proposal and this helps to keep the Markov
-chain moving and to make distinct moves at each iteration.  Though somewhat counter intuitive, projecting
-to higher dimensional spaces is key to a number of MCMC samplers performing effectively.\todo{Add examples}
-
-Unfortunately MCMC does not provide natural or unbiased estimates for the marginal likelihood in
-the same manner as importance sampling or rejection sampling ...
+As a concrete example of this, Hamiltonian Monte Carlo (HMC)~\citep{duane1987hybrid,neal2011mcmc} uses derivatives of
+the density function and an auxiliary variable to make effective long distance proposals.  Given that
+much of the behavior of MCMC is based on hill-climbing effects, it would perhaps be intuitive to presume that
+these gradients are used hasten the hill-climbing behavior or try to move between modes.  In practice, the intension 
+is exactly the opposite.  In high dimensions, most of the mass of a mode is not at its peak but in a thin strip
+around that peak known as a \emph{typical set}~\citep{betancourt2017conceptual}.  Classical random walk MH
+methods will both rarely propose samples in the right direction to stay in this level set, giving a low acceptance rate,
+and be very slow to move around the level set because the reversibility of the proposals mean that this only 
+happens through slow drift.  By moving perpendicular to the gradient, HMC makes proposals that are more likely to
+stay within the typical set, while also allowing large moves to be made in a single step.  Together these mean
+that it can explore a particular mode much faster then random walk MH strategies.  See~\citep{betancourt2017conceptual}
+for an excellent introduction.
 
 \subsubsection{Gibbs Sampling}
 \label{sec:inf:foundation:gibbs}
 
 Gibbs sampling is an important special case of Metropolis-Hastings that looks to update only some
-subset of variables in a joint distribution.  Imagine we have target $D$ distributional target distribution
+subset of variables in a joint distribution at each iteration.  Imagine we have target $D$ distributional target distribution
 $\pi(\theta)$ where $\theta = \{\theta_1,\theta_2,\dots,\theta_D\}$.  Gibbs sampling incrementally
 updates one or more of the variables $\theta_d$ at each iteration conditioned on the value of the others.
 Thus it uses proposals of the form $\theta_d' \sim \pi(\theta_d' | \theta \backslash \theta_d)$ with
 $ \theta \backslash \theta_d$ kept constant from one iteration to the next.  There are two reasons
 for wanting to do this.  Firstly changing only of the variables at a time is a form of local proposal and
-can be a beneficial way to make updates, particularly if random walk proposal are inappropriate, for example
-because the variables are not continuous.  Secondly, if we have access to $\pi(\theta_d | \theta \backslash \theta_d)$
-exactly, then we will actually accept every sample as
+can be a beneficial way to make updates, particularly if random walk proposal are inappropriate.  
+Secondly, if we have access to $\pi(\theta_d | \theta \backslash \theta_d)$
+exactly, then we will actually accept every sample as noting that $\theta' \backslash \theta_d' = \theta \backslash \theta_d$ we
+have
 \begin{align*}
 \frac{\pi(\theta)\pi(\theta_d' | \theta \backslash \theta_d)}{\pi(\theta')\pi(\theta_d | \theta' \backslash \theta_d')}
 &=\frac{\pi(\theta_d |  \theta \backslash \theta_d) \pi( \theta \backslash \theta_d)
 	\pi(\theta_d' | \theta \backslash \theta_d)}
-{\pi(\theta_d' |  \theta' \backslash \theta_d') \pi( \theta' \backslash \theta_d')\pi(\theta_d | \theta' \backslash \theta_d')} \\
-\intertext{now noting that $\theta' \backslash \theta_d' = \theta \backslash \theta_d$}
-&=\frac{\pi(\theta_d |  \theta \backslash \theta_d) \pi( \theta \backslash \theta_d)
+{\pi(\theta_d' |  \theta' \backslash \theta_d') \pi( \theta' \backslash \theta_d')\pi(\theta_d | \theta' \backslash \theta_d')} 
+=\frac{\pi(\theta_d |  \theta \backslash \theta_d) \pi( \theta \backslash \theta_d)
 	\pi(\theta_d' | \theta \backslash \theta_d)}
 {\pi(\theta_d' |  \theta \backslash \theta_d) \pi( \theta \backslash \theta_d)\pi(\theta_d | \theta \backslash \theta_d)} 
-= 1.
+= 1
 \end{align*}
+such that the acceptance probability is always $1$.
 In many models it will be possible to sample from $\theta_d' \sim \pi(\theta_d' | \theta \backslash \theta_d)$
-exactly\todo{give examples} and thus carry out Gibbs sampling exactly.  We can then cycle through each of
+exactly (e.g. when everything is Gaussian) and thus carry out Gibbs sampling steps exactly.  We can cycle through each of
 the $\theta_d$, either in a random order or in sequence, and apply the appropriate updates.  The
 effectiveness of this approach will depend on the level of correlation between the different variables.  The more
-correlated each variable: the smaller the updates will be for each variable conditioned on the values of the
+correlated each variable, the smaller the updates will be for each variable conditioned on the values of the
 others and the slower the chain will mix.  In extreme cases, this does impose stricter conditions
 for convergence for Gibbs samplers than MH~\citep{roberts1994simple}.  For example, consider an exclusive
-or style problem where $\pi(\theta_1,\theta_2) = 1$ if $0\le\theta_1\le1$ and $0\le\theta_2\le1$
+OR style problem where $\pi(\theta_1,\theta_2) = 1$ if $0\le\theta_1\le1$ and $0\le\theta_2\le1$
 or $-1\le\theta_1<0$ and $-1\le\theta_2<0$ and $\pi(\theta_1,\theta_2) = 0$ otherwise.  Here there is no
-way to move from the $[0,1]^2$ square to the $[-1,0]^2$ by updating only one of the variables at a time.  As
-such a Gibbs sampler would end up stuck in either the positive or negative square.
+way to move from the $[0,1]^2$ square to the $[-1,0]^2$ square by updating only one of the variables at a time.  As
+such, a Gibbs sampler would end up stuck in either the positive or negative square.
 
 If it is not possible to sample from the conditional distributions exactly or if it is only
 possible for some of the variables, we can instead use a \emph{Metropolis-within-Gibbs} approach,
@@ -246,16 +257,5 @@ also known as \emph{component-wise Metropolis-Hastings}, where
 we use a proposal to approximate one or more $\pi(\theta_d' | \theta \backslash \theta_d)$ with an
 appropriate proposal.  Naturally this means that the acceptance ratio is no longer always $1$ and so
 an accept-reject step becomes necessary.  Though the convergence of this approach has
-been shown by~\cite{jones2014convergence}, additional assumptions are required compared to the
+been shown by, for example,~\cite{jones2014convergence}, additional assumptions are required compared to the
 standard Gibbs or MH cases.
-
-\subsubsection{Advanced MCMC Algorithms}
-\label{sec:inf:foundation:advanced}
-
-\todo[inline]{Write me}
-
-\begin{itemize}
-	\item HMC and typical distance from mode in high dimensional Gaussian
-	\item Slice sampling?
-	\item Estimating the normalization constant
-\end{itemize}

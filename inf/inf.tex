@@ -8,3 +8,25 @@
 \input{inf/foundation}
 
 \section{Alternatives to Monte Carlo Inference}
+\label{sec:inf:alt}
+
+Though our focus in this chapter has mostly been on Monte Carlo inference methods, we finish
+by noting that these are far from the only viable approaches.  Two key advantages of Monte Carlo
+methods are their ubiquitous nature, i.e. many can almost always be applied, 
+and that most commonly used Monte Carlo methods are asymptotically exact, such that given
+enough time, we can always achieve a required level of accuracy.  However, in some scenarios,
+Monte Carlo methods can be problematically slow to converge and so alternative, asymptotically approximate,
+methods can be preferable such as variational inference~\citep{blei2016variational} and
+ messaging passing methods~\citep{lauritzen1988local}.  Of these, variational inference has become an increasingly
+ popular approach.  Its key idea is to reformulate the inference problem to 
+an optimization, by learning parameters of an approximation to the posterior.  Typically this involves
+defining some family  of distributions within which the posterior approximation can live, e.g. an exponential
+distribution family, and then optimizing an \emph{evidence lower bound} (ELBO) with respect to the parameters of
+this approximation.  Doing this implicitly minimizes
+the Kullback-Leiber divergence between the approximation the target.
+Variational inference often forms a highly efficient means of calculating a posterior approximation, but,
+in addition to the obvious bias from using a particular family of distributions for the approximation, it typically
+requires strong structural assumptions to be made about the form of the posterior. Namely most methods make a
+so-called \emph{mean-field} assumption that presumes that the posterior factorizes over all
+latent variables.  Its effectiveness is thus critically dependent on the reasonableness of these assumptions.
+

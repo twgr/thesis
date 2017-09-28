@@ -33,3 +33,21 @@ are effective.
 
 \subsection{Proposal Adaptation}
 \label{sec:inf:proposal-adapt}
+
+Given the critical importance of the proposal to all the methods we have discussed,
+it is natural to ask whether we can learn proposals adaptively using previous samples.
+Though this is indeed possible, see e.g.~\citep{gilks1992adaptive,cappe2004population,cappe2008adaptive,andrieu2008tutorial},
+proposal adaptation is a road filled with theoretical and practical perils.  
+Though it is beyond the scope of this work to do this complex line of research justice, we note some possible pitfalls 
+as a warning that proposal adaptation should be carried out with extreme care.
+Firstly, adaptation breaks i.i.d.~assumptions -- samples are naturally generated from different
+distributions and are further dependent because the previous samples are used to the choose the
+proposal for future samples.  Though this itself does not necessarily prevent convergence, it does mean various
+results no longer hold, e.g. marginal likelihood estimates for importance sampling
+become biased and the weak law of large numbers can no longer be used to prove convergence.  Secondly,
+one can often unintentionally adapt the proposal into an invalid regime, e.g. by overly reducing its variance in
+an importance sampling case to give an infinite variance estimator.  It can similarly be the case that
+any fixed proposal is valid, but that adaptation never ceases, such that the longer inference is run, the worse the
+proposal gets and the estimate never converges.  Finally, then if the
+proposal is state dependent, this can easily break the ergodicity of a Markov chain or cause it to
+have an incorrect invariant distribution, see for example~\cite[Section 2]{andrieu2008tutorial}.
