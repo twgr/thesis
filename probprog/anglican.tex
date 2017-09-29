@@ -31,10 +31,10 @@ introduction here and so we also refer the interested reader to~\cite{tolpin2016
 Before getting into the details of Anglican, we first give a very brief introduction to Clojure~\citep{hickey2008clojure},
 because its syntax may be quite unfamiliar to readers without experience in Lisp based notation or functional programming
 more generally.  There are two key things to get your head around for reading and using Clojure (and Lisp languages more
-generally): almost everything is a function and brackets evaluate functions.  For example, to code $a+b$ in Clojure one
-would write {\small \lsi{(+ a b)}} where $+$ is a function taking two arguments (here $a$ and $b$) and the brackets cause the
+generally): almost everything is a function and parentheses evaluate functions.  For example, to code $a+b$ in Clojure one
+would write {\small \lsi{(+ a b)}} where $+$ is a function taking two arguments (here $a$ and $b$) and the parentheses cause the
 function to evaluate.  More generally, Clojure uses prefix notation such that 
-the first term in a bracket is always a function, with the other terms the arguments.
+the first term in a parenthesis is always a function, with the other terms the arguments.
 Thus {\small \lsi{((+ a b))}} would be invalid syntax as the result of {\small \lsi{(+ a b)}}  is not a function so cannot be evaluated.
 Expressions are nested in a tree structure so to code $2(a+b)/c$ one would write {\small \lsi{(/ (* 2 (+ a b)) c)}}.  One can
 thus think about going outwards in terms of execution order -- a function first evaluates its arguments before
@@ -42,7 +42,7 @@ itself.  Functions in Clojure are first class (i.e. they can be variables) and c
 {\small \lsi{(fn [args] body)}}, for example {\small \lsi{(fn [a b] (/ a b))}}, or using the
 macro \defn to declare a named function in the namespace, for example {\small \lsi{(defn divide [a b] (/ a b))}}.
 Local bindings in Clojure are defined using \cllet blocks which are used to denote a number of name-value
-pairs, with the bindings persisting within the closure defined by the brackets of the \cllet block. Their return value
+pairs, with the bindings persisting within the closure defined by the parentheses of the \cllet block. Their return value
 is the output of the last element in the \cllet block list.  Thus for example
 {\small \lsi{(let [a 2 b 3] (print a) (+ a b))}} says let $a$ be equal to $2$, $b$ be equal to $3$, print $a$,
 and then evaluate $a+b$, thus returning $5$.  Note that $a$ and $b$ remain undefined outside of this let block.  
@@ -55,7 +55,7 @@ whose component terms are different types.
 Clojure does not generally use
 for loops, instead relying the constructs \map and \reduce, or the \clj{loop}-\clj{recur} pairing. Here
 \map applies a function to every value in a list or vector so for example {\small \lsi{(map (fn [a] (* a 2)) [2.1 3])}}
-doubles each value in the vector of inputs returning a list {\small \lsi{(4.2 6)}}, where the brackets in the output
+doubles each value in the vector of inputs returning a list {\small \lsi{(4.2 6)}}, where the parentheses in the output
 now just represent a list rather than a function evaluation, just to be be confusing.  Meanwhile, \reduce recursively applies
 a function and so for example to sum up a vector of elements in Clojure one writes for example
 {\small \lsi{(reduce + 0 [1.2 3.4 2])}} which returns 6.6.  The \clj{loop}-\clj{recur} pairing forms
@@ -86,7 +86,7 @@ infinitely long to converge), but which are restricted by computational budgets.
 \subsection{Writing Models in Anglican}
 \label{sec:probprog:anglican:models} 
 
-Anglican queries are written using the macro \defquery.  This allows uses to the define a model using a mixture
+Anglican queries are written using the macro \defquery.  This allows users to the define a model using a mixture
 of \sample and \observe statements and deterministic code in the manner synonymous to that explained in
 Section~\ref{sec:probprog:models}, and bind that model to a variable.  
 As before, Anglican makes use of distribution objects for providing inputs to \sample and \observe, for which

@@ -114,7 +114,7 @@ $\frac{\pi(\theta)\left|f(\theta)\right|}{\int \pi(\theta)\left|f(\theta)\right|
 A consequence of this is that we want $q(\theta)$ to have \emph{light tails}
 compared to $\pi(\theta)\left|f(\theta)\right|$ to ensure that the ratio does not
 systematically increase as $\theta$ moves away from the modes of $q(\theta)$.
-Aside from the clear practical issues, If this requirement does not hold, then
+Aside from the clear practical issues, if this requirement does not hold, then
 it can easily be the case that $\sigma_{\theta}=\infty$ and thus that the estimator
 has infinite variance.  Consider, for example, the case where 
 $\pi(\theta) = \mathcal{N}(\theta ; 0,1)$, $f(\theta)=\theta$, and
@@ -242,7 +242,7 @@ and consistency.
 Again a natural question in this ``unknown $f$'' setting is what is the optimal proposal $q^*(\theta)$?
 This is a somewhat more challenging and subjective question than when $f$ is known as the
 optimality will depend on what the samples are eventually used for.  In particular, even if we do
-not known $f$ precisely, it may be the case that we believe some $f$ are more likely than others, or we
+not know $f$ precisely, it may be the case that we believe some $f$ are more likely than others, or we
 may know that $f$ lives within some space of possible functions, for example functions that have
 a countable number of discontinuities.  
 
@@ -490,7 +490,7 @@ throws away more information than the other approaches will remain the same.
 		Dirichlet distribution with parameter $\alpha$, 
 		$\{\bar{w}_n\}_{n=1}^N \sim \textsc{Dirichlet}(\alpha)$, such that the
 		higher $\alpha$ is, the more even the weights are on average.  The effective
-		sample size (ESS) as defined in~\eqref{eq:inf:ess} is then calculated before an after the
+		sample size (ESS) as defined in~\eqref{eq:inf:ess} is then calculated before and after the
 		resampling is carried out (with identical samples collapsed to a single sample), and the ratio 
 		reported.  Plots show the mean across $1000$ independent trials, with the
 		error bars corresponding the to the interquartile range.
@@ -498,13 +498,13 @@ throws away more information than the other approaches will remain the same.
 \end{figure}
 
 An empirical assessment of the methods is shown in Figure~\ref{fig:inf:resample}.  This shows
-the relative effective sample size (ESS) before an after resampling as a function of the uniformity of
+the relative effective sample size (ESS) before and after resampling as a function of the uniformity of
 the weights.  To calculate the ESS after the resampling, we collapse the identical duplicated
 particles down to a single sample with the combined weight of the other samples.  This is equivalent
 to replacing $w_n$ with $k_n/N$ in the ESS calculation given in~\eqref{eq:inf:ess}.
 Figure~\ref{fig:inf:resample} shows that systematic resampling is clearly preferable to the alternatives, at least
 in the terms of the ESS after resampling for this particular problem, with this improvement consistent across the different
-sample size sets.  Similar relatives performances are found if one instead uses the proportion of samples that
+sample size sets.  Similar relative performance are found if one instead uses the proportion of samples that
 survive the resampling as a performance metric.
 As expected, multinomial resampling is significantly worse than the other
 methods, particularly when the weights are more even.  The results also suggest that residual

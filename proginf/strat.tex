@@ -135,7 +135,7 @@ P(\text{Accept}) &= \min\left(1, \frac{\gamma(x_{1:n_x}',\lambda) \kappa(x_m | x
 \end{align}
 We can further overcome reducibility issues with such a scheme by forcing a fresh trace generation
 not only when we realize the trace is invalid, but also when we find a term in our trace with probability zero.
-Once this occurs, it is clear the that full trace probability must be zero, even if it produces a valid path.  We
+Once this occurs, it is clear that the full trace probability must be zero, even if it produces a valid path.  We
 could just immediately reject the trace, but we would not the reducibility issues.  By instead
 regenerating the rest of the trace in this scenario, then at each iteration we can propose any value of $x_1$ that has non-zero marginal
 mass under $\gamma(x_{1:n_x},\lambda)$ regardless of our current state, so we clearly have mixing on $x_1$.

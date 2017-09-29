@@ -92,7 +92,7 @@ is that generative approaches generally make stronger modeling assumptions about
 this can be problematic when the model assumptions are wrong and is often unnecessary in
 the limit of large data, it is essential for combining prior information with data
 and therefore for constructing systems that exploit application-specific human expertise.
-In the words of the great George Box, ``\textit{all models are wrong, but some a useful}''
+In the words of the great George Box, ``\textit{all models are wrong, but some are useful}''
 \citep{box1979robustness,box2005statistics}.  In a way, this is a self-fulfilling statement: a model for
 any real phenomena
 is by definition an approximation and so is never exactly correct no matter how powerful.  However,
@@ -144,7 +144,7 @@ p(x,y) = p(y) \prod_{i=1}^D p(x^i |y).
 \end{align}
 Here we are free to choose the form for both $p(x^i |y)$ and $p(y)$ %(defining these also indirectly defines $p(x)$)
 and we will use the data to learn their parameters.
-This freedom is both a blessing and curse: it allows us to impart our own knowledge about the problem to
+This freedom is both a blessing and a curse: it allows us to impart our own knowledge about the problem to
 the model, but we may be forced to make assumptions without proper justification in the interest
 of tractability, for convenience, in error, or simply because it is challenging to specify a sufficiently
 general purpose model that can cover all possible cases.

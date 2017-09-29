@@ -156,7 +156,7 @@ When prior information is known about the function, the
 flexibility in choosing the covariance kernel can also be very helpful, for example allowing known
 smoothness to be incorporated.  However, this can also be a curse as an inappropriate choice of
 kernel can severely happen the performance.  In particular, it will typically be necessary to
-do inference over, or at least optimize, the GP hyperparamters.  Another drawbacks to using GPs
+do inference over, or at least optimize, the GP hyperparamters.  Another drawback to using GPs
 is poor scaling in the number of iterations -- training is a $O(N^3)$ operation due to the required
 matrix inversion.  This typically restricts BO using GPs to using on the order of hundreds of iterations
 unless appropriate approximations are made~\citep{snelson2006sparse,hensman2013gaussian}.
