@@ -8,7 +8,7 @@ learning from data, we start with some prior knowledge and then update that know
 incorporate information from the data.  This process is known as \emph{Bayesian inference}.
 
 Imagine we are trying to reason about some variables
-or parameters $\theta$.  We can encode our initial belief as relative probabilities for different
+or parameters $\theta$.  We can encode our initial belief as probabilities for different
 possible instances of $\theta$, this is known as a \emph{prior} $p(\theta)$.  Given observed data
 $\mathcal{D}$, we can characterize how likely different values of $\theta$ are to have given rise
 to that data using a \emph{likelihood function} $p(\mathcal{D}|\theta)$.  These can then be
@@ -220,7 +220,7 @@ clearly only be applicable or appropriate in very particular scenarios.
 Bayesian modeling is at its heart a
 generative approach and its real power will be when we design a rich and expressive \emph{generative model} 
 that reflects our application specific knowledge.  In other words, we can define our model
-by carefully constructing a stochastic process that describes how the data and parameters are generated.
+by carefully constructing a stochastic process that describes how the parameters  and data are generated.
 This model then corresponds to the joint distribution $p(\theta,\mathcal{D})$.
 We can then think of providing real data as refining our model, providing an updated distribution
 on the parameters and subsequent predictions that incorporate the information from the data.  The more
