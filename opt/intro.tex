@@ -1,6 +1,6 @@
 % !TEX root = ../main.tex
 
-\section{Introduction}
+\section{Optimization in Probabilistic Machine Learning}
 \label{sec:opt:intro}
 
 In general, all optimization problems can be expressed in the form
@@ -72,21 +72,21 @@ parametrization of the problem (see Section~\ref{sec:prob:measure}).  Using a MA
 incorporates less information into the predictive distribution than using a
 fully Bayesian approach.  Nonetheless, MAP estimation is still an important
 tool of Bayesian machine learning, necessary when a single estimate or decision is required,
-or when inference is infeasible.  Note that when $\vartheta$ is bounded or takes
-on only finite values, then ML estimation is recovered from MAP estimation by using
+or when inference is infeasible.  Note that when $\vartheta$ is bounded, 
+then ML estimation is recovered from MAP estimation by using
 a uniform prior.
 
 MML estimation is often referred to using a number of different names such as expectation
 maximization, type-II maximum likelihood estimation, hyperparameter optimization, and
-empirical Bayes.  Despite the multitude of names, which originate from different application
-areas, the aim of all these methods is the same: to maximize the likelihood of a model
+empirical Bayes.  Despite the multitude of names, the aim of all these methods is the 
+same: to maximize the likelihood of a model
 marginalized over some latent variables $X$, namely
 \begin{align}
 	\label{eq:opt:MML}
 	\theta^* &= \argmax_{\theta \in \vartheta} p(Y|\theta) 
 	= \argmax_{\theta \in \vartheta} \E \left[p(Y,X|\theta) | Y, \theta\right]
 \end{align}
-where the above expectation is with respect to $p(X | \theta)$.  Common examples of MML
+where the expectation is with respect to $p(X | \theta)$.  Common examples of MML
 problems include parameter tuning, decision making, model learning, and policy search~\citep{deisenroth2013survey}.
 
 MMAP estimation varies from MML in the same manner as MAP from ML: the inclusion
@@ -96,10 +96,6 @@ of a prior on the target parameters.  Specifically it aims to optimize
 \theta^* &= \argmax_{\theta \in \vartheta} p(\theta | Y)  = \argmax_{\theta \in \vartheta} p(Y,\theta) 
 = \argmax_{\theta \in \vartheta} \E \left[p(Y,X|\theta) p(\theta) | Y, \theta\right].
 \end{align}
-As with MAP estimation compared with ML estimation, 
-MMAP estimation problems extend MML by allowing for prior information or regularization to be
-included.
-
 As with MML and MMAP estimation, risk minimization problems consider the optimization
 of an expectation.  The key difference is in the fact that the are a \textit{minimization} rather
 than a \textit{maximization}, namely they look to find
@@ -110,7 +106,7 @@ than a \textit{maximization}, namely they look to find
 for some loss function $L$ which is parametrized by $\theta$ and is typically positive only.
 Depending on the context, $Y$ can either be taken as fixed, or the expectation can be over
 both $X$ and $Y$.  The later corresponds to the classical risk taken in the frequentist view
-of supervised.
+of supervised learning.
 At first the change from
 maximization to minimization might seem trivial.  However,
 the fact that probabilities are positive only means that the two problems behave very
@@ -125,7 +121,9 @@ as this expected probability cannot be dominated by the rare adversarial loading
 In essence, expectations over probabilities are ``optimistic'' and by construction
 focus on the more probable cases.
 
-In the rest of this chapter we will consider in more depth two approaches that have been used
-extensively through machine learning to solve optimization problems such as those 
-discussed: stochastic gradient ascent and Bayesian optimization.  As we will see, these
-represent quite starkly different approaches and are thus suited to very different problems.
+In the rest of this chapter we will consider in more depth a particular approach
+for carrying out such optimizations known as Bayesian optimization (BO).
+%two approaches that have been used
+%extensively through machine learning to solve optimization problems such as those 
+%discussed: stochastic gradient ascent and Bayesian optimization.  As we will see, these
+%represent quite starkly different approaches and are thus suited to very different problems.

@@ -3,16 +3,16 @@
 \section{Gaussian Processes}
 \label{sec:opt:GPs}
 
-Before introducing Bayesian optimization (BO), we first digress to introduce Gaussain
+Before introducing BO directly, we first digress to introduce Gaussian
 processes (GPs) as they are an essential precursor to much of the BO literature.  
-As we will show in the next section, BO relies on modelling the target with a surrogate,
+As we will show in the next section, BO relies on modeling the target with a surrogate,
 which can the be used to estimate the expected value and uncertainty estimates for 
 the value of a function away from points that have been evaluated.  The most common
-surrogate taken in the BO literature in a GP and the one we will use later in Chapter~\ref{chp:bopp}, 
+surrogate taken in the BO literature is a GP and the one we will use later in Chapter~\ref{chp:bopp}, 
 hence their central importance to the BO method.
 
 Informally one can think of a GP \citep{rasmussen2006gaussian} as being a nonparametric 
-distribution\footnote{Technically speaking they are a stochastic process not a distribution.} over functions.
+distribution\footnote{Technically speaking they are stochastic processes not a distributions.} over functions.
 Equivalently, one can think of it as a generalization of a Gaussian distribution
 to (uncountably) infinite dimensions.  Practically, they are powerful tool for regression, classification,
 and feature extraction~\citep{kuss2005assessing,lawrence2004gaussian}.  We focus here on regression as it is generally
@@ -34,9 +34,9 @@ f \left(\theta\right) \sim GP \left(\mu\left(\theta\right), k\left(\theta,\theta
 which by definition means that the functional evaluations realized at any finite number of sample points is distributed according to a multivariate Gaussian. Note that the inputs to $\mu$ and $k$ need not be numeric and as such a GP can be defined over anything for which kernel can be defined.
 
 \begin{figure}[t]
-	\includegraphics[width=0.49\textwidth]{example_gp}
+	\includegraphics[width=0.48\textwidth,trim={0 0 5cm 1cm},clip]{example_gp}
 		~
-	\includegraphics[width=0.49\textwidth]{example_functions}
+	\includegraphics[width=0.50\textwidth,trim={0 0 5cm 1cm},clip]{example_functions}
 	\caption{Example GP regression for points shown in left dots.  Shown left is GP where
 		the solid dark blue line is the mean of the GP and the light blue shading is the
 		mean $\pm2$ standard deviations.  Shown right is 4 example functions drawn
@@ -94,7 +94,7 @@ k_{\text{prior}}({\Theta}^*,{\Theta}) & k_{\text{prior}}({\Theta}^*,{\Theta}^*)
 \end{matrix}
 \right]\right)
 \end{align}
-where $I$ is the identity matrix, $\mathbf{0}$ is a vector of zeros, $f^*$ is the true
+where $I$ is the identity matrix, $\mathbf{0}$ is a vector of zeros, and $f^*$ is the true
 function values at ${\Theta}^*$ (such that $V^*-f^*\sim\mathcal{N}(0,\sigma_n^2 I)$).
 We can now use standard results for Gaussians (see e.g.~\cite{petersen2008matrix}) to get
 the conditional distribution for $f^*$ given all the other variables
@@ -113,24 +113,22 @@ model as having a GP posterior
 \[
 f_{\text{post}} (\theta) | \Theta, V \sim \text{GP}\left(\mu_{\text{post}} (\theta),k_{\text{post}}(\theta,\theta')\right).
 \]
-
 Going back to Figure~\ref{fig:opt:example_gp}, we see the result of this process.
 Our GP regression gives us a posterior mean function that represents the expected value
 at every possible input points, along with a variance that represents our subjective
 uncertainty in the value of the function at that point.  It is important to note that, as is
-always the case in Bayesian modelling, these uncertainty estimates are generally  an underestimate,
+always the case in Bayesian modeling, these uncertainty estimates are generally  an underestimate,
 as they do not account for the ``unknown unknowns''.  Figure~\ref{fig:opt:example_gp} also
 shows that we can draw from the GP by choosing some set of evaluation points $\Theta^*$ and
 then drawing from~\eqref{eq:opt:GP-posterior}.  We see that there is larger variation in the
 function values away from the points that have been evaluated, as would be expected.
 
-We finish our introduction to GPs from the function space point of view by noting that the
-marginal likelihood for our model is also analytic.  Specifically we have
+An important point of note is that the marginal likelihood for our model is also analytic, namely
 \begin{align}
 \label{eq:opt:GP-ML}
 \begin{split}
-\log p(V | \Theta) = &-\frac{1}{2} V^T \left[k_{\text{prior}}\left({\Theta} ,{\Theta}  \right) + \sigma_n^2 I\right]^{-1} V \\
-&-\frac{1}{2} \log \left|k_{\text{prior}}\left({\Theta} ,{\Theta}  \right) + \sigma_n^2 I\right|-\frac{m}{2} \log 2\pi
+\log p(V | \Theta) = &-\frac{1}{2} V^T \left[k_{\text{prior}}\left({\Theta} ,{\Theta}  \right) + \sigma_n^2 I\right]^{-1} V
+-\frac{1}{2} \log \left|k_{\text{prior}}\left({\Theta} ,{\Theta}  \right) + \sigma_n^2 I\right|-\frac{m}{2} \log 2\pi
 \end{split}
 \end{align}
 where $m$ is the number of points in $\Theta$.  This is important as it means it will be tractable to
@@ -140,7 +138,7 @@ optimize or do inference over the GP hyperparameters.
 \label{sec:opt:gps:kernels}
 
 As we showed in the last section, GPs form powerful and expressive priors over functions.
-In this section we show that their practical behaviour varies substantially depending on the
+In this section we show that their practical behavior varies substantially depending on the
 choice of the covariance function, aka kernel, and the hyperparameters.   Informally, we can think
 of the kernel as expressing the similarity between the evaluation of the function at two different input
 points $\theta$ and $\theta'$.  When $k(\theta,\theta')$ is large, these evaluations are strongly
@@ -152,17 +150,17 @@ always a positive definite matrix.  Though it is not necessary for the kernel to
 that it only depends on $\theta-\theta'$ rather than the absolute values), we will not
 consider non-stationary cases further here (see \cite{rasmussen2006gaussian} for further
 information).
+%
+%\begin{figure}[t]
+%	\centering
+%	\includegraphics[width=0.95\textwidth]{example_kernels}
+%	\caption{Example basic kernels.  Figure taken from David Duvenaud's PhD
+%		Thesis. \label{fig:opt:example_kernels_duv}}
+%\end{figure}
 
-\begin{figure}[t]
-	\centering
-	\includegraphics[width=0.95\textwidth]{example_kernels}
-	\caption{Example basic kernels.  Figure taken from David Duvenaud's PhD
-		Thesis. \label{fig:opt:example_kernels_duv}}
-\end{figure}
-
-Figure~\ref{fig:opt:example_kernels_duv} \todo{Replace with own Figure} shows
+\cite[Figure 2.1]{duvenaud2014automatic} shows
 some simple example kernels.  Note $x$ here is equivalent to $\theta$ in our
-notation.  The figure shows that the qualitative behaviour of the GP changes
+notation.  The figure shows that the qualitative behavior of the GP changes
 substantially with changes to the kernel.  All of these kernels also behave
 substantially differently to the compound Mat\'{e}rn kernel we considered in the last section.
 The choice of kernel is therefore
@@ -172,7 +170,7 @@ for learning the kernel directly
 \citep{duvenaud2013structure,lloyd2014automatic,wilson2014fast}, 
 this is typically too computationally intensive
 to carry out in practice.  One must therefore either use prior knowledge about the
-problem, or use an relatively general purpose to ensure that the nuances of the
+problem, or use an relatively general purpose kernel to ensure that the nuances of the
 data are not overwhelmed.
 
 A particularly common problem in the choice of kernel is in the desired level
@@ -181,21 +179,20 @@ of smoothness.  At the one extreme, one can use the squared exponential kernel
 \label{eq:opt:se-kernel}
 k_{\text{se}} \left(\theta,\theta'\right) = \sigma_f^2 \exp \left(-\frac{\left\lVert \theta - \theta'\right\rVert^2_2}{2 \rho^2}\right)
 \end{align}
-which is infinitely differentiable.  It is also sometimes known as
-the exponentiated quadratic kernel. Here $\sigma_f^2$ is the ``signal 
-standard deviation'' - a hyperparameter that
-effects the scaling of the output from the GP: the larger $\sigma_f$, the higher
-the average standard deviation of the function.  $\rho$ is a hyperparameter
-that dictates the characteristic length scale of variation for the function - the
+which is infinitely differentiable.   Here $\sigma_f^2$ is the ``signal 
+standard deviation'' -- a hyperparameter that
+affects the scaling of the output from the GP: the larger $\sigma_f$, the higher
+the average standard deviation of the function.  Meanwhile, $\rho$ is a hyperparameter
+that dictates the characteristic length scale of variation for the function -- the
 higher $\rho$ is, the slower the correlation decreases as one moves away from the
 current point, and therefore the less ``wiggly'' the function is.  Both these
-hyperparameters are common to most commonly used kernels.  Although the
+hyperparameters are shared by most commonly used kernels.  Although the
 presented kernel is isotropic, this is easily relaxed by having a different $\rho$
 for each dimension.
 
 \begin{figure}[t]
 	\centering
-	\includegraphics[width=0.75\textwidth]{hyper-changes}
+	\includegraphics[width=0.6\textwidth]{hyper-changes}
 	\caption{Effective of changing the length scale for Mat\'{e}rn-5/2 kernel.\label{fig:opt:hyper-changes}}
 \end{figure}
 
@@ -213,9 +210,9 @@ therefore different values of $\nu$ can be used to express different levels
 of smoothness.  Typically $\nu$ is set to $n+1/2$ for some integer $n$, for
 which is has a simple closed form~\citep{rasmussen2006gaussian}.
 
-Though the choice of kernel function is critical input for a GP, the choice of
+Though the choice of kernel function is critical for a GP, the choice of
 hyperparameters such as the scaling and length scale can have equally
-significant impact on the behaviour.  Figure~\ref{fig:opt:hyper-changes} shows
+significant impact on the behavior.  Figure~\ref{fig:opt:hyper-changes} shows
 the effect of changing the length scale of a Mat\'{e}rn-5/2 kernel.  When the length
 scale is too large as shown in orange, the regressed function is overly smooth and
 does not capture the data.  When the length scale is too small, as shown in green,
@@ -224,7 +221,7 @@ high uncertainty between points and also potentially overfitting as the regresso
 can model all the fluctuations in the data, including those originating simply from
 noisy evaluations.
 As the hyperparameters are rarely known upfront, one must typically either optimize
-them, or perform inference over them to produce a mixture of GPs output.
+them, or perform inference over them to produce a mixture of GPs.
 
 \subsection{Weight-Space View and Reproducing Kernel Hilbert Space}
 \label{sec:opt:gps:weight}
@@ -254,7 +251,7 @@ We start with the following definitions.
 \end{definition}
 \begin{definition}{}
 	A Hilbert space, $\mathcal{H}$, is a, potentially uncountably infinite, vector space associated with an inner product
-	$\langle\cdot,\cdot\rangle_{\mathcal{H}}$ and 
+	$\langle\cdot,\cdot\rangle_{\mathcal{H}}$ 
 	which is complete with respect to the norm $\norm{u}_{\mathcal{H}} = \sqrt{\langle u,u\rangle_{\mathcal{H}}}$.
 	\label{opt:def:HilbertSpace}
 \end{definition}
@@ -283,7 +280,7 @@ in $L^2$ space, i.e.
 \label{eq:opt:l2Space}
 \sum_{a=1}^{\infty} \left(\psi_a\left(\theta\right)\right)^2 < \infty, \quad \forall \theta \in \vartheta,
 \end{align}
-then $k\left(\theta,\theta'\right) < \infty, \; \forall \theta, \theta' \in \vartheta$ using the inequality from equation \eqref{eq:opt:covFunc} and our covariance will remain bounded with infinitely many basis functions.
+then $k\left(\theta,\theta'\right) < \infty, \; \forall \theta, \theta' \in \vartheta$ using the inequality from equation \eqref{eq:opt:covFunc}, and our covariance will remain bounded with infinitely many basis functions.
 
 The key realization is now that the distribution of $F$ only depends on $Z$ and $C$ through the inner product
 $\langle\Psi\left(\theta\right), \Psi\left(\theta'\right)\rangle_{\mathcal{H}}$ such that we need never compute 
@@ -299,13 +296,13 @@ We can now introduce the notion of \emph{reproducing kernel Hilbert space} (RKHS
 	\label{def:opt:RKHS}
 	Given a Hilbert space $\mathcal{H}$, then a function $k \colon \vartheta \times \vartheta \rightarrow \real$ is a reproducing
 	kernel and  $\mathcal{H}$ is a reproducing kernel Hilbert space if
-	$k\left(\cdot,\theta\right) \in \mathcal{H}, \quad \forall \theta \in \vartheta$ and the reproducing property described in equation \eqref{eq:opt:repKernel} is satisfied.
-	As $k\left(\theta,\theta'\right) = \left\langle k\left(\cdot,\theta\right), k\left(\cdot,\theta'\right)\right\rangle = k\left(\theta',\theta\right)$, all reproducing kernels are symmetric.
+	$k\left(\cdot,\theta\right) \in \mathcal{H}, \; \forall \theta \in \vartheta$ and the reproducing property described in equation \eqref{eq:opt:repKernel} is satisfied.
 \end{definition}
 \noindent The significance of RKHSs for GPs is that their covariance functions correspond to reproducing kernels and
 so a GP is defined over a RKHS.  Most RKHSs do not contain all possible functions -- e.g. the RKHS associated
 with the squared exponential kernel contains only infinitely differentiable functions -- and so the choice
-of GP kernel will effect the functions it is capable of encapsulating.
+of GP kernel will dictate the range functions it is capable of encapsulating.
+Note that as $k\left(\theta,\theta'\right) = \left\langle k\left(\cdot,\theta\right), k\left(\cdot,\theta'\right)\right\rangle = k\left(\theta',\theta\right)$, all reproducing kernels are symmetric.
 
 Going back to our GP derivation, then for the realization of $k\left(\theta,\theta'\right)$ at a finite number of points to be a valid covariance matrix we further require it to be positive definite, i.e:
 \begin{align}
@@ -319,12 +316,13 @@ which can be proved to be the case given the restrictions we have placed on $k$ 
 \end{align}
 Consequently, \eqref{eq:opt:l2Space} is a sufficient condition for the distribution of $F$ to be a multivariate $t-$dimensional Gaussian with a valid and finite covariance matrix when we consider an uncountable infinite number of basis functions.  Furthermore, we note that many choices for $\Psi$ will lead to closed form analytic expressions of $\langle\Psi\left(\theta\right), \Psi\left(\theta'\right)\rangle_{\mathcal{H}}$ without the need to ever calculate $\Psi\left(\theta\right)$ explicitly.  
 
-To show a simple example of this consider the one-dimensional case were $\theta \in \real$ and basis functions of the form  $\psi_a = \sigma_w\exp \left(-\frac{\left( \theta-c_a\right)^2}{2 \rho^2}\right)$ where $c_a \in \left[c_{\min},c_{\max}\right]$ represents the centre of the basis function and $\rho$ is a common length scale.  Further specify that $\sigma_w^2 = \frac{\beta \left(c_{\max}-c_{\min}\right)}{m}$, i.e. that $\sigma_w^2$ is proportional to the number of functions per unit length, then we have
+To show a simple example of this consider the one-dimensional case were $\theta \in \real$ and basis functions of the form  $\psi_a = \sigma_w\exp \left(-\frac{\left( \theta-c_a\right)^2}{2 \rho^2}\right)$ where $c_a \in \left[c_{\min},c_{\max}\right]$ represents the center of the basis function and $\rho$ is a common length scale.  Further specify that $\sigma_w^2 = \frac{\beta \left(c_{\max}-c_{\min}\right)}{m}$, i.e. that $\sigma_w^2$ is proportional to the number of functions per unit length, then we have
 \begin{align}
 \label{eq:opt:kSeqExpFinite}
 k\left(\theta,\theta'\right) = \sum_{a=1}^{m} \frac{\beta \left(c_{\max}-c_{\min}\right)}{m} \exp \left(-\frac{\left( \theta-c_a\right)^2}{2 \rho^2}\right) \exp \left(-\frac{\left(\theta'-c_a\right)^2}{2 \rho^2}\right).
 \end{align}
-Now assume that the basis functions are evenly space in $\left[c_{\min},c_{\max}\right]$ and consider $m \rightarrow \infty$ then we recover the integral
+If we assume that the basis functions are evenly space in $\left[c_{\min},c_{\max}\right]$, then in the limit $m \rightarrow \infty$
+we recover the integral
 \begin{align}
 \label{eq:opt:kSeqExpIntegral}
 k\left(\theta,\theta'\right) = \beta \int_{c_{\min}}^{c_{\max}}  \exp \left(-\frac{\left( \theta-c\right)^2}{2 \rho^2}\right) \exp \left(-\frac{\left(\theta'-c\right)^2}{2 \rho^2}\right) dc.
@@ -341,7 +339,7 @@ More generally, the Moore-Aronszajin theorem \citep{aronszajn1950theory} states 
 	\label{the:opt:Moore-Aronszajin}
 	Any symmetric, positive definite kernel $k \colon \vartheta \times \vartheta \rightarrow \real$ has a unique RKHS for which $k$ is a reproducing kernel.
 \end{theorem}
-\noindent In other words, if we define a kernel function that is symmetric $k\left(\theta,\theta'\right) = k\left(\theta',\theta\right)$ and positive definite as per \eqref{eq:opt:posDef}, then at least one corresponding feature map $\Psi \colon \vartheta \rightarrow \mathcal{H}$ must exist.  Therefore a corresponding $Z \colon \vartheta \rightarrow \mathcal{H}$ and $C$ must also exist (for example we can trivially take $C$ as the identity matrix and $Z = \Psi$), and if we further ensure that $k$ is bounded $k\left(\theta,\theta'\right) < \infty, \; \forall \theta, \theta' \in \vartheta$, then finite realisations  $\left[f\left(\theta_1\right),\dots,f\left(\theta_t\right)\right]^T$ of equation \eqref{eq:opt:linModel} must be distributed to a finite multivariate Gaussian distribution with mean  $\left[\mu\left(\theta_1\right),\dots,\mu\left(\theta_t\right)\right]^T$ and covariance $k\left(\theta_i,\theta_j\right) \; \forall i,j \in {1,\dots,t}$.  
+\noindent In other words, if we define a kernel function that is symmetric $k\left(\theta,\theta'\right) = k\left(\theta',\theta\right)$ and positive definite as per \eqref{eq:opt:posDef}, then at least one corresponding feature map $\Psi \colon \vartheta \rightarrow \mathcal{H}$ must exist.  Therefore a corresponding $Z \colon \vartheta \rightarrow \mathcal{H}$ and $C$ must also exist (for example we can trivially take $C$ as the identity matrix and $Z = \Psi$), and if we further ensure that $k$ is bounded $k\left(\theta,\theta'\right) < \infty, \; \forall \theta, \theta' \in \vartheta$, then finite realizations  $\left[f\left(\theta_1\right),\dots,f\left(\theta_t\right)\right]^T$ of equation \eqref{eq:opt:linModel} must be distributed to a finite multivariate Gaussian distribution with mean  $\left[\mu\left(\theta_1\right),\dots,\mu\left(\theta_t\right)\right]^T$ and covariance $k\left(\theta_i,\theta_j\right) \; \forall i,j \in {1,\dots,t}$.  
 %
 %We have therefore arrived at the following formal definition of a GP.
 %

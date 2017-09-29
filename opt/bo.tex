@@ -3,9 +3,11 @@
 \section{Bayesian Optimization}
 \label{sec:opt:BO}
 
-Bayesian optimization (BO, \cite{movckus1975bayesian,jones1998efficient,osborne2009gaussian,brochu2010tutorial,shahriari2016taking})  is a 
+Bayesian optimization (BO) is a 
 global optimization scheme that requires only that the target
-function can be evaluated (noisily) at any given point.  It is derivative-free,
+function can be evaluated (noisily) at any given
+ point~\citep{movckus1975bayesian,jones1998efficient,osborne2009gaussian,brochu2010tutorial,shahriari2016taking}.  
+ It does not require derivatives,
 naturally incorporates noisy evaluations, and is typically highly efficient 
 in the number of function evaluations.  It is therefore suited to
 problems where the target function corresponds to the output of a simulator,
@@ -15,70 +17,12 @@ active research and has been successfully applied to
 a wide range of applications such as hyperparameter tuning~\citep{snoek2012practical},
 robotics~\citep{calandra2016bayesian}, and sensor networks~\citep{garnett2010bayesian}.
 
-The key idea of BO is to place a prior on $f$ that expresses belief about the space of functions within which $f$ might live.  When the function is evaluated, the resultant information is incorporated by conditioning upon the observed data to give a posterior over functions.  
+The key idea of BO is to place a prior on $f$, most commonly a GP,
+ that expresses belief about the space of functions within which $f$ might live.  When the function is evaluated, the resultant information is incorporated by conditioning upon the observed data to give a posterior over functions.  
 This allows estimation of the expected value and uncertainty in $f\left(\theta\right)$ for all $\theta \in \vartheta$.  
 From this, an acquisition function $\zeta : \vartheta \rightarrow \real$ is defined, which assigns an expected utility to evaluating $f$ at particular $\theta$, based on the trade-off between exploration and exploitation in finding the maximum.  When direct evaluation of $f$ is expensive, the acquisition function constitutes a cheaper to evaluate substitute, which is optimized to ascertain the next point at which the target function should be evaluated in a sequential fashion.  By interleaving optimization of the acquisition function, evaluating $f$ at the suggested point, and updating the surrogate, BO forms a global optimization algorithm that is typically very efficient in the required number of function evaluations, whilst naturally dealing with noise in the outputs.  
 
-Although alternatives such as random forests \citep{bergstra2011algorithms,hutter2011sequential} 
-or neural networks \citep{snoek2015scalable} exist, the most common surrogate model used for 
-$f$ is a Gaussian process (GP) \citep{rasmussen2006gaussian}.  Their are a number
-of characteristics that make GPs suitable for the surrogate model.  For example, they are very powerful
-regressors that can accurately represent the function from relatively few evaluations, especially
-for low-dimensional smooth functions.  They also naturally produce uncertainty estimates
-that are typically more accurate that those produced by alternatives which often
-have to resort to post-processing or heuristics to estimate uncertainty.
-This also leads to simple and tractable acquisition functions.  Similarly, their ability to incorporate
-noisy observations is often helpful, though because GP inference is only analytic for Gaussian
-likelihoods, it is often impractical to incorporate non-Gaussian noise.  This problem can be
-particularly manifest when the observations are bounded, such as when the target is a probability
-and thus always positive.  A common way of dealing with this is to optimize a mapping of the
-original function, for example optimizing the log probability in (M)MAP problems~\citep{osborne2010bayesian}.
-
-When prior information is known about the function, the
-flexibility in choosing the covariance kernel can also be very helpful, for example allowing known
-smoothness to be incorporated.  However, this can also be a curse as an inappropriate choice of
-kernel can severely happen the performance.  In particular, it will typically be necessary to
-do inference over, or at least optimize, the GP hyperparamters.  Another drawbacks to using GPs
-is poor scaling in the number of iterations -- training is a $O(N^3)$ operation due to the required
-matrix inversion.  This typically restricts BO using GPs to using on the order of hundreds of iterations
-unless appropriate approximations are made~\citep{snelson2006sparse,hensman2013gaussian}.
-Another drawback can be poor scaling in the dimensionality of the inputs -- most common kernels
-only encode information about the inputs through the (scaled) Euclidean distances between points,
-which can break down in high dimensions because all points are typically
-``far away'' from one another \citep{bengio2006curse}.  
-
-\begin{figure}[t]
-	\centering
-		\begin{subfigure}[b]{0.32\textwidth}
-			\includegraphics[width=\textwidth]{10_with_acq_opt}
-			\caption{10 iterations \label{fig:opt:bayes-opt:10}}
-		\end{subfigure}
-			\begin{subfigure}[b]{0.32\textwidth}
-			\includegraphics[width=\textwidth]{11_with_acq_opt}
-			\caption{11 Iterations \label{fig:opt:bayes-opt:11}}
-		\end{subfigure}
-			\begin{subfigure}[b]{0.32\textwidth}
-			\includegraphics[width=\textwidth]{20_with_acq_opt}
-			\caption{20 Iterations \label{fig:opt:bayes-opt:20}}
-		\end{subfigure}
-%	\begin{tabular}{m{0.15\textwidth} m{0.65\textwidth}}
-%		10 Iterations & \includegraphics[width=0.6\textwidth]{10_with_acq_opt}
-%		\\
-%		11 Iterations & \includegraphics[width=0.6\textwidth]{11_with_acq_opt}
-%		\\
-%		20 iterations & \includegraphics[width=0.6\textwidth]{20_with_acq_opt}
-%	\end{tabular}
-\vspace{5pt}
-	\caption{Illustration of using Bayesian optimization to optimize the
-		toy one dimensional problem given in~\eqref{eq:opt:toy}.  Red dots show
-		the function evaluations,  the dotted red line shows the true function, 
-		the solid blue line is the GP mean, the shaded region is the GP mean $\pm 2$
-		standard deviations, the green line is the acquisition function, and
-		the dotted purple line is the location of the maximum of the acquisition
-		function. See main text for further description.\label{fig:opt:bayes-opt}}
-\end{figure}
-
-Figure~\ref{fig:opt:bayes-opt}\todo{Sort out rastering} shows BO being used to maximize the 
+Figure~\ref{fig:opt:bayes-opt} shows BO being used to maximize the 
 following simple one dimensional function
 \begin{align}
 \label{eq:opt:toy}
@@ -103,6 +47,38 @@ The second decision -- deciding the location of the optimum -- is now straight f
 estimate for the most optimal point of those evaluated is simply the point with
 the highest mean, or if we allow our estimate to be a non-evaluated point, we can the instead take
 the maximum of the mean function.
+
+\begin{figure}[t]
+	\centering
+	\begin{subfigure}[b]{0.32\textwidth}
+		\includegraphics[width=\textwidth,trim={6.8cm 4cm 4.8cm 3cm},clip]{10_with_acq_opt}
+		\caption{10 iterations \label{fig:opt:bayes-opt:10}}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.32\textwidth}
+		\includegraphics[width=\textwidth,trim={6.8cm 4cm 4.8cm 3cm},clip]{11_with_acq_opt}
+		\caption{11 Iterations \label{fig:opt:bayes-opt:11}}
+	\end{subfigure}
+	~
+	\begin{subfigure}[b]{0.32\textwidth}
+		\includegraphics[width=\textwidth,trim={6.8cm 4cm 4.8cm 3cm},clip]{20_with_acq_opt}
+		\caption{20 Iterations \label{fig:opt:bayes-opt:20}}
+	\end{subfigure}\vspace{5pt}
+	%	\begin{tabular}{m{0.15\textwidth} m{0.65\textwidth}}
+	%		10 Iterations & \includegraphics[width=0.6\textwidth]{10_with_acq_opt}
+	%		\\
+	%		11 Iterations & \includegraphics[width=0.6\textwidth]{11_with_acq_opt}
+	%		\\
+	%		20 iterations & \includegraphics[width=0.6\textwidth]{20_with_acq_opt}
+	%	\end{tabular}
+	\caption{Illustration of using Bayesian optimization to optimize the
+		toy one dimensional problem given in~\eqref{eq:opt:toy}.  Red dots show
+		the function evaluations,  the dotted red line shows the true function, 
+		the solid blue line is the GP mean, the shaded region is the GP mean $\pm 2$
+		standard deviations, the green line is the acquisition function, and
+		the dotted purple line is the location of the maximum of the acquisition
+		function. See main text for further description.\label{fig:opt:bayes-opt}}
+\end{figure}
 
 To solve the first decision -- where to evaluate next -- we specify a so-called 
 \emph{acquisition function}  $\zeta : \vartheta \rightarrow \real$
@@ -149,8 +125,8 @@ helpful is evaluated at the next iteration.  This can be useful when the time fo
 iteration is comparable to a function evaluation, as the amount of computational effort
 undertaken by the BO can be tuned to the problem at hand.  It is also worth noting that
 the computational complexity for optimizing the acquisition function is theoretically less
-(in terms of BO iterations) than the GP training ($O(N^2)$ instead of $O(N^3)$), though in
-practice the two are typically comparable for the modest number of iterations BO is
+(in terms of BO iterations) than the GP training ($O(N^2)$ instead of $O(N^3)$), though the two
+are still often comparable for the modest number of iterations BO is
 generally run for.
 
 Going back to Figure~\ref{fig:opt:bayes-opt}, we see that BO works by interleaving
@@ -160,6 +136,34 @@ regression again.  After 20 iterations for our simple problem, the GP regression
 the optimum has become very accurate, while it is less accurate elsewhere.  This
 highlights the sample efficiency of BO as it shows how computational resources are
 focussed on where they are required.
+
+Though we have thus far assumed that a GP is used for the surrogate, this is far from the only possible choice
+and one can, for example, userandom forests \citep{bergstra2011algorithms,hutter2011sequential} 
+or neural networks \citep{snoek2015scalable}.  Their are a number
+of characteristics that make GPs suitable for the surrogate model.  For example, they are very powerful
+regressors that can accurately represent the function from relatively few evaluations, especially
+for low-dimensional smooth functions.  They also naturally produce uncertainty estimates
+that are typically more accurate that those produced by alternatives which often
+have to resort to post-processing or heuristics to estimate uncertainty.
+This also leads to simple and tractable acquisition functions.  Similarly, their ability to incorporate
+noisy observations is often helpful, though because GP inference is only analytic for Gaussian
+likelihoods, it is often impractical to incorporate non-Gaussian noise.  This problem can be
+particularly manifest when the observations are bounded, such as when the target is a probability
+and thus always positive.  A common way of dealing with this is to optimize a mapping of the
+original function, for example optimizing the log probability in (M)MAP problems~\citep{osborne2010bayesian}.
+
+When prior information is known about the function, the
+flexibility in choosing the covariance kernel can also be very helpful, for example allowing known
+smoothness to be incorporated.  However, this can also be a curse as an inappropriate choice of
+kernel can severely happen the performance.  In particular, it will typically be necessary to
+do inference over, or at least optimize, the GP hyperparamters.  Another drawbacks to using GPs
+is poor scaling in the number of iterations -- training is a $O(N^3)$ operation due to the required
+matrix inversion.  This typically restricts BO using GPs to using on the order of hundreds of iterations
+unless appropriate approximations are made~\citep{snelson2006sparse,hensman2013gaussian}.
+Another drawback can be poor scaling in the dimensionality of the inputs -- most common kernels
+only encode information about the inputs through the (scaled) Euclidean distances between points,
+which can break down in high dimensions because all points are typically
+``far away'' from one another \citep{bengio2006curse}.  
 
 \subsection{Acquisition Functions}
 \label{sec:opt:BO:acq}
@@ -282,7 +286,7 @@ target in a principled manner by considering the distribution on the location of
 $p(\theta^* | \Theta, V)$ where $\Theta$ and $V$ are the previously evaluated input and output
 points as per Section~\ref{sec:opt:GPs}.
 
-The simplest way this can be done is using Thompson sampling\citep{thompson1933likelihood}, 
+The simplest way this can be done is using Thompson sampling~\citep{thompson1933likelihood}, 
 where instead of optimizing an acquisition function directly, one looks to sample the next
 point to evaluate from $p(\theta^* | \Theta, V)$~\citep{shahriari2014entropy,bijl2016sequential,kandasamy2017asynchronous}.  
 In the GP setting, this is equivalent to sampling a particular function realisation $f$ and then taking 
@@ -349,7 +353,7 @@ to cover here.  However, some of other strategies of particular note include
 Generally the performance of BO will be strongly dependent on the choice of GP
  hyperparameters $\alpha$.  Rather than optimizing for $\alpha$ it is natural, 
  when tractable, to take a fully Bayesian view and marginalize
- over $\alpha$ \cite{osborne2009gaussian}, leading to
+ over $\alpha$ \citep{osborne2009gaussian}, leading to
  mixture of GPs posterior.  This was shown
  by~\cite{snoek2012practical} to substantially improve the performance of BO.
  An easy way to do this for simple acquisition functions is to consider an
@@ -390,7 +394,7 @@ In practice, this assumption is rarely fulfilled, though for technically unbound
 problems then it is not uncommon
 for the user to be able to specify a box conveying a region where it is reasonable to
 assume to the true optimum falls within the box.  To go beyond this assumption, it is
-necessary to design strategies that can deal with constraints and strategies that deal
+necessary to design strategies that can deal with constraints and  that deal
 with unbounded problems.  Dealing with the former when using a GP surrogate can
 be particularly challenging, as simply setting the points that violate the constraints
 to have very low objective function evaluations will severely undermine the GP
