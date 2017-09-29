@@ -5,18 +5,20 @@
 
 In this thesis we have introduced a \emph{Bayesian} approach to machine learning and demonstrated
 how \emph{probabilistic programming systems} (PPSs) provide an exciting framework for
-encoding rich and expressive models.  We have shown how by \emph{automating inference} for
-arbitrary models and allowing models to be written in a manner more in line with conventional
-scientific coding, PPS also make effective statistical methods accessible to non-experts.
-We highlighted the importance of taking such an approach in scenarios where one has
+encoding rich and expressive models in the Bayesian framework.  
+We highlighted the importance of taking A Bayesian approach in scenarios where one has
 access to substantial \emph{prior knowledge} or domain specific expertise, but noted that taking
 \emph{discriminative} machine learning approaches can be more effective, and typically substantially
 easier to implement, when one has access to large quantities of data but little prior information.
-When opting for a Bayesian approach, we explained that thee key challenges are in writing good models
+When opting for a Bayesian approach, we explained that two key challenges are in writing good models
 and solving the resultant \emph{Bayesian inference} problem needed to characterize the posterior.
 PPSs can in some ways help in addressing both of these challenges, providing an expressive framework
-that allows users to write models true to their assumptions and removing the burden of inference
-from the user.  However, in many ways, PPSs actually hamper the Bayesian inference problem, because
+that allows users to write models true to their assumptions in a manner more in line with conventional
+scientific coding and removing the burden of inference from the user by providing general
+purpose \emph{inference engines} capable of operating on arbitrary programs.
+Together these mean that PPS make effective statistical methods accessible to non-experts, while
+streamlining the process of writing models and inference algorithms for seasoned researchers.
+However, in many ways, PPSs actually hamper the Bayesian inference problem, because
 they require developers to design inference engines capable of working on any model.
  This problem is especially pronounced
 for so-called \emph{universal} PPSs, which, as we explained, place almost no restrictions on the
@@ -36,7 +38,7 @@ the former, we introduced the \emph{interacting particle Markov chain Monte Carl
 algorithm~\citep{rainforth2016interacting}, a particle based inference method delivering
 better per-sample performance than existing methods for a given memory budget, while also introducing the opportunity for
 parallelization.  We then showed how iPMCMC is suitable for universal PPSs, detailing its implementation
-in Anglican.  Towards the aim of increasing the range of problems to which PPSs can be applied, 
+in the PPS \emph{Anglican}.  Towards the aim of increasing the range of problems to which PPSs can be applied, 
 we have firstly introduced \emph{Bayesian optimization for probabilistic 
 	programs} (BOPP)~\citep{rainforth2016bayesian}, providing
 the first framework for mixed inference-optimization problems in probabilistic programs, allowing things
@@ -45,21 +47,21 @@ BOPP also provides a significant contribution to the Bayesian optimization liter
 convenient and efficient package for solving conventional optimization problems that exploits the
 source code of its target to provide innovations in problem-independent hyperpriors, unbounded
  optimization, and implicit constraint satisfaction.
-We have further undertaken theoretical work looking into the convergence of \emph{nested Monte Carlo} (NMC)~\citep{rainforth2017pitfalls}, for which \emph{nested inference} problems are an
-example use case.   We demonstrated that the convergence
-of NMC is possible, but that this some additional assumptions need
+We have further undertaken theoretical work looking into the convergence of \emph{nested Monte Carlo} (NMC)~\citep{rainforth2017pitfalls}, for which \emph{nested inference} problems are a particular example.
+We demonstrated that the convergence
+of NMC is possible, but that some additional assumptions need
 to be satisfied, e.g. the number of samples used for \emph{each} inner estimate needs to be driven
 to infinity.  Our results go beyond the cases considered
 by previous results and, in particular, apply to cases of repeated nesting, as can occur in PPSs.
 We then carefully considered the implications of our results for PPSs and provided recommendations
-about how to ensure consistency is maintain.  Our final contribution to extending PPSs was in
+about how to ensure consistency is maintained.  Our final contribution to extending PPSs was in
 applying our theoretical results from nested estimation to consider the specific problem of Bayesian
 experimental design, deriving an improved estimator for discrete problems and outlining a framework
 for automating the solution of sequential design problems, as might be experienced in, for example,
 psychological trials.  Our technical innovations were applied to automating
 a specific class of problems relating to delay and probability discounting experiments by
 introducing the DARC toolbox, perhaps providing a first step in demonstrating how one might
-be able to construct a general purpose PPS for automating sequential design problems.
+be able to construct a general purpose PPS for automating adaptive design problems.
 
 A natural question is now where do we go next?  In addition to the obvious ongoing challenges
 of improving inference and range of problems covered by PPS, perhaps the most clear cut 
@@ -98,10 +100,10 @@ in Chapter~\ref{chp:design} to a general purpose tool for automating sequential 
 The potential applications for such a system would be huge,  ranging from designing clinical trials to
 smart online surveys and classic autonomous agent problems.  In  the same way all Bayesian modeling
 problems can be reduced to a common inference framework, such problems can be reduced to a
-common Bayesian experimental design framework, suggesting that they are highly suited to a
-probabilistic programming style approach.  However, their are a number of reasons existing systems
+common Bayesian experimental design framework. This suggests that they are highly suited to a
+probabilistic programming style approach.  However, there are a number of reasons existing systems
 are not suited to such problems.  Firstly, such problems require concurrent inference 
-an optimization.  Our introduction of BOPP could be a big help for overcoming this problem,
+an optimization.  Our introduction of BOPP could be of help for overcoming this problem,
 but its computationally intensive nature means that it is perhaps not suitable for
 some scenarios, e.g. the psychological trials we considered in Section~\ref{sec:design:darc},
 for which the approach we outlined in Section~\ref{sec:design:seq}, or an extension thereof,
@@ -111,28 +113,28 @@ Secondly, Bayesian experiment design problems, in general, require the calculati
 estimation.  For discrete outputs, we showed how a superior estimator can be derived and so
 it would be important to exploit this when possible in any hypothetical system.  For continuous problems that
 cannot be rearranged, then as we explained in Section~\ref{sec:nest:imp}, we need to be careful
-to avoid the pitfalls of nested estimation, for which existing systems potentially need suitable
+to avoid the pitfalls of nested estimation, for which existing systems appear to need suitable
 adaptation.  It is may also to be beneficial to develop application specific estimation schemes
 for this setting, potentially exploiting the known form of the nonlinear mapping to
 devise methods for bias reduction.  Finally, to make such a system user friendly, it would
 be important to provide a convenient means of encoding a suitable design space alongside the
-model.  It might, for example, be possible to do in a similar manner as constraints were enforced
-in BOPP, noting that each each iteration in a sequential design is effectively a maximum marginal likelihood
+model.  It might, for example, be possible to do this in a similar manner as constraints were enforced
+in BOPP, noting that each iteration in a sequential design is effectively a maximum marginal likelihood
 problem.
 
 \section{Amortizing Inference}
 
 An interesting recent advancement in PPSs is the idea of \emph{amortizing} the process of 
-inference~\citep{paige2016inference,ritchie2016deep,le2017inference}.  At a high level, 
-that we often repeatedly use the same models for multiple different datasets and therefore
+inference~\citep{paige2016inference,ritchie2016deep,le2017inference}.  The  high-level idea is that  
+we often repeatedly use the same models for multiple different datasets and therefore
 it can be wasteful to attempt to do inference from scratch each time.  Instead, one can, before any data is
 actually seen, look to learn a regressor from the space of data to, for example, proposals, such that
 when any particular dataset is actually observed, one can use this regressor to produce an
 artifact to assist with the resulting inference.  To do this, methods exploit the fact that generative
 approaches specify a distribution over both data and parameters, such that it is theoretically possible
 to learn the form of the posterior as a function of the dataset by sampling parameter-data pairs from
-the joint distribution and using these to train a regressor from data to some characterization of
-parameters.  In practice, doing this is can be very challenging -- learning a posterior for any possible
+the joint distribution and using these to train a regressor from data to some parameters providing a characterization of
+posterior.  In practice, doing this is can be very challenging -- learning a posterior for any possible
 dataset is inevitably far harder than learning one for a particular dataset -- but in applications where
 the same model is repeatedly used, the additional cost can be easily justified.  Current methods share
 a number of weaknesses, such as being restricted by the fidelity of the underlying regressor, mostly
@@ -156,7 +158,7 @@ usage on, for example, generic classification tasks~\citep{rainforth2015canonica
 many problems call for a generative, rather than discriminative, approach,
 particularly when data is scarce or significant prior information is available as we explained
 in Section~\ref{sec:bayes:discrim}.  Interestingly, however, this is perhaps
-where a lot of the success for ANNs actually originates.  Compared to say random forests, ANNs constitute a very
+where a lot of the successes of ANNs actually originate.  Compared to say random forests, ANNs constitute a very
 flexible and composible framework for discriminative machine learning and perhaps provide a means of 
 indirectly imposing prior knowledge on the ANN through its structuring.  Arguably, a major weakness of
 declarative generative approaches, such as those employed by PPSs, is that we almost
@@ -166,8 +168,7 @@ misspecified.  For ANNs, on the other hand, when there is not an abundance of tr
 for example, resorting to generating synthetic data to train the network.  Doing this is, in effect, a somewhat convoluted,
 though often very effective, method for imposing prior information on the model~\citep{le2017using}.  From this
 perspective, the Bayesian approach, and in particular probabilistic programming, is perhaps also of significant
-consequence to the ANN literature, as for example characterized  by the rise of so called 
-``Bayesian deep-learning''~\citep{gal2016uncertainty}.
+consequence to the ANN literature~\citep{gal2016uncertainty}.
   In particular, there may be a bright future for methods which
 take a model based approach, but without having to assumptions as strict and prone to misspecification
 as conventional Bayesian modeling, for which ANNs are likely to be highly useful tool~\citep{siddharth2017learning}.
@@ -178,11 +179,11 @@ Our final discussion is originates from a question raised by the probabilistic n
 community about whether we should, at least as a long term idealistic vision, look do away with randomization entirely?  This
 in many ways this corresponds to taking a Bayesian philosophy to its most extreme possible
 limit, by which we shun all notions of drawing from probability distributions and view probability only as a measure
-of uncertainty.  Given heavy use of Monte Carlo methods and aversion to using approximations through this thesis,
-it perhaps comes as not surprise that we are vehemently opposed to this idea.  Nonetheless, it is still an insightful
+of uncertainty.  Given the heavy use of Monte Carlo methods and aversion to using approximations throughout this thesis,
+it perhaps comes as no surprise that we are vehemently opposed to this idea.  Nonetheless, it is still an insightful
 question that deserves serious consideration.  We here present arguments for why we believe randomization is essential
-on a fundamental level, rather than should be avoid except when unavoidable.  The intension is that this discussion should
-be see as a pairing to~\citep{schober2017thesis}, who provides the the other side of the argument.
+on a fundamental level, rather than should be avoid except when unavoidable.  The intension is that this, inevitably subjective,
+discussion should be see as a pairing to~\citep{schober2017thesis}, who provides the other side of the argument.
 
 We start by summarizing the arguments of~\citep{schober2017thesis} and briefly introducing why one might wish to
 do away with randomization.  At a high-level, the crux of the argument against randomization is that, unless our aim 
@@ -190,18 +191,18 @@ is sampling itself, we always have a certain amount of information available and
 calculating an expectation), and that, at least at a philosophical level, randomization only serves to add noise to this
 process.  Similarly to the likelihood principle, one might argue that given the same data and model, we should 
 always carry out the same calculation to perform inferences and always reach the same conclusion.  Doing otherwise,
-the argument follows, must always be suboptimal, as in involves inconsequential information effecting the final
+the argument follows, must always be suboptimal, as it involves inconsequential information effecting the final
 decision.  One compelling motivation for this is that, in certain situations, some deterministic
-methods can deliver substantially better convergence rates than Monte Carlo~\cite{briol2016fwbq,caflisch1998monte}, 
-though these a typically crippled by the curse of dimensionality in a way that Monte Carlo is not.
+methods can deliver substantially better convergence rates than Monte Carlo~\citep{briol2016fwbq,caflisch1998monte}, 
+though these are typically crippled by the curse of dimensionality in a way that Monte Carlo is not.
 	
-Though eminently reasonable, our opinion is that this arguments, which almost completely dismiss the entirety
+Though eminently reasonable, our opinion is that this argument, which almost completely dismiss the entirety
 of frequentist statistics, is fundamentally flawed.  Our argument can be broken down into four main reasons 
 that we need, and always will need, random numbers:
 \begin{description}[align=left]
 	\setlength\itemsep{-0.1em}
 	\item[Honesty and reliability] -- The alternative to randomness is almost always approximation, introducing bias 
-	and an error whose uncertainty is inherently subjective.
+	that might be impossible to effectively quantify.
 	\item[Lack of repeatability] -- Though it is always convenient when an experiment is repeatable, systematically 
 	returning the same incorrect answer is far more dangerous.
 		\item[Compossibility] -- Methods such as Monte Carlo are ambivalent to how the samples are to be used, creating 
@@ -212,7 +213,7 @@ that we need, and always will need, random numbers:
 		power than not doing so.
 		\vspace{-10pt}
 \end{description}
-The first three of these arguments are related to the following principle:
+While the latter two arguments are computational, the others are related to the following principle:
 \begin{quote}
 	\vspace{-4pt}
 \emph{Once we have imparted all possible information upon a system, we must treat what is left as truly 
@@ -223,10 +224,10 @@ In other words, imagine we can construct a problem in a manner that utilizes all
 both in terms of the model and in how best to solve the model.
 Any remaining uncertainty is now, at least for all practical purposes, inherent to the problem and so any
 further attempt to remove randomness from the system is indirectly adding in further prior information we
-did not want to impart.  Furthermore, soon as we make approximations to our model,
+did not want to impart.  Furthermore, as soon as we make approximations to our model,
  we lose calibration of the uncertainty in our estimate: we can estimate the variance
-resulting from randomness through repetition, but there is usually no way to estimate the impact of bias
-resulting from approximation.
+resulting from randomness through repetition, but there is usually no way to estimate the bias
+resulting from the approximation.
 
 Putting our frequentist hat on for the moment, then the notion of doing away with randomness is scary.
 As we explained in Section~\ref{sec:bayes:religions},
@@ -241,17 +242,17 @@ approach, the need for randomness becomes obvious, as in the frequentist framewo
 through random variables.  As powerful as the Bayesian framework is, it is inherently optimistic and subjective
 (e.g. there are always unknown unknowns), and as such it can never really be the whole story.  If we try and
 do away with randomness completely it is impossible to be objective -- we have to choose our approximation, sometimes
-in an arbitrary fashion (e.g. by setting the random number seed) -- and so we can never provide properly calibrated confidence 
+in an arbitrary fashion -- and so we can never provide properly calibrated confidence 
 intervals that are not prone to subjective interpretation.
 
 This honesty of Monte Carlo goes beyond specific applications.  One of its most powerful consequences is the compossibility
-of Monte Carlo estimates: give a sample from a marginal, I can generate a valid sample of the joint by sampling from the
-conditional.  Similarly, if I have samples from a joint, I also have samples from the marginal distributions.  This behavior
+of Monte Carlo estimates: give a sample from a marginal, one can generate a valid sample of the joint by sampling from the
+conditional.  Similarly, if we have samples from a joint, we also have samples from the marginal distributions.  This behavior
 is essential when composing different components into a greater system as one can ensure each component takes in
 samples as inputs and outputs corresponding samples as output that can be used by the next process in the pipeline.
 If we instead make some deterministic approximation at each stage, we flaunt the flaw of averages and our biases
-will conflagulate to give a result that might be substantially different to the truth.  Sticking with unbiased Monte Carlo estimation
-then although it is of course possible that our variance will explode, but this can almost always be checked.
+will conflagulate to give a result that might be substantially different to the truth.  If we stick with unbiased Monte Carlo estimation
+methods then although it is of course possible that our variance will explode, this can almost always be checked.
 If we do away with randomness, we might generate large errors without even knowing we have.
 
 This lack of repeatability is actually an essential advantage of Monte Carlo.  It is better for a system to give you
@@ -259,10 +260,10 @@ a different wrong answer each time it is queried than to always give the same wr
 of the different answers is in fact the truth, as is often the case.  When we write scientific papers we run our experiments
 multiple times to show the variability in the results.  Systems that always give the same answer and instead return
 a single subjective uncertainty estimate (e.g. a Gaussian process) are not generally trustworthy because there is no
-true calibration or sense of whether the experimenter simply got lucky with a system that does not actually work well
-in practice.  Furthermore, such a setting is very open to intentional or unintentional abuse.  If we fix our randomness
+true calibration or sense of whether the experimenter simply got lucky with a system that will not generalize.  
+Furthermore, such a setting is very open to intentional or unintentional abuse.  If we fix our randomness
 a priori and then adapt our algorithm until it works, we may well simply be over-fitting to what works best for that
-random number seed or approximation. If we want to maintain scientific integrity then we have to report results on 
+random number seed or approximation. To maintain scientific integrity then we have to report results on 
 experiments that have not been
 tested during the design of our algorithm and which are tested with multiple different choices for arbitrary or subjective
 decisions, to show that those results are actually stable and representative.  If we do away with randomness, we lose, or at the very least
