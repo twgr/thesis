@@ -28,8 +28,9 @@ For example, if we roll a fair six-sided dice then the result of the roll is a r
 while rolling a $4$ is both a possible outcome and a possible event.  Rolling a number greater
 or equal to $5$, on the other hand, is a possible event but not a possible outcome: it is a set
 of two individual outcomes, namely rolling a $5$ and rolling a $6$.  Outcomes are
-\emph{mutually exclusive}, i.e. if it not possible for two separate outcomes to occur in a
-particular trial, but events are not -- for example, it is possible for both the events that we
+\emph{mutually exclusive}, that is, it is not possible for two separate outcomes to occur for a particular trial, e.g.
+we cannot roll both a $2$ and $4$ with a single throw.
+Events, on the other hand, are not. For example, it is possible for both the events that we
 roll and even number and we roll a number greater than $3$ to occur.
 
 \section{Probabilities}
@@ -42,7 +43,7 @@ $X=4$ and $X\le3$ are events for the random variable $X$ with probabilities of $
 respectively.   A probability of $0$ indicates that an event has no chance of happening, 
 for example the probability that we role an $8$, while
 a probability of $1$ indicates it is certain to happen, for example, the probability 
-that we roll a number less than $7$.  All probabilities must thus lie between $0$ and $1$ 
+that we roll a positive number.  All probabilities must thus lie between $0$ and $1$ 
 (inclusively).  
 A \emph{distribution} of a random variable provides the probabilities of each possible 
 outcome for that random variable occurring.
@@ -55,16 +56,16 @@ a fixed possible realization of the random variable (e.g. rolling a $4$).
 All the same, we will at times be intentionally carefree about delineating between
 random variables and outcomes, except for when the distinction is explicitly necessary.
 
-Somewhat surprisingly, there are two competing (and often incompatible)
-formal definitions for what probabilities actually mean.  The frequentist definition of
-probability is that it is the average proportion of the time an event will occur if a trial is 
-repeated infinitely many times.  The Bayesian definition of probability is that it is the subjective
+Somewhat surprisingly, there are two competing (and sometimes incompatible)
+interpretations of probability.  The frequentist interpretation of
+probability is the average proportion of the time an event will occur if a trial is 
+repeated infinitely many times.  The Bayesian interpretation of probability is that it is the subjective
 belief that an event will occur in the process of incomplete information.  Both viewpoints have
 strengths and weaknesses and we will avoid being drawn into one of the biggest debates in
 science, noting only that the philosophical differences between the two are typically completely
-detached from the practical differences between the resulting
-algorithms (see Section~\ref{sec:bayes:religions}), despite the former all too 
-often be used to argue the superiority of one approach over another.
+detached from the practical differences between the resulting machine learning or statistics
+methods (see Section~\ref{sec:bayes:religions}), despite these philosophical differences all too 
+often be used to argue the superiority of the resultant algorithms~\citep{gelman2011induction,steinhardt2012beyond}.
 
 \section{Conditioning and Independence}
 \label{sec:prob:cond}

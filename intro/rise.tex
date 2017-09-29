@@ -1,8 +1,8 @@
 % !TEX root = ../main.tex
 
 How come a dog is able to catch a
-frisbee in mid-air? How come a batsman can instinctively predict the flight of a cricket ball
-moving at over $100$km/h sufficiently accurately and quickly to hit it with the bat when there
+frisbee in mid-air? How come a batsman can instinctively predict the flight of a cricket ball,
+moving at over $100$km/h, sufficiently accurately and quickly to hit it when there
 is not even time to consciously make a prediction?  Clearly, neither can be based on a
 deep explicit knowledge of the laws of physics or some hard-coded model for the movement
 of objects; we are not even born with the knowledge that unsupported objects will 
@@ -56,7 +56,7 @@ crucial component in many technological and scientific advancements.
 %about and making predictions for tasks we cannot solve directly ourselves.
 
 In many machine learning applications, it is essential to use a principled \emph{probabilistic} 
-approach \cite{ghahramani2015probabilistic}, incorporating uncertainty and utilizing all the information at hand, 
+approach \citep{ghahramani2015probabilistic}, incorporating uncertainty and utilizing all the information at hand, 
 particularly when data is scarce.  The \emph{Bayesian paradigm} provides an excellent basis upon which to do this: an area 
 specialist constructs a probabilistic model for data generation, conditions this on the actual observations received, 
 and, using Bayes' rule, receives an updated model incorporating this information.  This
@@ -91,7 +91,7 @@ simulator, without worrying about the inference, which becomes the job of the de
 one can think of PPS as operating as inverse probability engines, outputting the conditional 
 probability distribution implied by the generative model coupled with the observed data.
 Removing the need for users to worry about the required inference significantly reduces the 
-burden of developing new models, and makes effective statistical methods accessible to 
+burden of developing new models and makes effective statistical methods accessible to 
 non-experts.  From a developer's perspective, the abstraction can also aid in the design 
 and testing of new inference algorithms.  Furthermore, the availability of the target source 
 code, with known semantics, opens up many opportunities for new methods that would
@@ -112,7 +112,7 @@ complexity of models that can be tackled by a system are predominantly dictated 
 effectiveness of its inference engine(s).  
  Though existing PPSs provide an effective means of performing
 inference in simple models or those with easily exploitable structures, they still tend to be
-some way off what is achievable using bespoke inference methods and even further away from
+some way off what is achievable using bespoke inference methods.  They are even further away from
 what would be required to achieve our lofty ambitious of providing automated inference for
 the vast array of stochastic simulators used by the scientific community.  
 Improving inference engines is, therefore, essential for making PPSs practical and applicable 
@@ -126,20 +126,20 @@ Our second aim, of increasing the range of problems that can be tackled by PPSs,
 going beyond the standard Bayesian inference setting.  As powerful as the Bayesian paradigm is,
 it is far from the only tool in the machine learning arsenal and there are many problems that fall
 outside of its framework.  For example, by extending PPSs to a more general mixed
-inference-optimization framework using BOPP~\cite{rainforth2016bayesian}, we open the door to
-a number of fascinating opportunities such learning models themselves or constructing
+inference-optimization framework using BOPP~\citep{rainforth2016bayesian}, we open the door to
+a number of fascinating opportunities such as learning models themselves or constructing
 principled, probabilistic, engineering design pipelines that explicitly incorporate
 the uncertainty in the task at hand.  We will also investigate the opportunities and pitfalls
 of \emph{nesting} inference problems and nesting estimation more
 generally~\citep{rainforth2017pitfalls}.  Such nesting is essential for expressing a wide array
 of problems from experimental design~\citep{chaloner1995bayesian} to
-theory of mind~\citep{stuhlmuller2014reasoning}.  PPSs provide a highly convenient means
+theory-of-mind~\citep{stuhlmuller2014reasoning}.  PPSs provide a highly convenient means
 of encoding such problems, but previous results confirming the statistical validity of doing
 so remain substantially lacking.  We provide many of the required foundational theoretical results and
 demonstrate their importance by providing guidelines and precautions for carrying out such nesting,
 both in the specific probabilistic programming context and more generally, highlighting potential
 shortcomings in how this is dealt with by existing systems.  We also use our findings to start
 taking steps towards potentially building a general purpose system for automated adaptive
-experimental design, realizing this potential in the restricted setting of psychological trials
+design, realizing this potential in the restricted setting of psychological trials
 investigating the impact of delays and uncertainty on the subjective values people place
-on rewards~\citep{vincent2017darc} .
+on rewards~\citep{vincent2017darc}.

@@ -29,8 +29,10 @@ frequentist methods can be either generative or discriminative.
 As we have already discussed differences between generative and
 discriminative modeling in Section~\ref{sec:bayes:discrim} we will mostly omit this difference from our subsequent discussion.
 
-At their root, the statistical differences between Bayesian and frequentist methods stem from 
-distinct fundamental
+At their root, the statistical differences between Bayesian and frequentist methods\footnote{At least in their decision-theoretic
+frameworks.  It is somewhat inevitable that delineation here and later will be a simplification on what is, in truth, not a clear
+cut divide~\citep{gelman2011induction}.}
+stem from distinct fundamental
 assumptions: frequentist modeling presumes fixed parameters, Bayesian modeling assumes fixed data~\citep{jordan2009you}.  In many ways,
 both of these assumptions are somewhat dubious. Why assume fixed parameters when we do not have enough
 information about from the data to be certain of the correct value?  Why ignore that fact that other data could have 
@@ -116,14 +118,14 @@ further and make the results change for absurd reasons.  For example, imagine ou
 $3$ heads but was then attacked and killed by a bear while the twelfth flip was in the air such that further flips would not
 have been possible regardless of the outcome.  In the frequentist setting, this again changes our conclusions
 about whether the coin is biased.  Clearly, it is ridiculous that the occurrence or lack of a bear attack during the experiment
-should change our inferences, but that is need-to-know information for frequentist approaches, particularly if using p-values.
+should change our inferences, but that is need-to-know information for frequentist approaches, particularly if using \emph{significance tests}.
 
 As we previously suggested though, one can also use this example to argue for frequentist methods because it actually
-suggests the likelihood principle is incorrect.  Although p-values are a terribly abused tool whose misuse has had
+suggests the likelihood principle is incorrect.  Although significance tests are a terribly abused tool whose misuse has had
 severe detrimental impact on many applied communities~\citep{goodman1999toward,ioannidis2005most}, they are not incorrect if 
 interpreted correctly
 and are an extremely important part of the statistical arsenal when used appropriately.  If one very carefully considers
-the definition of a p-value as being the probability that the observed event or one more extreme is observed if the
+the definition of a \emph{p-value} as being the probability that the observed event or one more extreme is observed if the
 \emph{experiment is repeated}, we see that our bear attack does actually affect the outcome.  The chance of getting the same
 or more extreme data from repeating the experiment of ``\textit{flip the coin until you get $3$ heads}'' is different to 
 the chance of getting the same or a more extreme result from repeating the experiment 
@@ -249,7 +251,23 @@ good frequentist properties.  Such cases both predicate a need for
 considering that there are many possible datasets that might occur and, ideally, an objective approach
 that means the conclusions are independent to the whims of the analyst.
 
-Another issue that comes up with the prior is that it is often easy to end up 
+In particular, there is no (objective) Bayesian alternative to frequentist
+\emph{falsification} methods such as the aforementioned significance tests.\footnote{This is not to say one cannot 
+	perform falsification as part of Bayesian modeling, in fact avoiding doing so would
+	be ridiculous, but that providing objective statistical guarantees to this falsification requires use of
+	frequentist methods.  For example, even the essential research process of informally
+	rejecting and improving models undermines Bayesian coherence~\citep{gelman2011induction}.  On the other hand, the
+	process of peer review effectively
+	invalidates frequentist calibration by ensuring some studies never make it to the public domain.}
+  Both Bayesian and frequentist methods require assumptions
+and neither can never truly prove that a particular model or prediction is correct, but frequentist methods do
+allow one to indisputably \emph{disprove} hypotheses to within some confidence interval.  The real power
+of this is realized when we consider disproving \emph{null hypotheses}, e.g. the hypothesis that an
+output is independent of a potential driving factor.  This is why significance tests are so widely
+used through the sciences as, although, as much as people might try, they cannot be used to prove
+a model is correct, they can sure as hell be used to show certain assumptions or models are wrong.
+
+The use of a prior in Bayesian modeling can also be problematic because it is often easy to end up 
 ``using the data twice''~\citep{gelman2008objections}.  The Bayesian paradigm requires that the
 prior is independent from the data and this means that there should not be any human induced
 dependency.  In other words, it is necessary that the user sets their prior before
@@ -274,18 +292,19 @@ Although Bayesianism and frequentism are both exact frameworks, their applicatio
 Both frameworks have their strengths and weaknesses and so perhaps the key question is not which framework
 is correct, but when should we use each.  In
 particular, the Bayesian approach is often essential when working with small datasets but where we have substantial
-prior expertise.  On the other hand, a frequentist approach is essential to ensuring repeatability for large
+prior expertise.  On the other hand, a frequentist approach is essential to providing guarantees and ensuring repeatability for large
 datasets with little prior knowledge of note.  Bayesian and frequentist methods are also by no means mutually 
 exclusive and effective modeling often requires elements of both
-to be used concurrently.  From a theoretical perspective,
- averaging over both data and over parameters, leading to the \emph{Bayes risk}~\citep{robert2007bayesian}.   
-For example, one could be Bayesian about the results from a cross-validation test.
+to be used concurrently.  
+For example, one could be Bayesian about the results from a cross-validation test or look to calculate
+frequentist guarantees for a Bayesian model.\footnote{From a decision-theoretic perspective, we can
+average over both data and over parameters, leading to the \emph{Bayes risk}~\citep{robert2007bayesian}.}
 In essence, Bayesian and frequentist analysis have different aims -- Bayesianism is about updating
 subjective beliefs and frequentism is about creating long run, or repeated application, guarantees -- 
 and we often we care about both.  It is also worth noting that a number Bayesian methods exhibit
 good frequentist properties, see e.g.~\cite{mcallester2013pac} and the reference therein.
 
-We finish by noting a critical assumption made by both generative Bayesian and frequentist methods --
+We finish by noting a critical assumption made by both Bayesian and generative frequentist methods --
 that there is some true underlying value for the parameters.  Because
 all models are approximations of the real world, this is often a misguided and harmful assumption.  That this assumption
 is made is clear in the frequentist setting, but is somewhat subtle for Bayesian approaches.
@@ -294,7 +313,7 @@ about which parameter or hypothesis is correct, thereby still implicitly assume 
 Namely, in the limit of large data, Bayesian methods with finite numbers of parameters will collapse to a point estimate, 
 corresponding to the ``true parameter values'' (assuming the model is correct)~\citep{robert2007bayesian}.
 Consequently, a Bayesian approach does not fundamentally enrich the model space by averaging over parameters -- it
-is still necessary that exactly one set of parameters lead to the data but we are not exactly sure which one~\citep{minka2000bayesian}.
+is still necessary that exactly one set of parameters lead to the data, but we are not exactly sure which one~\citep{minka2000bayesian}.
 Consider as an example, Bayesian modeling for decision trees~\cite{chipman1998bayesian,lakshminarayanan2013top}
 compared to (discriminative) ensemble based approaches~\citep{breiman2001random,rainforth2015canonical}.
 The Bayesian approaches explicitly assume that our data is generated by one single decision tree and so in the limit of

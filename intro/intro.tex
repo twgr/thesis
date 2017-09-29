@@ -13,34 +13,37 @@ Although there will inevitably be gaps, the aim is to take
 the reader from the fundamentals of probability and machine learning,
 all the way through to highly advanced topics such as designing automatic
 mixed inference-optimization engines for probabilistic programming languages.
-In addition to making the work is as self-contained as is realistically possible, there are
-three key rationales for doing this.  Firstly, it is our aim to make the work 
+In addition to trying to make the work as self-contained as is realistically possible, there are
+three key rationales why we have decided to start from the fundamentals.  Firstly, it is our aim to make the work 
 as accessible as possible and hopefully provide a useful guide to those new to the field.
 Probabilistic programming, and machine learning more generally, draws
 researchers from an exceptionally diverse pool of backgrounds and what is rudimentary
 to, for example, the statistics community is often bewildering to the programming
 languages community and vice-versa. Secondly, because probabilistic programing, and 
-in particular the advanced content of this thesis, goes beyond conventional notions of
+in particular the more advanced content of this thesis, goes beyond conventional notions of
 Bayesian modeling, a thorough understanding of the core concepts is essential.
-Thirdly, it is the authors' 
-opinion that because machine learning moves so quickly, or perhaps simply because
-of the nature of research itself, one tends to become so fixated on a small area of
-research that the big picture becomes lost.  For good research it is important to not
+Thirdly, because machine learning moves so quickly, or perhaps simply because
+of the nature of research itself, it can be easy to become fixated on a small area of
+research and lose sight of the big picture.  For good research it is important to not
 only question ones contribution to a particular sub-field, but also the justification for
 that subfield itself.  With the current hype surrounding machine learning and, in particular,
 deep learning, returning to these
-fundamental principles and core concepts is more important than ever so that we know 
-what the right approach for a particular problem is and  appreciate realistically what we can
+fundamental principles and core concepts is more important than ever so that we can assert 
+ the right approach for a particular problem and  appreciate what we can realistically
 hope to achieve with machine learning.
 
-The breakdown between the pedagogical and research elements of this thesis are as follows.
+More precisely, the thesis can be broken down as follows.
 Chapters~\ref{chp:prob},~\ref{chp:bayes}, and~\ref{chp:inf} are all explicitly pedagogical
 and cover fundamentals that should be understood in depth by anybody researching or
-applying Bayesian modeling and arguably machine learning more generally.  Though
-Chapters~\ref{chp:prob} is very much covering the absolute basics,
-even seasoned researchers should hopefully find nuggets of unseen or forgotten information 
-in Chapters~\ref{chp:bayes} and~\ref{chp:inf}.  Chapter~\ref{chp:probprog} provides an
- introduction to
+applying Bayesian modeling and arguably machine learning more generally.  Further breaking these down,
+Chapter~\ref{chp:prob} provides a short, but hopefully gentle, primer on probability theory and
+thereby lays out the foundations upon which all probabilistic machine learning is based.
+Chapter~\ref{chp:bayes} introduces the Bayesian approach to machine learning upon which most of
+this work is based, providing motivation for the framework, but also a critique exposing some of its weaknesses. 
+Chapter~\ref{chp:bayes} introduces the problem of \emph{Bayesian inference}, required to solve all Bayesian
+modeling problems, focusing on a \emph{Monte Carlo} approach, providing, in particular, a detailed
+introduction to some of the foundational methods.
+Chapter~\ref{chp:probprog} provides an introduction to
 probabilistic programming from the perspective of writing models.  Though its earlier
 sections are still predominantly pedagogical (albeit for what is still a relatively niche field),
 much of the core notation for the rest of the thesis is provided in its latter sections, some of
@@ -49,7 +52,8 @@ Chapter~\ref{chp:part} considers a more advanced class of Bayesian inference met
 namely sequential Monte Carlo~\citep{doucet2009tutorial} and particle Markov chain Monte
 Carlo methods~\citep{andrieu2010particle},
 building up to our recent contribution to the literature~\citep{rainforth2016interacting}.
-Chapter~\ref{chp:probprog} though not explicitly new research, still constitutes
+Chapter~\ref{chp:probprog} though not explicitly new research, being in particular an ode
+to the work of~\cite{tolpin2016design}, still constitutes
 relatively advanced and cutting-edge material in the form of the intricate workings
 of a probabilistic programming system back-end.   Chapter~\ref{chp:opt} is a return
 to slightly more pedagogical material in the form of an introduction to Bayesian optimization.
