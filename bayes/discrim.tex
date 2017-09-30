@@ -26,13 +26,13 @@ As a more advanced example, in a neural network one uses training to learn the
 weights of the network, after which prediction can be done by running the network forwards.  
 
 There are many intuitive reasons to take a discriminative machine learning 
-approach.  Perhaps most compelling is the
+approach.  Perhaps the most compelling is the
 idea that if our objective is prediction, then it is simplest to solve that problem directly, rather
 than try and solve some more general problem such as learning an underlying generative 
 process~\citep{vapnik1998statistical,breiman2001statistical}. Furthermore, if sufficient
 data is provided, discriminant approaches can be spectacularly successful in term of predictive
 performance.  Discriminant methods are typically highly flexible and can capture intricate structure in the data that
-would be hard or even impossible to establish manually.  Many approaches can also be run with little
+would be hard, or even impossible, to establish manually.  Many approaches can also be run with little
 or no input on behalf of the user, delivering state-of-the-art performance when used
 ``out-of-the-box'' with default parameters~\citep{rainforth2015canonical}.  
 
@@ -46,25 +46,25 @@ of the data is critically important information~\citep{liu1998sequential}, while
 knowledge that scenes are generated from objects can be invaluable~\citep{kulkarni2015picture}.
 Many problems also increase in complexity as more data is added -- ``big data'' problems are often
 actually a collection, or sometimes hierarchy, of many small problems, such that the complexity of the
-required parametrization increases are more data is added.  Consider, for example, modeling interactions in
+required parametrization increases as more data is added.  Consider, for example, modeling interactions in
 a social network.  Adding a new user into the model increases the amount of data, but also
 requires the model to grow and accommodate the new user~\citep{ravasz2003hierarchical}.  In
 this situation it is essential to
 use an approach that respects the known structure, while the amount of data available
-for each individual user is often quite small, such that it will essential to use prior information
+for each individual user is often quite small, such that it will be essential to use prior information
 by transferring insights gathered from some users to others.  Therefore even for such large-scale
 problems, the inflexibility of many discriminative approaches to incorporate known characteristics
 of the target problem can be problematic.
 
 Not only does the black-box nature of many discriminative methods restrict the level of
 human input that can be imparted on the system, it often restricts the amount of insight
-and information that can be extracted from the system once trained.  The parameters in most discriminative
+and information that can be extracted \emph{from} the system once trained.  The parameters in most discriminative
 algorithms do not have physical meaning that can be queried by a user, making their operation
 difficult to interpret and hampering the process of improving the system through manual
 revision of the algorithm.  Furthermore, this typically makes them inappropriate for more
 statistics orientated tasks, where it is the parameters themselves which are of interest, rather
 than the ability for the system itself to make predictions.  For example, the parameters may
-have real-world physical interpretations we wish to learn about.
+have real-world physical interpretations which we wish to learn about.
 
 Most discriminative methods are also poor at providing realistic uncertainty estimates.
 Because they are typically trained in a manner that optimizes the parameters to minimize
@@ -74,7 +74,8 @@ produce uncertainty estimates either as a by-product or from a post-processing s
 these are typically heuristic based, rather than stemming naturally from a statistically
 principled estimate of the target uncertainty distribution.   This lack of reliable uncertainty
 estimates can lead to overconfidence and can make discriminative methods inappropriate in
-many scenarios.  It can also reduce the composability of discriminative methods within
+many scenarios, e.g. for any application where there are safety concerns.  
+It can also reduce the composability of discriminative methods within
 larger systems, as information is lost when only providing a point estimate.
 Not representing uncertainty in the parameters can also restrict the power of the resultant
 models, compared with approaches that can average over different possible parameter values.
@@ -83,7 +84,7 @@ These shortfalls mean that many tasks instead call for a \emph{generative} machi
 approach~\citep{ng2002discriminative,bishop2006pattern}.  Rather than directly learning a 
 predictor, generative methods look to explain the observed data using a \emph{probabilistic model}.
 Whereas discriminative approaches aim only to make predictions, generative approaches model
-how the data is actually generated; they model the joint probability $p(X,Y)$ of the inputs 
+how the data is actually generated: they model the joint probability $p(X,Y)$ of the inputs 
 $X$ and outputs $Y$.  By comparison, we can think of discriminative approaches as
 only modeling the outputs given the inputs $p(Y|X)$.  
 
@@ -95,17 +96,17 @@ and therefore for constructing systems that exploit application-specific human e
 In the words of the great George Box, ``\textit{all models are wrong, but some are useful}''
 \citep{box1979robustness,box2005statistics}.  In a way, this is a self-fulfilling statement: a model for
 any real phenomena
-is by definition an approximation and so is never exactly correct no matter how powerful.  However,
+is by definition an approximation and so is never exactly correct, no matter how powerful.  However,
 it is still an essential point that is all too often forgotten, particularly by academics trying to convince
 the world that only their approach is correct.  Only in artificial situations can we construct exact models
 and so we must remember, particularly in generative machine learning, that the first, and often largest,
 error is in our original mathematical abstraction of the problem.  On the other hand, real situations
 have access to finite and often highly restricted data, so it is equally preposterous to suggest that a
 method is superior simply due to better asymptotic behavior in the limit of large data, or that if our approach
-does not work then the solution is simply to get more data.\footnote{It should, of course, be noted
+does not work then the solution always just to get more data.\footnote{It should, of course, be noted
 	that the availability of data is typically the biggest bottleneck in machine learning.  At times, it feels 
 	like the machine learning community would we well served to remember that the differences in performance between
-	machine learning approaches is often, if not usually, dominated by variations in the inherently difficultly of the
+	machine learning approaches is often, if not usually, dominated by variations in the inherently difficulty of the
 	problem, which is itself not usually known up front, rather than differences between approaches.}  As such, the ease of which domain-specific
 expertise can be included in generative approaches is often essential to achieving effective performance
 on real world tasks.
@@ -113,7 +114,7 @@ on real world tasks.
 To highlight the difference between discriminative and generative machine learning, we consider the
 example of the differences between logistic regression (a discriminative classifier) and na\"{i}ve Bayes 
 (a generative classifier).  We will consider the binary classification case for simplicity.  Logistic regression is a linear
-classification where the class label $y \in \{0,1\}$ is predicted from the input features $x \in \real^D$ using
+classification method where the class label $y \in \{-1,+1\}$ is predicted from the input features $x \in \real^D$ using
 \begin{align}
 \label{eq:bayes:logistic}
 p(y|x,a,b) = \frac{1}{1+\exp(-y(a+b^Tx))},
@@ -127,11 +128,11 @@ is to find the \emph{most likely} parameters $a^*$ and $b^*$ by minimizing the n
 \end{align}
 Once found, $a^*$ and $b^*$ can be used with~\eqref{eq:bayes:logistic} to make predictions at
 any possible $x$.  Logistic regression is a discriminative approach as we have directly calculated
-a characterization for the predictive distribution, bypassing any direct reasoning about the joint
-probability of the inputs and the outputs.
+a characterization for the predictive distribution, rather than constructing a joint distribution
+on the inputs and outputs.
 
 The na\"{i}ve Bayes classifier, on the other hand, starts by making the assumption that each feature
-is \emph{independent} given the class label.  As such it reasons about both the distribution over both
+is \emph{independent} given the class label.  As such it reasons about the distribution over both
 inputs and outputs, unlike logistic regression which only reasons about the conditional probability
 of the output given the input.   If we let $\{x^1,\dots,x^D\} =: x$ represent the dimensions of $x$, then
 the na\"{i}ve Bayes assumption is that
@@ -144,12 +145,12 @@ p(x,y) = p(y) \prod_{i=1}^D p(x^i |y).
 \end{align}
 Here we are free to choose the form for both $p(x^i |y)$ and $p(y)$ %(defining these also indirectly defines $p(x)$)
 and we will use the data to learn their parameters.
-This freedom is both a blessing and a curse: it allows us to impart our own knowledge about the problem to
+This freedom is both a blessing and a curse: it allows us to impart our own knowledge about the problem on
 the model, but we may be forced to make assumptions without proper justification in the interest
 of tractability, for convenience, in error, or simply because it is challenging to specify a sufficiently
 general purpose model that can cover all possible cases.
 Further, even once the forms of $p(x^i |y)$ and $p(y)$ have been defined, there are still decisions to be
-made: do we take a Bayesian or frequentist view for making predictions? What is the best way
+made: do we take a Bayesian or frequentist approach for making predictions? What is the best way
 to calculate the information required to make predictions?  We will go into these questions in
 more depth in Section~\ref{sec:bayes:religions}.
 
@@ -160,4 +161,4 @@ generated.  As such, the parameters tend to have physical interpretation in the 
 therefore provide not only prediction, but also insight.  Generative approaches will not always be preferable,
 particularly when there is an abundance of data available, but they provide a very powerful framework
 that is essential in many scenarios.  Perhaps their greatest strength is in allowing the use of so-called
-Bayesian approaches which we now introduce.
+Bayesian approaches, which we now introduce.

@@ -6,8 +6,17 @@
 At its core, the Bayesian paradigm is simple, intuitive, and compelling: for any task involving
 learning from data, we start with some prior knowledge and then update that knowledge to
 incorporate information from the data.  This process is known as \emph{Bayesian inference}.
+To give an intuitive example, consider the problem of identifying objects in
+a visual scene.  Here it is relatively straightforward to construct a model for generating images by
+constructing a sampler for which objects appear in the scene and their respective positions.  Such
+graphics generators are used for computer games all the time.  Here our parameters are the objects and
+the data is the image.  Bayesian inference can now be thought of as the process of \emph{inverting} our generator:
+given objects, we can already know how to images, but what we want to do is identify objects from images.  We will return
+to these ideas in Chapter~\ref{chp:probprog} where we show how, using probabilistic programming,
+one can think of all stochastic simulators as defining Bayesian models and as the process of inference as
+inverting these simulators.
 
-Imagine we are trying to reason about some variables
+To be more precise, imagine we are trying to reason about some variables
 or parameters $\theta$.  We can encode our initial belief as probabilities for different
 possible instances of $\theta$, this is known as a \emph{prior} $p(\theta)$.  Given observed data
 $\mathcal{D}$, we can characterize how likely different values of $\theta$ are to have given rise
@@ -36,11 +45,14 @@ p(\theta | \mathcal{D}_1, \mathcal{D}_2) =
 \frac{p(\mathcal{D}_2 | \theta, \mathcal{D}_1)p(\mathcal{D}_1 | \theta) p(\theta)}
 {p(\mathcal{D}_2 | \mathcal{D}_1) p(\mathcal{D}_1)} .
 \end{align}
-As a consequence, their is something quintessentially human about the Bayesian paradigm: we learn
+As a consequence, there is something quintessentially human about the Bayesian paradigm: we learn
 from our experiences by updating our beliefs after making observations.  Our model of the world
-is constantly evolving over time and is the cumulation of experiences over a lifetime.  
+is constantly evolving with time and is the cumulation of experiences over a lifetime.  
 If we make an observation that goes against our prior experience, we do not suddenly make
-drastic changes to our underlying belief, but if we see multiple corroborating observations our
+drastic changes to our underlying belief,\footnote{This is not always quite true --
+	as probabilities are multiplicative then a particularly unexpected
+	observation can still drastically change our distribution.}
+ but if we see multiple corroborating observations our
 view will change.
 Furthermore, once we have developed
 a strong prior belief about something, we can take substantial convincing to change our mind, even
@@ -53,15 +65,15 @@ real observations.  We then update and improve our model accordingly in a never-
 increasing understanding for the world around us.  We can never hope to truly understand the workings
 of the universe  -- after all, it is, at least for practical purposes, fundamentally random~\citep{rainforth2013random} 
 -- and so we can hope only to construct increasingly accurate and pertinent models.
-This sequential updating, at the very least, shares parallels with the process of Bayesian modeling
-and could be argued to be a fundamentally Bayesian process in its own right.
+%This sequential updating, at the very least, shares parallels with the process of Bayesian modeling
+%and could be argued to be a fundamentally Bayesian process in its own right.
 
 To give a more concrete example of Bayesian modeling consider estimating
 the probability of getting a heads from a weighted coin.  Let's call this weighting $\theta \in [0,1]$ such
-that the probability of getting a heads  ($H$)  when flipping the coin is $p(Y=H | \theta)=\theta$
-where $Y$ is the outcome of the flip.  This will be our likelihood function, corresponding to a
+that the probability of getting a heads  ($H$)  when flipping the coin is $p(y=H | \theta)=\theta$
+where $y$ is the outcome of the flip.  This will be our likelihood function, corresponding to a
 \emph{Bernoulli} distribution, noting that the probability
-of getting a tails ($T$) is $p(Y = T | \theta) = 1-\theta$.
+of getting a tails ($T$) is $p(y = T | \theta) = 1-\theta$.
 Before seeing the coin being flipped we have some prior belief about its weighting.  We
 can, therefore, define a prior $p(\theta)$, for which we take the beta distribution
 \begin{align}
@@ -74,12 +86,9 @@ A plot for this prior is shown in Figure~\ref{fig:inf:coin_flip:0}
 where we see that under our prior then it is more probable that $\theta$ is close to $0.5$ than the
 extremes $0$ and $1$.  
 
-Now imagine that we flip the coin and get a tails ($T$).  We can
-use our prior and likelihood to calculate the posterior
+We now flip the coin and get a tails ($T$).  We can calculate the posterior using Bayes' rule
 \begin{align}
-p(\theta | Y_1 = T) &= \frac{p(\theta) p(Y_1=T | \theta)}{\int p(\theta) p(Y_1=T | \theta) d\theta} = \frac{\theta (1-\theta)^2}{\int \theta (1-\theta)^2 d\theta} \nonumber \\
-&= \textsc{Beta}\left(\theta ; 2,3\right) = 
-\frac{\Gamma(\alpha+\beta)}{\Gamma (\alpha) \Gamma(\beta)} \theta (1-\theta)^2 \label{eq:prob:beta_post_1}.
+p(\theta | y_1 = T) &= \frac{p(\theta) p(y_1=T | \theta)}{\int p(\theta) p(y_1=T | \theta) d\theta} = \frac{\theta (1-\theta)^2}{\int \theta (1-\theta)^2 d\theta} = \textsc{Beta}\left(\theta ; 2,3\right) \label{eq:prob:beta_post_1}.
 \end{align}
 Here we have used the fact that a Beta prior is \emph{conjugate} to a Bernoulli likelihood
 to give an analytic solution.  Conjugacy means that the prior-likelihood combination gives
@@ -110,7 +119,7 @@ empirical average of our observations which would give $\theta=0$.
 		\caption{Posterior 1000 flips \label{fig:inf:coin_flip:1000}}
 	\end{subfigure}
 	\caption{Prior and posteriors for coin flip example after different numbers
-		of observations.
+		of observations. \vspace{-5pt}
 		\label{fig:inf:coin_flip}}
 \end{figure}
 
@@ -122,8 +131,8 @@ $\textsc{Beta}(\theta ; \alpha+n_H, \beta+n_T)$.
 Thus if our sequence of new
 observations is $HTHHH$ then our new posterior is
 \begin{align}
-p(\theta | Y_1,\dots,Y_6) = \frac{p(Y_2,\dots,Y_6 | \theta)p(\theta | Y_1)}
-{\int p(Y_2,\dots,Y_6 | \theta)p(\theta | Y_1) d\theta} = \textsc{Beta}\left(\theta ; 6,4\right),
+p(\theta | y_1,\dots,y_6) = \frac{p(y_2,\dots,y_6 | \theta)p(\theta | y_1)}
+{\int p(y_2,\dots,y_6 | \theta)p(\theta | y_1) d\theta} = \textsc{Beta}\left(\theta ; 6,4\right),
 \end{align}
 which is shown in Figure~\ref{fig:inf:coin_flip:6}.  We see now that our belief for the probability of heads
 has shifted higher and that the uncertainty has reduced because of the increased number
@@ -131,14 +140,13 @@ of observations.
 After seeing a total of $1000$ observations as shown in Figure~\ref{fig:inf:coin_flip:1000}, we
 find that the posterior has predominantly collapsed down to a small range of $\theta$.
 
-Now we have combined  our prior information with the information from data, a natural
-next question is how can we use this to make predictions.  In the Bayesian setting,
-this is done with the posterior predictive distribution which marginalizes out over
+Having calculated our posterior, we can now make
+predictions using the \emph{posterior predictive distribution} which marginalizes out over
 the parameters.  For the coin flip case we have
 \begin{align}
 \label{eq:bayes:post-pred}
-p( Y_{N+1}=H | Y_{1:N}) &= \int p(Y_{N+1}=H, \theta | Y_{1:N}) d\theta
-= \int p(Y_{N+1}=H | \theta) p(\theta | Y_{1:N})  d\theta \nonumber \\
+p( y_{N+1}=H | y_{1:N}) &= \int p(y_{N+1}=H, \theta | y_{1:N}) d\theta
+= \int p(y_{N+1}=H | \theta) p(\theta | y_{1:N})  d\theta \nonumber \\
 &= \int  \theta \; \textsc{Beta}(\theta ; \alpha+n_H, \beta+n_T) d\theta 
 %= \int  
 %\frac{\Gamma(\alpha+\beta)}{\Gamma (\alpha) \Gamma(\beta)} 
@@ -167,18 +175,8 @@ p(\mathbf{y}|\mathbf{x},\mathbf{w},b,\sigma) = \prod_{n=1}^{N} p(y_n | x_n, \mat
 \prod_{n=1}^{N} \mathcal{N}(y_n;x_n^T\mathbf{w}+b,\sigma^2).
 \end{align}
 For simplicity we will assume that $\sigma$ and $b$ are known fixed parameters,
-but we will put a prior on $\mathbf{w}$ as follows in order to perform inference
-%\begin{subequations}
-%\label{eq:bayes:linear-reg-prior}
-\begin{align}
-\label{eq:bayes:linear-reg-w}
-p(\mathbf{w}) &= \mathcal{N}(\mathbf{w};\mathbf{0},C)
-%\\
-%\label{eq:bayes:linear-reg-b}
-%p(b) &= \mathcal{N}(b;0,s^2),
-\end{align}
-%\end{subequations}
-where $C$ is a fixed covariance matrix.
+but we will put a prior on $\mathbf{w}$, namely $p(\mathbf{w}) = \mathcal{N}(\mathbf{w};\mathbf{0},C)$
+where $C$ is a fixed covariance matrix, in order to perform inference.
 %% and $s$ a fixed scalar standard deviation.
 %We further assume that $p(\mathbf{w},b | \sigma) = p(\mathbf{w}) p(b) $, i.e. that all
 %three parameters are independent under the prior.
@@ -220,19 +218,31 @@ clearly only be applicable or appropriate in very particular scenarios.
 Bayesian modeling is at its heart a
 generative approach and its real power will be when we design a rich and expressive \emph{generative model} 
 that reflects our application specific knowledge.  In other words, we can define our model
-by carefully constructing a stochastic process that describes how the parameters  and data are generated.
-This model then corresponds to the joint distribution $p(\theta,\mathcal{D})$.
-We can then think of providing real data as refining our model, providing an updated distribution
-on the parameters and subsequent predictions that incorporate the information from the data.  The more
+by carefully constructing a stochastic process that describes how the parameters  and data are generated.  For
+our object recognition example at the start of the section, this would correspond to a graphics generator for
+sampling scenes.
+More generally, the model corresponds to the joint distribution on parameters and data $p(\theta,\mathcal{D})$.
+We can then think of observing real data as refining our model through \emph{conditioning}, providing an updated distribution
+on the parameters $p(\theta|\mathcal{D})$ and subsequent predictions that incorporate the information from the data.  The more
 flexible we make our generative model, the more we can make it represent the our data.  The less flexible
 we make the generative model, the more weighting is given to our prior assumptions.
 
-To give an intuitive example of such a generative approach, consider the problem of identifying objects in
-a visual scene.  Here it is relatively straightforward to construct a model for generating images by
-constructing a sampler for which objects appear in the scene and their respective positions.  Such
-graphics generators are used for computer games all the time.  Here our parameters are the objects and
-the data is the image.  Bayesian inference can now be thought of as the process of \emph{inverting} our generator:
-given objects, we can generate images but we want to identify objects from images.  We will return
-to these ideas in Chapter~\ref{chp:probprog} where we show how, using probabilistic programming,
-one can think of all stochastic simulators as defining Bayesian models and as the process of inference as
-inverting these simulators.
+We finish by making a technical point of note about the behavior of Bayesian methods of the limit of large
+data.  Assume that our likelihood model $p(\mathcal{D}|\theta)$ is correct such that the data $\mathcal{D} = y_{1:N}$
+is generated according to 
+$p(y_{1:N} | \theta^*)$ where $\theta^*$ are the (finite) set of ground truth parameters 
+and the prior $p(\theta)$ satisfies $p(\theta^*)>0$.  Informally speaking, the Bernstein-Von Mises theorem now states
+that in the limit of large $N$, the posterior distribution $p(\theta | y_{1:N})$ converges to a normal distribution 
+we mean $\theta^*$ and variance of order $O(1/N)$ 
+(i.e. it decreases at a rate $1/N$)~\citep{doob1949application,freedman1963asymptotic}.  This is a hugely important
+result in Bayesian statistics as it demonstrates that, when our model assumptions are correct, we converge to the true parameters 
+and the posterior becomes independent of the prior when we are provided with sufficient data.  It further transpires that when no such $\theta^*$ exists (i.e. our model is misspecified), the convergence
+is instead to the parameters $\hat{\theta}$ which minimize the Kullback-Leibler (KL) divergence\footnote{The KL divergence
+	can informally be thought of as a measure of discrepancy between two distributions.  Though
+	it is not symmetric in its inputs, it is always non-negative and zero if and only if the two distributions are the same.} to the true data generating
+distribution $p^*(y_{1:N})$, namely
+\begin{align}
+\hat{\theta} = \argmin_{\theta} \textsc{KL}\left(p^*(y_{1:N}) \| p(y_{1:N} | \theta)\right)
+= \argmin_{\theta} \int p^*(y_{1:N}) \log \left(\frac{p^*(y_{1:N})}{p(y_{1:N}|\theta)}\right) dy_{1:N}.
+\end{align}
+See for example~\citep{kleijn2012bernstein} and the references therein for further details.

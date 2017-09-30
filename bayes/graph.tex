@@ -6,12 +6,13 @@
 Generative models will typically have many variables and a complex \emph{dependency structure}.
 In other words, many of variables will be conditionally independent of one another given values for
 other variables.  Graphical models are a ubiquitously used method for representing and reasoning
-about generative models with a particular focus on the dependency structure.  At a high-level, they
+about generative models, with a particular focus on the dependency structure.  At a high-level, they
 capture how the joint probability distribution can be broken down into a product of different factors, 
 each defined over
 a subset of the variables.  They are formed of a number of connected nodes, where each node
-represents a random variable in the model and each variable has its own node.  Links between nodes in
-the model represent dependencies: any two connected nodes have an explicit dependency.
+represents a random variable (or collection of random variables) in the model.  Links between nodes
+represent dependencies: any two connected nodes have an explicit dependency, though unconnected
+nodes may still be dependent.
 Various independence assumptions can be deduced from the graphical model, though the exact nature
 of these deductions will depend on the type of graphical model -- nodes without direct links
 between them will often still be dependent.
@@ -20,8 +21,8 @@ Graphical models can be separated into two distinct classes: directed graphical
 models and undirected graphical models.  Undirected graphical models, also known as Markov random
 fields, imply no ordering on their factorization and are used only to express conditional independences
 between variables.  They are used in scenarios where it is difficult to specify the target distribution in a
-structured generative way, e.g. in Boltzmann machines~\citep{ackley1985learning}.  To give 
-a more concrete example, if modeling whether it will rain at various locations then there
+generative way, e.g.  Boltzmann machines~\citep{ackley1985learning}.  To give 
+a more concrete example, if modeling whether it will rain at various locations, then there
 is a clear dependence between nearby locations, but not a natural ordering to the joint probability
 distribution of where it will rain.   Independence in undirected graphical models can be deduced
 through the \emph{global Markov property} which states that any two non-intersecting subsets of the 
@@ -35,7 +36,7 @@ graphical models (DAGs), i.e. directed graphical models containing no cycles or 
 and arrive back in the starting position.  DAGs, also known as Bayesian networks, are particularly
 useful in the context of Bayesian modeling because they can be used to express \emph{casual relationships}.
 As such, they can be used as a piecewise explanation for how the joint distribution is generated.
-Not only does this form a natural means to describe and design models in the first place, 
+This form a natural means to describe and design models as
 we can carefully order the breakdown to factorize the distribution into only terms we know.  For example,
 in the linear regression model, we did not know (at least when the model was first defined) 
 $p(\mathcal{D})$ but we did know $p(\mathbf{w})$ and $p(\mathcal{D} | \mathbf{w})$.  Therefore even
@@ -46,19 +47,27 @@ $p(\mathcal{D} | \mathbf{w})p(\mathbf{w})$.
 We will generally not have access to all possible factorizations
 in an analytic form as otherwise there would be no need to perform inference.
 As a rule-of-thumb, when we define a model using a DAG, we need to be able to define the 
-probability of each variable given its \emph{parents}, i.e. all the nodes with links from that node
-towards the node the question.
+probability of each variable given its \emph{parents}, i.e. all the nodes with arrows, representing a link and its direction, pointing
+to the node the question.
 
-The demonstrate this factorization more explicitly and give a concrete example of a DAG, consider a joint model
-$p(a,b,c)$.  By the product rule, we can break down this joint distribution into a number of different
-factorizations, but some will typically be more useful than others.  Imagine a medical diagnostic
-example where $a$ represents lifestyle and genetic factors of a patient such as whether they smoke
-or have unknown preexisting conditions, 
-$b$ represents the presence of lung cancer, and $c$ represents symptoms 
-such as a persistent cough.  Here we have the following natural breakdown of the joint distribution
+To demonstrate this factorization more explicitly and give a concrete example of a DAG, 
+%consider a joint model
+%$p(a,b,c)$.  
+%By the product rule, we can break this down into a number of different
+%factorizations, but some will typically be more useful than others.  
+imagine a medical diagnostic problem where we wish to predict if a patient has lung cancer.
+et $a$ denote lifestyle and genetic factors of the patient such as whether they smoke
+or have (potentially unknown) preexisting conditions. 
+These will generally either be known or can reasonably estimated by other means, e.g. using tests or
+by considering prevalence within the population, allowing definition of a prior marginal on $a$, $p(a)$.
+Given these factors, we can develop a model for the probability that a patient will develop
+lung cancer, which we can denote $p(b|a)$ where $b=1$ indicates cancer is the present.  Given the lifestyle and
+genetic factors and the knowledge of whether lung cancer is present, we can predict what
+symptoms, $c$, might be observed, e.g. a persistent cough, encoding this using $p(c|a,b)$.
+We thus have the following breakdown of the joint distribution
 \begin{align}
-\label{eq:bayes:example-graph}
-p(a,b,c) = p(a) p(b|a) p(c|a,b).
+	\label{eq:bayes:example-graph}
+	p(a,b,c) = p(a) p(b|a) p(c|a,b).
 \end{align}
 \begin{wrapfigure}{r}{0.35\textwidth}
 	\vspace{-12pt}
@@ -70,33 +79,27 @@ p(a,b,c) = p(a) p(b|a) p(c|a,b).
 		\label{fig:bayes:simple-graph}}
 	\vspace{-10pt}
 \end{wrapfigure}
-The lifestyle and genetic factors will generally either be known or can be estimated from tests or
-simply prevalence within the population.  Given these factors, the likelihood of somebody developing
-lung cancer can be modeled using existing data and domain expertise.   Given the lifestyle and
-genetic factors and the knowledge of whether lung cancer is present, we can predict what
-symptoms might be observed.  We can express our model and this factorization using
-the DAG shown in Figure~\ref{fig:bayes:simple-graph}.
-  Here we have shaded in $c$ to express the fact that this is
+which can be expressed using
+the DAG  shown in Figure~\ref{fig:bayes:simple-graph}. Here we have shaded in $c$ to express the fact that this is
 observed.  The graphical model expresses our dependency structure as we have the probability
 of each node given its parents.  As shown in~\eqref{eq:bayes:example-graph}, the product of
 all these factors is equal to our joint distribution.  The DAG has thus formed a convenient means
 of representing our generative process.
-
-Clearly, our aim for this problem will be to find the probability cancer is present given
-the symptom, i.e. $p(b|c)$, which will
-require Bayesian inference.
-An important feature of the breakdown of graphical models will become apparent when we
-consider how we can conduct such inference for more a general class of 
-models where the solution is not analytic in Chapter~\ref{chp:inf}.  Here knowing the dependency
-structure and, in particular, the independence relationships, will be essential to many inference 
-schemes such as message passing schemes.
+Our aim for this problem was to find the probability cancer is present given
+the observed symptoms, i.e. $p(b|c)$, which will
+require Bayesian inference.  In our previous simple examples, the posterior had an analytic form. 
+However, In general this will not be the case and we will need to develop strategies for carrying
+out the inference as explained in Chapter~\ref{chp:inf}.  For these, knowing the dependency
+structure and, in particular, the independence relationships, of a model will often be very helpful
+information, for which DAGs can be very useful.
 
 A natural question is now how can we deduce the independence relationships from a DAG?
 This can be done by introducing the notion of \emph{d-separation}~\citep{pearl2014probabilistic}.
-Consider three arbitrary, non-intersecting, subsets $A$, $B$, and $C$ of our DAG.  $A$ and $B$
+Consider three arbitrary, non-intersecting, subsets $A$, $B$, and $C$ of a DAG.  $A$ and $B$
 are conditionally independent given $C$ if there are no \emph{unblocked} paths from $A$ to $B$
 (or equivalently from $B$ to $A$), in which case $A$ is said to be d-separated from $B$ by $C$.  
 Paths do not need to be in the directions defined by the DAG but are blocked if either
+\vspace{-5pt}
 \begin{enumerate}
 		\setlength\itemsep{-0.1em}
 	\item Consecutive arrows both point towards a node that is not in and
@@ -105,12 +108,13 @@ Paths do not need to be in the directions defined by the DAG but are blocked if 
 	\item Consecutive arrows meet at a node in $C$ and one of them
 	points away from the node.
 \end{enumerate}
+\vspace{-5pt}
 Note that only the first of these rules is necessary for establishing marginal independence
 between nodes as this rule can still be used when $C$ is empty.
 Examples of blocked paths are shown in Figure~\ref{fig:bayes:blocked-graphs} while examples of unblocked paths
 are shown in Figure~\ref{fig:bayes:unblocked-graphs}, explanations for which are given in the captions.
 For a more comprehensive introduction to establishing independence in DAGs, we
-refer the reader to Section 8.2 of~\cite{bishop2006pattern}.
+refer the reader to~\cite[Section 8.2]{bishop2006pattern}.
 
 \begin{figure}[t]
 	\centering 
@@ -133,18 +137,18 @@ refer the reader to Section 8.2 of~\cite{bishop2006pattern}.
 		\caption{\label{fig:bayes:block3}}
 	\end{subfigure}
 	\caption{Examples of DAGs blocked between $a$ and $b$.  \textbf{(a)} is blocked
-		by the second rule of d-separation.  More specifically we have 
-		$p(b|a,c)=\frac{p(a,b,c)}{p(a,c)} = \frac{p(a)p(c|a)p(b|c)}{p(a)p(c|a)} = p(b|c)$.
-		\textbf{(b)} is blocked by the first rule of d-separation.  Here we have
-		$p(b|a,c)=\frac{p(c)p(a|c)p(b|c)}{p(c)p(a|c)} = p(b|c)$.  Consequently, for \textbf{(a)} 
-		and \textbf{(b)} then $a$ and $b$ are conditionally independent given $c$ .
+		by the second rule of d-separation, while
+		\textbf{(b)} is blocked by the first rule of d-separation.  Consequently, for \textbf{(a)} 
+		and \textbf{(b)} then $a$ and $b$ are conditionally independent given $c$ and thus
+		$p(b|a,c)=p(b|c)$ and $p(a|b,c)=p(a|c)$.
 		\textbf{(c)} is an instead example of where $a$ and $b$ are \emph{marginally} independent.  Here
 		the path between $a$ and $b$ is blocked because the the arrows meet head-to-head at 
 		$d$ and neither $d$ nor any of its
-		descendants are observed.  We thus have $p(b|a) = \frac{p(a)p(b)p(d|a,b)}{p(a)p(d|a,b)} = p(b)$.
-		Note though that $a$ and $b$ are note conditionally independent given $d$ as
+		descendants are observed and so $p(b|a) = p(b)$.
+		Note though that $a$ and $b$ are not conditionally independent given $d$ as
 		the path becomes unblocked if this is observed (see Figure~\ref{fig:bayes:unblocked-graphs}).
-		\label{fig:bayes:blocked-graphs}}
+		\label{fig:bayes:blocked-graphs}
+		\vspace{5pt}}
 \end{figure}
 
 \begin{figure}[t]
@@ -173,11 +177,10 @@ refer the reader to Section 8.2 of~\cite{bishop2006pattern}.
 		$p(b|a) = \int p(b,d|a) dd = \int p(b|d)p(d|a) dd \neq p(b)$ unless $p(d|a)=p(d)$.
 		Similarly there is an unblocked path for \textbf{(b)} from $a$ to $b$ as the path
 		that does not pass through any observed nodes or nodes with both arrows points towards it.
-		Here we have $p(b|a) = \frac{p(d)p(a|d)p(b|d)}{p(a)p(d|a,b)} \neq p(b)$ again in general.
 		The path in \textbf{(c)} is unblocked because of the phenomenon of \emph{explaining away}.
 		The first rule of d-separation does not apply here because $c$ is an observed descendant of
 		$d$.  We thus have that $a$ and $b$ are marginally independent as per Figure~\ref{fig:bayes:block3},
-		but not conditionally independent given $c$ (and/or $d$). The rationale for explaining away can be thought
+		but not conditionally independent given $c$ (and or $d$). The rationale for explaining away can be thought
 		of in terms of events needing an explanation -- if two precursor events (here $a$ and $b$) can give rise 
 		to a third event (here $c$), then
 		the third event occurring but not the first precursor event implies that the second precursor
@@ -221,7 +224,7 @@ animals~\citep{dhir2016tracking,dhir2017interpreting} to name but a few.
 
 A key part of the appeal of HMMs is that the structure of the
 DAG can be exploited to give analytic solutions to the resulting Bayesian inference whenever each $p(y_t | x_t)$ 
-and $p(x_t | x_{t-1})$ is either a discrete or Gaussian distribution. Even when this does not hold, there 
+and $p(x_t | x_{t-1})$ are either a categorical or Gaussian distribution. Even when this does not hold, there 
 are still a number of features of the dependency structure that can make the inference substantially easier.
 As we will show in Chapter~\ref{chp:inf}, Bayesian inference is generally a challenging problem, often prohibitively so.
 Therefore the (fast) analytic inference for HMMs is highly convenient.  However, it can mean that HMMs are perhaps overused.
@@ -229,8 +232,9 @@ More generally, simplifying approximations or unjustified assumptions are often 
 for tractability, e.g. by using an off-the-shelf model like an HMM with known analytic solution. Though often necessary, 
 this must be done with extreme care and the implications of the approximations should carefully considered.  Unfortunately, 
 quantifying the implications of approximations can be very difficult, given that they are typically made in the interest
-of tractability in the first place.  This is a serious practical weakness of Bayesian modeling and should be factored 
-into the decision processes of whether taking a Bayesian approach or not.  
+of tractability in the first place.  
+%This is a serious practical weakness of Bayesian modeling and should be factored 
+%into the decision processes of whether taking a Bayesian approach or not.  
 %While taking a Bayesian approach for large projects, 
 %one should, in general, avoid making approximations or non-clearcut assumptions until absolutely necessary, but also 
 %keep in mind that it may be necessary to do so further down the line and account for this appropriately.
