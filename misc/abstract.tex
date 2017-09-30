@@ -1,52 +1,68 @@
 % !TEX root = ../main.tex
 
 \vspace{20pt}
-Probabilistic models are used throughout the quantitative sciences and are essential components 
-in many scientific and technological breakthroughs.  The bottleneck for improving these models
+Imagine a world where computational simulations can be inverted as easily as running them forwards, where data
+can be used to refine models automatically, and where the only expertise one needs to carry
+out powerful statistical analysis is a basic proficiency in scientific coding.  Creating such a
+world is the ambitious long-term aim of \emph{probabilistic programming}.
+
+The bottleneck for improving the probabilistic models, or simulators, used throughout the quantitative sciences,
 is often not an ability to devise better models conceptually,  but a lack of expertise,
 time, or resources to realize such innovations.
 \emph{Probabilistic programming systems} (PPSs) help alleviate this bottleneck 
 by providing an expressive and accessible modeling framework,
 %, often more in line we conventional scientific simulation than mainstream statistical approaches,
  then
-automating the required computation to draw inferences from the model.
+automating the required computation to draw inferences from the model, such as finding
+the model parameters likely to give rise to a certain output.
 By decoupling model specification and inference, PPSs 
-streamline the process of developing new models or inference algorithms
+streamline the process of developing, and drawing inferences from, new models
 and open up powerful statistical methods to non-experts.
 %open up powerful statistical methods 
 %to non-experts, while
 %streamlining the process of developing new models or inference algorithms
 %those within the machine learning and statistics communities.  
 Many systems further provide
-the flexibility to write new and exciting models which would be hard, or even impossible, to convey using conventional frameworks like graphical models.
+the flexibility to write new and exciting models which would be hard, or even impossible, to convey using 
+conventional statistical frameworks.
 
-The central goal of this thesis is to improve and extend PPSs.  In particular, we will
+The central goal of this thesis is to improve and extend PPSs.
+%, providing some of the many steps
+%that will be necessary to achieve the lofty long-term aims of the field.  
+In particular, we will
 make advancements to the underlying inference engines and increase the
-range of problems which can be tackled.  Achieving this goal will require us to make
+range of problems which can be tackled.  For example, we will extend PPS to a mixed inference-optimization
+framework, thereby providing automation of tasks
+such as model learning and engineering design, and make inroads into constructing systems
+for automating adaptive sequential design problems, providing potential applications across the sciences.
+Furthermore, the contributions of the work reach far beyond probabilistic programming, as 
+achieving our goal will require us to make
 advancements in a number of related fields such as particle Markov chain Monte Carlo methods,
-Bayesian optimization, Monte Carlo fundamentals, and Bayesian experimental design.
-Specifically, we will introduce \emph{interacting particle
-	Markov chain Monte Carlo},
-a new inference algorithm suitable for large-scale computation, and 
-detail is implementation as a general purpose inference engine for the PPS \emph{Anglican}. 
-%explain how it can be
-%used as general purpose inference engine for PPSs by detailing its implementation
-%in the PPS \emph{Anglican}.  
-We will extend PPSs beyond their typical inference setting
-to a more general mixed inference-optimization framework by introducing~\emph{Bayesian
-	optimization for probabilistic programs}, thereby providing automation of tasks
-such as model learning and engineering design.
-%in the same manner as inference is automated in existing systems.  
-We will develop theoretical 
-results on \emph{nesting Monte Carlo
-	estimators} and explain the important implications these have for nesting models in PPSs.
-Finally, we will 
-%examine a particular
-%class of nested estimation problems, those of Bayesian experimental design, and 
-introduce a high-level framework for automating adaptive sequential design problems, 
-%a particle example 
-providing application of our technique to psychological trials.
-%Finally, we will examine a particular
-%class of nested estimation problems, those of Bayesian experimental design, and introduce
-%a high-level framework for automating arbitrary adaptive sequential design problems,
-%providing application our technique to psychological trials.
+Bayesian optimization, and Monte Carlo fundamentals. %, and Bayesian experimental design.
+
+%
+%Specifically, we will introduce \emph{interacting particle
+%	Markov chain Monte Carlo},
+%a new inference algorithm suitable for large-scale computation, and 
+%detail is implementation as a general purpose inference engine for the PPS \emph{Anglican}. 
+%%explain how it can be
+%%used as general purpose inference engine for PPSs by detailing its implementation
+%%in the PPS \emph{Anglican}.  
+%We will extend PPSs beyond their typical inference setting
+%to a more general mixed inference-optimization framework by introducing~\emph{Bayesian
+%	optimization for probabilistic programs}, thereby providing automation of tasks
+%such as model learning and engineering design.
+%%in the same manner as inference is automated in existing systems.  
+%We will develop theoretical 
+%results on \emph{nesting Monte Carlo
+%	estimators} and explain the important implications these have for nesting models in PPSs.
+%Finally, we will 
+%%examine a particular
+%%class of nested estimation problems, those of Bayesian experimental design, and 
+%introduce a high-level framework for automating adaptive sequential design problems, 
+%%a particle example 
+%providing application of our technique to psychological trials.
+%%Finally, we will examine a particular
+%%class of nested estimation problems, those of Bayesian experimental design, and introduce
+%%a high-level framework for automating arbitrary adaptive sequential design problems,
+%%providing application our technique to psychological trials.

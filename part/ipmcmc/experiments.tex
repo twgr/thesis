@@ -8,8 +8,8 @@ To demonstrate the %validity and
 empirical performance of iPMCMC we report experiments on two state space models.  
 Although both the models considered are Markovian, we emphasise that iPMCMC goes far beyond this and can be applied to arbitrary graphical models
 and even probabilistic programs as explained in Section~\ref{sec:proginf:str:part:ipmcmc}. 
-%For exposition we will focus our comparison to the trivial distribution, whereby $M$ independent PMCMC samplers are run in parallel, of PG, particle independent Metropolis-Hastings (PIMH) \cite{andrieuDH2010} and the alternate move PG sampler (APG) \cite{holenstein2009particle}. 
-We will focus our comparison on the trivially distributed alternatives, whereby $M$ independent PMCMC samplers are run in parallel--these are PG, particle independent Metropolis-Hastings (PIMH) \citep{andrieuDH2010} and the alternate move PG sampler (APG) \citep{holenstein2009particle}. Comparisons to other alternatives, including independent SMC, serialized implementations of PG and PIMH, and running a mixture of independent PG and PIMH samplers, are provided in the supplementary material of~\cite{rainforth2016interacting}.  
+%For exposition we will focus our comparison to the trivial distribution, whereby $M$ independent PMCMC samplers are run in parallel, of PG, particle independent Metropolis-Hastings (PIMH) \cite{andrieu2010particle} and the alternate move PG sampler (APG) \cite{holenstein2009particle}. 
+We will focus our comparison on the trivially distributed alternatives, whereby $M$ independent PMCMC samplers are run in parallel--these are PG, particle independent Metropolis-Hastings (PIMH) \citep{andrieu2010particle} and the alternate move PG sampler (APG) \citep{holenstein2009particle}. Comparisons to other alternatives, including independent SMC, serialized implementations of PG and PIMH, and running a mixture of independent PG and PIMH samplers, are provided in the supplementary material of~\cite{rainforth2016interacting}.  
 None outperformed the methods considered here, with the exception of running a serialized PG implementation with an increased number of particles, requiring significant additional memory ($O(MN)$ as opposed to $O(M+N)$).
 
 APG interleaves PG steps with PIMH steps
@@ -92,7 +92,8 @@ Figure \ref{fig:meanConv} shows convergence (in MCMC iterations) in the estimate
 \subsubsection{Nonlinear State Space Model}
 \label{sec:nlss}
 
-We next consider the one dimensional nonlinear state space model (NLSSM) considered by, among others, \citet{gordon1993novel,andrieuDH2010}
+We next consider the one dimensional nonlinear state space model (NLSSM) considered by, among others,
+\citet{gordon1993novel,andrieu2010particle}
 \begin{subequations}
 	\label{eq:NLSS}
 	\begin{align}

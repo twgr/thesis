@@ -289,7 +289,7 @@ its local, self-normalized, weight $\nw_T^i$, giving the estimator
 \E_{\pi (x_{1:T})} \left[f(x_{1:T})\right] \approx \frac{1}{RN} \sum_{r=1}^{R}\sum_{i=1}^{N} \hat{Z}[r] \nw_T^i[r] f(x_{1:T}^i[r])
 \end{align}
 where the notation $[r]$ is used to indicates samples from sweep $r$.
- The ability to do this is known as \emph{proper weighting}~\citep{andersson2015nested} and we can justify it by
+ The ability to do this is known as \emph{proper weighting}~\citep{naessethLS2015nested} and we can justify it by
 thinking in terms of using a proposal that first samples a full particle set, giving importance weight $\hat Z$, and then sampling a particle
 from this set, giving importance weight $\nw_T^i$.  The product of these separate weights thus gives the weight of
 each sample.  

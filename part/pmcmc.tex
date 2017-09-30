@@ -3,7 +3,7 @@
 \section{Particle Markov Chain Monte Carlo Methods}
 \label{sec:part:pmcmc}
 
-Particle Markov chain Monte Carlo (\pmcmc) methods, introduced by \citet{andrieuDH2010}, make use of 
+Particle Markov chain Monte Carlo (\pmcmc) methods, introduced by \citet{andrieu2010particle}, make use of 
 sequential Monte Carlo (\smc) algorithms \citep{gordon1993novel,doucet2001sequential} to construct 
 efficient proposals for an \mcmc sampler. This allows them to both utilize the ability of SMC to
 exploit the structure of the target problem and the hill climbing behavior of MCMC methods.
@@ -206,7 +206,7 @@ One particularly widely used \pmcmc algorithm is particle Gibbs (\pg). The \pg a
 \smc step in the \pmcmc algorithm to sample the latent variables conditioned on an existing particle
  trajectory, resulting in what is called a \emph{conditional sequential Monte Carlo} (\csmc) step. The \pg method
   was first introduced as an efficient Gibbs sampler for latent variable models with static parameters 
-  \citep{andrieuDH2010}. Since then, the \pg algorithm and the extension by \citet{lindstenJS2014} have 
+  \citep{andrieu2010particle}. Since then, the \pg algorithm and the extension by \citet{lindstenJS2014} have 
   found numerous applications in \eg Bayesian non-parametrics \citep{ValeraFSPC2015,tripuraneni2015}, 
   probabilistic programming \citep{wood2014new,vandemeent_aistats_2015} and graphical models 
   \citep{everitt2012,naessethLS2014,naessethLS2015nested}.  Whereas PIMH used independent proposals, 
