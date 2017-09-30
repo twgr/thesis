@@ -30,24 +30,24 @@ prior and the posterior, but one can also think about it in terms of defining a 
 both parameters and data, then fixing the latter to the actual observations to get a conditional distribution from
 this joint.  Simulators implicitly define such joint distributions, with the outputs of the simulator corresponding
 to the data, and the inputs and internal variables the parameters.  Probabilistic programming allows us to turn this on its head,
-using the same code as the original simulator but instead providing the observed data as the input and
-then inverting the simulator through inference, thus learning about possible input parameters and other 
+using the same code as the original simulator, but instead providing the observed data as the input and
+then inverting the simulator through inference to learn about possible input parameters and other 
 variables sampled during the program's forward execution.  
 As well as the clear direct utility of allowing such inversion, this process also allows us to improve
-our simulator using real data by calculating the posterior predictive distribution that incorporates both
+our simulator using real data, by calculating the posterior predictive distribution that incorporates both
 the original model and the information from the data.
 
 To explain what we mean by inverting simulators more precisely, we will now consider
 the example of inferring Captchas~\citep{mansinghka2013approximate}.   Even if the name is not familiar, 
-we should all have come across Captchas before when a website shows us an image, such
+everyone should hopefully have come across Captchas before when a website shows us an image, such
 as those in in Figure~\ref{fig:probprog:example_captchas}, and asks us to
 type the characters in that image to demonstrate we are not a robot.  We now ask the
-Machiavellian, but important, question: how might we write an algorithm that breaks this Captcha by 
+question: how might we write an algorithm that breaks this Captcha by 
 automatically predicting these characters directly from the image? In other words, 
 can we build a robot that mimics a human on a task specifically designed to 
 distinguish between the two.  If we had access to large supply of training examples, i.e.
 character-image pairs, we could of course use an off-the-shelf discriminative algorithm:
-neural networks have been used to try and solve the problem in exactly this way with decent
+neural networks have been used to try and solve the problem in exactly this way with reasonable
 success~\citep{von2008recaptcha}.  However, without access to an abundance of data this is a rather
 challenging task and we will need to exploit our prior knowledge about the problem.  
 
@@ -63,9 +63,10 @@ challenging task and we will need to exploit our prior knowledge about the probl
 	\begin{subfigure}[t]{0.38\textwidth}
 		\centering
 			\includegraphics[width=\textwidth]{probprog/figures/captcha_sim.pdf}
-		\caption{Example simulation of Captcha
+		\caption{Example simulation of a Captcha
 			\label{fig:probprog:captcha_sim}}
 	\end{subfigure}
+	\vspace{5pt}
 	\caption{Solving Captchas by simulator inversion.   \textbf{(a)} gives examples of real
 		Facebook Captchas taken from~\cite{le2017using}.  Here the corresponding
 		generating strings going
@@ -93,20 +94,20 @@ simulator that well matches the produced images, the technical requirements for 
 people with a reasonable degree of experience in scientific programming.  The number of
 people able to write such a simulator should certainly be substantially larger than the
 number of people with sufficient experience in Bayesian modeling to construct an equivalent
-using a graphical model or direct mathematical formulation.  The number of people
+graphical model or direct mathematical formulation.  The number of people
 with the expertise to then write an appropriate inference scheme for the problem is even
 smaller.  In a PPS, writing this simulator and providing the data is all that is required.
-Given these, the PPS will carry out the inference required to invert the simulator automatically
+Given these, the PPS will carry out the inference required to invert the simulator automatically,
 inferring the characters from the image.  More generally, we are estimating the inputs and
 internal variables of our simulator, given target values for the outputs.
 
-Their are two key factors to realizing our aim of inverting simulators.  Firstly we need to provide a 
+There are two key factors to realizing our aim of inverting simulators.  Firstly we need to provide a 
 language which easily allows users to
 write down simulators and which has semantics that allows the compiler to extract an appropriate
 representation of the joint distribution.  In other words, we need our language to be sufficiently
 general purpose and easy to use to not burden the user, while at the same time having syntax and semantics that
 ensure the corresponding joint distribution is well defined and can be converted into a form where
-we can run inference.  Doing this will require introduction of means for \emph{conditioning} on data
+we can run inference.  Doing this will require the introduction of means for \emph{conditioning} on data
 and of specially defined \emph{random primitives} whose behavior can be controlled at 
 run time, rather than just always sampling from
 the same predefined distribution as they would in an ordinary programming language.  
@@ -120,22 +121,22 @@ here though is between \emph{hard} and \emph{soft} conditioning.  Hard condition
 interpretation of a constraint -- we condition on the fact that an event occurs exactly.  Soft conditioning instead
 assigns a weight to the program based on the probability (or probability density) of a given event occurring.
 Though hard conditioning is a particular case of soft conditioning (for which the weight is either 1 or 0),
-one can (at least semantically) use it to specify a soft conditioning, say 
+one can, at least semantically, use it to specify a soft conditioning, say 
 $p(Y=y | X=x)$, by sampling $Y\sim p(y|X=x)$ and then imposing the constraint $Y=y$.
 However, only supporting hard conditioning in a PPS is somewhat restrictive for practical
 use, as one cannot effectively condition on continuous data because there is zero probability of
-satisfying the resultant constraint.
+satisfying the resulting constraint.
 
 The second key factor is that our language needs a general purpose inference(s)
 engine capable of working on any program the user writes.  Bayesian models are fully defined
 by their joint distribution and the data.  Therefore, once a user has written their simulator and provided
-the data, this uniquely defines a posterior and the only problem is in solving resulting Bayesian inference.
-If we can now construct inference engines capable of working on arbitrary code, we can now 
+the data, this uniquely defines a posterior and the only problem is in solving the resulting Bayesian inference.
+If we can now construct inference engines capable of working on arbitrary code, we can 
 automate inference on any simulator or model the user defines, creating an
-abstraction barrier between model definition and solving the model.  We will discuss how this can be
+abstraction barrier between model definition and drawing inferences from that model.  We will discuss how this can be
 done at length in Chapter~\ref{chp:proginf}.
 
-If we can make a system that successful carry out these tasks, 
+If we can construct a system that can successfully carry out these tasks, 
 the huge potential applications this could provide should be clear. We would have a 
 system where the user requires no expertise in inference or conventional
 Bayesian modeling in order to write application specific models and have them solved automatically.
@@ -153,6 +154,6 @@ of possible problems makes this a very difficult problem; after all we are somew
 theorem.  However, there is a key component that provides hope that this may be possible: we have access
 to the target source code of the simulator itself, rather than needing to treat it as a black-box as is the
 case for, say, approximate Bayesian computation (ABC) methods~\citep{csillery2010approximate}.  Therefore
-maybe we can have our cake an eat it by using the source code itself to guide our algorithms, such that
+maybe we can have our cake and eat it by using the source code itself to guide our algorithms, such that
 they behave in problem specific ways.  We will discuss how this can be done at length in 
 Chapters~\ref{chp:proginf} and~\ref{chp:bopp}.

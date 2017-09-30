@@ -14,8 +14,8 @@ one makes the language, the more those restrictions can be exploited to improve 
 of the inference.  This leads itself two distinct philosophies when developing a system. 
 Firstly one can start with a particular inference algorithm and then design a system around making it as
 easy as possible to write models for which that inference algorithm is suitable.  Secondly one can start
-with  a general purpose PPL that allows as many model as possible to be written and then try to construct
-inference engines that are capable of work in such a general framework.  Both approaches 
+with  a general purpose language that allows as many models as possible to be written and then try to construct
+inference engines that are capable of working in such a general framework.  Both approaches 
 have their merits and drawbacks, with the distinction typically coming down to the intended use.
 We will now elucidate each approach more precisely.  
 
@@ -27,9 +27,9 @@ a relatively small number of foundational methods such as importance sampling, s
 Metropolis-Hastings, Gibbs sampling, message passing, and variational inference (see Chapter~\ref{chp:inf}).
 The extensive use of these core inference approaches throughout Bayesian statistics and machine
 learning means that it makes clear sense to write packages for automating them and which
-make it easy for the user to define an appropriate graphical models for which the inference can be automated.
-This both improves efficiency of modeling and reduces barriers to effective Bayesian modeling by reducing the
-required inference expertise for users.  This inference-first philosophy is taken by a number of successful PPSs
+make it easy for the user to define appropriate graphical models for which the inference can be automated.
+This both improves efficiency of constructing models and reduces barriers to entry by reducing the
+required expertise for users.  This inference-first philosophy is taken by a number of successful PPSs
 and inference toolboxes (the distinguishing line between which can be a little blurry), a small number of which we now 
 briefly outline.
 
@@ -78,27 +78,27 @@ to write programs in which this set, and thus potentially the number of random v
 from execution to execution.  To avoid hindering the user or restricting the models which can be
 defined, it will important to allow 
 things such as branching, recursion, higher-order functions,
-conditional existence of variables, and arbitrary black-box
+conditional existence of variables, and arbitrary
 deterministic functions.  Ideally, we would like to provide no restrictions on the code that the user
 can write, except for eliminating programs do not define valid probability distributions, such as
 those that have a non-zero probability of never terminating.  In practice catching such invalid cases can
 be hard or even impossible and so many systems actually adopt a philosophy of applying no restrictions,
 such that it is perfectly possible to define invalid models.  General purpose PPSs actually bring up new
-theoretical questions about what constitutes a valid probability model~\citep{heunen2017convenient}, while
-even the set of valid definable models is a strict super-set of the those definable by graphical models 
+theoretical questions about what constitutes a valid probability model~\citep{heunen2017convenient} and
+the set of valid definable models is a strict super-set of the those definable by graphical models 
 for many systems~\citep{goodman2013principles}.
 
 In the rest of this thesis, we will predominantly focus on these \emph{universal} PPLs~\citep{goodman_uai_2008,staton2016semantics}, 
 so-called because they are based on \emph{Turing complete} languages that can specify any
 computable distribution~\citep{goodman2013principles}.  For our purposes, we further refine this definition
 to systems that also allow specification for any computable conditioning.
-We will regularly using the universal PPL Anglican~\citep{wood2014new} as a reference, an introduction
+We will regularly use the universal PPL Anglican~\citep{wood2014new} as a reference, an introduction
 to which is provided in Section~\ref{sec:probprog:anglican}. Here we will briefly discuss some other
 prominent higher order PPLs.
 
 Church is a PPL based on Scheme \citep{goodman_uai_2008}.  
 The original seminal paper and accompanying system 
-	forms a foundation on which many of the prominent existing systems are built through its
+	forms a foundation on which many of the prominent existing systems are built, through its
 	demonstration that higher-order probabilistic programs define valid probability models, even in
 	the presence of infinite recursion.  However, Church predominantly only allows hard
 		conditioning,\footnote{Some very limited support for soft-conditioning is provided in current
@@ -117,9 +117,9 @@ The original seminal paper and accompanying system
 
 Venture~\citep{mansinghka2014venture} is a probabilistic programming platform providing a flexible
 system for both specification of models and inference methods.  In has a strong emphasis on being extensible
-and for allowing the hosting of eternal applications.  For example, it allows the user to provide proposals for
+and for allowing the hosting of external applications.  For example, it allows the user to provide proposals for
 the inference engine or reprogram the inference strategy entirely.  Venture is predominantly used via the
-VentureScript~\citep{mansinghka2014venture} PPL.
+VentureScript PPL~\citep{mansinghka2014venture}.
 
 WebPPL \citep{goodman_book_2014} is a PPL built using a purely functional subset of Javascript,
 conveniently allowing for embedding in web pages.
@@ -129,7 +129,7 @@ in Section~\ref{sec:probprog:models:first}.  At its back end, WebPPL provides a 
 algorithms, such as SMC and MCMC methods.
 
 The price for the expressivity of these general purpose systems is a substantial extra 
-burden on the inference engine as we will
+burden on the inference engine, as we will
 discuss in Chapter~\ref{chp:proginf}.  In general, inference methods for such systems 
 must be formulated in such a manner that they are applicable to models where the 
 density function is intractable and can only be evaluated during forwards simulation of the program. 

@@ -28,8 +28,7 @@ In this chapter, we focus on the former of these, providing an introduction to
 probabilistic programming from a user's perspective.  We will outline how it can be used for, and
 to extend, conventional Bayesian modeling and how it can also be used to reinterpret many computational simulation
 techniques not usually associated with Bayesian modeling in a more Bayesian mindset.
-We will mostly ignore the rather major issue of how to construct automated inference engines for probabilistic
-programs, returning to address this in Chapter~\ref{chp:proginf}.
+We will mostly ignore the rather major issue of how to construct inference engines for PPS, returning to address this in Chapter~\ref{chp:proginf}.
 Instead, we will focus on how general purpose PPSs aim to  provide 
 the \emph{flexibility} to define
 wide ranging and potentially obscure models, the \emph{expressivity} of a framework for 
@@ -37,7 +36,7 @@ model definition that is more in line we conventional scientific simulation than
 statistical approaches, and the \emph{automation} to  run any problem the user might write
 by decoupling model specification and inference.
 Together these characteristics produce a framework that allows researchers whose expertise 
-lies elsewhere, to carry out powerful statistical analyses for their application specific tasks.  
+lie elsewhere, to carry out powerful statistical analyses for their application specific tasks.  
 This framework also aids in the development of both inference
 algorithms and models for those within the machine learning and statistics communities,
 by removing many of the complications of one while developing the other.
@@ -64,7 +63,7 @@ algorithms that will not be properly introduced until Chapters~\ref{chp:inf} and
 We have situated this chapter before those partly in order to emphasize the point that one should not 
 need an intricate knowledge of inference methods to \emph{use} PPSs.  Though it is difficult
 to introduce PPSs while completely omitting reference to inference methods, readers who
-are not familiar with inference methods should be able to safely ignore which methods are referred to
+are not familiar with them should be able to safely ignore which methods are referred to
 at a first pass, noting only that different inference algorithms have different requirements and sets 
 of problems they perform well on, and thus that the design of a PPS is often intricately linked to the inference
 method(s) used.
