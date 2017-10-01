@@ -35,7 +35,7 @@ x_t | x_{1:t - 1} &\sim f_{t}(x_t | x_{1:t - 1}), \\
 y_t | x_{1:t} &\sim g_{t}(y_t | x_{1:t}).
 \end{align}
 \end{subequations}
-which gives a joint density of
+This gives a joint density of
 \begin{align}
 \label{eq:part:jointdistribution}
 p(x_{1:T}, y_{1:T}) = \mu(x_1) \prod_{t = 2}^T f_{t}(x_t | x_{1:t - 1}) \prod_{t = 1}^T g_{t}(y_t | x_{1:t})
@@ -48,21 +48,21 @@ given the first $t$ observations is
 p(x_{1:t} | y_{1:t}) \propto \mu(x_1) \prod_{\tau = 2}^t f_{\tau}(x_{\tau} | x_{1:\tau - 1}) \prod_{\tau = 1}^t g_{\tau}(y_{\tau} | x_{1:\tau}).
 \end{align*}
 Perhaps surprisingly, this framework can be almost completely general if the $x_t$ and $y_t$
-are allowed to take on arbitrary form.  For example, if we set $T=1$ then $x_1=\theta$ are our variables,
+are allowed to take on arbitrary form.  For example, if we set $T=1$, then $x_1=\theta$ are our variables,
 $y_1 = \mathcal{D}$ is our data, $\mu(x_1) = p(\theta)$ is our prior, and $g_1(y_1|x_1)=p(\mathcal{D}|\theta)$
 is our likelihood.  More generally, the initial density and transition densities form terms in the
 prior, while the emission densities are terms in the likelihood; all of which can take on arbitrary forms.
 It will often be the case that each ``latent variable'' is actually a collection of different variables and
 each ``observed variable'' is actually a collection of observations.
 What the NSMSSM formulation allows us to do is express known structure present in the problem: 
-the earlier we are able to put our observations in the observation structure, and thus express their conditional
+the earlier we are able to put our observations, and thus express their conditional
 independence from more of the latent variables, the more will be able to exploit this structure.
 
 There are two common tasks that one wishes to carry out for NMSSMs: \emph{filtering} and
 \emph{smoothing}.  Smoothing corresponds to the standard Bayesian inference task where we
 want to infer about the latent variables conditioned on all the observations.  In filtering
 we care about the posterior given the observations
-so far $p(x_t | y_{1:t})$.  Filtering is typically done in tasks such as tracking and signal
+so far, i.e. $p(x_{1:t} | y_{1:t})$.  Filtering is typically done in tasks such as tracking and signal
 processing where the inference is being done online and the main task is forward prediction.
 In other words, we do not know all the $y_{1:T}$ upfront but have a series of inference problems
 where we wish to predict $y_{t+1},y_{t+2},\dots$ given the observations so far $y_{1:t}$.  Our
@@ -76,7 +76,7 @@ The former corresponds to the class of Kalman filter~\citep{kalman1960new} and K
 algorithms.  These are often used for Bayesian modeling of dynamics and
 are a good example of where approximations are often made in Bayesian approaches in the interest of
 tractability.  SMC will allow us to perform inference in similar models, amongst many others, without requiring
-such assumptions to be made.  Naturally, this will come at the cost of having access to a closed-form solution.
+such assumptions to be made.  Naturally, this will come at the cost of not having access to a closed-form solution.
 
 \subsection{Sequential Importance Sampling}
 \label{sec:part:smc:sis}
@@ -91,7 +91,7 @@ increasing spaces $\mathbb{X}_1,\dots,\mathbb{X}_T$ where each
 $\mathbb{X}_t = \mathcal{X}_1 \times \dots \times \mathcal{X}_t$, $x_t\in\mX_t$ by first making
 an importance sampling approximation for $\pi(x_1)$ and sequentially update our approximation from
 $\pi_t(x_{1:t})$ to $\pi_{t+1}(x_{1:t+1})$ by doing importance sampling updates and taking the product of
-the weights.  This is easiest to see in the NMSSM case using the series of targets $p(x_{1:t}|y_{1:t})$
+the weights.  This is easiest to see in the NMSSM case using the series of targets $p(x_{1:t}|y_{1:t})$,
 which we can do by first approximating $p(x_1 | y_1)$ and then importance sampling each 
 \[
 p (x_t | x_{1:t-1}, y_{1:t})=p(x_t | x_{1:t-1}, y_t)\propto f_{t}(x_t | x_{1:t-1}) g_{t}(y_t | x_{1:t})
@@ -106,7 +106,7 @@ w_1 (x_1) &= \frac{\mu (x_1)g_{t}(y_1 | x_1)}{q_1(x_1)} \\
 w_t (x_{1:t}) &= w_{t-1} (x_{1:t-1}) \frac{g_{t}(y_t|x_{1:t}) f_{t}(x_t | x_{1:t-1})}{q_t(x_t|x_{1:t-1})}.
 \end{align}
 \end{subequations}
-Once completed this will produce a set of weighted sample $\{\hat{x}_{1:T},w_T(\hat{x}_{1:T})\}$ for 
+Once completed this will produce a set of weighted samples $\{\hat{x}_{1:T},w_T(\hat{x}_{1:T})\}$ for 
 $p(x_{1:T} | y_{1:T})$.  A summary of the SIS process is given in Algorithm~\ref{alg:part:sis}.
 
 \begin{algorithm}[tb]
@@ -134,7 +134,7 @@ $p(x_{1:T} | y_{1:T})$.  A summary of the SIS process is given in Algorithm~\ref
 Because SIS produces a pure importance sampling estimate, it will share all the desirable properties
 of importance sampling introduced in Section~\ref{sec:inf:foundation:importance}, including the
 ability to use self-normalization.  In fact, it is just
-a particular case of importance sampling because could have produced the same samples and weights
+a particular case of importance sampling because we could have produced the same samples and weights
 by sampling $x_{1:T} \sim q_1(x_1) \prod_{t=2}^{T} q_t (x_t | x_{1:t-1})$ and then calculating the
 corresponding importance weight $w_T(x_{1:T})$ in one go. As such, 
 SIS is on its own not very useful.  Its utility is realized when it is combined with resampling as we describe next.
@@ -142,7 +142,7 @@ SIS is on its own not very useful.  Its utility is realized when it is combined 
 \subsection{SMC for Non-Markovian State Space Models}
 \label{sec:part:smc:smc-nmssm}
 
-Sequential Monte Carlo (SMC)~\citep{gordon1993novel,doucet2001sequential,doucet2009tutorial} , or particle filtering 
+Sequential Monte Carlo (SMC)~\citep{gordon1993novel,doucet2001sequential,doucet2009tutorial}, or particle filtering 
 as it is sometimes known,\footnote{We avoid the name
 	particle filtering as it often implies that one is only interested in the filtering distribution, whereas
 	most of the tasks we are interested in will target the smoothing distribution.} 
@@ -153,10 +153,10 @@ with resampling steps, the latter
 of which was introduced in Section~\ref{sec:inf:foundation:resampling}.
 The key idea is to exploit the structure of a model by breaking down the overall 
 inference problem into a series of target distributions which get incrementally closer to the 
-distribution of interest.  Transitioning from one intermediary distribution to the next typically
-forms a far simpler inference problem that directly approximating the original target.  The critical difference
+distribution of interest.  Transitioning from one intermediate distribution to the next typically
+forms a far simpler inference problem than directly approximating the original target.  The critical difference
 to SIS is that
-the information gained from approximating these intermediary distributions is exploited by
+the information gained from approximating these intermediate distributions is exploited by
 reallocating resources to areas likely to have high posterior mass in the final target distribution
 through resampling.  The simplest, but most common form of SMC, which simply interleaves
 \emph{propagating} samples from one target to the next and resampling the particle system, is sometimes known
@@ -171,15 +171,15 @@ A characterization of the method is shown in Figure~\ref{fig:part:smc_explan}.
 		of weighted samples $\{x_1^i,w_1^i\}_{i=1}^N$.  Here each sample is shown by a red blob whose size reflects the weight
 		of the particle.  The set of particles are then resampled to produce an unweighted set of particles approximating
 		$p(x_1 | y_1)$.  For each of these samples, importance sampling is then used again to produce samples for $x_2$
-		by sampling from $q_2 (x_2 | x_1)$ and applying a new importance weight (top right).  Note that, unlike for SIS,
+		by sampling from $q_2 (x_2 | x_1^i)$ and applying a new importance weight (top right).  Note that, unlike for SIS,
 		the importance weights are not propagated from one time step to the next.
-		We now again have a weight particle set $\{x_{1:2}^i,w_2^i\}_{i=1}^N$, for which we again perform a resampling
+		We now again have a weighted particle set $\{x_{1:2}^i,w_2^i\}_{i=1}^N$, for which we again perform a resampling
 		step to produce an unweighted set of particles.  The process continues in the same way, eventually returning the
 		final set of samples $\{x_{1:T}^i,\nw_T^i\}_{i=1}^N$, where we have self-normalized the final weights of each trajectory
 		(note that each $\nw_T^i$ applies to the full trajectory $x_{1:T}^i$).  
 		Over time, many of the generated samples are
 		discarded by the system (shown in gray) during the resampling step.  A consequence of this, which can be seen
-		in the bottom right, is that
+		in the bottom right, is that after
 		many time steps, then our particle set become \emph{degenerate}.  Here we have multiple distinct samples for $x_9$, but
 		all our samples share the same \emph{ancestors} for $t=1:6$, i.e. each $x_t^i$ in our final sample set is
 		the same for $t\le6$.  We will return to discuss this further in Section~\ref{sec:part:pmcmc:path-deg}.
@@ -219,7 +219,7 @@ in Section~\ref{sec:inf:foundation:resampling}.  Any of the introduced resamplin
 used~\citep[Section 4.1]{andrieu2010particle}
 and so in general one should use systematic resampling.
 When we later introduce PMCMC methods, it will
-be useful to think about resampling in terms of propagating particles each particle by drawing an 
+be useful to think about resampling in terms of propagating each particle by drawing an 
 ancestor variable $a_{t-1}^i$ (as per~\eqref{eq:inf:resampling}) and then using this to propose the new
 variable for that particle, i.e. $x_t^i \sim q_t(x_t | x_{1:t-1}^{a_{t-1}^i})$.  The particle system is then
 re-weighted as
@@ -251,7 +251,7 @@ importance sampling:
 			\State $x_1^i \sim q_1(x_1)$
 			\State $w_1^i = \frac{g_1(y_1|x_1^i) \mu(x_1^i)}{q_1(x_1^i)}$
 			\For{$t = 2$ {\bfseries to} $T$}
-			\State $a_{t-1}^i \sim \Discrete\left(\left\{\nw_{t-1}^{\ell}\right\}_{\ell=1}^N\right)$% \tom{We can maybe more general that categorical here?}
+			\State $a_{t-1}^i \sim \Discrete\big(\left\{\nw_{t-1}^{\ell}\right\}_{\ell=1}^N\big)$% \tom{We can maybe more general that categorical here?}
 			\State $x_t^i \sim q_t(x_t | x_{1:t-1}^{a_{t-1}^i})$ 
 			\State Set $x_{1:t}^i = (x_{1:t-1}^{a_{t-1}^i},x_t^i)$
 			\State $w_t^i = \frac{g_t(y_t|x_{1:t}^i) f_t(x_t^i | x_{1:t-1}^{a_{t-1}^i})}{q_t(x_t^i|x_{1:t-1}^{a_{t-1}^i})}$
@@ -269,18 +269,18 @@ unbiased estimate for the marginal likelihood $p(y_{1:T})$
 \label{eq:part:ML}
 \hat Z = \prod_{t=1}^T \frac{1}{N} \sum_{i=1}^N w_{t}^{i}.
 \end{align}
-as first shown by~\cite{del2004feynman}.  Although this original
-proof requires advanced techniques we will not touch on here, we will later show that this results can also be shown
+Although the original proof of~\cite{del2004feynman} requires advanced techniques we 
+will not touch on here, we will later show that this result can also be shown
 as a consequence of the proof of correctness for the particle independent Metropolis-Hastings method
 given in Section~\ref{sec:part:pmcmc:pimh}.  Note that although the marginal likelihood estimate is
-unbiased, the estimator for an general expectation given by~\eqref{eq:part:smc-est} is biased in the same
+unbiased, the estimator for a general expectation given by~\eqref{eq:part:smc-est} is biased in the same
 way as the self-normalized importance sampling estimator given in~\eqref{eq:inf:snis} is.  Nonetheless, producing unbiased
 estimates of the marginal likelihood has numerous significant advantages.  
 
 Firstly, it means that one can combine
 results from difference SMC runs and still have a consistent estimator for the target and a both unbiased and
 consistent estimate for the marginal likelihood.
-The is particularly important because the number of particles $N$, is typically restricted by the availability of memory
+This is particularly important because the number of particles $N$, is typically restricted by the availability of memory
 and we often want to run more than one \emph{SMC sweep} (i.e. single run of SMC).
 To combine our estimates, one simply weights each sample by the marginal likelihood of its sweep times
 its local, self-normalized, weight $\nw_T^i$, giving the estimator
@@ -288,14 +288,14 @@ its local, self-normalized, weight $\nw_T^i$, giving the estimator
 \label{eq:part:ind-smc}
 \E_{\pi (x_{1:T})} \left[f(x_{1:T})\right] \approx \frac{1}{RN} \sum_{r=1}^{R}\sum_{i=1}^{N} \hat{Z}[r] \nw_T^i[r] f(x_{1:T}^i[r])
 \end{align}
-where the notation $[r]$ is used to indicates samples from sweep $r$.
+where the notation $[r]$ is used to indicate samples from sweep $r$.
  The ability to do this is known as \emph{proper weighting}~\citep{naessethLS2015nested} and we can justify it by
 thinking in terms of using a proposal that first samples a full particle set, giving importance weight $\hat Z$, and then sampling a particle
 from this set, giving importance weight $\nw_T^i$.  The product of these separate weights thus gives the weight of
 each sample.  
 
 Secondly, the unbiased marginal likelihood estimate means that we can \emph{nest} SMC within other 
-methods as a unbiased estimate of the likelihood.
+methods as an unbiased likelihood estimate.
 Methods that make use of such unbiased likelihood estimates are known as pseudo-marginal
 methods~\citep{andrieu2009pseudo} and will be discussed in Chapter~\ref{chp:nest}.
 Some PMCMC methods we introduce in Section~\ref{sec:part:pmcmc} (namely PIMH and PMMH) 
@@ -340,9 +340,9 @@ of our intermediate targets place zero probability mass on events that have non-
 probability mass under the corresponding marginals of the final target 
 \begin{align}
 \label{eq:part:opt-target}
-\tilde{\pi}_t (x_{1:t}) = \int \pi_T (x_{1:T}) dx_{t+1:T}
+\tilde{\pi}_t (x_{1:t}) = \int \pi_T (x_{1:T}) dx_{t+1:T}.
 \end{align}
-$\ne \pi_t (x_{1:t})$ in general.  In fact, the series of targets given
+In fact, the series of targets given
 for the NMSSM case are actually suboptimal and used because of the fact that
 $p(x_{1:t},y_{1:t})$ can, in general, be calculated exactly.  It is a well known result
 (see, for example, the appendices of~\cite{le2017auto}) that the optimal series
@@ -351,18 +351,18 @@ the marginals $\tilde{\pi}_t (x_{1:t})=p(x_{1:t} | y_{1:T})$ for
 the NMSSM case.  To see this, note that at the $t^{\mathrm{th}}$ step, we are generating 
 the samples for $x_{t}$ and so if each of targets is the marginal of the final distribution
 $p(x_{1:t} | y_{1:T})$, then the marginal probability of the already sampled variables does not change from
-one step to the next.  Conversely, $\pi_t (x_{1:t}) \neq \int \pi_{t+1} (x_{1:t+1}) dx_{t+1}$
-in general and so if a different series of targets are used,
+one step to the next.  Conversely, as $\pi_t (x_{1:t}) \neq \int \pi_{t+1} (x_{1:t+1}) dx_{t+1}$
+in general, if a different series of targets are used,
 e.g. $p(x_{1:t}|y_{1:t})$, then the marginal probability of the already sampled
-variables changes from one iteration to the next, reducing the efficient of the inference.
+variables changes from one iteration to the next, reducing the efficiency of the inference.
 To give an example of this, consider
-the case where $x_{1}$ include global parameters that effect each emission
-distribution, for example it could contain the variance for Gaussian
+the case where $x_{1}$ includes global parameters that effect each emission
+distribution, for example it could contain a variance for
 likelihood terms.  In our NMSSM case we can never regenerate samples for $x_1$ after
 the first step and so it is clearly better at the first step to target $p(x_1 | y_{1:T})$ than $p(x_1|y_1)$,
 i.e. to condition on all the data rather than the first datapoint. Unfortunately, calculating
 $p(x_1 | y_{1:T})$ itself generally requires a marginalization that is as difficult, or potentially
-even more difficult, than the inference itself.  Hence the series of targets we introduced in
+even more difficult, than the original inference itself.  Hence the series of targets we introduced in
 the NMSSM formulation are those that are usually used in practice.  However, we note that there are some
 innovative methods for partially alleviating this problem, such as block sampling~\citep{doucet2006efficient} methods,
 which use a combination of lookahead and \emph{auxiliary weighting} schemes~\citep{cappe2007overview}.
@@ -373,21 +373,21 @@ by assigning non-even weights to the resampled particles.
 Another upshot of the ability to use an arbitrary series of targets is that we can use SMC in scenarios that do not
 permit a conventional breakdown of the target distribution, but where we 
 can provide guiding distributions to that which we care about.  One possible case is when our prior distribution
-is a generative model that can be evaluated on the target dataset at point in generative process.
-For example, in~\cite{janz2016probstruct}, we considered the example of doing inference
+is a generative model that can be evaluated on the target dataset at any point in the generative process.
+For example, in~\cite{janz2016probstruct}, we considered doing inference
 on the structure of a GP kernel.  Here we can define a generative model that produces
-increasingly complex kernels, such that all the intermediary kernels in this generation process are themselves
+increasingly complex kernels, such that all the intermediate kernels in this generation process are themselves
 valid kernels that can thus be evaluated.  Here we can think of expanding our kernel at each time step of 
 the SMC inference and our targets as being the posterior on kernel structure for the GP, subject to increasingly
 lax restrictions on the kernel complexity.\footnote{Technically in this work actually uses population
-	Monte Carlo~\cite{cappe2004population} which is based on using a series of static targets.  The
+	Monte Carlo~\citep{cappe2004population} which is based on using a series of static targets.  The
 	intuition, however, predominantly transfers and SMC could have been used instead.}  
 Another example is provided by~\cite{lakshminarayanan2013top},
 who use SMC for Bayesian learning of decision trees.  Here they use the self-similarity of trees, starting
 with a basic stump and then adding a new split at each time step.
 For both these problems, SMC has been used
 to exploit the fact that the overall problem can be broken down into a series of increasingly difficult
-problems, namely those with an increasingly large prior, to guide towards good solutions for the final problem.
+problems to guide towards good solutions for the final problem.
 
 \subsection{Practical Considerations}
 \label{sec:part:smc:prat}
@@ -405,14 +405,14 @@ The reason the number of particles can be so critical is that if it is too small
 estimate explodes, the effective sample size plummets, and one sweep ends up dominating the estimate.  Though the marginal 
 likelihood estimate is unbiased, it has a massive positive skew when insufficient particles as used, such that the 
 probability that a
-sweep gives a marginal likelihood estimate larger than the true marginal likelihood estimate can be arbitrarily small;
+sweep gives a marginal likelihood estimate larger than the true marginal likelihood can be arbitrarily small;
 after all, the limit $N=1$ corresponds to importance sampling.  As such, if we use insufficient particles and just
 repeatedly run SMC sweeps, we may have to wait arbitrarily long before getting any useful samples.  One way 
 to try an combat this, presuming it is not possible to increase $N$, is to group the SMC sweeps into a number
-of islands and then combined estimates in the normal way within the islands, but combined the islands in
+of islands and then combine estimates in the normal way within the islands, but combine the islands in
 an unweighted fashion (see for example~\cite{lakshminarayanan2013top}).  Though often practically useful, this
 is clearly only trading variance for bias and thus is more of a means of mitigating rather than solving the problem.
-A more principled means of overcoming this issue is presented by PMCMC methods as discussed in Section~\ref{sec:part:pmcmc}.
+A more principled means of overcoming this issue is presented by PMCMC methods as discussed in Sections~\ref{sec:part:pmcmc} and \ref{sec:part:ipmcmc}.
 
 \subsubsection{Adaptive Resampling}
 \label{sec:part:smc:prat:ad-re}
@@ -424,8 +424,8 @@ resampling is to kill off particles with negligible weight, it is generally pref
 when most particles have significant weight.  This lead to the development of so-called \emph{adaptive resampling}
 schemes that only perform the resampling step if some criterion is met~\citep{liu1995blind,del2012adaptive}, e.g. 
 only resampling when the effective sample size falls below a certain threshold,
-for which $N/2$ is a common choice~\cite{doucet2009tutorial}.
-When the resampling is omitted, the particles remain unweighted, with their weights at the next iteration updated
+for which $N/2$ is a common choice~\citep{doucet2009tutorial}.
+When the resampling is omitted, the particles remain weighted, with their weights at the next iteration updated
 using~\eqref{eq:part:sis-weights}, as per SIS, except that the self normalized weights $\bar{w}_t^i$ should be used so that the
 marginal likelihood estimate can be carried out in the same manner.
 That this still informally forms a valid SMC algorithm for posterior inference can be seen by thinking of these as being sequential importance
@@ -453,7 +453,7 @@ to be correctly normalized) then the weights are simply the normalization consta
 w_t(x_{1:t}) &= \int \frac{\gamma_t({x}_{1:t})}{\gamma_{t - 1}({x}_{1:t - 1})} dx_t = 
 \frac{\int\gamma_t({x}_{1:t}) dx_t}{\gamma_{t - 1}({x}_{1:t - 1})} 
 \end{align}
-$=p(y_t | x_{1:t-1})$ for the NMSSM formulation.  Consequently, the weights in the this case are no longer
+$=p(y_t | x_{1:t-1})$ for the NMSSM formulation.  Consequently, the weights in this case are no longer
 functions of the sampled value and so the marginal likelihood and effective sample size are deterministic
 functions of the particle system before proposing the $x_{t}$, namely of $\{x_{1:t-1}^i,a_{t-1}^i\}_{i=1}^N$.
 This also means that we can switch the order of sampling from the proposal and doing the resampling when
@@ -475,9 +475,9 @@ not usually possible to analytically calculate the required normalization for $q
 not generally tractable.  Nonetheless, it provides a good guide for designing, or adapting for, effective proposal
 distributions.
 
-Another proposal of note, at least for the state space model case, is the so-called bootstrap proposal which
+Another proposal of note, at least for the state space model case, is the so-called bootstrap proposal, which
 corresponds to sampling from the transition distribution $f_t(x_t | x_{1:t-1})$.  The significance of this proposal
-is that it means that the weight calculation given in~\eqref{eq:part:smcweights} cancel to
+is that it means that the weight calculation given in~\eqref{eq:part:smcweights} cancels to
 \begin{align}
 \label{eq:part:bootstrap-weights}
 w_t^i = g_t (y_t | x_{1:t}^i).
@@ -487,8 +487,8 @@ at a particular point, only sample from it.  Obviously this can be helpful for c
 it is rare that the effect of this outweighs using a better proposal if one is known), but it is also important
 because it can be the case that one only has access to a sampler for the transition and not the ability to evaluate
 the transition probability at an arbitrary point.
-In the absence of other information, the bootstrap can also be a reasonable choice of proposal in its own right as
-it is almost always more diffuse than the one step posterior.  Its efficiency will in general depend on how relatively
+In the absence of other information, the bootstrap can also be a reasonable choice of proposal in its own right, as
+it is almost always more diffuse than the one step posterior.  Its efficiency will, in general, depend on how relatively
 peaked the emission distribution is and the dimensionality of $x_t$ -- after all, each step in SMC is in
 isolation importance sampling.  One can usually beneficially use the next observation $y_t$ to help guide the
 the proposal, but doing this in a general purpose manner can be challenging~\citep{gu2015neural}.

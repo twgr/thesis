@@ -70,7 +70,7 @@ which is the current instance of \angstate.  Meanwhile, \smalltt{trap.observe} h
 a \clj{:value} field giving the observation and \smalltt{trap.result} has only the \clj{:state} field.  Each
 \checkpoint method should either return a thunk, in which case the \clj{exec} function will resume running,
 or an instance of the relevant Clojure record, in which case \clj{exec} terminates and returns control to the \anginfer
-function (or some intermediary function used by the \anginfer function).  For example, in SMC methods
+function (or some intermediate function used by the \anginfer function).  For example, in SMC methods
 then we will want to return control to \anginfer at an \observe point to do the resampling, while all methods
 return control for a \clj{return} checkpoint.
 Default behaviors are provided for each checkpoint that dictate their behavior unless overwritten by

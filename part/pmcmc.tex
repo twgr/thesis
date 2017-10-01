@@ -7,7 +7,7 @@ Particle Markov chain Monte Carlo (\pmcmc) methods, introduced by \citet{andrieu
 sequential Monte Carlo (\smc) algorithms \citep{gordon1993novel,doucet2001sequential} to construct 
 efficient proposals for an \mcmc sampler. This allows them to both utilize the ability of SMC to
 exploit the structure of the target problem and the hill climbing behavior of MCMC methods.
-The critical difference from running independent SMC sweeps is that information can be transferred
+The critical difference from running independent SMC sweeps, is that information can be transferred
 from one sweep to the next. 
 %The core reason for wanting to do this is that
 %one is typically memory restricted in the number of particles that can be run $N$.  Though as we explained
@@ -142,7 +142,7 @@ Our extended target distribution is now constructed using the following hypothet
 		\begin{align}
 	\label{eq:part:csmc}
 	q_{\text{CSMC}}\left(\xib \backslash \{\xb^b, \bb\} \mid \xb^b, \bb \right) = 
-	\prod_{i=1, i\neq\beta_1}^N  q_1(x_{1}^i) \cdot \prod_{t=2}^T \prod_{\substack{i=1\\i\neq b_{t}}}^N \left[
+	\prod_{i=1, i\neq\beta_1}^N  q_1(x_{1}^i) \cdot \prod_{t=2}^T \prod_{i=1,i\neq b_{t}}^N \left[
 	\nw_{t-1}^{a_{t-1}^i}q_t(x_{t}^i|x_{1:t-1}^{a_{t-1}^i})\right],
 	\end{align}
 	which corresponds to $q_{\text{SMC}}(\xib)$ as per~\eqref{eq:part:smc:proposal},
@@ -226,7 +226,7 @@ of the resampling steps.  In other words, the other particles can sample the ret
 ancestor but not vice versa, with the values and ancestral path of the retained particle prefixed. 
 Note that running Algorithm~\ref{alg:csmc} corresponds to using a fixed
 choice for the index variables $\bb = (N\,\ldots,N)$. While these indices are used to facilitate the
-proof of validity of the proposed method, they have no practical relevance (all path are marginally equivalent
+proof of validity of the proposed method, they have no practical relevance (all paths are marginally equivalent
 by symmetry), and can thus be set to arbitrary
 values, as is done in Algorithm~\ref{alg:csmc}, in a practical implementation.
 \begin{algorithm}[tb]
@@ -240,7 +240,7 @@ values, as is done in Algorithm~\ref{alg:csmc}, in a practical implementation.
 			\State $x_1^i \sim q_1(x_1), ~i=1,\ldots,N-1$ and set $x_1^N = x_1'$
 			\State $w_1^i = \frac{g_1(y_1|x_1^i) \mu(x_1^i)}{q_1(x_1^i)}, ~i=1,\ldots,N$
 			\For{$t = 2$ {\bfseries to} $T$}
-			\State $a_{t-1}^i \sim \Discrete\left(\left\{\nw_{t-1}^\ell\right\}_{\ell=1}^N\right), ~i=1,\ldots,N-1$
+			\State $a_{t-1}^i \sim \Discrete\big(\left\{\nw_{t-1}^\ell\right\}_{\ell=1}^N\big), ~i=1,\ldots,N-1$
 			\State $x_t^i \sim q_t(x_t | x_{1:t-1}^{a_{t-1}^i}), ~i=1,\ldots,N-1$
 			\State Set $a_{t-1}^N = N$ and $x_t^N = x_t'$
 			\State Set $x_{1:t}^i = (x_{1:t-1}^{a_{t-1}^i},x_t^i), ~i=1,\ldots,N$
@@ -356,7 +356,8 @@ Perhaps the simplest way of doing this is using the \emph{particle marginal Metr
 sampler.  This extends the PIMH sampler by using a standard MH update proposal $q(\hat{\theta}|\theta=\mathbf{\theta}[r-1])$ 
 before each SMC sweep such that the overall proposal is
 \begin{align}
-q_{\text{PMMH}}(\xib,\hat{\theta}|\mathbf{\theta}[r-1]) = q(\hat{\theta}|\mathbf{\theta}[r-1]) q_{\text{PIMH}}(\xib)
+q_{\text{PMMH}}(\xib,\hat{\theta}|\mathbf{\theta}[r-1]) = q(\hat{\theta}|\mathbf{\theta}[r-1]) 
+q_{\text{PIMH}}(\xib | \hat{\theta})
 \end{align}
 and samples are now accepted with probability
 \begin{align}

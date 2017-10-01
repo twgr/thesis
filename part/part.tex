@@ -10,13 +10,13 @@ known as \emph{particles}.  By working with populations of samples, also known a
  at the same time, rather than individual
 samples in turn, they allow information to be shared across the population and computational
 resources to be adaptively reallocated to where they are needed.  A common feature of PBIMs is
-that they make use \emph{intermediate information} available during the inference process and thereby
+that they make use of \emph{intermediate information} available during the inference process and thereby
 exploit the structure of the problem.  For example, SMC uses a series of intermediate target distributions
-which act a stepping stones to the full posterior.  By using the information gathered from these intermediate
+which act as stepping stones to the full posterior.  By using the information gathered from these intermediate
 solutions, they can better allocate computational resources for the next target and combat the curse of
 dimensionality.  As such, PBIMs can be highly effective for problems with rich, exploitable, structures, 
 for example time series models, but are generally less effective for problems that do not lend themselves
-to a series of intermediate targets.  For our purposes, an particularly important feature of particle based
+to a series of intermediate targets.  For our purposes, a particularly important feature of particle based
 methods is that they can be used for, and are often very effective at, conducting inference in PPS~\citep{wood2014new}, as we will
 explain in the next chapter.
 
