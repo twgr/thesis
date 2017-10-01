@@ -7,7 +7,7 @@ Non-probabilistic languages can be either compiled, whereby high-level source co
 is converted to a lower level language (e.g. byte-code) before being evaluated, or interpreted,
 whereby an interpreter reads the program and directly evaluates it based on the language
 semantics.
-The same is true for PPLs, for which compilation using comprises of converting the
+The same is true for PPLs, for which compilation usually comprises of converting the
 query to a model artifact in a host language in which the inference algorithm itself is
 written.  Though its original implementation was interpreted, the current version of
 Anglican is compiled and our focus will be on this compiled approach.
@@ -45,7 +45,7 @@ times, each returning a sampled output and accompanying weight, to produce a seq
 of importance samples which can then be used to make consistent Monte Carlo estimations.
 Such a strategy would be na\"{i}ve though as we would be able to use our Clojure program
 for little else than importance sampling with this particular proposal.  Clearly, we want
-to compile to a more general purpose representation that permits a wider array inference algorithms
+to compile to a more general purpose representation that permits a wider array of inference algorithms
 and proposals, and which ideally allows features of the model, such as its dependency
 structure, to be exploited.
 
@@ -54,7 +54,7 @@ program evaluations.  This will allow us to re-evaluate elements of the program 
 isolation in a Metropolis within Gibbs fashion and it will allow us to interrupt the execution
 of the program, giving us the ability to add in things such as the resampling step in SMC.
 Supporting partial evaluation can also allow us to avoid gratuitous re-executions of
-elements of the program whose result is already known by using databases to store and
+elements of the program whose result is already known, by using databases to store and
 recall the effect of previous executions.
 
 Another desirable feature is to avoid being restricted to only directly sampling from \sample
@@ -71,7 +71,7 @@ elements of the code.  Other than potentially trying to make efficiency gains by
 repeated computation, we know that any deterministic parts of our code, namely code in between
 consecutive \sample and or \observe statements, can be safely run without the need
 to worry about the implications this has on the inference (remembering that we have presumed
-that our program has no side effects of than cause by \sample and \observe).  The execution of these segments of
+that our program has no side effects of than those caused by \sample and \observe).  The execution of these segments of
 the program in isolation can thus be as per the semantics of the language being compiled to, without needing to
 worry about the probabilistic implication.  On the other hand, we will generally desire the identification
 of \emph{checkpoints} for positions in the program where \sample or \observe statements are
@@ -96,7 +96,7 @@ pick out salient features of the model, carry out simplifications, and even auto
 establish the most suitable inference algorithm for a particular problem.  The compiler (or equivalently interpreter)
 is an integral part of any PPL and there is no one best approach for all situations. 
 One of the key distinguishing features between different PPLs is how they approach
-this compilation problem, with different design choices inevitably lead to systems
+this compilation problem, with different design choices inevitably leading to systems
 geared towards different models or inference algorithms. 
 
 \subsection{Compilation of Anglican Queries}
@@ -147,7 +147,7 @@ expression specific and must, in general, be implemented on a case-by-case basis
 For example, one can CPS transform \clj{let} by going from
 \clj{(let [x (foo1 4) y (foo2 8)] (foo3 x y))} to
  \begin{lstlisting}[basicstyle=\ttfamily\small,frame=none]
- (fn [$\mP$] (foo1& 4 (fn [x] (foo2& 8 (fn [y] (foo3& x y $\mP$)))))).
+ (fn [$\mP$] (foo1& 4 (fn [x] (foo2& 8 (fn [y] (foo3& x y $\mP$))))))
  \end{lstlisting}\vspace{-8pt}
 noting that within the \clj{(fn [x] .)} closure, \clj{x} is bound to the input of the 
 function, giving behavior synonymous to the original
@@ -156,7 +156,7 @@ Another special case of particular note is \clj{loop}-\clj{recur} blocks.  These
 transformed by explicitly redefining them as a self-recursive function which can then
 be transformed in the normal way.  For example,
 \begin{lstlisting}[basicstyle=\ttfamily\small,frame=none]
-(loop [x 10] (if (> x 1) (recur (- x 2)) x))
+ (loop [x 10] (if (> x 1) (recur (- x 2)) x))
  \end{lstlisting}\vspace{-8pt}
 becomes
 \begin{lstlisting}[basicstyle=\ttfamily\small,frame=none]
@@ -176,7 +176,7 @@ particularly useful as it will allow for partial program evaluations.  It will a
 for adding checkpoints at particular points in the program -- namely at the \sample and
 \observe calls -- where control is handed over to the inference algorithm.
 
-Compilation of an Anglican query, triggered through the \query macro, is done in recursively
+Compilation of an Anglican query, triggered through the \query macro, is done recursively
 in a top down manner.  The key function in doing this, called \clj{cps-of-expression},
 dispatches to the individual CPS transformations by matching types of expression, or, if necessary,
 directly by name.  Individual CPS transformations then recursively call \clj{cps-of-expression}
@@ -192,7 +192,7 @@ Thus, for example, the transformation for a generic function \clj{f} becomes
   (defn f& [args $\mP~\angstate$] ($\mP$ (f args) $\angstate$)).
 \end{lstlisting}\vspace{-8pt}
 More generally, we will simply pass on \angstate unchanged except for the Anglican
-special forms which can use and or manipulate the internal state.  \angstate itself
+special forms which can use and manipulate the internal state.  \angstate itself
 is defined to be a hash map, initialized as follows
 \begin{lstlisting}[basicstyle=\ttfamily\small,frame=none]
   (def initial-state {:log-weight 0.0 :result nil ...})
@@ -243,8 +243,8 @@ the resampling step in SMC.  In Anglican this is achieved using \emph{trampolini
 programming languages, trampolining is a process of looping execution where if an iteration of
 a loop returns a function, that function is immediately evaluated without passing forward any arguments,
 with this process continuing until a non-functional output is returned.  The primary use of trampolining
-for functional languages is general 
-is for managing stack sizes by constructing a nested call structure of \emph{thunks} (i.e. functions which
+in functional languages is generally
+for managing stack sizes by constructing a nested call structure of \emph{thunks} (i.e. functions which
 require no input arguments) that when called by the trampolining function (called \clj{trampoline} in Clojure)
 invokes the full set of nested calls without requiring a stack to be constructed or stored, as would be necessary
 for an ordinary nested function structure.  In the context of our CPS transformations, we can do this by simply

@@ -92,36 +92,44 @@
 \newcommand{\angurl}{\scriptsize \url{http://www.robots.ox.ac.uk/~fwood/anglican}}
 \newcommand{\myurl}{\scriptsize \url{https://bitbucket.org/twgr/ipmcmc}}
 
-%\definecolor{darkgreen}{rgb}{0.25,.5,0}
-%\definecolor{blue}{rgb}{0,0.33,0.66}
-%\definecolor{red}{rgb}{0.66,0.0,0.0}
-%\definecolor{purple}{rgb}{0.33,0,0.66}
-%\definecolor{cyan}{rgb}{0.0,0.5,0.5}
-%\definecolor{orange}{rgb}{0.5,0.25,0.0}
-%\definecolor{gray}{rgb}{0.4,0.4,0.4}
+\definecolor{darkgreenClj}{rgb}{0.25,.5,0.25}
+\definecolor{blueClj}{rgb}{0,0.33,0.66}
+\definecolor{redClj}{rgb}{0.66,0.0,0.0}
+\definecolor{purpleClj}{rgb}{0.33,0,0.66}
+\definecolor{cyanClj}{rgb}{0.0,0.5,0.5}
+\definecolor{orangeClj}{rgb}{0.75,0.35,0.0}
+\definecolor{grayClj}{rgb}{0.4,0.4,0.4}
 \lstset{ 
 	language=Lisp, 
 	basicstyle=\small\ttfamily,
 	keywordstyle={}, 
-	alsoletter={<-,->,:,*,/},
+	alsoletter={<-,->,:,*,/,?,+,-,/,>,<,=, &},
 	commentstyle=\em \color{gray}, 
 	frame=lines,
 	%float=tbph,
 	% captionpos=b,
 	showstringspaces=false, 
-	keywordstyle=[1]\bf\ttfamily\color{blue},
-	keywords=[1]{BO,theta-best,bo-acquire,sample-initial-points,sample,observe,observe<-,predict,mem,store,retrieve,return,catch,throw,
+	keywordstyle=[1]\bf\ttfamily\color{blueClj},
+	keywords=[1]{BO,theta-best,bo-acquire,sample-initial-points,sample,observe,observe<-,predict,mem,store,retrieve,return,catch,throw,absorb,produce,with-primitive-procedures,conditional,result,log-marginal,mean,
 		->sample,->observe,->result},
-	keywordstyle=[2]\bf\ttfamily\color{red},
-	keywords=[2]{defn,def,if,let,letfn,loop,looppredict,recur,declare,or},
-	keywordstyle=[3]\bf\ttfamily\color{cyan},
-	keywords=[3]{absorb,assoc,argmax,count,cons,conj,dirichlet-discrete,do,exponential,first,flip,fn,gamma,beta,get,keys,lazy-seq,map,mvn-niw,nth,mat/add,mat/div,normal,print,produce,reduce,repeat,repeatedly,rest,set,shape,take,uniform-continuous,vec,distribution,factor,simulate,abc-likelihood,when,max,student-t,trampoline},
-	keywordstyle=[4]\bf\ttfamily\color{purple},
-	keywords=[4]{defopt,defquery,doopt,doquery,query,defdist,infer,checkpoint,exec,defm,conditional},
-	keywordstyle=[5]\ttfamily\color{orange},
-	keywords=[5]{:nu,:alpha,:id,:state,:cont,:dist,:value},
+	keywordstyle=[2]\bf\ttfamily\color{redClj},
+	keywords=[2]{if,let,letfn,loop,looppredict,recur,or,trampoline,assoc,argmax,count,cons,conj,
+		do,first,fn,get,keys,lazy-seq,map,nth,mat/add,mat/div,print,reduce,repeat,repeatedly,rest,set,shape,take,vec,
+		when,max,fn?,inc,sample*,observe*},
+	keywordstyle=[3]\bf\ttfamily\color{cyanClj},
+	keywords=[3]{dirichlet-discrete,exponential,flip,gamma,beta,mvn-niw,normal,uniform-continuous,distribution,factor,
+		simulate,abc-likelihood,student-t,dirichlet},
+	keywordstyle=[4]\bf\ttfamily\color{purpleClj},
+	keywords=[4]{defopt,defquery,doopt,doquery,query,defdist,infer,checkpoint,exec,defm,cps-of-expression,
+		defn,def,declare},
+	keywordstyle=[5]\bf\ttfamily\color{orangeClj},
+	keywords=[5]{:lmh,:ipmcmc,:war,:peace,:log-weight,:result,:id,:dist,:cont,:value,:state,:importance,:smc,:pgibbs},
 	mathescape=true,
 	stringstyle={},
+		keywordstyle=[6]\bf\ttfamily\color{darkgreenClj},
+		keywords=[6]{+,-,nil,>,<,*,/,=, &,->>,->},
+		mathescape=true,
+		stringstyle={},
 } 
 \lstnewenvironment{code}[2]{\lstset{caption=#1,label=#2}}{}
 

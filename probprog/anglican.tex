@@ -32,7 +32,7 @@ Before getting into the details of Anglican, we first give a very brief introduc
 because its syntax may be quite unfamiliar to readers without experience in Lisp based notation or functional programming
 more generally.  There are two key things to get your head around for reading and using Clojure (and Lisp languages more
 generally): almost everything is a function and parentheses evaluate functions.  For example, to code $a+b$ in Clojure one
-would write {\small \lsi{(+ a b)}} where $+$ is a function taking two arguments (here $a$ and $b$) and the parentheses cause the
+would write {\small \lsi{(+ a b)}} where \clj{+} is a function taking two arguments (here \clj{a} and \clj{b}) and the parentheses cause the
 function to evaluate.  More generally, Clojure uses prefix notation such that 
 the first term in a parenthesis is always a function, with the other terms the arguments.
 Thus {\small \lsi{((+ a b))}} would be invalid syntax as the result of {\small \lsi{(+ a b)}}  is not a function so cannot be evaluated.
@@ -49,7 +49,7 @@ and then evaluate $a+b$, thus returning $5$.  Note that $a$ and $b$ remain undef
 
 Clojure allows various types of compound literals such as vectors, lists, hash maps and sets.
 In general, elements in these compound literals are not restricted in
-their type so it valid to write for example {\small \lsi{[1 "2" (fn [x] (inc x))]}} to construct a vector 
+their type so it valid to write for example {\small \lsi{[1 (fn [x] (inc x)) "2"]}} to construct a vector 
 whose component terms are different types.
 
 Clojure does not generally use
