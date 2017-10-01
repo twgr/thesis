@@ -55,7 +55,7 @@ design space, with the next chosen design calculated automatically when provided
 the outcome of the last.  However, as we will discuss in Section~\ref{sec:disc:design}, this actually goes
 beyond the capabilities of current PPS.  What we present is by no means a complete solution to
 this problem and certainly does not represent a PPS itself, but it does perhaps provide an important
-step towards such building such a hypothetical system.   Indeed the framework has already been
+step towards building such a hypothetical system.   Indeed the framework has already been
 applied to provide automated sequential BED for a very restricted model class existing in the form of
 the DARC toolbox~\citep{vincent2017darc} introduced in Section~\ref{sec:design:darc}.
 
@@ -71,7 +71,7 @@ p\left(\theta | d_{1:t-1}, y_{1:t-1}\right) \propto p(\theta) \prod_{i=1}^{t-1} 
 which is a typical Bayesian inference problem, such that we can use Monte Carlo inference
 to generate the required samples $\theta_n$.  Note that this setup is very general.   For example, there might
 be a term in $\theta$ for each round of the experiment, leading to a non-Markovian state space model as
-per~\ref{sec:part:smc:nmssm}.
+per Section~\ref{sec:part:smc:nmssm}.
 There are many suitable candidates for the requied inference such as those discussed in Chapters~\ref{chp:inf} and
 \ref{chp:part}.
 The relative merit of these will depend on
@@ -90,9 +90,9 @@ based methods, see Chapter~\ref{chp:part}) are likely to be particularly efficie
 We have now derived an estimator for $\bar{U}_t(d)$ and demonstrated how we can generate the
 samples required to evaluate this estimator.  We will now look at how to optimize for $d$.  
 Our problem requires the optimization of an intractable expectation and thus shares substantial
-similarity to the problems considered in Chapter~\ref{chp:bopp}.  Indeed BOPP could forms a suitable
+similarity to the problems considered in Chapter~\ref{chp:bopp}.  Indeed BOPP could form a suitable
 approach to estimating $d^*$ at each iteration for many problems.  However, BOPP is a somewhat heavy
-duty estimation algorithm that may not be suitable for problems that are relatively simpler,
+duty estimation algorithm that may not be suitable for problems that are relatively simple,
 but for which speed is paramount.  Many of the possible applications of our approach, such
 as the DARC toolbox, require rerunning in real-time with human participants, for which BOPP would
 thus be inappropriate.\footnote{Nonetheless, if the surrogate in BOPP
@@ -101,7 +101,7 @@ thus be inappropriate.\footnote{Nonetheless, if the surrogate in BOPP
 We instead construct a new approach
 that exploits the fact that~\eqref{eq:u_bar_MC} need not generate distinct $\theta_n$ to evaluate
 different designs.  Our novel method combines ideas from both the bandit and
-Monte Carlo literatures~\citep{amzal2006bayesian,neufeld2014adaptive} by adaptive 
+Monte Carlo literatures~\citep{amzal2006bayesian,neufeld2014adaptive} by adaptively 
 allocating resources to a set of candidate designs.  We will presume that there are some fixed number 
 of candidate designs $\mathcal{D} = \{d_k\}_{k=1:K}$ which could be randomly (or quasi-randomly)
 sampled up front if the design space is continuous.  This assumption is made because the 
@@ -111,8 +111,8 @@ assumption by incorporating MCMC transitions in a manner akin to~\citep{amzal200
 
 The underlying idea of the approach is that we are willing to accept higher variance in the integral estimates for lower utility designs as this error is unlikely to lead to an incorrect estimation of the optimum.
 Therefore, we desire to take more Monte Carlo samples, and thus achieve a more accurate estimate, for the designs we estimate to have a higher chance of being the optimal design, given the current noisy estimates.
-At a high level, this is similar  to the idea of Thompson sampling~\citep{thompson1933likelihood} 
-where a candidate is sampled in proportion to its probability of being the best, 
+At a high level, this is similar  to the idea of Thompson sampling
+where a candidate is sampled in proportion to its probability of being the best~\citep{thompson1933likelihood}, 
 a technique commonly used in the bandit literature~\citep{agrawal2012analysis}.
 
 \begin{algorithm}[t]
@@ -142,7 +142,7 @@ a technique commonly used in the bandit literature~\citep{agrawal2012analysis}.
 		\State $\tilde{q}_k \leftarrow \hat{U}_k^{\gamma(\ell+1)} \quad \forall k = 1,\dots,K$ 
 		\label{line:des-opt:set-p}
 		\Comment Unnormalized selection probability $= \text{annealed} ~\hat{U}_k$
-		\State $Z \leftarrow \sum_{k=1}^{K} \tilde{q}_k $ \Comment Normalization constant.
+		\State $Z \leftarrow \sum_{k=1}^{K} \tilde{q}_k $ \Comment Normalization constant
 		\State $q_k \leftarrow \max\left(\frac{\rho}{N},\frac{\tilde{q}_k }{Z}\right) \quad \forall k = 1,\dots,K$ \Comment Ensure probabilities are all at least minimum value
 		\State $q_k \leftarrow \frac{q_k}{\sum_{k=1:K} q_k} \quad \forall k = 1,\dots,K$ 
 		\label{line:des-opt:renorm}
@@ -174,14 +174,14 @@ The second key innovation of our approach is that rather than calculating each e
 exploit the intermediate information from incomplete evaluations to reallocate computational
 resources in a manner that has parallels with SMC, SMC search~\citep{amzal2006bayesian}, annealed
 importance sampling~\citep{neal2001annealed}, adaptive Monte Carlo via bandit 
-allocation~\cite{neufeld2014adaptive}, and the Hyperband algorithm~\citep{li2016hyperband}.
+allocation~\citep{neufeld2014adaptive}, and the Hyperband algorithm~\citep{li2016hyperband}.
 %\footnote{We
 %	note that our approach was independently developed prior to publication of~\cite{li2016hyperband} (the relevant
 %	code for the DARC toolbox dates back to 2015), but remained unpublished until~\cite{vincent2017darc}.}
 %We emphasise though that our method has important differences
 %to these previous approaches and constitutes a new algorithm in its own right.
-Imagine that we are considering $K$ designs with a total sample budget $\bar{N}K$
-and decide to use the same number of samples, $\bar{N}$, to calculate an estimate $\hat{U}_{1:K}$ for the 
+Imagine that we are considering $K$ designs $\mathcal{D} = \{d_k\}_{k=1:K}$ with a total sample budget $\bar{N}K$
+and decide to use the same number of samples, $\bar{N}$, to calculate an estimate $\hat{U}_{k}$ for the 
 utility of each design.  
 After we have taken say $n$ samples
 for each estimate, where $1\le n<\bar{N}$, then we will have a set of intermediate estimates $\hat{U}_{1:K}^n$ for
@@ -240,8 +240,8 @@ $\mathbb{E}\left[\sum_{\ell=1}^{L} n_{k,\ell}\right] >\rho L/2$.
 Therefore, for any finite value of $\rho$, each
 estimate will, in expectation, be assigned infinitely many samples as $L\rightarrow\infty$, regardless
 of the true utilities and the values of $\gamma(\ell)$.\footnote{Note that one should, if desired, be able to instead 
-	use an upper confidence bounding strategy~\cite{auer2002using} to produce a zero-regret 
-	strategy whilst maintaining convergence}.
+	use an upper confidence bounding strategy~\citep{auer2002using} to produce a zero-regret 
+	strategy whilst maintaining convergence}
 As we show in the next section, we can
 use this to prove the convergence of the algorithm, in the sense of guaranteeing the optimal design
 will be found given infinite computational budget.

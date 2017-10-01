@@ -29,7 +29,7 @@ as our target:
 &=\int_{\mathcal{Y}} p(y|d) \left(
 \int_{\Theta} p(\theta | y, d)\log(p(\theta |y, d)) d\theta - 
 \int_{\Theta} p(\theta) \log(p(\theta)) d\theta \right) dy \nonumber\\
-&=\int_{\mathcal{Y}}\int_{\Theta} p(y,\theta | d)\log\left(\frac{p(\theta |y, d)}{p(\theta)}\right)d\theta dy. 
+&=\int_{\mathcal{Y}}\int_{\Theta} p(y,\theta | d)\log\left(\frac{p(\theta |y, d)}{p(\theta)}\right)d\theta dy
 \label{eq:u_bar_1}
 \end{align}
 noting that this corresponds to the mutual information between the parameters $\theta$ and
@@ -53,5 +53,5 @@ discussed in Section~\ref{sec:opt:BO:acq:inf} are particular cases of BED.
 However, a major drawback to the \Bad
 approach is that it is typically difficult and computationally intensive to carry out.  
 Not only does it represent an optimization 
-of an intractable expectation, this expectation is itself a nested because
+of an intractable expectation, this expectation is itself nested because
 the integrand is itself intractable due to the $p\left(\theta | y, d\right)$ term.

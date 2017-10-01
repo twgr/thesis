@@ -3,14 +3,14 @@
 \section{Implications For Nesting Probabilistic Programs}
 \label{sec:nest:imp}
 
-Given our results, it is now natural to ask the question what are the implications
-for nesting probabilistic programming queries?  In particular, when is doing
+Given our results, it is now natural to ask: what are the implications for nesting probabilistic programming queries?
+In particular, when is doing
 this valid and are there any precautions we can take to avoid problems?  Before
 we get to these question though, we first need to explicitly define what we
 mean by a nested query.  To this end, we distinguish between nested calling
 structures (such as the example given in Figure~\ref{fig:probprog:schell}) and
 queries that do not represent a single estimation, which we will refer
-to as nested queries. Our motivation for defining only the later
+to as nested queries. Our motivation for defining only the latter
 as nested is that cases of the former can always be represented as a single
 query, because they still represent a single expectation and define models
 for which the unnormalized target distribution~\eqref{eq:probprog:universal-cond}
@@ -30,7 +30,7 @@ to nested probabilistic program queries and
 assert their respective correctness (or lack thereof) and required conditions.
 Namely, we will consider \emph{sampling} from the conditional distribution
 of another query, \emph{observing} another query, and using \emph{estimates as variables}
-in another query.  We will further identify some special cases that which can be rearranged to single estimators or
+in another query.  We will further identify some special cases which can be rearranged to single estimators or
 provide Monte Carlo convergence rates even when expressed as nested queries.
 
 \subsection{Nested Sampling}
@@ -102,7 +102,7 @@ distribution exactly.  By normalizing $p(z|y)p(D|y,z)$ within the outer query,
  of $z$ given $y$ and not the probability of $y$.
  
  Unfortunately the inverse function $f(x) = 1/x$ constitutes
-a nonlinear mapping and so expectations with respected the nested queries defined in this way using
+a nonlinear mapping and so expectations with respect to nested queries defined in this way using
 \conditional will generally require nested estimation schemes unless we can find a means of
 sampling from $p(z|y,D)$ exactly with finite computational budget.
 The obvious question is therefore what behavior do we need for \conditional, or query nesting through sampling
@@ -124,15 +124,15 @@ need to choose a valid $C$ in~\eqref{eq:inf:rej-acc-criteria}), it does open up 
 of providing a standard Monte Carlo convergence rate for a set of inherently nested problems.  This is because although the performance clearly
 gets exponentially worse with increased nesting (as the probability of a successful return is the
 product of an increasing number of expected acceptance rates), this is a change in the constant factor of the
-computation, not its scaling with the number of samples taken.  This perhaps easiest to see by noting that 
+computation, not its scaling with the number of samples taken.  This is perhaps easiest to see by noting that 
 generating a single exact sample of the distribution
-can be done in finite time using rejection sampling (and thus effectively requires a fixed $N_1,\dots,N_D$ for
-convergence), whereas in general NMC we had that $N_1,\dots,N_D$ need to increase as $N_0$ increases for convergence.
+can be done in finite time using rejection sampling (and thus still converges with a fixed $N_1,\dots,N_D$), 
+whereas in general NMC we had that $N_1,\dots,N_D$ need to increase as $N_0$ increases for convergence.
 If correct, this assertion would be a somewhat startling result: it suggests that Monte Carlo 
 estimates made using nested rejection sampling have a fundamentally different
 convergence rate for nested inference problems (though not nested estimation problems more generally) than, say,
 nested self-normalized importance sampling (SNIS).  Amongst other things, this might lead, 
-perhaps through combination of 
+perhaps through combination with 
 the work of~\cite{moller2006efficient}, to a contradiction of the, ostensibly very reasonable, conjecture
 made by~\cite{murray2004bayesian} that there are no generic tractable MCMC schemes for doubly intractable distributions.
 It is beyond the scope of the work to analyze this hypothesis more formally, or the rabbit hole of
@@ -169,7 +169,7 @@ induces a bias.  In addition to the possibility that we might be able to get aro
 problem using exact sampling as discussed in the last paragraph, it might also be possible to
 use debiasing techniques to remove the particular bias that is generated, see e.g.~\cite{glynn2014exact,jacob2017smoothing}.
 
-One special case were consistency can be maintained, even without rearrangement,
+One special case where consistency can be maintained, even without rearrangement,
  is if the inner query takes no 
 random variables as inputs, as is the case for
 the Schelling coordinate example in~\cite[Figure 6]{stuhlmuller2014reasoning}.  
@@ -253,7 +253,7 @@ at the top level as per~\cite{andrieu2009pseudo}, but this would require more
 careful consideration.
 
 In addition to the statistical complications just discussed,
-there are some significant semantical complications associated with observing
+there are some significant semantic complications associated with observing
 another query: there are actually two ways we might want to ``observe'' a nested query.
 The first is simply to run the nested query unmodified and factor the trace probability
 by the marginal likelihood estimate.  This is a perfectly reasonable thing to want to do,
@@ -265,7 +265,7 @@ this is not really observing the output of the inner query: it is instead a mean
 replacing an analytic likelihood term with an unbiased estimate.  The other way we might thus
 want to observe a query is to estimate the likelihood of it producing a particular output.
 Unfortunately, in general, this will be infeasible (at least without code analysis) 
-because the density on the output variables is affected by deterministic computations in the query
+because the density of the output variables is affected by deterministic computations in the query
 (see discussion of program outputs in Section~\ref{sec:probprog:models:first}).  
 This is identical to the
 problem we encountered for BOPP, where we could not optimize with respect to arbitrary
@@ -274,7 +274,7 @@ This now presents an interesting possibility -- we could use exactly the same
 marginal transformation as in BOPP, but then use this to estimate the partition
 function with certain variables ``clamped''.  We can actually think of BOPP as being
 a nested estimation scheme where the outer estimator is an optimizer.  Therefore, we
-could use the framework as BOPP but replace the BO optimizer
+could use the same framework as BOPP but replace the BO optimizer
 with an estimation scheme, i.e. the outer query.  In fact, if desired, we could even 
 maintain the same usage of the GP surrogate in BOPP to, for example, carry out estimation
 using Bayesian quadrature~\citep{osborne2012active} or the scheme laid out

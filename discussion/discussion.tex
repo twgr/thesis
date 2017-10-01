@@ -5,30 +5,30 @@
 
 In this thesis we have introduced a \emph{Bayesian} approach to machine learning and demonstrated
 how \emph{probabilistic programming systems} (PPSs) provide an exciting framework for
-encoding rich and expressive models in the Bayesian framework and then automating the process
+encoding rich and expressive models in the Bayesian framework, and then automating the process
 of drawing inferences from these models.  We explained how the long term
 aim of probabilistic programming is to automate the process of drawing inferences from any simulator
-the user might write, streamlining the modeling process and breaking down barriers to carrying out such
+the user might write, thereby streamlining the modeling process and breaking down barriers to carrying out such
 analysis.  We have made steps towards this eventual aim by improving the inference
 engines used by PPSs and expanding the probabilistic programming framework beyond its conventional
 Bayesian inference setting to include, for example, 
-mixed inference-optimization problems, thereby
+mixed inference-optimization problems, thus
 allowing automation of tasks such as model learning and engineering design.
 
 We highlighted the importance of taking a Bayesian approach in scenarios where one has
-access to substantial \emph{prior knowledge} or domain specific expertise, but noted that taking
+access to substantial \emph{prior knowledge} or domain specific expertise, but noted that
 \emph{discriminative} machine learning approaches can be more effective, and typically substantially
 easier to implement, when one has access to large quantities of data, but little prior information.
 When opting for a Bayesian approach, we explained that two key challenges are in writing good models
 and solving the resultant \emph{Bayesian inference} problem.
-PPSs can help in addressing both of these challenges, providing an expressive framework
+PPSs can help in addressing both of these challenges.  Firstly, they provide an expressive framework
 that allows users to write models true to their assumptions in a manner more in line with conventional
-scientific coding and removing the burden of inference from the user by providing general
+scientific coding.  Secondly, they remove the burden of inference from the user by providing general
 purpose \emph{inference engines} capable of operating on arbitrary models.
 Together these mean that PPSs make effective statistical methods accessible to non-experts, while
 streamlining the process of writing models and inference algorithms for seasoned researchers.
 However, from a developers perspective, designing inference engines for PPSs is challenging because of
- the need to work on any model.
+ the need for them to work on any model.
  This problem is especially pronounced
 for so-called \emph{universal} PPSs, which, as we explained, place almost no restrictions on the
 models the user can write.  Consequently,
@@ -52,9 +52,9 @@ to which PPSs can be applied,
 we have firstly introduced \emph{Bayesian optimization for probabilistic 
 	programs} (BOPP)~\citep{rainforth2016bayesian}, providing
 the first framework for mixed inference-optimization problems in probabilistic programs, allowing things
-such as model learning and principled engineering design to be automated in the same manner a inference.
+such as model learning and principled engineering design to be automated in the same manner as inference.
 BOPP also provides a significant contribution to the Bayesian optimization literature, constituting a
-convenient and efficient package for solving conventional optimization problems that exploits the
+convenient and efficient package for solving conventional optimization problems by exploiting the
 source code of its target to provide innovations in problem-independent hyperpriors, unbounded
  optimization, and implicit constraint satisfaction.
 We have further undertaken theoretical work looking into the convergence of \emph{nested Monte Carlo} (NMC)~\citep{rainforth2017pitfalls}, for which \emph{nested inference} problems are a particular example.
@@ -71,13 +71,13 @@ for automating the solution of adaptive sequential design problems, as might be 
 psychological trials.  Our technical innovations were applied to automating
 a specific class of problems relating to delay and probability discounting experiments by
 introducing the DARC toolbox, perhaps providing a first step in demonstrating how one might
-be able to construct a general purpose PPS for automating adaptive design problems.
+be able to construct a general purpose language for automating adaptive design problems.
 
 A natural question is now where do we go next?  In addition to the obvious ongoing challenges
 of improving inference and range of problems covered by PPSs, perhaps the most clear cut 
 extensions for our
 work is in its direct application.  We have introduced various frameworks which, while someway off
-our lofty long term aims of tractability and automatically solving almost any problem the 
+our lofty long term aims of tractably and automatically solving almost any problem the 
 user might write, are nonetheless clearly already useful for a number of existing applications.  
 More generally, the biggest
 potential impact of PPSs is arguably not in what they provide for seasoned machine learning or 
@@ -90,7 +90,7 @@ are seeing particularly widespread usage that extends well beyond
 the machine learning community.  Though some universal PPSs are already relatively 
 mature and user-friendly with a small base of users, they are arguably still more
 at the stage of predominantly being a framework for probabilistic programming
-research than a commonly used tool by applied communities.  Perhaps this is not surprising given
+research, than a commonly used tool by applied communities.  Perhaps this is not surprising given
 their inference engines inevitably tend to be less efficient than more inference-driven packages.
 However, we believe that as inference engines improve and people's modeling ambitions
 increase, the flexibility that such systems provide will become increasing important,
@@ -107,7 +107,7 @@ outlining some more specific possible future directions for research.
 In a word, no.  As successful as deep learning, or artificial neural network (ANN) training~\citep{bishop1995neural} 
 as it was known before the hype,
 has been in recent years, it is not a panacea for machine learning.  Instead, it is a particular discriminative
-machine learning approach that has been particularly successful on certain kinds of machine learning tasks,
+machine learning approach that has been especially successful on certain kinds of machine learning tasks,
 namely those with huge quantities of, usually high dimensional, data with rich underlying structure.   
 To suggest that ANNs are universally dominant even among discriminative machine learning tasks is
 somewhat preposterous, e.g. they are often, if not usually, inferior to Gaussian processes on low dimensional,
@@ -129,14 +129,14 @@ though often very effective, method for imposing prior information on the model~
 perspective, the Bayesian approach, and in particular probabilistic programming, is perhaps also of significant
 consequence to the ANN literature~\citep{gal2016uncertainty}.
 In particular, there may be a bright future for methods which
-take a model based approach, but without having to assumptions as strict and prone to misspecification
+take a model based approach, but without having assumptions as strict and prone to misspecification
 as conventional Bayesian modeling, for which ANNs are likely to be highly useful tool~\citep{siddharth2017learning}.
 
 \section{Do We Need Random Numbers?}
 
 An interesting question was recently raised by the probabilistic numerics~\citep{hennig2015probabilistic}
-community about whether we should, at least as a long term idealistic vision, look do away with randomization entirely~\citep{schober2017thesis}.
-This in many ways this corresponds to taking the Bayesian philosophy to its most extreme possible
+community about whether we should, at least as a long term idealistic vision, look to do away with randomization entirely~\citep{schober2017thesis}.
+This in many ways corresponds to taking the Bayesian philosophy to its most extreme possible
 limit, by which we shun all notions of drawing from probability distributions and view probability only as a measure
 of uncertainty.  Given the heavy use of Monte Carlo methods throughout this thesis,
 it perhaps comes as no surprise that we are vehemently opposed to this idea.  Nonetheless, it is still an insightful
@@ -147,10 +147,10 @@ discussion should be seen as a pairing to~\citep{schober2017thesis}, who provide
  At a high-level, the crux of the argument against randomization is that, 
  unless our aim 
 is sampling itself, we always have a certain amount of information available and a final aim we are trying to achieve (e.g.
-calculating an expectation).  Therefore, at least a philosophical level, randomization only serves to add noise to this
+calculating an expectation).  Therefore, at least at a philosophical level, randomization only serves to add noise to this
 process.  
 Similarly to the likelihood principle, one might argue that given the same data and model, we should 
-always carry out the same calculations and thus always reach the same conclusion.  Doing otherwise,
+always carry out the same calculations and thus always reach the same conclusions.  Doing otherwise,
 the argument follows, must always be suboptimal, as it involves inconsequential information effecting the final
 decision.  One compelling motivation for this is that, in certain situations, some deterministic
 methods can deliver substantially better convergence rates than Monte Carlo~\citep{briol2016fwbq,caflisch1998monte}, 
@@ -168,8 +168,8 @@ why we need, and always will need, random numbers:
 	returning the same incorrect answer is far more dangerous.
 	\item[Composability] -- Methods such as Monte Carlo are ambivalent to how the samples are to be used, creating 
 	a scalable ability to modularize, compose and reuse.  Non-composable systems, on the other hand, are doomed to fail
-	for large frameworks through the curse of repeated nested of estimators as we discussed in Chapter~\ref{chp:nest}.
-	\item[Speed and simplicity] -- Sometimes even if there if there is the information available to improve a computation, 
+	for large frameworks through the curse of repeated nesting of estimators as we discussed in Chapter~\ref{chp:nest}.
+	\item[Speed and simplicity] -- Sometimes even if there is the information available to improve a computation, 
 	uncovering or incorporating that information in a principled manner may require substantially more computational 
 	power than not doing so.
 	\vspace{-10pt}
@@ -184,8 +184,8 @@ While the latter two arguments are computational, the others are related to the 
 In other words, imagine we can construct a problem in a manner that utilizes all available prior information,
 both in terms of the model itself and in how best to draw inference from that model.
 Any remaining uncertainty is now, at least for all practical purposes, inherent to the problem and so any
-further attempt to remove randomness from the system is indirectly adding additional prior information we
-did not want to impart.  Furthermore, as soon as we make approximations to our model,
+further attempt to remove randomness from the system is indirectly adding additional prior information  that we
+did intend to impart.  Furthermore, as soon as we make approximations to our model,
 we lose \emph{calibration} in our estimate: we can estimate the variance
 resulting from randomness through repetition, but there is usually no way to estimate the bias
 resulting from approximation.
@@ -197,11 +197,11 @@ in a many-worlds point of view: multiple possible
 datasets \emph{could} have been generated.  We demonstrated that there are many times when this frequentist
 approach is absolutely essential.  For example, in medical tasks we need
 to make sure that our confidence intervals are actually correct when we repeat a procedure -- we need guarantees on
-their calibration.  This is not possible in a Bayesian framework as by its very nature it presumes the data
+their calibration.  This is not possible in a Bayesian framework as, by its very nature, it presumes the data
 is fixed and thus permits no concept of repetition.  Once we realize that we sometimes need to take a frequentist
 approach, the need for randomness becomes obvious, as in the frequentist framework probability originates only
 through random variables.  As powerful as the Bayesian framework is, it is inherently optimistic and subjective
-(e.g. there are always unknown unknowns), and as such it can never really be the whole story.  If we try and
+(e.g. there are always unknown unknowns), and as such it can never really be the whole story.  If we try to
 do away with randomness completely it is impossible to be objective -- we have to choose our approximation, sometimes
 in an arbitrary fashion -- and so we can never provide properly calibrated confidence 
 intervals that are not prone to subjective interpretation.

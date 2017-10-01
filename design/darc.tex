@@ -3,10 +3,9 @@
 \section{The DARC Toolbox}
 \label{sec:design:darc}
 
-We now demonstrate the utility our approach by considering its application 
+We now demonstrate the utility of our approach by considering its application 
 to automating the adaptive design psychology experiments via the DARC (Delay
-And Risky Choice) toolbox introduced in~\cite{vincent2017darc}.\footnote{Code will be made freely
-	available through \url{http://www.inferencelab.com/}.}  We will only provide
+And Risky Choice) toolbox introduced in~\cite{vincent2017darc}.\footnote{Code available at~ \url{http://github.com/drbenvincent/darc-experiments-matlab}.}  We will only provide
 a short introduction here and refer the reader to~\cite{vincent2017darc} for further details.
 
 The DARC toolbox allows users 
@@ -18,7 +17,7 @@ both the inference of the model parameters and the sequential adaptation of the 
 choosing the questions the participant is asked.  It, therefore, automates the full run-time experimental 
 pipeline  by using the responses from previous questions to perform inference 
 and update the internal representation
-of the participant and then using information to ask the most informative questions for a particular
+of the participant and then using this information to ask the most informative questions for a particular
 participant as per the BED equations.  The technical innovations introduced earlier is this chapter
 are essential in allowing this to be done sufficiently efficiently to permit
 real-time usage required for deployment with real participants.
@@ -41,7 +40,7 @@ real-time usage required for deployment with real participants.
 		A ground truth estimate was calculated using a single run of the reformulated
 		estimator with $10^{10}$ samples.
 		Results are averaged over 1000 independent runs, while shaded regions give the 25\%-75\% quantiles. We
-		see that the theoretical convergence rates are observed in all cases,
+		see that the theoretical convergence rates (shown by the dashed lines) are observed in all cases,
 		with the advantages of the reformulated estimator particularly pronounced.
 		(Right) estimated expected utilities $\bar{U}(d)$for 
 		different values of one of the design parameters $A \in \{1,2,\dots,100\}$ given a fixed total
@@ -53,12 +52,12 @@ real-time usage required for deployment with real participants.
 A common style of experiment for the toolbox comprises of asking questions of the form 
 \emph{``Would you prefer $\pounds A$ now, or $\pounds B$ in $D^b$ days?''}, where we desire
 to choose the question  variables $d = \{A,B,D^b\}$ in the manner that will give the most 
-incisive questions.  One possible participant model~\citep{vincent2016hierarchical}
+incisive questions.  One possible participant model, given in ~\citep{vincent2016hierarchical},
 presumes that participants have parameters $\theta=\{\log k,\alpha\}$, where $\log k \sim \mathcal{N}(-4.5,0.5^2)$ 
-represents a $\log$ discount rate and $\alpha\sim \Gamma(2,0.5)$ (using the shape-rate parameterization) a variability, and the following response model
+represents a $\log$ discount rate and $\alpha\sim \textsc{Gamma}(2,0.5)$ (using the shape-rate parameterization) a variability, and the following response model
 \begin{equation}
 \label{eq:design:darc}
-y \sim \mathrm{Bernoulli} \left(0.01 + 0.98 \cdot \Phi\left(\frac{1}{\alpha} \left(\frac{B}{1+k D^b}-A\right)\right)\right)
+y \sim \mathrm{Bernoulli} \left(0.01 + 0.98 \; \Phi\left(\frac{1}{\alpha} \left(\frac{B}{1+k D^b}-A\right)\right)\right)
 \end{equation}
 where $y=1$ indicates choosing the delayed response and $\Phi$ represents the 
 cumulative normal distribution. As more questions are asked, the distribution 
@@ -101,7 +100,7 @@ will translate to improvements in seeking the optimum.
 
 Finally, we examine the performance of the DARC toolbox compared to alternatives in the
 psychology literature~\citep{Kirby:2009eu,Frye:2016eu} as shown in Figure~\ref{fig:design:darc}.  Using the
-same likelihood model as~\ref{eq:design:darc},
+same likelihood model as~\eqref{eq:design:darc},
 we fix $\alpha=2$ and set the prior on $k$ as $\log k \sim \mathcal{N}(-4.5,0.5^2)$.  We fixed $B=100$ and
 then use three different methods for sequentially selecting designs $d_t = \{A_t,D^b_t\}$, for
 two different hypothetical participants with respective ground truth parameters of $k=0.04$ and $k=0.0028$.
