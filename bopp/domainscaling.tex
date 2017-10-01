@@ -25,7 +25,7 @@ Because~\eqref{eq:bopp:qprior} is an unconditional distribution, it can be sampl
 running the program forwards, returning exact samples from the corresponding marginal distribution on $\theta$.
 This is computationally inexpensive, as it does not require inference or calling potentially expensive 
 likelihood functions.  It can thus be cheaply sampled from a number of times to initialize the input scaling.
-By further running inference on \qmarg~given a small number of these samples as arguments, a rough initial characterization of output scaling can also be achieved and initial samples for the BO algorithm generated. 
+By further running inference on \qmarg~given a small number of these samples as arguments, a rough initial characterization of output scaling can also be achieved.
 
 If points are later observed that fall outside the hypercube under this initial scaling, the domain scaling 
 is appropriately updated so that the target for the GP remains the $[-1,1]$ hypercube.  
@@ -37,7 +37,7 @@ of the input space where the true value of the partition function is above any g
 over $\theta$ must be finite.  Similarly, the
 maximum possible estimate the inference algorithm might return will be bounded
 given some weak assumptions (roughly that $p(Y,X,\theta)$ is itself bounded).
-Consequently, the fixed base of the hypercube (as dictated by the initial samples) ensures that the 
+Consequently, the fixed base of the hypercube ensures that the 
 there is a maximum possible size the hypercube can reach.
 For risk minimization (where our target is $-\log p(Y|\theta)$) and  MML estimation
 (where our target is $\log p(Y|\theta)$) problems then we have no such guarantee that the adaptation will 
@@ -81,4 +81,4 @@ the problem would need to be both multi-modal and have extreme prior-target mism
 get stuck.  One could in theory refine our method to provide better guarantees against such occurrences,
 but given the inherent difficulty of such problems and the fact that BOPP, like other GP-based BO methods,
 is heavily restricted in the number of iterations before the GP training cost becomes
-prohibitive (usually in the hundreds of iterations), doing so seems more likely in practice to do harm than good.
+prohibitive (usually in the hundreds of iterations), doing so seems more likely to do harm than good in practice.

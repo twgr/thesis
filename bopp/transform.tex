@@ -9,7 +9,7 @@ minimization
 is equivalent except that the \observe statements are replaced by an identity function (rather than \observes), such
 that the transformation effectively removes the original \sample statements.
 
-It truth, the transformations used by BOPP are not exactly as shown in~\ref{fig:bopp_overview}
+In truth, the transformations used by BOPP are not exactly as shown in~\ref{fig:bopp_overview}
 and as described above.  This is because, although for simple programs, such as the given
 example, these transformations can be easily expressed as static transformations, for more
 complicated programs it would be difficult to actually implement these as purely static
@@ -20,8 +20,7 @@ been presented this way in the interest of exposition.  Our true transformations
 the existing Anglican special forms \lsi{store} and \lsi{retrieve} and two new
 special forms we introduce called \lsi{catch} and \lsi{throw}, in order to generate programs
 that dynamically execute in the same way at run time as the static examples shown, but
-whose actual source code varies significantly.  Full details on the all the transformations
-as actually implemented can be found in~\cite{rainforth2017boppArxiv}.
+whose actual source code varies significantly.  Full details are given in~\cite{rainforth2017boppArxiv}.
 
 %We now build upon our optimization query to demonstrate how BOPP can optimize with respect to an arbitrary subset of variables sampled within a PP.  This is equivalent to optimizing with respect to an arbitrary subset of nodes in a graphical model, whilst marginalizing over the others, representing a new method beyond the scope of current BO algorithms.
 

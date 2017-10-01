@@ -38,11 +38,11 @@ programs is given by~\cite{vandemeent2016black}, which thus perhaps presents the
 approach to our own work.  The aim of~\cite{vandemeent2016black} is, on the surface, somewhat
 different to our own as they look to automate policy search problems~\citep{deisenroth2013survey}
 using probabilistic programs.  However, policy search is a particular instance of MML estimation
-and so falls within our general problem class.  Moreover, their approach of maximizing an ELBO~\citep{blei2016variational}
+and so falls within our general problem class.  Moreover, their approach of maximizing an evidence lower bound~\citep{blei2016variational}
 using stochastic gradient ascent~\citep{robbins1951stochastic} is, in principle, substantially
 more general than policy search problems and constitutes a general MML estimation scheme in its own right.
-However, the approach has a number of restrictions and assumptions stemming from its variational 
-inference roots.  Perhaps the most critical for our purposes is that gradients are estimated using
+However, the approach has a number of restrictions and assumptions.  
+Perhaps the most critical for our purposes is that gradients are estimated using
 importance sampling and thus will generally become increasingly noisy as the dimensionality of the nuisance variables (i.e. those we wish to marginalize over) increases.
 The approach also requires mean field approximations
 to be made, the appropriateness of which will vary from problem to problem, while, as with other
@@ -51,7 +51,7 @@ to reach convergence, which can be prohibitive for some problems.  BOPP, on the 
 very few assumptions to be made and is free to use more advanced inference approaches, for example
 SMC, for estimating the marginal likelihood.  One consequence of this is that it can scale to far
 higher dimensions in the nuisance variables.  For example, our HMM model in Section~\ref{sec:bopp:exp}
-marginalizes over a $\tilde5000$ dimensional space.
+marginalizes over a roughly $5000$ dimensional space.
 
 Another interesting alternative approach,
 developed since publication of BOPP, involves taking derivatives \emph{through} an SMC
@@ -65,7 +65,7 @@ sampling means that substantially lower variance gradient estimates can be achie
 Though, to the best of our knowledge, no such approach is currently implemented in a PPS, doing so is 
 in theory perfectly possible given a system supporting automatic differentiation.  
 In~\cite{le2017auto}, we also show how this approach can be extended to perform simultaneous model
-and proposal adaptation and further to an amortized inference setting, whereby we learn an inference
+learning and proposal adaptation and further to an amortized inference setting, whereby we learn an inference
 artifact that returns a proposal at run time.  This means that, when the model of interest comprises of
 a deep neural network, then the method can be viewed as extending so-called auto-encoding methods~\citep{kingma2014auto,burda2015importance}
 from their limited importance sampling setting, to a more powerful SMC framework.

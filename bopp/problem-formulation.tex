@@ -11,9 +11,8 @@ first appear and will require specialist syntax for specifying models.  To this 
 we introduce a new query macro \defopt.  The syntax of \defopt is identical to \defquery except 
 that it has an additional input identifying the variables to be optimized.  As we will
 explain later, \defopt invokes a series of code transformations to produce a number
-of different Anglican queries used by BOPP.  Each of these are compiled using \query
-and returned as a hash map of CPS Clojure functions that can then
-be used by the BOPP back end.
+of different Anglican queries, each of which is compiled to a CPS style Clojure function using
+\query and that is then used by the BOPP back end.
 
 A possible na\"{i}ve strategy for identifying the target variables
 would be to simply predefine some subset of the \sample indices
@@ -30,7 +29,7 @@ the raw program code), but we will place some restrictions, enforced at run time
 to ensure validity of the model.  First, each optimization variable $\phi_{\ell}$ must be bound to a value directly 
 by a \sample statement to avoid change of variable complications.
 %Specifically if $\psi = g(\theta)$ then $p(Y,\theta) = \text{\bf D}_g(\psi) p(Y,\psi)$ where $\text{\bf D}_g$ represents the Jacobian associated with $g$, giving different maxima for $\theta$ and $\psi$ \cite{murphy2012machine}.
-Second, in order for the optimization to be well defined, the program must be written such that any 
+Second, in order for the optimization to be well defined, the program must be written in such a way that any 
 possible execution trace binds each optimization variable $\phi_{\ell}$ exactly once.  By proxy, this also
 ensures that the number of variables to be optimized, $L$, remains fixed.
 % HOW DO WE ENFORCE THIS? 
@@ -91,7 +90,7 @@ We can now use~\eqref{eq:bopp:joint} to define the MMAP estimate targeted by a \
 where $\vartheta (\lambda) := \{\theta : \{\exists x_{1:n_x} : B(\theta,x_{1:n_x},\lambda)=1\}\}$
 is the support of $\theta$ given $\lambda$.  The target for the optimization is
 effectively the partition function of the program that results from ``clamping'' $\theta$ to a particular
-value.  Though, in theory, one can conduct GP based BO for non-numerical inputs by defining
+value.  Though, in theory, one can conduct GP-based BO for non-numerical inputs by defining
 an appropriate kernel, we will not consider this case here for simplicity.  However, we will allow for
 inputs of unknown type (i.e. discrete or continuous) as well as unknown constraints.  We can
 therefore alternatively express our MMAP problem as the following constrained optimization
@@ -100,8 +99,7 @@ therefore alternatively express our MMAP problem as the following constrained op
 \begin{split}
 &\theta^* (\lambda) 
 = \argmax_{\theta \in \real^D} 
-\E \left[\gamma(\theta,x_{1:n_x}, \lambda) \middle| \theta \right] \\
-	&\subto \: \mathbb{I}(\exists x_{1:n_x} : B(\theta,x_{1:n_x},\lambda)=1) = 1
+\E \left[\gamma(\theta,x_{1:n_x}, \lambda) \middle| \theta \right] \quad \subto \: \mathbb{I}(\exists x_{1:n_x} : B(\theta,x_{1:n_x},\lambda)=1) = 1
 \end{split}
 \end{align}
 where we have applied the constraint that there is at least one valid trace associated with $\theta$.
