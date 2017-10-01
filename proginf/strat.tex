@@ -10,7 +10,7 @@
 %algorithms might be able to operate in such settings. 
 
 As we previously alluded to, the simplest inference strategy we can carry out is importance
-sampling.  This is in fact so simple in a current framework that it uses the default behavior
+sampling.  This is in fact so simple in our current framework that it uses the default behavior
 of all the checkpoints, while the \anginfer function only involves constructing a lazy infinite
 sequence of the output from independent calls of \clj{exec} on the full program.
 Keeping the default behavior for the \sample implicitly means that our
@@ -26,8 +26,8 @@ are bounded).
 We have already explained why it might be difficult to construct a global MH proposal for
 our program due to the difficulties in varying dimensionality and unknown variable supports.
 One solution to this is to try and use compilation to establish this support so that
-a valid proposal can be specified.  However, doing this in a general manner is a somewhat
-challenging and remains an open problem in the field.  Another, more immediately viable,
+a valid proposal can be specified.  However, doing this in a general manner is somewhat
+challenging and remains an open problem in the field.  Another more immediately viable
 approach is to use a proposal that looks to update particular $x_j$ in the trace in a
 component-wise MH manner (see Section~\ref{sec:inf:foundation:gibbs}), potentially rerunning
 the rest of the program after that choice if necessary.  In the context of PPSs such
@@ -104,10 +104,10 @@ terms will be unaffected by an update.  One needs to be
 careful, however, not to reintroduce reducibility issues and, in general, correctness of LMH schemes is
 far from trivial and perhaps requires further consideration in the literature.
 
-Even if we do not have a convenient means of extract Markov blankets, it will still generally be desirable
+Even if we do not have a convenient means of extracting Markov blankets, it will still generally be desirable
 to reuse $x_{m+1:n_x}$ if it produces a valid trace, i.e. if $\mB ([x_{1:m-1},x_m',x_{m+1:n_x}],\lambda)=1$, and reducibility
 issues can be guarded against, in order to avoid the terrible scaling in the acceptance rate 
-of~\ref{eq:proginf:lmh-A}  with $n_x-m$.  One way to do this would be to propose
+of~\eqref{eq:proginf:lmh-A}  with $n_x-m$.  One way to do this would be to propose
 a new $x_m'$ in the same way but then deterministically run the program forward with the old
 $x_{m+1:n_x}$ to evaluate whether the trace is valid, noting that if it is, it must also be the case that any 
 extension or reduction of the trace, i.e. increasing or decreasing
@@ -136,8 +136,8 @@ P(\text{Accept}) &= \min\left(1, \frac{\gamma(x_{1:n_x}',\lambda) \kappa(x_m | x
 We can further overcome reducibility issues with such a scheme by forcing a fresh trace generation
 not only when we realize the trace is invalid, but also when we find a term in our trace with probability zero.
 Once this occurs, it is clear that the full trace probability must be zero, even if it produces a valid path.  We
-could just immediately reject the trace, but we would not the reducibility issues.  By instead
-regenerating the rest of the trace in this scenario, then at each iteration we can propose any value of $x_1$ that has non-zero marginal
+could just immediately reject the trace, but we would not solve the reducibility issues.  By instead
+regenerating the rest of the trace in this scenario, at each iteration we can propose any value of $x_1$ that has non-zero marginal
 mass under $\gamma(x_{1:n_x},\lambda)$ regardless of our current state, so we clearly have mixing on $x_1$.
 For a given value of $x_1$, we can similarly propose any value of $x_2$ with non-zero density under the
 marginal conditional distribution of $x_2|x_1$.  As we have mixing of $x_1$, this now implies we have
@@ -157,7 +157,7 @@ P(\text{Accept}) &= \min\left(1, \frac{\gamma(x_{1:n_x}',\lambda) \kappa(x_m | x
 	\left(f_{a_{j}} (x_j | \eta_j)\right)^{\mathbb{D}(j)}}
 {\gamma(x_{1:n_x},\lambda) \kappa(x_m' | x_{m})  n_x' \prod_{j=m+1}^{n_x'} \left(f_{a_{j}'} (x_j' | \eta_j')\right)^{\mathbb{D}(j)}}\right).
 \end{align}
-Note the importance of points in the database being defined by both $j$ and $a_j$ -- if we hit the same sample
+Note the importance of points in the database being defined by both $j$ and $a_j$ -- if we hit the same
 lexical sample statement at a different point in the program, we always need to redraw it.
 Care is also needed to ensure superfluous terms are removed from the database at each iteration -- it should
 contain only terms from the current trace.  
@@ -170,7 +170,7 @@ the required inputs being in scope.  Now consider the case where the update $x_m
 inconsequential extra \sample to be invoked between points $j$ and $j+1$, with everything else staying the same.
 Under our current system then all points after $j$ would need to be resampled.  However, our program would
 define the same distribution if this superfluous \sample statement came at the end of the program, in which case
-our method would mean that $x_{j+1:n_x}$ no longer necessarily need updating.  From a more practical perspective,
+our method would mean that $x_{j+1:n_x}$ no longer necessarily needs updating.  From a more practical perspective,
 we can consider using more useful naming strategies for our database entries that exploit this exchangeability such
 that $x_{j+2}'$ could, for example, inherit from $x_{j+1}$~\citep{wingate2011lightweight}.  
 %Though this should
@@ -183,8 +183,8 @@ $\frac{\kappa(x_m | x_{m}') f_{a_m} (x_m' | \eta_m)} {\kappa(x_m' | x_{m}) f_{a_
 will cancel in our acceptance ratios and giving a trivially valid proposal, other than the aforementioned 
 reducibility issues.  We will refer to this strategy simply
 as LMH in the rest of the thesis.  For models with significant prior-posterior mismatch, such an approach could be
-slow to mix though as it does not allow for any locality in the moves (i.e. $\kappa(x_m'|x_m)$ is independent of $x_m$).
-As suggested by, for example,~\cite{le2015rmh}, one can sometimes achieve improvements by instead use the type of the 
+slow to mix as it does not allow for any locality in the moves (i.e. $\kappa(x_m'|x_m)$ is independent of $x_m$).
+As suggested by, for example,~\cite{le2015rmh}, one can sometimes achieve improvements by instead using the type of the 
 distribution object associated with $x_m$ to automatically construct a valid random walk proposal that allows for 
 improved hill climbing
 behavior on the individual updates.  We will refer to this method as RMH elsewhere in the thesis.\footnote{Note that
@@ -222,7 +222,7 @@ to the product of the sweep marginal likelihood and local sample weight.\footnot
 
 From a theoretical perspective, running SMC in Anglican
 requires us to make one small model assumption -- that the number of observations $n_y$ is fixed.  In
-practice, this assumption is usually satisfied, particularly if their are no observations of
+practice, this assumption is usually satisfied, particularly if there are no observations of
 internally sampled variables.  Violations are caught at run time.  Given
 a fixed $n_y$, we can define the series of targets for SMC as being the distributions
 induced by running the program up to the $t^{\text{th}}$ \observe statement, namely
@@ -252,7 +252,7 @@ statements can have a dramatic effect on the practical performance of the infere
 placing all the \observe statements just before the program returns will cause the algorithm
 to reduce to basic importance sampling.  The earlier the \observe statements are in the program,
 or more precisely the later variables are sampled relative to the \observe statements, the
-better inference will performance as less information is lost in
+better inference will perform as less information is lost in
 the resampling.  Tricks such as lazily sampling variables (such that \sample statements
 are only invoked when needed) can, therefore, lead to substantial
 performance gains.
@@ -303,7 +303,7 @@ to the improved per-sample performance demonstrated in Section~\ref{sec:part:ipm
 \label{sec:proginf:str:part:other}
 
 Though it would be impractical to do justice to all of the methods one can use for general
-purpose in universal PPSs, we briefly lay out another of other algorithms of particular note.
+purpose in universal PPSs, we briefly lay out some other algorithms of particular note.
 
 The particle cascade~\citep{paige2014asynchronous} is an asynchronous and anytime
 	variant of SMC that can provide improved in-sweep parallelization compared to SMC
@@ -338,7 +338,7 @@ inference algorithms to use in Anglican in its current form.  These
 should be taken as a rough starting point rather than clear cut truth.
 
 Firstly, except for very low dimensional problems, importance sampling should
-be avoid as it is almost universally worse than, e.g. SMC.  Similarly, there is very little reason to use PIMH
+be avoided as it is almost universally worse than, e.g. SMC.  Similarly, there is very little reason to use PIMH
 instead of SMC or other PMCMC methods, while RMH or ALMH should generally be preferable to vanilla LMH.
 The relative performance of the MCMC
 based and particle based (including PMCMC) methods will depend on the amount of structure that can

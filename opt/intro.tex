@@ -57,12 +57,13 @@ for a given distribution, namely given data $Y$ they look to find
 Many classical statistical and machine learning techniques on based on 
 ML estimation as it is intuitively the most probable
 set of parameters given data and a model.  However, this can be prone to overfitting and
-so it is typically requires some form of regularization~\citep{hastie01statisticallearning}.
+so it typically requires some form of regularization~\citep{hastie01statisticallearning}.
 
-MAP estimation extends ML estimation to also include a prior term
+MAP estimation corresponds to maximizing the posterior probability, which is equivalent
+to extending ML estimation to also include a prior term, noting that $p(Y)$ is a constant
 \begin{align}
 \label{eq:opt:map}
-\theta^* &= \argmax_{\theta \in \vartheta} p(Y|\theta) p(\theta).	
+\theta^* &= \argmax_{\theta \in \vartheta} p(\theta|Y) = \argmax_{\theta \in \vartheta} p(Y|\theta) p(\theta).	
 \end{align}
 This provides regularization compared to ML estimation (indeed many priors and
 ML regularization methods are exactly equivalent~\citep{bishop2006pattern}),
@@ -105,7 +106,7 @@ than a \textit{maximization}, namely they look to find
 \end{align}
 for some loss function $L$ which is parametrized by $\theta$ and is typically positive only.
 Depending on the context, $Y$ can either be taken as fixed, or the expectation can be over
-both $X$ and $Y$.  The later corresponds to the classical risk taken in the frequentist view
+both $X$ and $Y$.  The latter corresponds to the classical risk taken in the frequentist view
 of supervised learning.
 At first the change from
 maximization to minimization might seem trivial.  However,
@@ -116,7 +117,7 @@ the design.  Even though the probability of failure will generally be very low, 
 loss in the case where the bridge collapses is very large.  Therefore the expected loss
 is dominated by rare adversarial events and the desire is to choose a ``safe'' value for
 $\theta$.  Such a problem cannot be encoded effectively as a MML or MMAP estimation
-problem where we maximizing the probability of the bridge not collapsing,
+problem where we are maximizing the probability of the bridge not collapsing,
 as this expected probability cannot be dominated by the rare adversarial loading cases.
 In essence, expectations over probabilities are ``optimistic'' and by construction
 focus on the more probable cases.

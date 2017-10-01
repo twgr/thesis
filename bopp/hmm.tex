@@ -19,8 +19,8 @@ perspective, the target function is simply constant for variations in an unused 
 Our model places a uniform prior on the number of states $K \sim \textsc{Discrete}\{1,2,3,4,5\}$.
 Each emission distribution corresponds to a Gaussian with unknown mean (which we wish to
 optimize) and known variance.  
-We marginalize over are the transition distribution parameters and the HMM latent states.  
-Rather than constructing a model were the emission distribution
+We marginalize over the transition distribution parameters and the HMM latent states.  
+Rather than constructing a model where the emission distribution
 parameters only exist conditioned on the value of $K$, we generate variables for all $5$ emission
 distributions that might be required, with only the first $K$ actually then used.  
 A synthetic dataset was generated using $K=3$ and $T=1000$ observations.  Results of running BOPP are given

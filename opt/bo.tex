@@ -138,8 +138,8 @@ highlights the sample efficiency of BO as it shows how computational resources a
 focussed on where they are required.
 
 Though we have thus far assumed that a GP is used for the surrogate, this is far from the only possible choice
-and one can, for example, userandom forests \citep{bergstra2011algorithms,hutter2011sequential} 
-or neural networks \citep{snoek2015scalable}.  Their are a number
+and one can, for example, use random forests \citep{bergstra2011algorithms,hutter2011sequential} 
+or neural networks \citep{snoek2015scalable}.  There are a number
 of characteristics that make GPs suitable for the surrogate model.  For example, they are very powerful
 regressors that can accurately represent the function from relatively few evaluations, especially
 for low-dimensional smooth functions.  They also naturally produce uncertainty estimates
@@ -155,7 +155,7 @@ original function, for example optimizing the log probability in (M)MAP problems
 When prior information is known about the function, the
 flexibility in choosing the covariance kernel can also be very helpful, for example allowing known
 smoothness to be incorporated.  However, this can also be a curse as an inappropriate choice of
-kernel can severely happen the performance.  In particular, it will typically be necessary to
+kernel can severely hamper the performance.  In particular, it will typically be necessary to
 do inference over, or at least optimize, the GP hyperparamters.  Another drawback to using GPs
 is poor scaling in the number of iterations -- training is a $O(N^3)$ operation due to the required
 matrix inversion.  This typically restricts BO using GPs to using on the order of hundreds of iterations
@@ -228,7 +228,7 @@ corresponds to pure exploration.  Typically for PI, one will employ a cooling sc
 for $\xi$ to incorporate the intuitive idea that one should first explore and then 
 exploit.  However, as shown by for example \cite{jones2001taxonomy}, 
 the performance of the PI acquisition function is sensitive to the choice of 
-$\xi$ and therefore the cooling strategy requires careful tuning.  Doing this in effectively in
+$\xi$ and therefore the cooling strategy requires careful tuning.  Doing this effectively in
 a general purpose way is very challenging, meaning that PI
 is rarely used in practice.
 
@@ -269,7 +269,7 @@ the function value~\citep{lai1985asymptotically,srinivas2009gaussian}, namely
 \mathrm{UCB}\left(\theta\right) = \mu \left(\theta\right) + \kappa \sigma \left(\theta\right)
 \end{align}
 where $\kappa \ge 0$ is again a parameter that will control the exploration / exploitation trade off.
-This bound represents point at which the probability the function is less than this value is $\Phi (\kappa)$.
+This bound represents the point at which the probability the function is less than this value is $\Phi (\kappa)$.
 A particularly nice feature of the UCB acquisition function is that given certain conditions on 
 $\vartheta$ and $k$, $\kappa$ can be chosen in a manner such that acquisition has bounded 
 cumulative regret with high probability, this is known as GP-UCB \citep{srinivas2009gaussian}. 
@@ -282,7 +282,7 @@ At the end of the day, the aim of BO is to find the location of the optimum.  Th
 evaluating a new point is, therefore, in the information it provides about the location of the
 true maximum $\theta^*$ and the assistance it provides in guiding future evaluations.  Though 
 the latter of these is difficult to actively incorporate, the former is something that can be
-target in a principled manner by considering the distribution on the location of the maximum
+targeted in a principled manner by considering the distribution on the location of the maximum
 $p(\theta^* | \Theta, V)$ where $\Theta$ and $V$ are the previously evaluated input and output
 points as per Section~\ref{sec:opt:GPs}.
 
@@ -337,9 +337,9 @@ to cover here.  However, some of other strategies of particular note include
 	\item \cite{osborne2009gaussian} and \cite{gonzalez2016glasses} develop
 	non-myopic methods that incorporate the effect of future hypothetical evaluations on
 	the relative optimality of evaluating a point at the current iteration.  Such lookahead methods
-	can improve performance, but at the expensive of substantially increased computational cost.
+	can improve performance, but at the expense of substantially increased computational cost.
 	\item \cite{wang2016optimization} introduce a strategy explicitly estimating, then using,
-	the value of $f(\theta^*)$ and establish links connections between their
+	the value of $f(\theta^*)$ and establish connections between their
 	approach, UCB, and PI.
 	\item \cite{swersky2013multi,shah2016pareto,hernandez2016predictive,feliot2017bayesian}
 	introduce acquisition functions for dealing with multi-objective problems, for which we
@@ -381,7 +381,7 @@ where function evaluations can be performed in parallel
 Such methods usually predict a batch of
 evaluation points that are then evaluated simultaneously.
 It is desirable for the batch to both include points that have high acquisition functions values, but
-which as well separated to minimize the correlation between their outputs.  Recent work by~\cite{kandasamy2017asynchronous}
+which are well separated to minimize the correlation between their outputs.  Recent work by~\cite{kandasamy2017asynchronous}
 has also looked at the case where evaluation times can vary greatly, such that is desirable to
 carry out evaluations asynchronously in parallel, rather than in batches.
 
@@ -393,7 +393,7 @@ is constrained by a bounding box, i.e. that each input is independently constrai
 In practice, this assumption is rarely fulfilled, though for technically unbounded 
 problems then it is not uncommon
 for the user to be able to specify a box conveying a region where it is reasonable to
-assume to the true optimum falls within the box.  To go beyond this assumption, it is
+assume the true optimum falls within the box.  To go beyond this assumption, it is
 necessary to design strategies that can deal with constraints and  that deal
 with unbounded problems.  Dealing with the former when using a GP surrogate can
 be particularly challenging, as simply setting the points that violate the constraints
