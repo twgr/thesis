@@ -58,7 +58,7 @@ Stan \citep{carpenter2015stan} is a PPS with interfaces to many difference langu
 	derivatives means that there is limited support for discrete variables or branching.
 
 These systems do not allow users to write models that would be difficult (at least for
-an expert) to code without a PPS -- in general they all can be thought of as defining a graphical model
+an expert) to code without a PPS -- in general they can all be thought of as defining a graphical model
 or sometimes factor graph -- but they offer substantial utility through ease of model exposition and
 automating inference.
 
@@ -80,7 +80,7 @@ defined, it will important to allow
 things such as branching, recursion, higher-order functions,
 conditional existence of variables, and arbitrary
 deterministic functions.  Ideally, we would like to provide no restrictions on the code that the user
-can write, except for eliminating programs do not define valid probability distributions, such as
+can write, except for eliminating programs that do not define valid probability distributions, such as
 those that have a non-zero probability of never terminating.  In practice catching such invalid cases can
 be hard or even impossible and so many systems actually adopt a philosophy of applying no restrictions,
 such that it is perfectly possible to define invalid models.  General purpose PPSs actually bring up new
@@ -116,7 +116,7 @@ The original seminal paper and accompanying system
 	something we will look into in depth in Chapter~\ref{chp:nest}.
 
 Venture~\citep{mansinghka2014venture} is a probabilistic programming platform providing a flexible
-system for both specification of models and inference methods.  In has a strong emphasis on being extensible
+system for both specification of models and inference methods.  It has a strong emphasis on being extensible
 and for allowing the hosting of external applications.  For example, it allows the user to provide proposals for
 the inference engine or reprogram the inference strategy entirely.  Venture is predominantly used via the
 VentureScript PPL~\citep{mansinghka2014venture}.

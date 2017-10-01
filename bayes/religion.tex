@@ -186,13 +186,13 @@ be sound, or at the very least ill-suited for some statistical modeling problems
 foolhardy to not consider other possible datasets that might have been generated.  Taking a very strict stance, then
 even checking the performance of a Bayesian method on test data is fundamentally frequentist, as we are assessing how
 well our model generalizes to other data.  Pure Bayesianism, which is admittedly not usually carried out in practice, shuns
-empiricism as it by definition is rooted in the concept of repeated trials which is not possible if the data is kept fixed.
+empiricism as it, by definition, is rooted in the concept of repeated trials which is not possible if the data is kept fixed.
 The rationale typically given for
 this is that we should use all the information available in the data and by calculating a frequentist risk we are throwing
 some of this away.  For example, cross-validation approaches only ever use a subset of the data when training the model.
 However, a common key aim of statistics is generalization and repeatability.  Pure Bayesian approaches include no
 consideration for \emph{calibration}, which means that, even if our likelihood model is correct, there is still no reason
-that any probabilities or confidence intervals must also.  This at odds with frequentist approaches, for which
+that any probabilities or confidence intervals must be also.  This at odds with frequentist approaches, for which
 we can often derive absolute guarantees.
 
 A related issue is that Bayesian approaches will often reach
@@ -260,15 +260,15 @@ one of the biggest differences to generative frequentist approaches.  The prior 
 sword.  On the one hand, it is necessary for combining existing knowledge and information from data 
 in a principle manner, on the other hand, priors are inherently subjective and so all produced posteriors are
 similarly subjective.  Given the same problem, different practitioners will use different priors and reach
-potentially different conclusions.  In the Bayesian framework their is no such thing
+potentially different conclusions.  In the Bayesian framework there is no such thing
 as a correct posterior for a given likelihood (presuming finite data).
-Consequently, ``all bets are off'' for repeated experimentation with Bayesian methods as their is no
+Consequently, ``all bets are off'' for repeated experimentation with Bayesian methods as there is no
 quantification for how wrong our posterior predictive might be compared with the true generating
 distribution.  This can mean they  are somewhat inappropriate for tasks where the focus is on repeated use,
 e.g. providing reliable confidence intervals for medical trials, though many Bayesian methods retain
 good frequentist properties.  Such cases both predicate a need for
 considering that there are many possible datasets that might occur and, ideally, an objective approach
-that means the conclusions are independent to the whims of the analyst.
+that means the conclusions are independent of the whims of the analyst.
 
 In particular, there is no (objective) Bayesian alternative to frequentist
 \emph{falsification} methods such as the aforementioned significance tests.\footnote{This is not to say one cannot 
@@ -279,13 +279,13 @@ In particular, there is no (objective) Bayesian alternative to frequentist
 	process of peer review effectively
 	invalidates frequentist calibration by ensuring some studies never make it to the public domain.}
   Both Bayesian and frequentist methods require assumptions
-and neither can never truly prove that a particular model or prediction is correct, but frequentist methods do
+and neither can ever truly prove that a particular model or prediction is correct, but frequentist methods do
 allow one to indisputably \emph{disprove} hypotheses to within some confidence interval.  The real power
 of this is realized when we consider disproving \emph{null hypotheses}, e.g. the hypothesis that an
 output is independent of a potential driving factor.  This is why significance tests are so widely
 used through the sciences as, although they cannot be used to prove
-a model is correct (as much as people might try), they can sure as hell be used to show 
-certain assumptions or models are wrong.
+a model is correct (as much as people might try), they can certainty be used to show 
+particular assumptions or models are wrong.
 
 The use of a prior in Bayesian modeling can also be problematic because it is often easy to end up 
 ``using the data twice''~\citep{gelman2008objections}.  The Bayesian paradigm requires that the
@@ -308,7 +308,7 @@ much cheaper.
 \subsection{Practical Usage}
 \label{sec:bayes:religion:correct}
 
-Although Bayesianism and frequentism are both exact frameworks, their applications to real problems is not.
+Although Bayesianism and frequentism are both exact frameworks, their application to real problems is not.
 Both frameworks have their strengths and weaknesses and so perhaps the key question is not which framework
 is correct, but when should we use each.  In
 particular, the Bayesian approach is often essential when working with small datasets but where we have substantial
@@ -320,7 +320,7 @@ For example, one could be Bayesian about the results from a cross-validation tes
 frequentist guarantees for a Bayesian model.
 In essence, Bayesian and frequentist analysis have different aims -- Bayesianism is about updating
 subjective beliefs and frequentism is about creating long run, or repeated application, guarantees.
-We often we care about both.  It is also worth noting that a number Bayesian methods exhibit
+We often we care about both.  It is also worth noting that a number of Bayesian methods exhibit
 good frequentist properties, see e.g.~\cite{mcallester2013pac} and the reference therein.
 
 We finish by noting a critical assumption made by both Bayesian and generative frequentist methods --
@@ -333,7 +333,7 @@ Namely, as we showed with the Bernstein-Von Mises theorem,  n the limit of large
 corresponding to the ``true parameter values'' (assuming the model is correct).
 Consequently, a Bayesian approach does not fundamentally enrich the model space by averaging over parameters -- it
 is still necessary that exactly one set of parameters lead to the data, but we are not exactly sure which one~\citep{minka2000bayesian}.
-Consider as an example, Bayesian modeling for decision trees~\cite{chipman1998bayesian,lakshminarayanan2013top}
+Consider as an example, Bayesian modeling for decision trees~\citep{chipman1998bayesian,lakshminarayanan2013top}
 compared to (discriminative) ensemble based approaches~\citep{breiman2001random,rainforth2015canonical}.
 The Bayesian approaches explicitly assume that our data is generated by one single decision tree and so in the limit of
 large data the relative probabilities of different trees in the posterior diverges and will collapse to a

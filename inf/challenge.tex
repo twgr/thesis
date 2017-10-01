@@ -13,8 +13,8 @@ truth.  Bayesian inference for the general class of graphical models is in fact 
 NP-hard problem \citep{cooper1990computational,dagum1993approximating}.  In this chapter
 we will outline these challenges and introduce methods for overcoming them in the form of \emph{inference algorithms}.
 We will focus, in particular, on Monte Carlo inference methods, for which we will introduce some
-key underlying, before introducing a number of foundational methods that form the building blocks
-for more advanced strategies such as those discussed in Chapter~\ref{chp:part}.  We will later
+key underlying results, before introducing a number of foundational methods that form the building blocks
+for more advanced strategies such as those discussed in Chapter~\ref{chp:part}.  We will also later
 use these methods to develop automated inference engines for PPS in Chapter~\ref{chp:proginf}.
 
 \section{The Challenge of Bayesian Inference}
@@ -37,13 +37,13 @@ hence the name \emph{marginal likelihood}.  When $p(\mathcal{D})$ is known, the 
 exactly at any possible input point using~\eqref{eq:bayes:bayes} directly.  When it is unknown, we lack
 a scaling in the evaluation of any point and so we have no concept of how relatively 
 significant that point is relative to the distribution as a whole.  For example, for a discrete
-problem then if we know the normalizing constant, we can evaluate the exact probability of any
-particular $\theta$ by evaluating that point alone.  If we do not know the normalizing constant, we do
+problem then if we know the normalization constant, we can evaluate the exact probability of any
+particular $\theta$ by evaluating that point alone.  If we do not know the normalization constant, we do
 not know if there are other substantially more probable events that we have thus-far missed, which
 would in turn imply that the queried point has a negligible chance of occurring.
  
 To give a more explicit example, consider a model where $\theta \in \{1,2,3\}$ with a corresponding uniform prior $P(\theta) = 1/3$
-for each $\theta$.  Now presume that for some reason that we are only able to evaluate the likelihood at 
+for each $\theta$.  Now presume that for some reason we are only able to evaluate the likelihood at 
 $\theta=1$ and $\theta=2$, giving $p(\mathcal{D}|\theta=1)=1$ and $p(\mathcal{D}|\theta=2)=10$ respectively.  Depending on the marginal
 likelihood $p(\mathcal{D})$, the posterior probability of $P(\theta=2 | \mathcal{D})$ will vary wildly.  For example,
 $p(\mathcal{D})=4$ gives $P(\theta=2 | \mathcal{D}) = 5/6$, while $p(\mathcal{D})=1000$ gives $P(\theta=2 | \mathcal{D}) = 1/100$.  Though this
@@ -65,7 +65,7 @@ our second challenge -- knowing the posterior in closed form is often not enough
 \subsection{Characterizing the Posterior}
 \label{sec:inf:challenge:post}
 
-Once with have the normalization constant, it might seem that we are done; after all
+Once we have the normalization constant, it might seem that we are done; after all
 we now have the exact form of the posterior using in Bayes' rule.  Unfortunately, it tends to
 be the case, at least when $\theta$ is continuous, that is this insufficient to carry out most
 tasks that we might want to use our posterior for.  There are a number of different, often
@@ -91,7 +91,7 @@ If $\theta$ is continuous, or some elements of $\theta$ are continuous, then onl
 these can be carried out directly using the form of the posterior provided by Bayes' rule
 with known normalization constant.  We see, therefore, that knowing the normalization alone
 will not be enough to fully solve the Bayesian inference problem in a useful manner.  In
-particular, it will generally not sufficient in order to be able to \emph{sample} from the
+particular, it will generally not be sufficient in order to be able to \emph{sample} from the
 posterior.  As we will see later, the ability to sample will be at the core of most practical uses
 for the posterior as it allows use of Monte Carlo
  methods~\citep{metropolis1949monte,robert2004monte,rubinstein2016simulation}, which
@@ -113,34 +113,34 @@ p(\theta |y=5) &\approx 5.348556 \; \theta^2
 Here we have that the prior on $\theta$ is distributed according to a gamma
 distribution with shape parameter $3$ and rate parameter $1$.  The likelihood
 function is a student-t distribution on the difference between $\theta$ and the
-output $y=5$.  Using a numerical integration over $\theta$ the normalization
+output $y=5$.  Using a numerical integration over $\theta$, the normalization
 constant can be calculated to a high accuracy, giving the provided closed-form
-equation for the posterior.  This posterior, along with the prior and likelihood are shown Figure~\ref{fig:inf:inf-example}.
+equation for the posterior shown in~\eqref{eq:inf:example-post}.  This posterior, along with the prior and likelihood are shown Figure~\ref{fig:inf:inf-example}.
 
 \begin{wrapfigure}{r}{0.38\textwidth}
 	\centering
 	\includegraphics[width=0.37\textwidth]{inf_example}
-	\vspace{-4pt}
+	\vspace{-6pt}
 	\caption{Example inference for problem given
 		in~\eqref{eq:inf:example}. Also shown is the cumulative distribution for
 		the posterior as per~\eqref{eq:inf:cum-example}.  This is scaled by a factor
 		of $0.4$ for visualization.  \label{fig:inf:inf-example}}
-	\vspace{4pt}
+	\vspace{6pt}
 \end{wrapfigure}
 Here knowing the marginal likelihood means that we have a 
-closed-form equation for the posterior.  Image though that we 
+closed-form equation for the posterior.  Imagine though that we 
 wish to sample from it.  As it does not correspond to a standard distribution,
  there is, in fact, no way
-to directly sampling from it without doing further calculations.  For example, if
+to directly sample from it without doing further calculations.  For example, if
 we also know the inverse of the cumulative density function of the posterior
 \begin{align}
 \label{eq:inf:cum-example}
 P(\Theta\le\theta | y=5) = \int_{\Theta=0}^{\Theta=\theta}  p(\theta=\Theta | y=5) d\Theta,
 \end{align}
 then we can sample from the posterior by first sampling $\hat{u} \sim \textsc{Uniform}(0,1)$ and
-then taking as our sample $\hat{\theta} = P^{-1}(\hat{u})$ such that 
+then taking as our exact sample $\hat{\theta} = P^{-1}(\hat{u})$ such that 
 $\hat{u} = P(\Theta\le\hat{\theta} | y=5)$.  However, the cumulative distribution function
-and its inverse cannot be calculated analytically.  Though in this simple one dimensional
+and its inverse cannot, in general, be calculated analytically.  Though in this simple one dimensional
 problem they can be easily estimated numerically, this will prove prohibitively difficult
 for most problems where $\theta$ has more than a few dimensions.  Similarly, if we
 wish to estimate an expectation with respect to this posterior we could do this relatively

@@ -271,7 +271,7 @@ PPL other than to relax a number of the restrictions made for our simplified cas
 we will allow branching, higher order functions, (potentially infinite) recursion, stochastic memoization~\citep{goodman2008church},
 conditioning on internally sampled
 variables, and the use of the ``data'' inputs $y_{1:T}$ in the definition of our generate model (instead of
-just allowing them to be observed).  One assume we will make, here and throughout the rest of this thesis,
+just allowing them to be observed).  One assumption we will make, here and throughout the rest of this thesis,
 is that our program terminates with probability $1$,
 asserting that any program that does not satisfy this assumption does not define a valid model.  
 We will maintain the syntax of our simplified
@@ -299,7 +299,7 @@ for obvious reasons, be finite, but recursion or looping may mean that they are 
 number of times.  It is also possible for a variable within a query to itself encode an
 infinite number of parameters, for example, one might include a Gaussian process within the query (see Section~\ref{sec:opt:GPs}).
 These complications make it difficult to mathematically reason about the joint distribution defined by a query in a
-universal PPS, let alone reason about its breakdown into a prior and a likelihood or represent the query
+universal PPS, let alone reason about its breakdown into a prior and a likelihood, or represent the query
 using a graphical model (which might actually not even be possible).
 
 One way to conceptually overcome these difficulties is to reason in terms of \emph{execution paths}.
@@ -410,9 +410,65 @@ that we can still define a program that places non-zero weight on, for example,
 both the outputs $[2.3,3.5]$ and $[2.3,3.5,1.2]$, remembering that $\xnx$ relates to the raw
 outputs of the \sample statements.
 
+\begin{figure}[p]
+	\centering
+	\vspace{-5pt}
+	\begin{minipage}[t]{\textwidth}
+		\centering
+		\includegraphics[width=0.75\textwidth]{probprog/figures/traces.pdf}			
+		\subcaption{Possible traces for our query.  \sample statements are shown in red,
+			\observe statements are shown in shades of green, and deterministic
+			computations (given the outputs of the \sample statements) are shown in shades
+			of blue.  Subscripts for the sample and observe statements show the lexical index
+			(i.e. $a_j \in \{1\}$ and $b_k\in\{1,2\}$), as do the different shades.  The cyan arrows correspond to
+			a particular execution path which gives output $k=1$ and has $n_x=2$, $n_y=2$, $b_1=2$, and $b_2=1$.
+			Valid traces for this particular path must have $x_1>\exp(-\lambda)$ and $x_2 \le \exp(-\lambda)/x_1$.
+			\label{fig:probprog:poi-traces}
+		}
+		\vspace{15pt}
+	\end{minipage}
+	\begin{minipage}[b]{0.49\textwidth}
+		\begin{algorithmic}[1]
+			\renewcommand{\algorithmicrequire}{\textbf{Inputs:}}
+			\renewcommand{\algorithmicensure}{\textbf{Outputs:}}			 
+			\Require Event rate $\lambda$ 
+			\State $L\leftarrow\exp(-\lambda)$, ~$k\leftarrow0$, ~$p\leftarrow1$
+			\While{$p>L$}
+			\State $u\leftarrow$\sample$(\textsc{Uniform}(0,1))$
+			\State $p\leftarrow pu$
+			\IIf{$p\le L$}; \textbf{break while}; \EndIIf
+			\State \observe(\textsc{Bernoulli}(0.2), 1)
+			\State $k\leftarrow k+1$
+			\EndWhile
+			\State \observe(\textsc{Bernoulli}(0.99),~$\mathbb{I}(k\text{>}3)$)
+			\State \Return $k$
+		\end{algorithmic}
+		\subcaption{Query code for warped Poisson sampler\label{fig:probprog:poi-code}}
+	\end{minipage}
+	\begin{minipage}[b]{0.49\textwidth}
+		\centering	~~
+		\includegraphics[width=0.87\textwidth]{probprog/figures/poisson_plot.pdf}			
+		\subcaption{Conditional distribution on $k$ for $\lambda=4$.\label{fig:probprog:poi-res}
+		}
+	\end{minipage}
+	\vspace{5pt}
+	\caption{Demonstration of stochastic execution traces using a warper
+		Poisson sampler, adapted from~\cite[Figure 3.3]{paige2017thesis}.  The query defined in 
+		\textbf{(b)} would output $k$ as per a Poisson
+		distribution with event rate $\lambda$ if it were not for the \observe statements.
+		As shown in \textbf{(c)} though, these \observe statements warp the distribution to
+		give a lighter tail while discouraging $k\le3$.   Here both $n_x \in \mathbb{N}^+$ and
+		$n_y \in \mathbb{N}^+$ depend on the trace and are unbounded.  Which
+		\observe we see first is also probabilistic, while it some traces will be invalid, e.g. $x_{1:n_x}=[1,0.5]$
+		as $x_1=1$ indicates there will be only a single \sample encountered.  Nonetheless, we can
+		calculate the probability of a trace by following its path to completion while
+		accumulating \sample and \observe factors.
+		\label{fig:probprog:poisson}}
+\end{figure}
+
 An illustrative example for calculating the probability of a program through execution traces
-for a problem that cannot not be expressed using our simplified PPL or a graphical model, but
-which is simple to write in our universal framework, is shown in Figure~\ref{fig:probprog:poisson}.
+is shown in Figure~\ref{fig:probprog:poisson}.  This corresponds to a problem that cannot not be 
+expressed using our simplified PPL or a graphical model, but which is simple to write in our universal framework.
 Imagine we want to calculate the unnormalized trace probability
 $\gamma(x_{1:n_x}=[0.2,0.07],\lambda=4)$ which we can do by stepping through the program and accumulating
 terms (for reference we will be following the cyan path
@@ -433,63 +489,6 @@ We finish by checking that our trace was valid, which we can easily see is the c
 no terms were undefined and we generated the correct number of sample outputs (i.e. $n_x=2$ as
 required).
 
-\begin{figure}[p]
-	\centering
-	\vspace{-5pt}
-	\begin{minipage}[t]{\textwidth}
-		\centering
-		\includegraphics[width=0.75\textwidth]{probprog/figures/traces.pdf}			
-					\subcaption{Possible traces for our query.  \sample statements are shown in red,
-						\observe statements are shown in shades of green, and deterministic
-						computations (given the outputs of the \sample statements) are shown in shades
-						of blue.  Subscripts for the sample and observe statements show the lexical index
-(i.e. $a_j \in \{1\}$ and $b_k\in\{1,2\}$), as do the different shades.  The cyan arrows correspond to
-a particular execution path which gives output $k=1$ and has $n_x=2$, $n_y=2$, $b_1=2$, and $b_2=1$.
-Valid traces for this particular path must have $x_1>\exp(-\lambda)$ and $x_2 \le \exp(-\lambda)/x_1$.
-						\label{fig:probprog:poi-traces}
-					}
-	\vspace{15pt}
-	\end{minipage}
-		\begin{minipage}[b]{0.49\textwidth}
-			\begin{algorithmic}[1]
-				\renewcommand{\algorithmicrequire}{\textbf{Inputs:}}
-				\renewcommand{\algorithmicensure}{\textbf{Outputs:}}			 
-				\Require Event rate $\lambda$ 
-				\State $L\leftarrow\exp(-\lambda)$, ~$k\leftarrow0$, ~$p\leftarrow1$
-				\While{$p>L$}
-				\State $u\leftarrow$\sample$(\textsc{Uniform}(0,1))$
-				\State $p\leftarrow pu$
-				\IIf{$p\le L$}; \textbf{break while}; \EndIIf
-				\State \observe(\textsc{Bernoulli}(0.2), 1)
-				\State $k\leftarrow k+1$
-				\EndWhile
-				\State \observe(\textsc{Bernoulli}(0.99),~$\mathbb{I}(k\text{>}3)$)
-				\State \Return $k$
-			\end{algorithmic}
-			\subcaption{Query code for warped Poisson sampler\label{fig:probprog:poi-code}}
-		\end{minipage}
-				\begin{minipage}[b]{0.49\textwidth}
-					\centering	~~
-					\includegraphics[width=0.87\textwidth]{probprog/figures/poisson_plot.pdf}			
-					\subcaption{Conditional distribution on $k$ for $\lambda=4$.\label{fig:probprog:poi-res}
-					}
-				\end{minipage}
-				\vspace{5pt}
-	\caption{Demonstration of stochastic execution traces using a warper
-		Poisson sampler, adapted from~\cite[Figure 3.3]{paige2017thesis}.  The query defined in 
-		\textbf{(b)} would output $k$ as per a Poisson
-		distribution with event rate $\lambda$ if it were not for the \observe statements.
-		As shown in \textbf{(c)} though, these \observe statements warp the distribution to
-		give a lighter tail while discouraging $k\le3$.   Here both $n_x \in \mathbb{N}^+$ and
-		$n_y \in \mathbb{N}^+$ depend on the trace and are unbounded.  Which
-		\observe we see first is also probabilistic, while it some traces will be invalid, e.g. $x_{1:n_x}=[1,0.5]$
-		as $x_1=1$ indicates there will be only a single \sample encountered.  Nonetheless, we can
-		calculate the probability of a trace by following its path to completion while
-		accumulating \sample and \observe factors.
-		\label{fig:probprog:poisson}}
-\end{figure}
-
-
 An important point of note, is that, in general, $\gamma(x_{1:n_x}, \lambda)$ is not a normalized joint distribution.  This is firstly,
 and most obviously, because $\lambda$ might contain terms, referred to as $\phi$ before, that are not
 observed and so have no implied density.  Secondly, and more critically, even if $\phi = \emptyset$,
@@ -497,19 +496,19 @@ $\gamma(x_{1:n_x}, \lambda)$ is not necessarily correctly normalized, because of
 condition the \sample statements on the observations.  As a simple example, our model
 might consist of a $x_1 \leftarrow$\sample(\normal(0,1)) term followed by an \observe(\normal$(-1,2,x_1)$)
 term.  This does not directly define any properly normalized joint distribution on any particular variables
-(noting $\mathcal{N}(x_1;0,1) \mathcal{N}(x_1;0,2)$ is an unnormalized distribution with only the variable
+(noting that $\mathcal{N}(x_1;0,1) \mathcal{N}(x_1;0,2)$ is an unnormalized distribution with only the variable
 $x_1$).  Consequently, there is no means of writing down a normalized joint distribution for a general
 query in our universal PPL setup in closed form -- we might actually need to empirically estimate
 the normalization constant to evaluate the joint.  This actually steps outside the conventional Bayesian
 modeling framework and raises a number of interesting theoretical questions.  However, from a
-practical perspective, we can note that provided the implicitly define normalization constant is finite,
+practical perspective, we can note that provided the implicitly defined normalization constant is finite,
 the query also implicitly defines a correctly normalized conditional distribution (noting that
 $\gamma(x_{1:n_x}, \lambda) \ge0$).
 This is analogous to knowing the joint but not the posterior in Bayesian inference, though it is exactly
 equivalent because the normalization constant is no longer the marginal likelihood.
 
-As simple example of why it is important to be able to define models up to an unnormalized joint
-distribution, consider an example where $a$ and $b$ are each sampled from discrete distributions
+For a simple example of why it is important to be able to define models up to an unnormalized joint
+distribution, consider a model where $a$ and $b$ are each sampled from discrete distributions
 and we want to condition on the value of $a$ and $b$ being equal (see for example Figure~\ref{fig:probprog:schell}
 in the next section).  Here
 the combination of the sample statements and the observation that the two are equal clearly
@@ -528,7 +527,7 @@ for some deterministic function $\kappa$.  Here we
 can view the marginalization as being the probability of the event $y=\kappa(x,\lambda)$ under the joint $P(x,y)=f(x|\lambda)g(y|x,\lambda)$.
 For our previous example we have $x:=a$, $y:=b$, $\kappa(a,\lambda):=a$, $f(a):=p(a)$, and $g(b=a):=p(b=a|a)$.
 The same intuition applies to continuous cases where we now have the density of the event $y=\kappa(x,\lambda)$.
-We can also think of $f(x|\lambda)g(\kappa(x,\lambda)|x,\lambda)$ as defining a unnormalized distribution on $x$ whose
+We can also think of $f(x|\lambda)g(\kappa(x,\lambda)|x,\lambda)$ as defining an unnormalized distribution on $x$ whose
 normalization constant is $\int f(x|\lambda)g(\kappa(x,\lambda)|x,\lambda) dx$.  In general, our normalization
 constant will be a combination of conventional marginal likelihood terms and contributions from these ``doubly defined''
 terms. We refer to this normalization constant as the \emph{partition function}\footnote{Note this is not a
@@ -556,7 +555,7 @@ from an equivalent query with all the \observe statements removed) and
 all terms in the integral are deterministically calculable for the query given $\lambda$ and $x_{1:n_x}$.
 For our query to represent a well defined conditional distribution, it is necessary to have
 $0<Z(\lambda)<\infty$.  Although $Z(\lambda)$ does not correspond exactly to a marginal likelihood,
-we can still think of it in terms as representing a \emph{model evidence} in the same way, it just might
+we can still think of it in terms of representing a \emph{model evidence} in the same way, it just might
 not be correctly normalized density in the same way a marginal likelihood is.
 
 We now see that we can draw a direct analogy to the Bayesian framework whereby the product of the
@@ -570,7 +569,7 @@ beyond this framework to specify some models.  When we do, we still have an impl
 same way that Bayes' rule means that a prior and a likelihood implicitly define a posterior, but we may not
 actually have access to our implicitly defined prior and likelihood.
 
-Given our query is now defined to specify a unnormalized conditional distribution rather than a normalized
+Given our query is now defined to specify an unnormalized conditional distribution rather than a normalized
 joint distribution, it is natural to ask whether it is necessary for each \observe term to correspond to
 a correctly normalized density for its output, instead of just restricting it to be a positive semi-definite
 function representing an arbitrary soft constraint.  The answer is that it is not.  In fact, from a theoretical perspective,

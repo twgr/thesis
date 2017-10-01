@@ -12,7 +12,7 @@ from $q(\theta)$ rather than our target $\pi(\theta)$.
 
 To demonstrate the key idea, consider the problem of calculating an expectation as
 per~\eqref{eq:inf:expt}.  If we cannot sample exactly from $\pi(\theta)$ then we cannot
-apply~\eqref{eq:inf:mc-est} directly.  However, we can rearrange the form our expectation
+apply~\eqref{eq:inf:mc-est} directly.  However, we can rearrange the form of our expectation
 to generate a different \mc estimator which we can evaluate directly as follows
 \begin{align}
 	I:=\E_{\pi(\theta)} \left[f(\theta)\right] &=\int f(\theta) \pi(\theta) d\theta 
@@ -28,7 +28,7 @@ $\pi(\theta) \neq 0$ (to avoid infinite importance weights), this has no effect 
 expectation.  However, we can informally view the new
 formulation as being the expectation of $f(\theta) \frac{\pi(\theta)}{q(\theta)}$ under the
 distribution $q(\theta)$.  We can now construct a \mc estimator for this new formulation, 
-by choosing $q(\theta)$ to be a distribution we can sample from.  A graphical
+by choosing $q(\theta)$ to be a distribution we sample from.  A graphical
 demonstration of importance sampling is given in Figure~\ref{fig:inf:importance} in the
 more general setting where we do not have access to the $\pi(\theta)$ exactly, but only
 an unnormalized version $\gamma(\theta)=\pi(\theta)Z$.  As we will show in detail in
@@ -37,9 +37,9 @@ in this case by \emph{self-normalizing} the weights.
 
 \begin{figure}[t]
 	\centering
-	\includegraphics[width=0.5\textwidth]{importance}
+	\includegraphics[width=0.55\textwidth]{importance}
 	\caption{Demonstration of importance sampling for problem shown in~\eqref{eq:inf:example}.
-		 We are trying to estimate $\E [\pi(\theta)f(\theta)]$: the expectation of the function $f(\theta) := \theta^2/50$
+		 We are trying to estimate $\E_{\pi(\theta)} [f(\theta)]$: the expectation of the function $f(\theta) := \theta^2/50$
 		under the posterior $\pi(\theta):=p(\theta|y=5)$ defined as per~\eqref{eq:inf:example-post}.
 		We assume the setting where $\pi(\theta)$ is only known up to a normalization constant
 		(see Section~\ref{sec:inf:foundation:importance:self-norm}), namely we only have access
@@ -70,21 +70,22 @@ each $f(\hth_n)$ with $\frac{\pi(\hth_n)}{q(\hth_n)} f(\hat{\theta}_n)$, leading
 same result except that $\sigma_{\theta}$ is now
 \begin{align}
 \label{eq:inf:sigma-imp}
-\sigma_{\theta}^2 = \E_{q(\theta)} \left[\left(\frac{\pi(\hth_n)}{q(\hth_n)} f(\hat{\theta}_n)-I\right)^2\right]
+\sigma_{\theta}^2 = \E_{q(\theta)} \left[\left(\frac{\pi(\hth_1)}{q(\hth_1)} f(\hat{\theta}_1)-I\right)^2\right]
 = \var_{q(\theta)} \left[\frac{\pi(\theta)}{q(\theta)} f(\theta)\right].
 \end{align}
 Almost sure convergence of importance sampling can be similarly shown using
-the strong law of large numbers.
+the strong LLN.
 
 The form of~\eqref{eq:inf:sigma-imp} provides substantial insight into how
 best to set the proposal: we have shown that the mean squared error of an
-importance sampler is directly proportional to $\var \left[f(\theta)\pi(\theta)/q(\theta)\right]$,
+importance sampler is directly proportional to $\var_{q(\theta)} \left[f(\theta)\pi(\theta)/q(\theta)\right]$,
 thus the lower this term is, the better the expected performance of our
 estimator.  One obvious question is what is the optimal proposal $q^*(\theta)$?
 It turns out that $q^*(\theta) = \frac{\pi(\theta)\left|f(\theta)\right|}
 {\int \pi(\theta)\left|f(\theta)\right|d\theta}$
 \citep{kahn1953methods,owen2013mc}, which can be
- shown as follows where we will make use of Jensen's inequality
+ shown as follows where we will make use of Jensen's inequality and comparing to an arbitrary
+ proposal $q(\theta)$
 \begin{align}
 \var_{q^*(\theta)} &\left[\frac{\pi(\theta)}{q^*(\theta)} f(\theta)\right] =
 \E_{q^*(\theta)} \left[\left(\frac{\pi(\theta)}{q^*(\theta)} f(\theta)\right)^2\right]
@@ -99,7 +100,7 @@ It turns out that $q^*(\theta) = \frac{\pi(\theta)\left|f(\theta)\right|}
 \end{align}
 Here we have shown that the variance for $q^*(\theta)$ is less than or equal to the variance
 using an arbitrary $q(\theta)$.  It must therefore be the optimal proposal.
-A further point of note is that if $f(\theta)\ge0 \; \forall \theta$ (or 
+A further point of note, is that if $f(\theta)\ge0 \; \forall \theta$ (or 
 $f(\theta)\le0 \; \forall \theta$), 
 then~\eqref{eq:inf:opt-q-line2} will equal zero giving a zero variance estimator:
 each importance weight will be equal to the  $I/f(\theta)$ and thus $I$
@@ -118,7 +119,7 @@ Aside from the clear practical issues, if this requirement does not hold, then
 it can easily be the case that $\sigma_{\theta}=\infty$ and thus that the estimator
 has infinite variance.  Consider, for example, the case where 
 $\pi(\theta) = \mathcal{N}(\theta ; 0,1)$, $f(\theta)=\theta$, and
-$q(\theta) = \mathcal{N}(\theta ; 0,s^2)$ (Example 9.1 from~\cite{owen2013mc}).
+$q(\theta) = \mathcal{N}(\theta ; 0,s^2)$ (Example 9.1 from~\cite[example 9.1]{owen2013mc}).
 Noting that the mean, $I$, is zero by symmetry and defining $\nu = \frac{1}{2s^2}-1$, we have that
 %, $\mathrm{erf}$ is the error function for which $\mathrm{erf}(\infty)=-\mathrm{erf}(-\infty)=1$)
 \begin{align}
@@ -136,7 +137,7 @@ Now this integral is clearly only finite for $\nu < 0$ (as otherwise the integra
 is $+\infty$ and $\theta = \pm \infty$ and finite elsewhere).  Therefore, $\sigma_{\theta}$
 is only finite when $s^2>1/2$.  In other words, we only get a finite estimator
 in this case if the proposal variance is at least half that of the target distribution $\pi(\theta)$!
-The highlights the pitfalls of having insufficiently heavy tails on our proposal.
+This highlights the pitfalls of having insufficiently heavy tails on our proposal.
 Overcoming these will typically require careful setup of the proposal on a case-by-case basis,
 for example, choosing a distribution type for the proposal that is known to have heavier tails 
 than $\pi(\theta)$.
@@ -144,7 +145,7 @@ than $\pi(\theta)$.
 \subsubsection{Self-Normalized Importance Sampling}
 \label{sec:inf:foundation:importance:self-norm}
 
-In the previous section we presumed that we have access to a normalize version of the target
+In the previous section we presumed that we have access to a normalized version of the target
 $\pi(\theta)$.  Typically this will not be the case and we will only have access to an
 unnormalized target $\gamma(\theta)=\pi(\theta)Z$ as per~\eqref{eq:inf:unnorm-target},
 for example only having access to the joint rather than the posterior in the Bayesian inference setting.
@@ -202,7 +203,7 @@ q^*_{\mathrm{SNIS}} (\theta) = \frac{\pi(\theta)\left|f(\theta)-I\right|}
 {\int \pi(\theta)\left|f(\theta)-I\right|d\theta}.
 \end{align}
 As a consequence, there is a minimum variance on the SNIS estimator, unlike in the
-pre-normalized case where $q^*(\theta)$ was a zero variance estimator  was possible
+pre-normalized case where $q^*(\theta)$ was a zero variance estimator 
 if $f(\theta)\ge0 \; \forall \theta$.
 
 \subsubsection{Unknown $f$}
@@ -212,7 +213,7 @@ So far we have assumed that we are using importance sampling to calculate an exp
 of a known function.  In practice, there will be many scenarios, particularly in the Bayesian inference setting,
 where $f(\theta)$ is not known ahead of time and we instead desire to generate samples
 for some future unknown use.  For example, in Section~\ref{sec:part:smc} we will introduce the concept
-of \emph{sequential Monte Carlo} where we will typically have multiple importance sampling steps
+of \emph{sequential Monte Carlo}, where we will typically have multiple importance sampling steps
 before any target function is itself evaluated.
 When no $f(\theta)$ is specified, we can carry out importance sampling in the
 same fashion, sampling from $q (\theta)$ and returning a set of \emph{weighted} samples
@@ -272,9 +273,9 @@ Nonetheless, this point of view is not without criticism in the
 literature~\citep{o1987monte,ghahramani2003bayesian,briol2015probabilistic}.  Most of 
 this criticism revolves around the valid point that in practice the value of $f(\theta)$ 
 does convey information about $f(\theta+\varepsilon)$ and so the correlation between 
-samples such be taken into account when making an estimation.  Though the thrust of
+samples should be taken into account when making an estimation.  Though the thrust of
 this argument is mostly directed towards changing the Monte Carlo method, and in particular
-importance sampling, at a more fundamental level, the same arguments would still suggest
+importance sampling, the same arguments would also suggest
 that it can be beneficial to use a proposal that is more diffuse than the target, thereby
 reducing the correlation between the produced samples.
 
@@ -297,13 +298,13 @@ The weighted average of $N_e$ independent evaluations $\{f_n\}_{n=1}^N$, each
 with individual variance $\sigma^2$,
 has variance $\sigma^2 / N_e$ as we showed in~\eqref{eq:inf:LLN-informal}.  Therefore,
 we can calculate the ESS of a set of weighted samples by comparing the variance of our 
-weighted estimated to the variance of an estimate using a
+weighted estimate to the variance of an estimate using a
 set of unweighted evaluations. More specifically, the ESS will be the number of unweighted evaluations
 $N_e$ that gives an equivalent variance to our weighted estimate as follows where we
 will make use of the assumption that the $f_n$ are independent
 \begin{align}
 \frac{\sigma^2}{N_e} &= \var \left[\frac{\sum_{n=1}^{N} w_n f_n}{\sum_{n=1}^{N} w_n} \middle| 
-														\{w_n\}_{n=1}^N\right] = \sum_{n=1}^{N} \left(\frac{\sum_{n=1}^{N} w_n}{\sum_{n=1}^{N} w_n} \right)^2 \var [f_n] 
+														\{w_n\}_{n=1}^N\right] = \sum_{n=1}^{N} \left(\frac{w_n}{\sum_{n=1}^{N} w_n} \right)^2 \var [f_n] 
 														= \frac{\sigma^2\sum_{n=1}^{N} w_n^2}{\left(\sum_{n=1}^{N} w_n\right)^2}.
 \end{align}
 Now rearranging for $N_e$ we get
@@ -313,7 +314,7 @@ N_e = \frac{\left(\sum_{n=1}^{N} w_n\right)^2}{\sum_{n=1}^{N} w_n^2} = \frac{1}{
 \end{align}
 which completes our definition for the effective sample size.\footnote{Note that it is sometimes necessary
 	to collapse identical weighted samples to a single sample when
-	calculating~\eqref{eq:inf:ess}, such as when doing doing resampling (see Section~\ref{sec:inf:foundation:resampling})
+	calculating~\eqref{eq:inf:ess}, such as when doing resampling (see Section~\ref{sec:inf:foundation:resampling})
 	}
 It transpires that $N_e$ is
 independent of $f$, so we can still use the ESS as a diagnostic when $f$ is unknown.
@@ -331,9 +332,9 @@ target.  It is not uncommon in practice to see the ESS drop drastically as more 
 due to the addition of a new dominating sample, typically indicating a region of significant target probability
 mass that had previously been missed.  Nonetheless, the ESS is still a very useful performance
 metric and is usually a reliable indicator for whether our importance sampling is struggling.  
-In particular, though the possibility of missing modes means that although it is possible for the ESS to be 
+In particular, though the possibility of missing modes means that it is possible for the ESS to be 
 high even when the approximation of the posterior is poor, if the ESS is low then the approximation 
-of the posterior will always be poor and any subsequent estimates will, in general, be high variance.
+of the posterior will always be poor and any subsequent estimates will usually be high variance.
 
 \subsubsection{Resampling}
 \label{sec:inf:foundation:resampling}
@@ -342,10 +343,10 @@ A useful feature of SNIS is that it can be used to produce unweighted samples
 by \emph{sampling with replacement} from the set of produced samples in proportion
 to the sample weights.  This procedure is typically known as resampling, because we
 are resampling samples from the empirical distribution of our original samples.
-It allows us to generate unweighted samples with importance sampling which are
+Resampling allows us to generate unweighted samples with importance sampling which are
 approximately distributed according to $\pi(\theta)$, with this approximation becoming
 exact in the limit $N\rightarrow\infty$.  
-Resampling on its own always lead to a higher variance estimator than using~\eqref{eq:inf:snis}
+Resampling on its own always leads to a higher variance estimator than using~\eqref{eq:inf:snis}
 directly.   However, in addition to  being necessary when unweighted samples are required,
 it will be a key component in the so-called particle-based inference methods discussed
 in Chapter~\ref{chp:part}.  
@@ -417,14 +418,14 @@ method, \emph{multinomial resampling}, simply involves sampling each $a_n$ indep
 such that the $k_n$ have a multinomial distribution.  Though simple, this method is generally
 inadvisable as it adds unnecessary variation to the resampling compared to methods using randomized
 quasi-Monte Carlo~\citep{l2005recent}, such as systematic 
-resampling~\citep{carpenter1999improved,whitley1994genetic},\footnote{Note that systematic resampling as it is now known is
+resampling~\citep{carpenter1999improved,whitley1994genetic},\footnote{Note that systematic resampling, as it is now known, is
 	somewhat confusingly referred to as stratified resampling in the former of these papers and universal
 	sampling in the latter.}
 or other variance reduction techniques, such as stratified 
 resampling~\citep{kitagawa1996monte} and residual resampling~\citep{whitley1994genetic}.
 Though residual resampling is a little more complicated (see~\cite{douc2005comparison}),
 stratified and systematic resampling can be viewed as small changes on the underlying random
-number draws made in multinomial resampling.  The typical way to drawn from a multinomial
+number draws made in multinomial resampling.  The typical way to draw from a multinomial
 distribution with $N$ trials and probabilities $p_1,\dots,p_K$ is to make $N$ independent
 draws from a unit uniform distribution, $u_n \iid \textsc{Uniform}(0,1) \; \forall n\in1,\dots,N$
 and then to bin these into the intervals between the cumulative probabilities
@@ -469,8 +470,8 @@ On the other hand, if we use any of our variance reduction techniques, each of t
 will appear exactly once in the resampled set and so no information is lost in this scenario.  In the
 other extreme, when all the weight is on a single sample, all the resampling schemes will behave the
 same (returning only the sample with non-zero weight).  In most practical scenarios we will be
-somewhere between these two extremes, but the high level intuition that multinomial resampling
-throws away more information than the other approaches will remain the same.
+somewhere between these two extremes, but the high level intuition, that multinomial resampling
+throws away more information than the other approaches, will remain the same.
 
 \begin{figure}[t]
 	\centering
@@ -487,13 +488,13 @@ throws away more information than the other approaches will remain the same.
 	\caption{Demonstration of performance of different resampling schemes for
 		two different sample set sizes and different levels of variance in the weights.
 		Plots are generated by first sampling a set of $N$ weights from a symmetric
-		Dirichlet distribution with parameter $\alpha$, 
-		$\{\bar{w}_n\}_{n=1}^N \sim \textsc{Dirichlet}(\alpha)$, such that the
+		Dirichlet distribution with parameter $\alpha$, i.e.~$\{\bar{w}_n\}_{n=1}^N \sim \textsc{Dirichlet}(\alpha)$, 
+		such that the
 		higher $\alpha$ is, the more even the weights are on average.  The effective
 		sample size (ESS) as defined in~\eqref{eq:inf:ess} is then calculated before and after the
 		resampling is carried out (with identical samples collapsed to a single sample), and the ratio 
 		reported.  Plots show the mean across $1000$ independent trials, with the
-		error bars corresponding the to the interquartile range.
+		error bars corresponding to the interquartile range.
 		\label{fig:inf:resample}}
 \end{figure}
 
@@ -504,7 +505,7 @@ particles down to a single sample with the combined weight of the other samples.
 to replacing $w_n$ with $k_n/N$ in the ESS calculation given in~\eqref{eq:inf:ess}.
 Figure~\ref{fig:inf:resample} shows that systematic resampling is clearly preferable to the alternatives, at least
 in the terms of the ESS after resampling for this particular problem, with this improvement consistent across the different
-sample size sets.  Similar relative performance are found if one instead uses the proportion of samples that
+sample size sets.  Similar relative performance improvements are found if one instead uses the proportion of samples that
 survive the resampling as a performance metric.
 As expected, multinomial resampling is significantly worse than the other
 methods, particularly when the weights are more even.  The results also suggest that residual

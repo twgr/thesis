@@ -65,14 +65,14 @@ strengths and weaknesses and we will avoid being drawn into one of the biggest d
 science, noting only that the philosophical differences between the two are typically completely
 detached from the practical differences between the resulting machine learning or statistics
 methods (see Section~\ref{sec:bayes:religions}), despite these philosophical differences all too 
-often be used to argue the superiority of the resultant algorithms~\citep{gelman2011induction,steinhardt2012beyond}.
+often being used to argue the superiority of the resultant algorithms~\citep{gelman2011induction,steinhardt2012beyond}.
 
 \section{Conditioning and Independence}
 \label{sec:prob:cond}
 
 A \emph{conditional probability} is the probability of an event given that another event has occurred.
 For example, the conditional probability that we roll a $4$ with a dice given that we have rolled a $3$ or
-higher is $P(X=4 | X\ge3) = 0.25$.  More typically, we will condition on events that are separate but
+higher is $P(X=4 | X\ge3) = 0.25$.  More typically, we will condition upon events that are separate but
 correlated to the event we care about.  For example, the probability of dying of lung cancer is higher
 if you smoke.  The process of updating a probability using the information from another event is
 known as conditioning on that event.  For example, one can condition the probability that a football team will win the league on the results from their first few games.
@@ -150,7 +150,7 @@ as the \emph{likelihood} of $B$, given the occurrence of event $A$.
 \section{Probability Densities}
 \label{sec:prob:den}
 
-Thus far we have presumed that our random variables a discrete, i.e. that there is some fixed
+Thus far we have presumed that our random variables are discrete, i.e. that there is some fixed
 number of possible outcomes.\footnote{Technically speaking, discrete random variables can also
 	take on a \emph{countably infinite} number of values, e.g. the Poisson distribution is defined
 	over $0,1,2,\dots,\infty$.  
@@ -163,7 +163,7 @@ of this particular event is zero, $P(X=\pi)=0$, as is the probability of the run
 to complete the race: we have an infinite number of possible outcomes, each with zero probability
 (presuming the runner finishes the race).  Thankfully, the notion of an event that we previously
 introduced comes to our rescue.  For example, the event that the runner takes between $3$ and
-$4$ hours has non-zero probability: $P(3\le X \le 4) \neq 0$.  Here our event itself include
+$4$ hours has non-zero probability: $P(3\le X \le 4) \neq 0$.  Here our event includes
 an infinite number of possible outcomes and even though each individual outcome had
 zero probability, the combination of \emph{uncountably infinitely} many such outcomes need
 not also have zero probability.  To more usefully characterize probability in such cases, we can
@@ -191,7 +191,7 @@ rule, apply equally well to continuous and discrete random variables.  All that 
 is that we replace the summations with integrals over the appropriate variable. 
 
 In the rest of the thesis will drop the notation $p_{X}(x)$, using simply $p(x)$ instead.
-The main rationale for this is will we regularly use probability density functions that we do
+The main rationale for this is that we will regularly use probability density functions that we do
 not actually sample from.  For example, in importance sampling, we will sample from one
 distribution but evaluate its density under another.  In these scenarios, it may not be possible
 to link a random variable to each density.  We will instead make it explicit what distribution
@@ -221,7 +221,7 @@ as something that assigns a size to a set of objects.
 \emph{Probability measures} assign probabilities to events, remembering that events represent 
 sets of outcomes, and thus are used to define a more formal notion of probability that we have
 previously discussed. 
-The measure assigned to event including all possible outcomes is thus $1$,
+The measure assigned to an event including all possible outcomes is thus $1$,
 while the measure assigned to the empty set is $0$.  
 
 We can generalize the concept of a probability density to arbitrary random variables
@@ -232,8 +232,8 @@ Here we have implicitly used the \emph{Lebesgue measure} as the reference measur
 the standard Euclidean notion of size, coinciding with the concepts of length, area, and
 volume in 1, 2, and 3 dimensions respectively.  In~\eqref{eq:prob:density} then $dx$ indicated 
 integration with respect to a Lebesgue measure, with $\int_{x\in\mathcal{A}} dx$ being equal
-to the hypervolume of $\mathcal{A}$ (e.g. area of $\mathcal{A}$ in two dimensions).  We thus
-clearly have that our reference measure is not a probability measure as $\int_{x\in\real} dx = \infty$.
+to the hypervolume of $\mathcal{A}$ (e.g. area of $\mathcal{A}$ in two dimensions).  
+Our reference measure is, therefore, clearly not a probability measure as $\int_{x\in\real} dx = \infty$.
 Our probability measure here can be informally thought of as $p(x)dx$, so that  
 $\int_{x\in\mathcal{A}} p(x)dx = P(x\in\mathcal{A})$.\footnote{More formally, the density is derived
 	from the probability measure and reference measure rather than the other way around:
@@ -254,7 +254,7 @@ use a \emph{mixed measure}.  Perhaps the easiest way to think about this is to t
 the runner's time $X$ as being a deterministic function of two random variables: the first
 a discrete random variable $Y\in\{0,1\}$ that dictates where the runner finishes ($Y=1$) or not ($Y=0$) and the second 
 a continuous random variable $Z\in\real^+$ that specifies a distribution over run times assuming the
-runner finishes (such that $Z$ always existing but only equals $X$ if the runner finishes).  
+runner finishes (such that $Z$ always exists but only equals $X$ if the runner finishes).  
 %We can now describe our joint density as $p(y=Y,z=Z) = p(Y=y)p(z=Z)$ where $p(Y=y)$
 %is defined with respect to a counting measure (such that $p(Y=y)=P(Y=y$) and $p(z=Z)$.
 Now $X$ is a function of $Y$ and $Z$ and we can define the probability of the event
@@ -289,14 +289,14 @@ The key point we wish to instead make is that, regardless of variable type, we c
 (implicitly) always define a probability density function.\footnote{Well, almost always.  But we
 	are not going to open that can of worms, see e.g.~\cite{durrett2010probability}.}  
 The generalization also allows us
-to put probability distributions of variables that are neither discrete or continuous type.
+to put probability distributions of variables that are neither discrete nor continuous type.
 For example, we might want to put a distribution over the space of strings.  
 Because of this generalization, we will talk mostly in terms of probability densities throughout
 this thesis, even though variables may often be discrete (for which the density will 
 represent a probability).
 
 We finish the section by considering the relationship between random variables which
-are deterministic functions of one another.  This important case is known as a change of
+are deterministic functions of one another.  This important case is known as a
 \emph{change of variables}.  Imagine
 that a random variable $Y=g(X)$ is a deterministic function of another random variable $X$.
 Given a probability density function for $X$, we can define a probability density function
@@ -306,7 +306,7 @@ on $Y$ using
 p(y)dy = p(x)dx = p(g^{-1}(y))dg^{-1}(y)
 \end{align} 
 where $p(y)$ and $p(x)$ are the respective probability densities for $Y$ and $X$
-respectively with measures $dx$ and $dy$,  the latter of which is known as a \emph{push-forward} measure.
+with measures $dx$ and $dy$,  the latter of which is known as a \emph{push-forward} measure.
 Rearranging we see that, for one-dimensional problems, 
 \begin{align}
 \label{eq:prob:change2}
@@ -328,7 +328,7 @@ x^* = \argmax_{x} p(x) \neq g^{-1} \left(\argmax_{g(x)} p(g(x))\right).
 \label{sec:prob:expt}
 
 The \emph{expected value} $\E [X]$, or mean, of a random variable $X$ is the average value that the variable
-will take if an infinite number of independent draws are made.  Its definition is easiest convey using 
+will take if an infinite number of independent draws are made.  Its definition is easiest to convey using 
 probability density notation as follows
 \begin{align}
 \label{eq:prob:expt}
@@ -384,7 +384,7 @@ then the covariance is defined by any one of the following equivalent forms
 The covariance between two variables measures the joint variability of two random
 variables.  It is perhaps easiest to interpret through the definition of correlation
 (or more specifically, Pearson's correlation coefficient) which is the correlation
-scaled by the standard deviation of each of the variables:
+scaled by the standard deviation of each of the variables
 \begin{align}
 \corr (X,Y) = \frac{\cov (X,Y)}{\sqrt{\var(X) \var(Y)}}.
 \end{align}
@@ -392,6 +392,6 @@ The correlation between two variables is always in the range $[-1,1]$.  Positive
 correlations indicate that when one variable is relatively larger, the other variable
 also tends to be larger.  The higher the correlation, the more strongly this relationship
 holds: if the correlation is $1$ then one variable is \emph{linearly} dependent on the other.  The
-same hold for negative correlations except that when one variable increases, the other tends
+same holds for negative correlations except that when one variable increases, the other tends
 to decrease.  Independent variables have a correlation (and thus covariance) of zero.
 Note that correlation is not causation.

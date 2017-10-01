@@ -10,11 +10,11 @@ for all stochastic computation.
 \mc provides us with a means of dealing with complex models and problems in a
 statistically principled manner.  Without it, one would have to resort to deterministic
 approximation methods whenever the target problem is too complex to permit analytic
-solution.  As we will show, it is a highly composable framework that will allow to output
+solution.  As we will show, it is a highly composable framework that will allow the output
 of one system to be input directly to another.  For example, the \mc samples from a joint
 distribution will also have the correct marginal distribution over any of its individual components,
 while sampling from the marginal distribution then sampling from the conditional distribution
-given these samples will give samples distributed according to the joint.  As \mc
+given these samples, will give samples distributed according to the joint.  As \mc
 will be key to most methods for Bayesian inference that we will consider, we take the time
 in this section to introduce Monte Carlo at a foundational level.
 
@@ -39,7 +39,7 @@ This can be approximated using the \mc estimator $I_N$ where
 \begin{align}
 	\label{eq:inf:mc-est}
 	I \approx I_N := \frac{1}{N} \sum_{n=1}^{N}f(\hat{\theta}_n)
-	\quad \text{where} \quad \hat{\theta}_n \sim \pi(\theta).
+	\quad \text{and} \quad \hat{\theta}_n \sim \pi(\theta).
 \end{align}
 The first result we note is that~\eqref{eq:inf:mc-est} is an \emph{unbiased} estimator for $I$, i.e. we have
 \begin{align}
@@ -63,12 +63,14 @@ pathologically overestimate or underestimate the target.  This is not to say tho
 equally likely to overestimate or underestimate as it may, for example, typically underestimate
 by a small amount and then rarely overestimate by a large amount.  Instead, it means that if we
 were to repeat the estimation an infinite number of times and average the results, we would
-get the true value of $I$.  This now hints at another important question -- do we also get
+get the true value of $I$.  This now hints at another important question -- do we also
 recover the true value of $I$ when we conduct one infinitely large estimation, namely if we
 take $N\rightarrow\infty$?  This is known as \emph{consistency} of a statistical estimator,
-which we will now consider next.  Before moving
+which we will now consider next.  
+
+Before moving
 on, we make the important note that many common \mc inference methods, for example MCMC, are in fact biased.  
-This is because it is often not possible to sample $\hth_n \sim \pi(\theta)$
+This is because it is often not possible to independently sample $\hth_n \sim \pi(\theta)$
 exactly as we have assumed in~\eqref{eq:inf:mc-est}, with the bias resulting from
 the approximation.  The convergence of such methods relies on the bias 
 diminishing to $0$ as $N\rightarrow\infty$, such that they remain unbiased in the limit.
@@ -80,7 +82,7 @@ A key mathematical idea underpinning the convergence of many Monte Carlo methods
 law of large numbers (LLN).  Informally, the LLN states that the empirical average of 
 independent and identically distributed (i.i.d.)  random variables converges to 
 the true expected value of the underlying process as the number of samples in the
-average increases.  We can there use it to prove the consistency of Monte Carlo estimators
+average increases.  We can therefore use it to prove the consistency of Monte Carlo estimators
 where the samples are drawn independently from the same distribution, as is the case
 in for example rejection sampling and importance sampling.  The high level idea for the LLN can be shown by
 considering the  \emph{mean squared error} of a \mc estimator as 
@@ -88,11 +90,12 @@ follows
 %\footnote{Note here that we use the notation of expectation typically used within the statistics literature,
 %whereby it corresponds to the expectation over all randomness contained in the system.}
 \begin{align}
-\E &\left[(I_N-I)^2\right] = \E\left[\left(\frac{1}{N}\sum_{n=1}^{N}f(\hth_n) - I\right)^2\right] \nonumber \\
+\E &\left[(I_N-I)^2\right] = \E\left[\left(\frac{1}{N}\sum_{n=1}^{N}f(\hth_n) - I\right)^2\right]
+= \frac{1}{N^2}\E\left[\left(\sum_{n=1}^{N} \left(f(\hth_n) - I\right)\right)^2\right] \nonumber \\
 &= \frac{1}{N^2}\sum_{n=1}^{N} \E\left[ \left(f(\hth_n)-I\right)^2\right] + 
-\frac{1}{N(N-1)}\sum_{n=1}^{N}\sum_{m=1,m\neq n}^{N} \E\left[ (f(\hth_n)-I)(f(\hth_m)-I)\right] \nonumber \\
+\frac{1}{N^2}\sum_{n=1}^{N}\sum_{m=1,m\neq n}^{N} \E\left[ (f(\hth_n)-I)(f(\hth_m)-I)\right] \nonumber \\
 &= \frac{1}{N^2}\sum_{n=1}^{N} \E\left[ \left(f(\hth_1)-I\right)^2\right] + 
-\frac{1}{N(N-1)}\sum_{n=1}^{N}\sum_{m=1,m\neq n}^{N} \cancelto{0}{\left(\E\left[(f(\hth_1)-I)\right]\right)^2} \nonumber \\
+\frac{1}{N^2}\sum_{n=1}^{N}\sum_{m=1,m\neq n}^{N} \cancelto{0}{\left(\E\left[(f(\hth_1)-I)\right]\right)^2} \nonumber \\
 &= \frac{\sigma_{\theta}^2}{N}  \quad \text{where} \quad \sigma_{\theta}^2 := \E\left[ \left(f(\hth_1)-I\right)^2\right]
 = \var \left[f(\theta)\right].\label{eq:inf:LLN-informal}
 \end{align}
@@ -113,15 +116,16 @@ have that our expected error goes to $0$.
 
 A key upshot of this result is that the difference between our empirical estimate and the true value (i.e. $I_N-I$)
  should be of order $O(1/\sqrt{N})$.  In some way this is rather slow: deterministic numerical
-integration schemes of have much fast convergence theoretical convergence rates.  For example,
-Simpson's rule has a a convergence rate of $O(1/n^4)$ for one dimensional functions.  
+integration schemes often have much faster theoretical convergence rates.  For example,
+Simpson's rule has a convergence rate of $O(1/N^4)$ for one dimensional functions~\citep[Chapter 7]{owen2013mc}.  
 As such, \mc is often an inferior way of estimating integrals for smooth functions
-in low dimensions.  However, this
-requires smoothness assumptions on $f$ and, more critically, the convergence rate diminishes rapidly
-in higher dimensions.   
-The dimensionality only effects the \mc convergence rate through changes in the constant factor $\sigma_{\theta}$
+in low dimensions.  However, these deterministic numerical integration schemes
+requires smoothness assumptions on $f$ and, more critically, their convergence rates diminishes rapidly (typically
+exponentially quickly) with the dimensionality.   
+By comparison, the dimensionality only effects the \mc convergence rate through changes in the 
+constant factor $\sigma_{\theta}$
 and though this will typically increase with the dimensionality, this 
-scaling will typically be substantially more graceful than deterministic numerical methods.
+scaling will usually be substantially more graceful than deterministic numerical methods.
 %generally do so substantially less aggressively
 %then typical exponential decrease in converge rate of deterministic numerical integration schemes
 %with dimension.  
@@ -168,7 +172,7 @@ rather than this simply being a statement of asymptotic unbiasedness, $L^p$-conv
 \emph{magnitude} of the error tends to zero as $N\rightarrow\infty$.
 Different values of $p$ correspond to different metrics for the error, with larger values of
 $p$ constituting stronger converge guarantees, such that $L^{p_2}$-convergence implies
-$L^{p_1}$-convergence whenever $p_2>p_1$.  Similarly, if a a random variable satisfies
+$L^{p_1}$-convergence whenever $p_2>p_1$.  Similarly, if a random variable satisfies
 $X \in L^{p_2}$, then it follows that $X \in L^{p_1}$.
 
 %
@@ -182,7 +186,7 @@ $X \in L^{p_2}$, then it follows that $X \in L^{p_1}$.
 \label{sec:inf:mc:conv:prob}
 
 At a high level, convergence in probability between two random variables (or between a random variable and
-a constant) means that they become arbitrary close to one another.  More
+a constant) means that they become arbitrarily close to one another.  More
 formally we have the following definition.
 \begin{definition}[Convergence in probability]
 A sequence of random variables $X_N$ converges in probability to $X$ if, for every $\varepsilon>0$,
@@ -280,7 +284,7 @@ be found in, for example,~\cite[Theorem 2.4.1]{durrett2010probability}.
 \label{sec:inf:mc:conv:dist}
 
 At a  high level, convergence in distribution, also known as weak convergence, states that a sequence of variables become
-an increasingly closely distributed to a target distribution.  Whereas our previous notions of
+increasingly closely distributed to a target distribution.  Whereas our previous notions of
 convergence ensure that our sequence of random variables converge to a particular value, 
 convergence in distribution only implies that our sequence of random variables tends towards
 having a particular distribution.  For example, a variable might converge in distribution to
@@ -303,7 +307,7 @@ to zero. More formally, we can define convergence in distribution as follows.
 \label{sec:inf:mc:clt}
 
 The central limit theorem (CLT) is a core result in the study of \mc methods.  In its simplest form,
-it states that the sum of $N$ i.i.d. random variables tends towards a Gaussian in the limit $N\to\infty$.
+it states that the empirical mean of $N$ i.i.d. random variables tends towards a Gaussian in the limit $N\to\infty$.
 While the LLN demonstrated the convergence of the average of i.i.d. random variables towards
 the true mean, the CLT provides a means of constructing consistent confidence intervals of our estimate
 $I_N$ by exploiting its asymptotic normality.  Furthermore, it has variants that do not
@@ -339,7 +343,7 @@ on our estimates without needing to know $\sigma$ as we can instead use our empi
 	\quad I_N = \frac{1}{N}\sum_{n=1}^{N}X_N.
 \end{align}
 The form of~\eqref{eq:inf:emprical-var} might at first look at bit strange - why is the normalizing
-term $1/(N-1)$ instead of $1/N$?  Although replacing $1/(N-1)$ term with $1/N$ would still lead
+term $1/(N-1)$ instead of $1/N$?  Although replacing the $1/(N-1)$ term with $1/N$ would still lead
 to a consistent estimator, this estimator turns out to be biased whereas~\eqref{eq:inf:emprical-var}
 is in fact unbiased.  The bias correction $N/(N-1)$ is known as Bessel's correction, while the proof
 that~\eqref{eq:inf:emprical-var} is unbiased follows from straightforward algebraic manipulations.
@@ -375,12 +379,12 @@ and our confidence interval $99\%$ confidence interval for $I$ is
  estimate realistic uncertainties for sufficiently large $N$ is an extremely powerful result.
  
 Through most of this section we have assumed that our random variables are i.i.d..
-In fact, neither the assumption of identically distributed nor that of independence is actually
+In fact, neither the assumption of being identically distributed nor that of independence is actually
 necessary for the CLT to hold.  One can instead use the concept of \emph{strong mixing}, namely
 that variables sufficiently far apart in the sequence are independent, to generalize beyond the i.i.d.
 setting~\citep{jones2004markov}.  This is critical for the numerous \mc inference schemes, 
 such as MCMC methods, that
-do not produce independent samples but instead rely on the samples converging in distribution
+do not produce independent samples, but instead rely on the samples converging in distribution
 to a target distribution.  In most MCMC settings, one can also prove a CLT using reversibility of
 the Markov chain~\citep{kipnis1986central}.
 It is beyond the scope of this thesis to go into these more general forms of the CLT

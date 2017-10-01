@@ -112,10 +112,10 @@ and of specially defined \emph{random primitives} whose behavior can be controll
 run time, rather than just always sampling from
 the same predefined distribution as they would in an ordinary programming language.  
 The latter can be thought of as defining terms in the prior and the
-former as terms in the likelihood as we will discuss in Section~\ref{sec:probprog:models}.
+former as defining terms in the likelihood as we will discuss in Section~\ref{sec:probprog:models}.
 For certain cases, one can alternatively think of conditioning as applying \emph{constraints} to the
 program.  For example, we can think of a probabilistic program as defining a simulator
-and a set constraints that must be satisfied; this is exactly
+and a set of constraints that must be satisfied; this is exactly
 how the PPS Church~\citep{goodman2008church} is designed.  An important distinction 
 here though is between \emph{hard} and \emph{soft} conditioning.  Hard conditioning is as per the conventional
 interpretation of a constraint -- we condition on the fact that an event occurs exactly.  Soft conditioning instead
@@ -141,7 +141,7 @@ the huge potential applications this could provide should be clear. We would hav
 system where the user requires no expertise in inference or conventional
 Bayesian modeling in order to write application specific models and have them solved automatically.
 Instead, they need only have the ability to write stochastic simulators for the process they wish to
-model, a skill possessed my most of the scientific community and many of those outside it as well.
+model, a skill possessed by most of the scientific community and many of those outside it as well.
 In a hypothetical future where scientists
 code all their simulators in extremely powerful PPSs, tasks such as
 inverting those simulators and improving the simulator by incorporating real data would

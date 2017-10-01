@@ -20,7 +20,7 @@ the Bayesian inference setting is a particular case where
 $\gamma(\theta) = p(\mathcal{D}|\theta)p(\theta)$ and $Z = p(\mathcal{D})$.
 Nonetheless, knowing $Z$ can be useful in a number of scenarios, e.g. allowing
 for unbiased importance sampling estimators.
-The methods will, in general, vary only on how samples are proposal
+The methods will, in general, vary only on how samples are proposed
 and the subsequent adjustments that are made.  However, this will lead to a
 plethora of different approaches, varying substantially in their motivation,
 theoretical justification, algorithmic details, and the scenarios for which they
@@ -41,7 +41,7 @@ proposal adaptation is a road filled with theoretical and practical perils.
 Though it is beyond the scope of this work to do this complex line of research justice, we note some possible pitfalls 
 as a warning that proposal adaptation should be carried out with extreme care.
 Firstly, adaptation breaks i.i.d.~assumptions -- samples are naturally generated from different
-distributions and are further dependent because the previous samples are used to the choose the
+distributions and are further dependent because the previous samples are used to choose the
 proposal for future samples.  Though this itself does not necessarily prevent convergence, it does mean various
 results no longer hold, e.g. marginal likelihood estimates for importance sampling
 become biased and the weak law of large numbers can no longer be used to prove convergence.  Secondly,
