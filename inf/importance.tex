@@ -4,7 +4,7 @@
 \label{sec:inf:foundation:importance}
 
 Importance sampling is another common sampling method that forms the key building block
-for many more advance inference schemes.  It is closely related to rejection sampling in that
+for many more advanced inference schemes.  It is closely related to rejection sampling in that
 it uses a proposal, i.e. $\hat{\theta}\sim q(\theta)$, but instead of going
 through an accept/reject step, it assigns an \emph{importance weight} to each sample.
 These importance weights act like correction factors to account for the fact that we sampled
@@ -61,7 +61,7 @@ as follows
 &=\E _{q(\theta_1)}\left[\frac{\pi(\hth_1)}{q(\hth_1)} f(\hat{\theta}_n)\right] =
 \E _{\pi(\theta)}\left[f(\theta)\right]
 \end{align}
-where we have effectively stepped backwards through~\eqref{eq:inf:importance}.\footnote{Note that
+where we have effectively stepped backward through~\eqref{eq:inf:importance}.\footnote{Note that
 	this unbiasedness result does not pass over to the self-normalized variant given 
 	in Section~\ref{sec:inf:foundation:importance:self-norm}.}
 Given this unbiasedness result, $L^2$ convergence, and thus convergence in probability,
@@ -99,7 +99,7 @@ It turns out that $q^*(\theta) = \frac{\pi(\theta)\left|f(\theta)\right|}
  -I^2 =\var_{q(\theta)} \left[\frac{\pi(\theta)}{q(\theta)} f(\theta)\right] \label{eq:inf:opt-q}.
 \end{align}
 Here we have shown that the variance for $q^*(\theta)$ is less than or equal to the variance
-using an arbitrary $q(\theta)$.  It must therefore be the optimal proposal.
+using an arbitrary $q(\theta)$.  It must, therefore, be the optimal proposal.
 A further point of note, is that if $f(\theta)\ge0 \; \forall \theta$ (or 
 $f(\theta)\le0 \; \forall \theta$), 
 then~\eqref{eq:inf:opt-q-line2} will equal zero giving a zero variance estimator:
@@ -145,7 +145,7 @@ than $\pi(\theta)$.
 \subsubsection{Self-Normalized Importance Sampling}
 \label{sec:inf:foundation:importance:self-norm}
 
-In the previous section we presumed that we have access to a normalized version of the target
+In the previous section, we presumed that we have access to a normalized version of the target
 $\pi(\theta)$.  Typically this will not be the case and we will only have access to an
 unnormalized target $\gamma(\theta)=\pi(\theta)Z$ as per~\eqref{eq:inf:unnorm-target},
 for example only having access to the joint rather than the posterior in the Bayesian inference setting.
@@ -202,7 +202,7 @@ and is instead~\citep{hesterberg1988advances}
 q^*_{\mathrm{SNIS}} (\theta) = \frac{\pi(\theta)\left|f(\theta)-I\right|}
 {\int \pi(\theta)\left|f(\theta)-I\right|d\theta}.
 \end{align}
-As a consequence, there is a minimum variance on the SNIS estimator, unlike in the
+As a consequence, there is a minimum variance for the SNIS estimator, unlike in the
 pre-normalized case where $q^*(\theta)$ was a zero variance estimator 
 if $f(\theta)\ge0 \; \forall \theta$.
 
@@ -224,7 +224,7 @@ functions, namely
 \label{eq:inf:imp-post-est}
 \pi (\theta) \approx \hat{\pi}(\theta) := \sum_{n=1}^{N} \bar{w}_n \delta_{\hth_n} (\theta)
 \end{align}
-where $\delta_{\hth_n} (\theta)$ are delta functions centred at $\hth_n$.
+where $\delta_{\hth_n} (\theta)$ are delta functions centered at $\hth_n$.
 
 Importance weights are multiplicative when doing conditional
 sampling: if we sample $\hth_n \sim q_1(\theta)$ then $\hat{\phi}_n | \hth_n \sim q_2(\phi | \hth_n)$
@@ -244,7 +244,7 @@ Again a natural question in this ``unknown $f$'' setting is what is the optimal 
 This is a somewhat more challenging and subjective question than when $f$ is known as the
 optimality will depend on what the samples are eventually used for.  In particular, even if we do
 not know $f$ precisely, it may be the case that we believe some $f$ are more likely than others, or we
-may know that $f$ lives within some space of possible functions, for example functions that have
+may know that $f$ lives within some space of possible functions, for example, functions that have
 a countable number of discontinuities.  
 
 One simple, but insightful approach, is to consider the 
@@ -282,7 +282,7 @@ reducing the correlation between the produced samples.
 \subsubsection{Effective Sample Size}
 \label{sec:inf:foundation:ess}
 
-In this section we consider an important diagnostic for the performance of importance
+In this section, we consider an important diagnostic for the performance of importance
 sampling based schemes, the \emph{effective sample size} (ESS).  In
 Section~\ref{sec:inf:mc:clt} we showed how an uncertainty estimate for a \mc
 estimator can be derived.  However, this cannot be used when $f$ is unknown
@@ -376,7 +376,7 @@ resampling as producing the approximation
 where $k_n$ is the number times the sample $\hth_n$ appears in the resampled sample
 set $\left\{\tilde{\theta}_n\right\}_{n=1}^N$.  Provided that $\E[k_n | \{w_n\}_{n=1}^N] = Nk_n$,
 then it directly follows that $\tilde{\pi}(\theta)$ is an unbiased estimator for $\hat{\pi}(\theta)$.
-Consequently the $L^2$ convergence, and thus consistency, of SNIS with resampling follows
+Consequently, the $L^2$ convergence, and thus consistency, of SNIS with resampling follows
 directly from the $L^2$ convergence of SNIS.
 	
 	\begin{algorithm}[tb]
@@ -413,7 +413,7 @@ directly from the $L^2$ convergence of SNIS.
 	\end{algorithm}
 	
 There are a number of different methods one can use for resampling~\citep{douc2005comparison}.  They all share in 
-common the requirements above, but vary in correlations between the $a_n$.  The simplest
+common the requirements above but vary in correlations between the $a_n$.  The simplest
 method, \emph{multinomial resampling}, simply involves sampling each $a_n$ independently,
 such that the $k_n$ have a multinomial distribution.  Though simple, this method is generally
 inadvisable as it adds unnecessary variation to the resampling compared to methods using randomized
@@ -470,7 +470,7 @@ On the other hand, if we use any of our variance reduction techniques, each of t
 will appear exactly once in the resampled set and so no information is lost in this scenario.  In the
 other extreme, when all the weight is on a single sample, all the resampling schemes will behave the
 same (returning only the sample with non-zero weight).  In most practical scenarios we will be
-somewhere between these two extremes, but the high level intuition, that multinomial resampling
+somewhere between these two extremes, but the high-level intuition, that multinomial resampling
 throws away more information than the other approaches, will remain the same.
 
 \begin{figure}[t]

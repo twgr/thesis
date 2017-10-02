@@ -3,7 +3,7 @@
 \subsection{Automatic and Adaptive Domain Scaling}
 \label{sec:bopp:domain}
 
-Domain scaling, by mapping to a common space, is crucial for BOPP to operate in the required black-box fashion as it allows a general purpose and problem independent hyperprior to be placed on the GP hyperparameters.  BOPP therefore employs an affine scaling to a $[-1,1]$ hypercube for both the inputs and outputs of the GPs.  To initialize scaling for the input variables, we sample directly from the generative model defined by the program. %\footnote{Note that Anglican's ability to include statements for conditioning on generated variables, for example to truncate distributions, means this does not always represent $p(\theta)$ and is only a prior in a more abstracted sense.}
+Domain scaling, by mapping to a common space, is crucial for BOPP to operate in the required black-box fashion as it allows a general purpose and problem independent hyperprior to be placed on the GP hyperparameters.  BOPP, therefore, employs an affine scaling to a $[-1,1]$ hypercube for both the inputs and outputs of the GPs.  To initialize scaling for the input variables, we sample directly from the generative model defined by the program. %\footnote{Note that Anglican's ability to include statements for conditioning on generated variables, for example to truncate distributions, means this does not always represent $p(\theta)$ and is only a prior in a more abstracted sense.}
 This is achieved using a second transformed program, \qprior, which removes all conditioning, i.e. \observe statements, and returns $\theta$.  This transformation also introduces code to terminate execution of the query once all $\theta$ are sampled, in order to avoid unnecessary computation.
 As \observe statements return \lsi{nil}, this transformation trivially preserves the generative model of the program, 
 but the probability of the execution changes. Specifically, if we denote $n_{\theta}$ as the number of non-target \sample 
@@ -47,14 +47,14 @@ rather than being a specific issue of BOPP.
 \subsection{Unbounded Bayesian Optimization via Mean Function Adaptation}
 \label{sec:bopp:unbounded}
 
-Unlike standard BO implementations, BOPP is not provided with external constraints and we therefore 
+Unlike standard BO implementations, BOPP is not provided with external constraints and we, therefore, 
 develop a scheme for operating on targets with potentially unbounded support.  For MMAP estimation,
 the target function is an unnormalized density, implying that the area that must 
 be searched in practice to find the optimum is finite.  For MML estimation and risk minimization this
 assumption is still reasonable in practice as if it is not true, we are effectively doomed to fail anyway.
 We, therefore, exploit this assumption by defining a non-stationary prior mean function.  
 This takes the form of a bump function that is constant within a region of interest, but decays rapidly 
-outside.  Specifically we define this bump function in the transformed space as
+outside.  Specifically, we define this bump function in the transformed space as
 \begin{align}
 \label{eq:BUMP}
 \mu_{\mathrm{prior}}\left(r;r_e,r_{\mathrm{\infty}}\right) = \begin{cases} 0  \hfill & \mathrm{if} \; r \leq r_{\mathrm{e}} \\ 
@@ -72,13 +72,13 @@ by initializing automatically and adapting as more data is observed.
 
 An important consequence of this approach is that BOPP is not always an entirely
 global optimizer as the adaptation can, at least in theory, become stuck around a single mode if
-their is extreme prior-target mismatch.  Specifically, because ``bad'' points 
+there is extreme prior-target mismatch.  Specifically, because ``bad'' points 
 are not incorporated into the rescaling as described in the last
 section, we might have a ``bad'' region blocking expansion to another mode.
 In practice, such occurrences should be extremely rare (at least for MMAP estimation) as the
 initial scaling is approximately set to the region where the generative model has significant density, such that
 the problem would need to be both multi-modal and have extreme prior-target mismatch for BOPP to
-get stuck.  One could in theory refine our method to provide better guarantees against such occurrences,
+get stuck.  One could, in theory, refine our method to provide better guarantees against such occurrences,
 but given the inherent difficulty of such problems and the fact that BOPP, like other GP-based BO methods,
 is heavily restricted in the number of iterations before the GP training cost becomes
 prohibitive (usually in the hundreds of iterations), doing so seems more likely to do harm than good in practice.

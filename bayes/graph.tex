@@ -88,7 +88,7 @@ of representing our generative process.
 Our aim for this problem was to find the probability cancer is present given
 the observed symptoms, i.e. $p(b|c)$, which will
 require Bayesian inference.  In our previous simple examples, the posterior had an analytic form. 
-However, In general this will not be the case and we will need to develop strategies for carrying
+However, in general this will not be the case and we will need to develop strategies for carrying
 out the inference as explained in Chapter~\ref{chp:inf}.  For these, knowing the dependency
 structure and, in particular, the independence relationships, of a model will often be very helpful
 information, for which DAGs can be very useful.
@@ -142,7 +142,7 @@ refer the reader to~\cite[Section 8.2]{bishop2006pattern}.
 		and \textbf{(b)} then $a$ and $b$ are conditionally independent given $c$ and thus
 		$p(b|a,c)=p(b|c)$ and $p(a|b,c)=p(a|c)$.
 		\textbf{(c)} is an instead example of where $a$ and $b$ are \emph{marginally} independent.  Here
-		the path between $a$ and $b$ is blocked because the the arrows meet head-to-head at 
+		the path between $a$ and $b$ is blocked because the arrows meet head-to-head at 
 		$d$ and neither $d$ nor any of its
 		descendants are observed and so $p(b|a) = p(b)$.
 		Note though that $a$ and $b$ are not conditionally independent given $d$ as
@@ -175,7 +175,7 @@ refer the reader to~\cite[Section 8.2]{bishop2006pattern}.
 	\caption{Examples of DAGs unblocked between $a$ and $b$. For \textbf{(a)} then the path from $a$ to
 		$b$ is not blocked by the d-separation rules.  Perhaps more intuitively, we have that
 		$p(b|a) = \int p(b,d|a) dd = \int p(b|d)p(d|a) dd \neq p(b)$ unless $p(d|a)=p(d)$.
-		Similarly there is an unblocked path for \textbf{(b)} from $a$ to $b$ as the path
+		Similarly, there is an unblocked path for \textbf{(b)} from $a$ to $b$ as the path
 		that does not pass through any observed nodes or nodes with both arrows points towards it.
 		The path in \textbf{(c)} is unblocked because of the phenomenon of \emph{explaining away}.
 		The first rule of d-separation does not apply here because $c$ is an observed descendant of

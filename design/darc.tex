@@ -18,7 +18,7 @@ choosing the questions the participant is asked.  It, therefore, automates the f
 pipeline  by using the responses from previous questions to perform inference 
 and update the internal representation
 of the participant and then using this information to ask the most informative questions for a particular
-participant as per the BED equations.  The technical innovations introduced earlier is this chapter
+participant as per the BED equations.  The technical innovations introduced earlier in this chapter
 are essential in allowing this to be done sufficiently efficiently to permit
 real-time usage required for deployment with real participants.
 
@@ -73,7 +73,7 @@ where $B=100$ and $D^b = 50$ are fixed and we are only choosing the delayed valu
 We first examine the convergence in the estimate of $\bar{U}(d)$ for the case $A=70$,
 for which Figure~\ref{fig:exp-conv} demonstrates similar behavior for the na\"{i}ve NMC estimator
 as seen in the experiments of Chapter~\ref{chp:nest} and, as expected, substantial improvements
-for the the reformulated estimator in the form of a $O(1/N)$ convergence rate.
+for the reformulated estimator in the form of a $O(1/N)$ convergence rate.
 
 We next consider setting a total sample budget $T=10^4$ and look at the variation in the 
 estimated values of $\bar{U}(d)$ for different values of $A$ for the two methods as 
@@ -88,7 +88,7 @@ will translate to improvements in seeking the optimum.
 		depressive disorder (top) which indicates a relatively strong desire for immediate rewards ($k=0.04$)
 		and anorexia nervosa (bottom) which indicates relatively low discounting rate ($k=0.0028$).  Lines show
 		posterior samples from the final learned predictive distribution for the indifference curve (i.e. the curve
-		along which the participant is equally likely to choose the immediate or dealy reward), circles represent
+		along which the participant is equally likely to choose the immediate or delayed reward), circles represent
 		questions where the delayed reward was preferred, and the filled dots correspond to the questions were
 		the immediate reward was preferred.  The columns left to right corresponding to using the approaches
 		of~\cite{Kirby:2009eu} which uses pre-fixed questions rather than using online adaptation,~\cite{Frye:2016eu}
@@ -111,6 +111,6 @@ about a second or less to choose the design at each iteration when run on a mid-
 hardly a rigorous performance assessment, these results are still demonstrative of the potential utility of our
 method.  The non-adaptive scheme of~\cite{Kirby:2009eu} always asks the same questions regardless of
 the participant's responses.  The heuristic method of~\cite{Frye:2016eu} does better, but is still somewhat
-wasteful.  The DARC toolbox on the other hand, takes only a couple of questions before achieving a
+wasteful.  The DARC toolbox, on the other hand, takes only a couple of questions before achieving a
 reasonable representation of the response surface, such that almost all of the questions asked are clearly
 pertinent and the final posterior predictive distribution has far lower entropy than the other approaches.

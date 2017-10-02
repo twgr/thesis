@@ -3,7 +3,7 @@
 \section{Automating Sequential Design Problems}
 \label{sec:design:seq}
 
-We have thus-far assumed that there is no previous data (i.e. design-outcome pairs).
+We have thus far assumed that there is no previous data (i.e. design-outcome pairs).
 Though this static experimental design setup is of use in its own right, the real potential
 of \Bad is not realized until one considers using it in \emph{sequential} settings.
 Here \Bad provides a framework for adaptively making an optimal series of decisions
@@ -48,7 +48,7 @@ except that expectations are taken with respect to $p\left(\theta | d_{1:t-1}, y
 rather than $p(\theta)$.  Therefore, we can use the same Monte Carlo estimators
 \eqref{eq:exp-des-nmc} and \eqref{eq:u_bar_MC}, but instead drawing $\theta_n\sim p\left(\theta | d_{1:t-1}, y_{1:t-1}\right)$.
 
-In the rest of this section we will outline a framework for automating such sequential
+In the rest of this section, we will outline a framework for automating such sequential
 adaptive design problems.  This takes on a somewhat probabilistic programming flavor, as
 the aim is to develop a system where the user provides only information about the model and
 design space, with the next chosen design calculated automatically when provided with
@@ -72,17 +72,17 @@ which is a typical Bayesian inference problem, such that we can use Monte Carlo 
 to generate the required samples $\theta_n$.  Note that this setup is very general.   For example, there might
 be a term in $\theta$ for each round of the experiment, leading to a non-Markovian state space model as
 per Section~\ref{sec:part:smc:nmssm}.
-There are many suitable candidates for the requied inference such as those discussed in Chapters~\ref{chp:inf} and
+There are many suitable candidates for the required inference such as those discussed in Chapters~\ref{chp:inf} and
 \ref{chp:part}.
 The relative merit of these will depend on
-characteristics of the problem such as multi-modality, dimensionality of $\theta$, and the total
+characteristics of the problem such as multi-modality, the dimensionality of $\theta$, and the total
 number of questions that will be asked.  For the DARC toolbox introduced later we will use 
 population Monte Carlo (PMC) \citep{cappe2004population}.  However, our contribution here is independent of
 the choice of inference algorithm, provided that algorithm can be appropriately automated for the range
 of problems one wishes to run, as is the case for a PPS.  One salient feature of note though is
 that, by its nature, the inference problem requires a series of targets to be approximated and so
-inference methods that can effectively exploit the approximation of the previous target (such as particle
-based methods, see Chapter~\ref{chp:part}) are likely to be particularly efficient.
+inference methods that can effectively exploit the approximation of the previous target (such as particle-based methods, see
+ Chapter~\ref{chp:part}) are likely to be particularly effective.
 
 \subsection{Design Optimization}
 \label{sec:design:auto:optimization}
@@ -97,7 +97,7 @@ but for which speed is paramount.  Many of the possible applications of our appr
 as the DARC toolbox, require rerunning in real-time with human participants, for which BOPP would
 thus be inappropriate.\footnote{Nonetheless, if the surrogate in BOPP
 	was replaced with a more lightweight regressor, e.g. a random forest~\cite{hutter2011sequential},
-	then the result algorithm could prove a viable alternative even under strict time pressure.}
+	then the resulting algorithm could prove a viable alternative even under strict time pressure.}
 We instead construct a new approach
 that exploits the fact that~\eqref{eq:u_bar_MC} need not generate distinct $\theta_n$ to evaluate
 different designs.  Our novel method combines ideas from both the bandit and
@@ -152,7 +152,7 @@ a technique commonly used in the bandit literature~\citep{agrawal2012analysis}.
 		\State \Return $d_{k^*}$
 	\end{algorithmic}
 \end{algorithm}
-\footnotetext{One could use systematic ``resampling'' here to 
+\footnotetext{One could use systematic ``resampling'' here too 
 	as per Section~\ref{sec:inf:foundation:resampling}.}
 
 An overview of our approach is given in Algorithm~\ref{alg:des-opt}.  As this shows, our algorithm uses
@@ -193,7 +193,7 @@ to complete our final estimates will
 be inefficient as some designs will be highly unlikely to be optimal and therefore it is pointless to
 spend a noticeable proportion of our computational budget to carefully refine their estimates.  It is clearly 
 more efficient, in terms
-of final optimization problem, to take relatively more samples for the promising designs, so that we can better 
+of the final optimization problem, to take relatively more samples for the promising designs, so that we can better 
 distinguish between their relative utilities, even if this results in very poor estimates for the low utility
 designs.  This is the key idea of our approach -- to adaptively change the number of samples used to estimate
 the utilities for different designs, based on the probability the design may end up being optimal given its
@@ -231,7 +231,7 @@ Therefore $\gamma(\ell)$ is set to increase with $\ell$.
 We finish the subsection by noting a small, but important, subtlety of our method.  As introduced so far, our algorithm
 is not guaranteed to converge.  For example, it might be that $\hat{U}_{k^*} =0$ after the first round
 of sampling where $k^*$ indicates the true optimal design and $\bar{U}_{k^*} \ne0$.  
-Presuming that another design has a non zero estimate at this point, sampling na\"{i}vely from~\eqref{eq:p_k} would 
+Presuming that another design has a non-zero estimate at this point, sampling na\"{i}vely from~\eqref{eq:p_k} would 
 mean that no additional samples are ever added to $\hat{U}_{k_*}$, even if infinite rounds are undertaken,
 meaning that the true optimum will be missed.  To guard against this, we introduce a new parameter $0<\rho\le1$, 
 with lines~\ref{line:des-opt:set-p} to~\ref{line:des-opt:renorm} in Algorithm~\ref{alg:des-opt}
@@ -249,12 +249,12 @@ will be found given infinite computational budget.
 \subsection{Tying it All Together}
 \label{sec:tying-together}
 
-In the previous sections we have shown how to construct an appropriate target for our design optimization,
+In the previous sections, we have shown how to construct an appropriate target for our design optimization,
 estimate this target for a particular design given samples from the posterior on parameters,
 produce the required approximate samples for this posterior, and use these samples to find the optimal design.
 Algorithm~\ref{alg:bad} shows how these components fit together to produce a framework for
 automated online sequential design optimization.  Algorithm parameters have been omitted
-for clarity, but we note that it should in general be possible to set these to default values if required, e.g. using
+for clarity, but we note that it should, in general, be possible to set these to default values if required, e.g. using
 the general purpose inference strategies taken by PPSs.
 %The algorithm iterates between selecting the optimal design,
 %running the experiment, and incorporating the results of the experiment to update the posterior on the

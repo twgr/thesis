@@ -3,9 +3,9 @@
 \subsection{The Curse of Dimensionality}
 \label{sec:inf:foundation:curse}
 
-In this section we digress from introducing specific inference methods themselves
+In this section, we digress from introducing specific inference methods themselves
 to talk about a common problem faced by most inference methods, the
-\emph{curse of dimensionality}~\citep{bellman1961adaptive}.  At a high-level the curse of 
+\emph{curse of dimensionality}~\citep{bellman1961adaptive}.  At a high-level, the curse of 
 dimensionality is a tendency
 of modeling and numerical procedures to get substantially harder as the dimensionality increases, 
 often at an exponential rate.  If not managed properly, it can cripple the performance of
@@ -27,15 +27,15 @@ the sampling by rejection approach introduced at the start of Section~\ref{sec:i
 %sample uniformly from within some shape we sample uniformly from
 %some bounding shape or box containing the target shape and then take only the samples
 %that fall within the target.  
-For simplicity we will presume that the target shape is a hypersphere and that
+For simplicity, we will presume that the target shape is a hypersphere and that
 the bounding shape is the smallest hypercube that encloses that hypersphere.  Our acceptance rate,
 and thus the efficiency of the algorithm, will be equal to the ratio of the two hyper-volumes.  
-For an even number of dimensions
+For an even number of dimensions,
 the hyper-volume of the $D$-dimensional hypersphere with radius $r$ is $V_{s} = \frac{\pi^{D/2}r^D}{(D/2)!}$
 and the hyper-volume of the enclosing hypercube is $V_c = (2r)^D$, giving a ratio of
 $\frac{V_s}{V_c} = \frac{\pi^{D/2}}{(D/2)! 2^D} = \left(\frac{\sqrt{\pi}}{2}\right)^D\frac{1}{(D/2)!}$.
 The first of these terms decreases exponentially and second
-super-exponentionally with $D$ (noting that $(D/2)!>(D/6)^{(D/2)}$).  
+super-exponentially with $D$ (noting that $(D/2)!>(D/6)^{(D/2)}$).  
 For example, $D=10, 20$, and $100$ respectively gives ratios of approximately
 $2.5 \times 10^{-3}$, $2.5 \times 10^{-8}$, and $1.9\times 10^{-70}$.  
 Consequently, our acceptance rate will diminish
@@ -67,7 +67,7 @@ to ensure that $V_{\varepsilon}/V_s$ remains constant?  A quick manipulation sho
 that $\varepsilon = \left(\left(\frac{V_{\varepsilon}}{V_s}+1\right)^{1/D}-1\right)$ and therefore that
 $\frac{\log \left(\frac{V_{\varepsilon}}{V_s}+1\right)}{D} \ge \log(1+\varepsilon) \approx \varepsilon$
 for small values of $\varepsilon$.  Thus we only need to decrease $\varepsilon$ roughly
-in proportion to $\frac{1}{D}$ to achieve a fixed ratio.  Initially this would not seem
+in proportion to $\frac{1}{D}$ to achieve a fixed ratio.  Initially, this would not seem
 so bad.  For example, if $D=1000$ we
 roughly need $\varepsilon \le 6.9 \times 10^{-4}$ to get $V_{\varepsilon}/V_s \le 1$.
 However, this misses the
@@ -126,7 +126,7 @@ will drop exponentially quickly with $D$ and that our inference will break down 
 the dimensionality is too high.
 
 It is now natural to ask whether we can overcome the curse of dimensionality.  Thankfully, the
-answer in many scenarios is that we can.  In many high dimensional scenarios then our target
+answer in many scenarios is that we can.  In many high-dimensional scenarios then our target
 distribution will typically only have significant mass in a small proportion of the total area, often
 concentrated around a lower dimensional manifold of the larger space.  This means that if
 we use inference methods that in some way exploit the structure of the target distribution and only

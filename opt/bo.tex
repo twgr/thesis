@@ -18,12 +18,12 @@ a wide range of applications such as hyperparameter tuning~\citep{snoek2012pract
 robotics~\citep{calandra2016bayesian}, and sensor networks~\citep{garnett2010bayesian}.
 
 The key idea of BO is to place a prior on $f$, most commonly a GP,
- that expresses belief about the space of functions within which $f$ might live.  When the function is evaluated, the resultant information is incorporated by conditioning upon the observed data to give a posterior over functions.  
+ that expresses beliefs about the space of functions within which $f$ might live.  When the function is evaluated, the resultant information is incorporated by conditioning upon the observed data to give a posterior over functions.  
 This allows estimation of the expected value and uncertainty in $f\left(\theta\right)$ for all $\theta \in \vartheta$.  
 From this, an acquisition function $\zeta : \vartheta \rightarrow \real$ is defined, which assigns an expected utility to evaluating $f$ at particular $\theta$, based on the trade-off between exploration and exploitation in finding the maximum.  When direct evaluation of $f$ is expensive, the acquisition function constitutes a cheaper to evaluate substitute, which is optimized to ascertain the next point at which the target function should be evaluated in a sequential fashion.  By interleaving optimization of the acquisition function, evaluating $f$ at the suggested point, and updating the surrogate, BO forms a global optimization algorithm that is typically very efficient in the required number of function evaluations, whilst naturally dealing with noise in the outputs.  
 
 Figure~\ref{fig:opt:bayes-opt} shows BO being used to maximize the 
-following simple one dimensional function
+following simple one-dimensional function
 \begin{align}
 \label{eq:opt:toy}
 f(\theta) = \frac{\theta}{15}-\frac{\theta^2}{50}-\frac{\sin \theta}{\theta}, \quad -5\le \theta \le 5
@@ -85,7 +85,7 @@ To solve the first decision -- where to evaluate next -- we specify a so-called
 that encodes the relative utility of evaluating a new point.  The optimum of this
 acquisition function is then the optimal point to evaluate at the next iteration.
 At a high level, the utility
-of a point is based on a trade off between \emph{exploration},
+of a point is based on a trade-off between \emph{exploration},
 namely the desire to evaluate points where our uncertainty is high to reduce the
 uncertainty in those regions, and \emph{exploitation}, namely the desire to evaluate points
 where the expected function value is high so that we get a good characterization
@@ -99,13 +99,13 @@ For example, consider the expected improvement acquisition function (see~\eqref{
 after 10 iterations shown in green in Figure~\ref{fig:opt:bayes-opt:10}.  This is reasonably
 large in the two regions of highest uncertainty, but it is highest in the region near the 
 true global optima where both
-the expected value and uncertainty are high.  After 11 iterations on the other hand,
+the expected value and uncertainty are high.  After 11 iterations, on the other hand,
 the uncertainty in this region has dropped dramatically and the point with the
 highest uncertainty now has the largest value for the acquisition function.  Note that
 the scales for the acquisition functions are different for the different iterations and
 that the acquisition function typically decreases as more points are observed.
 
-At first it might seem strange to replace our original optimization problem with
+At first, it might seem strange to replace our original optimization problem with
 another in the form of optimizing the acquisition function to choose the point
 to evaluate next.  This new optimization problem is itself a global
 optimization of a typically highly multi-modal function and we need to carry it out
@@ -135,7 +135,7 @@ point to evaluate, evaluating the target function at that point, and the updatin
 regression again.  After 20 iterations for our simple problem, the GP regression around
 the optimum has become very accurate, while it is less accurate elsewhere.  This
 highlights the sample efficiency of BO as it shows how computational resources are
-focussed on where they are required.
+focused on where they are required.
 
 Though we have thus far assumed that a GP is used for the surrogate, this is far from the only possible choice
 and one can, for example, use random forests \citep{bergstra2011algorithms,hutter2011sequential} 
@@ -143,7 +143,7 @@ or neural networks \citep{snoek2015scalable}.  There are a number
 of characteristics that make GPs suitable for the surrogate model.  For example, they are very powerful
 regressors that can accurately represent the function from relatively few evaluations, especially
 for low-dimensional smooth functions.  They also naturally produce uncertainty estimates
-that are typically more accurate that those produced by alternatives which often
+that are typically more accurate than those produced by alternatives which often
 have to resort to post-processing or heuristics to estimate uncertainty.
 This also leads to simple and tractable acquisition functions.  Similarly, their ability to incorporate
 noisy observations is often helpful, though because GP inference is only analytic for Gaussian
@@ -156,7 +156,7 @@ When prior information is known about the function, the
 flexibility in choosing the covariance kernel can also be very helpful, for example allowing known
 smoothness to be incorporated.  However, this can also be a curse as an inappropriate choice of
 kernel can severely hamper the performance.  In particular, it will typically be necessary to
-do inference over, or at least optimize, the GP hyperparamters.  Another drawback to using GPs
+do inference over, or at least optimize, the GP hyperparameters.  Another drawback to using GPs
 is poor scaling in the number of iterations -- training is a $O(N^3)$ operation due to the required
 matrix inversion.  This typically restricts BO using GPs to using on the order of hundreds of iterations
 unless appropriate approximations are made~\citep{snelson2006sparse,hensman2013gaussian}.
@@ -179,7 +179,7 @@ literature~\citep{shahriari2016taking}.  In particular, some acquisition functio
 pathologies, for example probability of improvement has a tendency to insufficiently explore, which can severely impede the
 performance of BO.  This has lead to the development of some very powerful, but computationally
 intensive and algorithmically complicated, acquisition strategies (e.g.~\cite{hernandez2014predictive}), 
-such that there is often a speed / simplicity vs per iteration performance trade-off in their selection.
+such that there is often a speed/simplicity vs per iteration performance trade-off in their selection.
 
 %\begin{figure}[t]
 %	\centering
@@ -237,7 +237,7 @@ is rarely used in practice.
 
 A method less sensitive to tuning is the expected improvement~\citep{movckus1975bayesian}.  
 It is conceptually similar to PI, but incorporates the idea that large improvements are more beneficial
-to small improvements. It therefore better represents the importance of exploration and
+to small improvements. It, therefore, better represents the importance of exploration and
 is less prone to over-exploitation.
 It can also be calculated analytically for a GP (see e.g. \cite{brochu2010tutorial}) leading to
 the following definition
@@ -251,7 +251,7 @@ the following definition
 \end{cases}
 \end{split}
 \end{align}
-were $\phi \left(\cdot\right)$ represents the probability density function of the unit normal distribution.  
+where $\phi \left(\cdot\right)$ represents the probability density function of the unit normal distribution.  
 The parameter $\xi$ plays a similar role as for the PI, but in this case $\xi=0$ no longer corresponds 
 to pure exploitation.  \cite{lizotte2008practical} suggests that cooling schedules on $\xi$ are 
 not helpful for EI and that $\xi = 0.01 \mathbb{E} \left[\sigma \left(\theta\right)\right]$ where 
@@ -268,7 +268,7 @@ the function value~\citep{lai1985asymptotically,srinivas2009gaussian}, namely
 \label{eq:UCB}
 \mathrm{UCB}\left(\theta\right) = \mu \left(\theta\right) + \kappa \sigma \left(\theta\right)
 \end{align}
-where $\kappa \ge 0$ is again a parameter that will control the exploration / exploitation trade off.
+where $\kappa \ge 0$ is again a parameter that will control the exploration/exploitation trade-off.
 This bound represents the point at which the probability the function is less than this value is $\Phi (\kappa)$.
 A particularly nice feature of the UCB acquisition function is that given certain conditions on 
 $\vartheta$ and $k$, $\kappa$ can be chosen in a manner such that acquisition has bounded 
@@ -289,14 +289,14 @@ points as per Section~\ref{sec:opt:GPs}.
 The simplest way this can be done is using Thompson sampling~\citep{thompson1933likelihood}, 
 where instead of optimizing an acquisition function directly, one looks to sample the next
 point to evaluate from $p(\theta^* | \Theta, V)$~\citep{shahriari2014entropy,bijl2016sequential,kandasamy2017asynchronous}.  
-In the GP setting, this is equivalent to sampling a particular function realisation $f$ and then taking 
+In the GP setting, this is equivalent to sampling a particular function realization $f$ and then taking 
 $\theta_{\text{next}}$
-as the optimum of this particular realisation.  This can prove surprisingly expensive, as sampling
-a joint realisation of a GP at $M$ points is an $O(M^3)$ operation.  
+as the optimum of this particular realization.  This can prove surprisingly expensive, as sampling
+a joint realization of a GP at $M$ points is an $O(M^3)$ operation.  
 
 A more complicated, but theoretically more powerful approach, is to try and directly optimize
 for the point that will, in expectation, most reduce the uncertainty about the location of the maximum.
-These so called entropy search (ES) methods 
+These so-called entropy search (ES) methods 
 \citep{villemonteix2009informational,hennig2012entropy,hernandez2014predictive} use as an
 acquisition function the expected gain in Shannon information about the location of the optimum,
 or equivalently the reduction in entropy of the location of the maximum. Namely they take
@@ -350,7 +350,7 @@ to cover here.  However, some of other strategies of particular note include
 \subsection{GP Hyperparameters}
 \label{sec:opt:BO:hyp}
 
-Generally the performance of BO will be strongly dependent on the choice of GP
+Generally, the performance of BO will be strongly dependent on the choice of GP
  hyperparameters $\alpha$.  Rather than optimizing for $\alpha$ it is natural, 
  when tractable, to take a fully Bayesian view and marginalize
  over $\alpha$ \citep{osborne2009gaussian}, leading to
@@ -358,15 +358,15 @@ Generally the performance of BO will be strongly dependent on the choice of GP
  by~\cite{snoek2012practical} to substantially improve the performance of BO.
  An easy way to do this for simple acquisition functions is to consider an
  integrated acquisition function corresponding to the expectation of the acquisition
- function over the GP hyperparamters~\citep{snoek2012practical}
+ function over the GP hyperparameters~\citep{snoek2012practical}
 \begin{align}
 \label{eq:opt:intAcq}
 \bar{\zeta}\left(\theta \right) &= \E_{p\left(\alpha | \Theta, V\right)}
 \left[  \zeta\left(\theta  ; \alpha\right)  \right] = \frac{1}{p\left(V | \Theta \right)} \E_{p\left(\alpha \right)}
 \left[  \zeta\left(\theta  ; \alpha\right)  p\left(V | \Theta, \alpha\right)\right]
 \end{align}
-where $p(\alpha)$ is a prior on the hyperparmaeters, $p\left(V | \Theta \right)$ is
-a constant that can be ignored as it does not effect the position of the optimum, and
+where $p(\alpha)$ is a prior on the hyperparameters, $p\left(V | \Theta \right)$ is
+a constant that can be ignored as it does not affect the position of the optimum, and
 $p\left(V | \Theta, \alpha\right)$ is the GP marginal likelihood as per~\eqref{eq:opt:GP-ML}.
 The expectation can be approximated using Monte Carlo inference, with slice sampling
 \citep{murray2010slice} and Hamiltonian Monte Carlo \citep{hensman2015mcmc}
@@ -417,7 +417,7 @@ the trade-off between improving the models of the target and
 constraints respectively can be dealt with naturally by ES based acquisition strategies.
 
 A weakness of all these approaches is that they do not allow for dealing with equality constraints
-and will similarly perform poorly for constraint functions that are not well modelled by a GP.  
+and will similarly perform poorly for constraint functions that are not well modeled by a GP.  
 %Further, 
 %though \cite{gelbart2014bayesian,hernandez2016general} consider cases where the cost of evaluating the
 %constraints and the target function may be noticeably different, 

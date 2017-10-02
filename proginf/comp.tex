@@ -18,7 +18,7 @@ Anglican is compiled and our focus will be on this compiled approach.
 %before anything can be run.  
 Rather than just being a technical hurdle, compilation is also 
 often an important tool in the ability of probabilistic programming systems to perform
-effective inference as, in additional to offering potential speed improvements,
+effective inference as, in addition to offering potential speed improvements,
 it can often be used to establish helpful salient features in the model,
 such as dependency structures, variable types, features of the model that can guide
 which inference algorithm is likely to be most successful, or even elements of the model
@@ -103,7 +103,7 @@ geared towards different models or inference algorithms.
 \label{sec:proginf:comp:ang}
 
 As it is infeasible to detail the inner workings of a PPL compiler in a general
-manner, we now provide a more in depth introduction to the compilation
+manner, we now provide a more in-depth introduction to the compilation
 employed by Anglican.  Our introduction is inevitably not exhaustive, focusing more on
 intuition than being exactly true to the implementation details. We refer the reader
 to~\citep{tolpin2016design} for a more complete introduction, emphasizing that what
@@ -123,7 +123,7 @@ to represent the program through a series of nested function calls, where the pr
 is run by evaluating each function and then passing the output to the continuation
 which invokes the rest of the program.  This is perhaps easiest to see through
 example.  Consider the simple function \clj{+}, which in Clojure has syntax \clj{(+ a b)}.  The
-CPS transformed version of \clj{+}, which we will call \clj{+&} takes an extra input
+CPS-transformed version of \clj{+}, which we will call \clj{+&} takes an extra input
 of the continuation $\mP$ and invokes it after evaluation such that we have
 \clj{(defn +& [a b } ~$\mP$\clj{] (}$\mP$ \clj{(+ a b)))}.  More generally, for any anonymous function \clj{f}, we have
 that its CPS transformation is \clj{(defn f& [args} ~$\mP$\clj{] (}$\mP$ \clj{(f args)))}.
@@ -165,7 +165,7 @@ becomes
 where we have exploited the fact that \clj{fn} allows the function to be named (in this case to
 \clj{foo}) so that it can call itself.
  
-In CPS style code, functions never return (until the final tail call) and every function takes an
+In CPS-style code, functions never return (until the final tail call) and every function takes an
 extra input corresponding to the continuation.  This would be a somewhat awkward method for
 writing programs directly, as the whole program must be written as a single nested function.  However,
 it can be a very useful form to compile to as the execution of the program becomes
@@ -177,7 +177,7 @@ for adding checkpoints at particular points in the program -- namely at the \sam
 \observe calls -- where control is handed over to the inference algorithm.
 
 Compilation of an Anglican query, triggered through the \query macro, is done recursively
-in a top down manner.  The key function in doing this, called \clj{cps-of-expression},
+in a top-down manner.  The key function in doing this, called \clj{cps-of-expression},
 dispatches to the individual CPS transformations by matching types of expression, or, if necessary,
 directly by name.  Individual CPS transformations then recursively call \clj{cps-of-expression}
 until the full query is transformed.  
@@ -186,7 +186,7 @@ framework we have laid out thus far.  This is because it is necessary to not jus
 program, but also track its state from a probabilistic perspective, storing things such
 as sample weights and other probabilistic side-effects.  To deal with this, the transformed Anglican
 continuations take as input an \emph{internal state}, which we will denote as \angstate,
-in additional to the computed value.
+in addition to the computed value.
 Thus, for example, the transformation for a generic function \clj{f} becomes
 \begin{lstlisting}[basicstyle=\ttfamily\small,frame=none]
   (defn f& [args $\mP~\angstate$] ($\mP$ (f args) $\angstate$)).
@@ -205,7 +205,7 @@ when sampling from a different distribution than that provided to the \sample st
 The return for each sample in our inference will effectively be the \angstate, hence the inclusion
 of the \clj{:result} field which is set to the output of the query at its tail call.
 
-One of the key components of the Anglican compilation is the transformation applied to the
+One of the key components of the Anglican compilation is the transformation applied to
 the special forms and in particular the probabilistic forms \sample and \observe.  These
 are respectively transformed to the Clojure record constructors \samplecps and \observecps 
 which have the call syntaxes of
@@ -227,7 +227,7 @@ behavior can be redefined for different checkpoint types and inference algorithm
 consequences of this.  Firstly, our compiler does not need to be inference algorithm specific
 because we can use \checkpoint to distribute the behavior to the required inference algorithm
 at run time.  Secondly, it creates an abstraction barrier for writing inference algorithms -- implementing
-an inference algorithm now only requires us to implement, along with a top level function \anginfer that
+an inference algorithm now only requires us to implement, along with a top-level function \anginfer that
 we will discuss later, new methods describing the behavior of \checkpoint at \sample, \observe, and \clj{result}
 checkpoints.  Furthermore, these methods can be inherited from other inference algorithms, for example,
 the \observe checkpoints for particle Gibbs are inherited from SMC in Anglican's implementation.
@@ -237,7 +237,7 @@ type is that
 we can use this to catch the checkpoints themselves.  Once compiled, individual instances of
 a program in the Anglican inference engines are run using a function called \clj{exec}.  The role of
 \clj{exec} is to run the program until it reaches a checkpoint that requires control to be transferred
-to the top level inference function of a particular method, i.e. the \anginfer function, such as when
+to the top-level inference function of a particular method, i.e. the \anginfer function, such as when
 a particular trace has finished running or when interaction is required between different samples, e.g. 
 the resampling step in SMC.  In Anglican this is achieved using \emph{trampolining}.  In functional
 programming languages, trampolining is a process of looping execution where if an iteration of

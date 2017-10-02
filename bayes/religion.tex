@@ -33,8 +33,8 @@ As we have already discussed differences between generative and
 discriminative modeling in Section~\ref{sec:bayes:discrim}, we will mostly omit this difference from our subsequent discussion.
 
 At their root, the statistical differences between Bayesian and frequentist methods\footnote{At least in their decision-theoretic
-frameworks.  It is somewhat inevitable that delineation here and later will be a simplification on what is, in truth, not a clear
-cut divide~\citep{gelman2011induction}.}
+frameworks.  It is somewhat inevitable that delineation here and later will be a simplification on what is, in truth, not a 
+clear-cut divide~\citep{gelman2011induction}.}
 stem from distinct fundamental
 assumptions: frequentist modeling presumes fixed parameters, Bayesian modeling assumes fixed data~\citep{jordan2009you}.  In many ways,
 both of these assumptions are somewhat dubious. Why assume fixed parameters when we do not have enough
@@ -107,7 +107,7 @@ optimizes for the worst case $\theta$.
 
 We now introduce some shortfalls that originate from taking each approach.  We emphasize that we are only
 scratching the surface of one of the most hotly debated issues in statistics and do not even come close to doing
-the topic justice.  Our aim is less to provide an comprehensive explanation of the relative merits of the two approaches, but
+the topic justice.  Our aim is less to provide a comprehensive explanation of the relative merits of the two approaches, but
 more to make the reader aware that there are a vast array of complicated, and sometimes controversial,
 issues associated with whether to use a Bayesian or
 frequentist approach, most of which have no simple objective conclusion.
@@ -151,7 +151,7 @@ the chance of getting the same or a more extreme result from repeating the exper
 ``\textit{flip the coin until you get $3$ heads or make $12$ flips (at which point you will be killed by a bear)}''.  
 As such, one can argue that the apparently absurd
 changes in conclusions originate from misinterpreting the results and that, in fact, these changes actually demonstrate
-that the likelihood principle is flawed, because without a notion of an experimental procedure, 
+that the likelihood principle is flawed because, without a notion of an experimental procedure, 
 we have no concept of repeatability.  Imagine instead the more practical scenario where a suspect researcher stops their experiment
 early as it looks like the results are likely to support their hypothesis and they do not want to take the risk that if they
 keep it running as long as they intended, then the results might no longer be so good.  Here the researcher has clearly
@@ -163,7 +163,7 @@ return answers that are not consistent with each other, e.g. probabilities that 
 %For example, p-values
 %for a hypothesis and its complement do not, in general, sum to one.  
 
-Another major criticism of the frequentist approach, is that it takes a point estimate for $\theta$, rather than averaging
+Another major criticism of the frequentist approach is that it takes a point estimate for $\theta$, rather than averaging
 over different possible parameters.  This can be somewhat inefficient in the finite data case, as it limits the information
 gathered from the learning process to that encoded by the calculated point estimate for $\theta$, which is then wasteful
 when making predictions.  Part of the reason that this
@@ -201,7 +201,7 @@ of an issue with generative approaches than Bayesian methods in particular.}
 At least when making the standard assumption of i.i.d.~data in Bayesian analysis, then likelihood terms are multiplicative 
 and so typically when one adds more data, the relative probabilities of two parameters quickly diverge.  This divergence is
 necessary for Bayesian methods to converge to the correct ground truth parameters for data distributed exactly as per the
-model, but it also means any slight misspecifications in the likelihood model
+model, but it also means any slight misspecification in the likelihood model
 become heavily emphasized very quickly.  As a consequence, Bayesian methods can chronically underestimate uncertainty 
 in the parameters, particularly for large datasets, because they do not account for
 the \emph{unknown unknowns}.  This means that ostensibly  inconsequential features of the likelihood model
@@ -258,9 +258,9 @@ vs generative machine learning that is most critical~\citep{breiman2001statistic
 Naturally one of the biggest concerns with Bayesian approaches is their use of a prior, with this being
 one of the biggest differences to generative frequentist approaches.  The prior is typically a double-edged
 sword.  On the one hand, it is necessary for combining existing knowledge and information from data 
-in a principle manner, on the other hand, priors are inherently subjective and so all produced posteriors are
+in a principled manner, on the other hand, priors are inherently subjective and so all produced posteriors are
 similarly subjective.  Given the same problem, different practitioners will use different priors and reach
-potentially different conclusions.  In the Bayesian framework there is no such thing
+potentially different conclusions.  In the Bayesian framework, there is no such thing
 as a correct posterior for a given likelihood (presuming finite data).
 Consequently, ``all bets are off'' for repeated experimentation with Bayesian methods as there is no
 quantification for how wrong our posterior predictive might be compared with the true generating
@@ -273,7 +273,7 @@ that means the conclusions are independent of the whims of the analyst.
 In particular, there is no (objective) Bayesian alternative to frequentist
 \emph{falsification} methods such as the aforementioned significance tests.\footnote{This is not to say one cannot 
 	perform falsification as part of Bayesian modeling, in fact avoiding doing so would
-	be ridiculous, but that providing objective statistical guarantees to this falsification requires use of
+	be ridiculous, but that providing objective statistical guarantees to this falsification requires the use of
 	frequentist methods.  For example, even the essential research process of informally
 	rejecting and improving models undermines Bayesian coherence~\citep{gelman2011induction}.  On the other hand, the
 	process of peer review effectively
@@ -284,22 +284,22 @@ allow one to indisputably \emph{disprove} hypotheses to within some confidence i
 of this is realized when we consider disproving \emph{null hypotheses}, e.g. the hypothesis that an
 output is independent of a potential driving factor.  This is why significance tests are so widely
 used through the sciences as, although they cannot be used to prove
-a model is correct (as much as people might try), they can certainty be used to show 
+a model is correct (as much as people might try), they can certainly be used to show 
 particular assumptions or models are wrong.
 
 The use of a prior in Bayesian modeling can also be problematic because it is often easy to end up 
 ``using the data twice''~\citep{gelman2008objections}.  The Bayesian paradigm requires that the
-prior is independent from the data and this means that there should not be any human induced
+prior is independent from the data and this means that there should not be any human-induced
 dependency.  In other words, it is necessary that the user sets their prior before
-observing the data they condition on, otherwise the data will both influence their choice of prior
-and be incorporated through the likelihood.  This is not a of problem with Bayesian 
+observing the data they condition on, otherwise, the data will both influence their choice of prior
+and be incorporated through the likelihood.  This is not a problem with Bayesian 
 methods per se, but it can be a common shortfall in their application.
 
 Another practical issue with Bayesian methods is their computational complexity at both
 train time and test time.  Firstly, using Bayesian methods requires one to carry out inference,
 which, as we explain in Chapter~\ref{chp:inf}, is typically a challenging and computationally
 expensive process, often prohibitively so.  Some frequentist approaches can also
-be similarly expensive at train time, but others can be substantially cheaper, particularly
+be similarly expensive at train time, but others can be substantially cheaper particularly
 discriminative approaches.  Further, Bayesian methods tend to also be somewhat expensive
 for making predictions with the posterior predictive itself being an integral.  Frequentist
 methods tend to instead predict using point estimates for $\theta$, such that prediction is typically
@@ -321,22 +321,22 @@ frequentist guarantees for a Bayesian model.
 In essence, Bayesian and frequentist analysis have different aims -- Bayesianism is about updating
 subjective beliefs and frequentism is about creating long run, or repeated application, guarantees.
 We often we care about both.  It is also worth noting that a number of Bayesian methods exhibit
-good frequentist properties, see e.g.~\cite{mcallester2013pac} and the reference therein.
+good frequentist properties, see e.g.~\cite{mcallester2013pac} and the references therein.
 
 We finish by noting a critical assumption made by both Bayesian and generative frequentist methods --
 that there is some true underlying value for the parameters.  Because
 all models are approximations of the real world, this is often a misguided and harmful assumption.  That this assumption
 is made is clear in the frequentist setting, but is somewhat subtle for Bayesian approaches.
-Bayesian methods allow for multiple hypothesis or parameter values, but this originates from our own uncertainty
+Bayesian methods allow for multiple hypotheses or parameter values, but this originates from our own uncertainty
 about which parameter or hypothesis is correct, thereby still implicitly assume that \emph{one} of them is correct.
 Namely, as we showed with the Bernstein-Von Mises theorem,  n the limit of large data, Bayesian methods with finite numbers of parameters will collapse to a point estimate, 
 corresponding to the ``true parameter values'' (assuming the model is correct).
 Consequently, a Bayesian approach does not fundamentally enrich the model space by averaging over parameters -- it
 is still necessary that exactly one set of parameters lead to the data, but we are not exactly sure which one~\citep{minka2000bayesian}.
 Consider as an example, Bayesian modeling for decision trees~\citep{chipman1998bayesian,lakshminarayanan2013top}
-compared to (discriminative) ensemble based approaches~\citep{breiman2001random,rainforth2015canonical}.
+compared to (discriminative) ensemble-based approaches~\citep{breiman2001random,rainforth2015canonical}.
 The Bayesian approaches explicitly assume that our data is generated by one single decision tree and so in the limit of
-large data the relative probabilities of different trees in the posterior diverges and will collapse to a
+large data the relative probabilities of different trees in the posterior diverge and will collapse to a
 single tree.\footnote{Technically we only get a single tree 
 	if we limit the tree depth to ensure a finite parameterization.  Nonetheless, the argument still
 	holds from a practical perspective even when trees are unbounded.}  The ensemble approaches, on the other hand, maintain

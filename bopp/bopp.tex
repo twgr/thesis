@@ -51,10 +51,10 @@ to reach convergence, which can be prohibitive for some problems.  BOPP, on the 
 very few assumptions to be made and is free to use more advanced inference approaches, for example
 SMC, for estimating the marginal likelihood.  One consequence of this is that it can scale to far
 higher dimensions in the nuisance variables.  For example, our HMM model in Section~\ref{sec:bopp:exp}
-marginalizes over a roughly $5000$ dimensional space.
+marginalizes over a roughly $5000$-dimensional space.
 
 Another interesting alternative approach,
-developed since publication of BOPP, involves taking derivatives \emph{through} an SMC
+developed since the publication of BOPP, involves taking derivatives \emph{through} an SMC
 sweep~\citep{le2017auto,naesseth2017variational,maddison2017filtering}. 
 More precisely, these methods allow the derivative of the marginal likelihood estimate (or more typically
 its logarithm) to be calculated during an SMC sweep, for example by using automatic differentiation

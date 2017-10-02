@@ -11,17 +11,16 @@ probabilistic, such as many of those used in statistical physics~\citep{landau20
 of a truly stochastic world, such as lap time simulation for formula one cars~\citep{perantoni2014optimal}
 and finite element simulations for fluid dynamics~\citep{versteeg2007introduction}.
 In many of these scenarios, real data is also available, but not in sufficient quantities that the carefully
-constructed simulations can be done away with entirely and replaced by a purely data driven
+constructed simulations can be done away with entirely and replaced by a purely data-driven
 approach.  
-Imagine the potential utility of general purpose methods for incorporating real data
+Imagine the potential utility of general-purpose methods for incorporating real data
 into these simulators to improve them, without having to throw away the existing carefully constructed models.  
 What about if we could even find methods for automatically
 inverting these simulators?  Given a target lap time, we could return the best car setup; given observations
 of, and a simulator for, human behavior, we could learn about the underlying cognitive processes; given
 a climate change model and measurements, we might infer what the driving factors are.  
 
-An ambitious long
-term aim of probabilistic programming is to solve such problems and to do so in an automated fashion
+An ambitious long-term aim of probabilistic programming is to solve such problems and to do so in an automated fashion
 so that it requires little or no statistical expertise on the behalf of the user, allowing for simple, widespread usage
 across many fields.  The key realization is that stochastic simulators implicitly define probability distributions.
 They, therefore, represent generative models and using probabilistic programming we can reason about, and
@@ -40,15 +39,15 @@ the original model and the information from the data.
 To explain what we mean by inverting simulators more precisely, we will now consider
 the example of inferring Captchas~\citep{mansinghka2013approximate}.   Even if the name is not familiar, 
 everyone should hopefully have come across Captchas before when a website shows us an image, such
-as those in in Figure~\ref{fig:probprog:example_captchas}, and asks us to
+as those in Figure~\ref{fig:probprog:example_captchas}, and asks us to
 type the characters in that image to demonstrate we are not a robot.  We now ask the
 question: how might we write an algorithm that breaks this Captcha by 
 automatically predicting these characters directly from the image? In other words, 
 can we build a robot that mimics a human on a task specifically designed to 
-distinguish between the two.  If we had access to large supply of training examples, i.e.
-character-image pairs, we could of course use an off-the-shelf discriminative algorithm:
+distinguish between the two?  If we had access to large supply of training examples, i.e.
+character-image pairs, we could, of course, use an off-the-shelf discriminative algorithm:
 neural networks have been used to try and solve the problem in exactly this way with reasonable
-success~\citep{von2008recaptcha}.  However, without access to an abundance of data this is a rather
+success~\citep{von2008recaptcha}.  However, without access to an abundance of data, this is a rather
 challenging task and we will need to exploit our prior knowledge about the problem.  
 
 \begin{figure}[t]
@@ -139,7 +138,7 @@ done at length in Chapter~\ref{chp:proginf}.
 If we can construct a system that can successfully carry out these tasks, 
 the huge potential applications this could provide should be clear. We would have a 
 system where the user requires no expertise in inference or conventional
-Bayesian modeling in order to write application specific models and have them solved automatically.
+Bayesian modeling in order to write application-specific models and have them solved automatically.
 Instead, they need only have the ability to write stochastic simulators for the process they wish to
 model, a skill possessed by most of the scientific community and many of those outside it as well.
 In a hypothetical future where scientists
@@ -148,12 +147,12 @@ inverting those simulators and improving the simulator by incorporating real dat
 be automated in the same way current compilers convert high-level coding languages to machine code.  
 However, this ability is not completely
 hypothetical -- many such problems can already be handled by existing systems.  The challenge
-is improving and scaling such systems to deal effectively with more difficult and more wide ranging models
+is improving and scaling such systems to deal effectively with more difficult and more wide-ranging models
 in a tractable manner.  The need for such systems to work in an automated manner for a wide array
-of possible problems makes this a very difficult problem; after all we are somewhat flaunting the no-free-lunch
+of possible problems makes this a very difficult problem; after all, we are somewhat flaunting the no-free-lunch
 theorem.  However, there is a key component that provides hope that this may be possible: we have access
 to the target source code of the simulator itself, rather than needing to treat it as a black-box as is the
 case for, say, approximate Bayesian computation (ABC) methods~\citep{csillery2010approximate}.  Therefore
 maybe we can have our cake and eat it by using the source code itself to guide our algorithms, such that
-they behave in problem specific ways.  We will discuss how this can be done at length in 
+they behave in problem-specific ways.  We will discuss how this can be done at length in 
 Chapters~\ref{chp:proginf} and~\ref{chp:bopp}.

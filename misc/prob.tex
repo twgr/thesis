@@ -23,7 +23,7 @@ whose realization is currently unknown, such that it can take on multiple differ
 values or \emph{outcomes}.\footnote{In a more formal, measure-theoretic framework, outcomes are points in \emph{sample
 		space} and random variables are measurable functions from outcomes to a measurable
 	space.}
-A set of one of more outcomes is known as an \emph{event}.
+A set of one or more outcomes is known as an \emph{event}.
 For example, if we roll a fair six-sided dice then the result of the roll is a random variable 
 while rolling a $4$ is both a possible outcome and a possible event.  Rolling a number greater
 or equal to $5$, on the other hand, is a possible event but not a possible outcome: it is a set
@@ -272,7 +272,7 @@ the fact that the measure now depends explicitly on the value of $x$, i.e. our m
 is non-stationary in $x$.  For $x\neq\infty$ then it is natural for $d\mu(x)$ to correspond to the
 Lebesgue measure, noting $\int_{x\in \real\backslash\infty} p(x) d\mu(x) = 1-P(X=\infty)$.
 For $x=\infty$ it is natural for $d\mu(x)$ to correspond to some scaling of the counting
-measure.  For discrete distributions it is natural to use the counting measure exactly (i.e. set the
+measure.  For discrete distributions, it is natural to use the counting measure exactly (i.e. set the
 scaling to one), but here this could lead to a slightly misleading density given that $X=\infty$
 is infinitely times more probable than any other $X$.  For example, this could mean that
 $\argmax_x p(x) \neq \infty$ which could quickly lead to confusion.  A more illustrative
@@ -284,7 +284,7 @@ For most applications,\footnote{An important
 the choice between valid reference measures will turn out to be
 inconsequential (provided we are consistent in our choice when considering multiple
 densities), as it does not affect the distribution of random variables themselves 
-or effect things such as expectations (see Section~\ref{sec:prob:expt}).  
+or affect things such as expectations (see Section~\ref{sec:prob:expt}).  
 The key point we wish to instead make is that, regardless of variable type, we can
 (implicitly) always define a probability density function.\footnote{Well, almost always.  But we
 	are not going to open that can of worms, see e.g.~\cite{durrett2010probability}.}  

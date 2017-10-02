@@ -30,7 +30,7 @@ approach.  Perhaps the most compelling is the
 idea that if our objective is prediction, then it is simplest to solve that problem directly, rather
 than try and solve some more general problem such as learning an underlying generative 
 process~\citep{vapnik1998statistical,breiman2001statistical}. Furthermore, if sufficient
-data is provided, discriminant approaches can be spectacularly successful in term of predictive
+data is provided, discriminant approaches can be spectacularly successful in terms of predictive
 performance.  Discriminant methods are typically highly flexible and can capture intricate structure in the data that
 would be hard, or even impossible, to establish manually.  Many approaches can also be run with little
 or no input on behalf of the user, delivering state-of-the-art performance when used
@@ -41,7 +41,7 @@ such weak assumptions about the underlying process that is difficult to impart p
 or domain-specific expertise.  This can be disastrous if insufficient data is available, as the data
 alone is unlikely to possess the required information to make adequate predictions.  Even when
 substantial data is available, there may be significant prior information available that needs to be
-exploited for effective performance.  For example, in time series modelling the sequential nature
+exploited for effective performance.  For example, in time series modeling the sequential nature
 of the data is critically important information~\citep{liu1998sequential}, while in vision tasks the 
 knowledge that scenes are generated from objects can be invaluable~\citep{kulkarni2015picture}.
 Many problems also increase in complexity as more data is added -- ``big data'' problems are often
@@ -49,7 +49,7 @@ actually a collection, or sometimes hierarchy, of many small problems, such that
 required parametrization increases as more data is added.  Consider, for example, modeling interactions in
 a social network.  Adding a new user into the model increases the amount of data, but also
 requires the model to grow and accommodate the new user~\citep{ravasz2003hierarchical}.  In
-this situation it is essential to
+this situation, it is essential to
 use an approach that respects the known structure, while the amount of data available
 for each individual user is often quite small, such that it will be essential to use prior information
 by transferring insights gathered from some users to others.  Therefore even for such large-scale
@@ -109,7 +109,7 @@ does not work then the solution always just to get more data.\footnote{It should
 	machine learning approaches is often, if not usually, dominated by variations in the inherently difficulty of the
 	problem, which is itself not usually known up front, rather than differences between approaches.}  As such, the ease of which domain-specific
 expertise can be included in generative approaches is often essential to achieving effective performance
-on real world tasks.
+on real-world tasks.
 
 To highlight the difference between discriminative and generative machine learning, we consider the
 example of the differences between logistic regression (a discriminative classifier) and na\"{i}ve Bayes 
@@ -158,7 +158,7 @@ As we have shown, generative approaches are inherently probabilistic.  This is h
 when it comes to calculating uncertainty estimates or gaining insight from our trained model.
 They are generally more intuitive than discriminative methods, as, in essence, they constitute an explanation for how the data is
 generated.  As such, the parameters tend to have physical interpretation in the generative process and
-therefore provide not only prediction, but also insight.  Generative approaches will not always be preferable,
+therefore provide not only prediction but also insight.  Generative approaches will not always be preferable,
 particularly when there is an abundance of data available, but they provide a very powerful framework
 that is essential in many scenarios.  Perhaps their greatest strength is in allowing the use of so-called
 Bayesian approaches, which we now introduce.

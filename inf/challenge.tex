@@ -6,11 +6,11 @@ can combine prior information $p(\theta)$ and a likelihood model $p(\mathcal{D}|
 characterizes both our prior information and information from the data $\mathcal{D}$.  We now consider the
 problem of how to calculate (or more typically approximate) this posterior, a process 
 known as Bayesian \emph{inference}.
-At first this may seem like a straight forward problem: by Bayes' rule we have that
+At first, this may seem like a straightforward problem: by Bayes' rule we have that
 $p(\theta|\mathcal{D})\propto p(\mathcal{D}|\theta)p(\theta)$ and so we already know the relative probability of any one
 value of $\theta$ compared to another.  In practice, this could hardly be further from the
-truth.  Bayesian inference for the general class of graphical models is in fact an 
-NP-hard problem \citep{cooper1990computational,dagum1993approximating}.  In this chapter
+truth.  Bayesian inference for the general class of graphical models is, in fact, an 
+NP-hard problem \citep{cooper1990computational,dagum1993approximating}.  In this chapter,
 we will outline these challenges and introduce methods for overcoming them in the form of \emph{inference algorithms}.
 We will focus, in particular, on Monte Carlo inference methods, for which we will introduce some
 key underlying results, before introducing a number of foundational methods that form the building blocks
@@ -22,7 +22,7 @@ use these methods to develop automated inference engines for PPS in Chapter~\ref
 
 We can break down Bayesian inference into two key challenges: calculating the normalization constant
 $p(\mathcal{D}) = \int p(\mathcal{D}|\theta)p(\theta)d\theta$ and providing a useful characterization of the posterior, for
-example an object we can draw samples from.  Many inference schemes, for example Markov
+example, an object we can draw samples from.  Many inference schemes, for example, Markov
 chain Monte Carlo (MCMC) methods \citep{hastings1970monte}, will not
 try to tackle these challenges directly and instead look to generate samples directly from 
 the posterior.  However, this breakdown will still prove useful in illustrating the intuitions
@@ -40,7 +40,7 @@ significant that point is relative to the distribution as a whole.  For example,
 problem then if we know the normalization constant, we can evaluate the exact probability of any
 particular $\theta$ by evaluating that point alone.  If we do not know the normalization constant, we do
 not know if there are other substantially more probable events that we have thus-far missed, which
-would in turn imply that the queried point has a negligible chance of occurring.
+would, in turn, imply that the queried point has a negligible chance of occurring.
  
 To give a more explicit example, consider a model where $\theta \in \{1,2,3\}$ with a corresponding uniform prior $P(\theta) = 1/3$
 for each $\theta$.  Now presume that for some reason we are only able to evaluate the likelihood at 
@@ -49,7 +49,7 @@ likelihood $p(\mathcal{D})$, the posterior probability of $P(\theta=2 | \mathcal
 $p(\mathcal{D})=4$ gives $P(\theta=2 | \mathcal{D}) = 5/6$, while $p(\mathcal{D})=1000$ gives $P(\theta=2 | \mathcal{D}) = 1/100$.  Though this
 example may seem far-fetched, this is the scenario almost always seen in practice for realistic
 models, at least those with non-trivial solutions.   Typically it is not
-possible to enumerate all the possible values of $\theta$ in reasonable time and we are left 
+possible to enumerate all the possible values of $\theta$ in a reasonable time and we are left 
 wondering -- how much probability mass is left that we have not seen?  The problem is even worse 
 in the setting where $\theta$ is continuous, for
 which it is naturally impossible to evaluate all possible values for $\theta$.  
@@ -65,8 +65,8 @@ our second challenge -- knowing the posterior in closed form is often not enough
 \subsection{Characterizing the Posterior}
 \label{sec:inf:challenge:post}
 
-Once we have the normalization constant, it might seem that we are done; after all
-we now have the exact form of the posterior using in Bayes' rule.  Unfortunately, it tends to
+Once we have the normalization constant, it might seem that we are done; after all,
+we now have the exact form of the posterior using Bayes' rule.  Unfortunately, it tends to
 be the case, at least when $\theta$ is continuous, that is this insufficient to carry out most
 tasks that we might want to use our posterior for.  There are a number of different, often
 overlapping, reasons for wanting to calculate a posterior including
@@ -95,7 +95,7 @@ particular, it will generally not be sufficient in order to be able to \emph{sam
 posterior.  As we will see later, the ability to sample will be at the core of most practical uses
 for the posterior as it allows use of Monte Carlo
  methods~\citep{metropolis1949monte,robert2004monte,rubinstein2016simulation}, which
- can in turn be used to carry out many of the outlined tasks.
+ can, in turn, be used to carry out many of the outlined tasks.
 
 To further demonstrate why knowing the normalization constant is insufficient
 for most Bayesian inference tasks, we consider the following simple example
@@ -140,16 +140,17 @@ P(\Theta\le\theta | y=5) = \int_{\Theta=0}^{\Theta=\theta}  p(\theta=\Theta | y=
 then we can sample from the posterior by first sampling $\hat{u} \sim \textsc{Uniform}(0,1)$ and
 then taking as our exact sample $\hat{\theta} = P^{-1}(\hat{u})$ such that 
 $\hat{u} = P(\Theta\le\hat{\theta} | y=5)$.  However, the cumulative distribution function
-and its inverse cannot, in general, be calculated analytically.  Though in this simple one dimensional
+and its inverse cannot, in general, be calculated analytically.  Though in this simple 
+one-dimensional
 problem they can be easily estimated numerically, this will prove prohibitively difficult
 for most problems where $\theta$ has more than a few dimensions.  Similarly, if we
 wish to estimate an expectation with respect to this posterior we could do this relatively
 easily numerically for this simple problem, for example using Simpson's rule, but in higher
-dimensions this will be impractical.
+dimensions, this will be impractical.
 
 There are a number of indirect methods we could use instead to sample from the posterior
 such as rejection sampling, importance sampling, and MCMC.  However, as we will show
-in the Section~\ref{sec:inf:foundation}, these all only require that we can evaluate an unnormalized version of
+in Section~\ref{sec:inf:foundation}, these all only require that we can evaluate an unnormalized version of
 target distribution, such that they side-step the need to calculate the marginal 
 likelihood.  Nonetheless, knowledge of the marginal likelihood can still be helpful in
 a number of scenarios (e.g. in adapting our inference algorithm) for the reasons outlined in 

@@ -29,7 +29,7 @@ introduction here and so we also refer the interested reader to~\cite{tolpin2016
 \label{sec:probprog:anglican:clojure} 
 
 Before getting into the details of Anglican, we first give a very brief introduction to Clojure~\citep{hickey2008clojure},
-because its syntax may be quite unfamiliar to readers without experience in Lisp based notation or functional programming
+because its syntax may be quite unfamiliar to readers without experience in Lisp-based notation or functional programming
 more generally.  There are two key things to get your head around for reading and using Clojure (and Lisp languages more
 generally): almost everything is a function and parentheses evaluate functions.  For example, to code $a+b$ in Clojure one
 would write {\small \lsi{(+ a b)}} where \clj{+} is a function taking two arguments (here \clj{a} and \clj{b}) and the parentheses cause the
@@ -47,16 +47,16 @@ is the output of the last of these evaluations.  Thus for example
 {\small \lsi{(let [a 2 b 3] (print a) (+ a b))}} says let $a$ be equal to $2$, $b$ be equal to $3$, print $a$,
 and then evaluate $a+b$, thus returning $5$.  Note that $a$ and $b$ remain undefined outside of this let block.  
 
-Clojure allows various types of compound literals such as vectors, lists, hash maps and sets.
+Clojure allows various types of compound literals such as vectors, lists, hash maps, and sets.
 In general, elements in these compound literals are not restricted in
 their type so it valid to write for example {\small \lsi{[1 (fn [x] (inc x)) "2"]}} to construct a vector 
 whose component terms are different types.
 
 Clojure does not generally use
-for loops, instead relying the constructs \map and \reduce, or the \clj{loop}-\clj{recur} pairing. Here
+for loops, instead relying upon the constructs \map and \reduce, or the \clj{loop}-\clj{recur} pairing. Here
 \map applies a function to every value in a list or vector so for example {\small \lsi{(map (fn [a] (* a 2)) [2.1 3])}}
 doubles each value in the vector of inputs returning a list {\small \lsi{(4.2 6)}}, where the parentheses in the output
-now just represent a list rather than a function evaluation, just to be be confusing.  Meanwhile, \reduce recursively applies
+now just represent a list rather than a function evaluation, just to be confusing.  Meanwhile, \reduce recursively applies
 a function and so for example {\small \lsi{(reduce + 0 [1.2 3.4 2])}} sums the vector of elements,
 returning {\small \lsi{6.6}}.  The \clj{loop}-\clj{recur} pairing forms
 a syntactic sugar for doing looping through tail recursion.  In essence, \clj{loop} defines a function and provides
@@ -71,10 +71,10 @@ only be called depending on a condition holding true to prevent infinite recursi
  \end{lstlisting}\vspace{-5pt}
 will print out $1$ to $10$ before returning \clj{nil}.  
 Here the syntax of \clj{if} is \clj{(if test then else)} so when \clj{x}$>10$
-it returns \clj{nil}.  Otherwise it calls the \clj{do} statement which evaluates each of its arguments in turn, in
+it returns \clj{nil}.  Otherwise, it calls the \clj{do} statement which evaluates each of its arguments in turn, in
 this case printing out \clj{x} before recalling the body of the \clj{loop} block with \clj{x}  reset to \clj{(+ x 1)}.
 
-A important feature of Clojure, particularly with regards to Anglican, is its support for (infinite) lazy sequences.
+An important feature of Clojure, particularly with regards to Anglican, is its support for (infinite) lazy sequences.
 Lazy sequences are sequences of terms that are only evaluated as and when they are required.  As such, it is 
 valid for them to be infinitely long (typically through recursive definition), but with only a finite number
 of values from which are ever evaluated in practice.    For example one can define the function
@@ -132,13 +132,13 @@ to use for the observations.  It then maps over each datapoint and observes it u
 {\small \lsi{lik}}, remembering that {\small \lsi{fn}} defines a function and \map applies a function
 to every element of a list or vector.  
 Note that \observe simply returns {\small \lsi{nil}} and so we
-are not interested in these outputs -- they effect the probability of a program execution trace, but
+are not interested in these outputs -- they affect the probability of a program execution trace, but
 not the calculation of a trace itself.  After the observations are made, {\small \lsi{mu}} and {\small \lsi{sig}}
 are returned from the \cllet block and then by proxy the query itself.
 Because the data terms only get used as observations and we do
 not observe any internal random variables, this simple query corresponds exactly to a Bayesian model where
 the \sample terms form the prior and the \observe terms form the likelihood as we explained in
-Section~\ref{sec:probprog:models:general}.  The query thus defines a correctly normalied joint
+Section~\ref{sec:probprog:models:general}.  The query thus defines a correctly normalized joint
 distribution given by
 \begin{align}
 p(\mu,\sigma,y_{1:S}) = \mathcal{N}(\mu ; 0,1) \; \textsc{Gamma}(\sigma ; 2, 2) \prod_{s=1}^{S} \mathcal{N}(y_s ; \mu, \sigma)
@@ -220,7 +220,7 @@ the symbol provided by the first argument of \defquery.  Therefore {\small \lsi{
 our example is Clojure function that can be read by the Anglican inference engines to produce
 approximate samples from the conditional distribution.  Note that the call structure of this Clojure
 function is not as per the original Anglican query, but is instead a compilation artifact with
-call syntax as per what is require by the Anglican inference engine.
+call syntax as per what is required by the Anglican inference engine.
 %, as a Clojure function, the
 %inputs and body of {\small \lsi{my-query}} and not as per lexical definition of the Anglican program
 %(e.g. in now takes multiple inputs).  It is instead a function that encodes all the information 
@@ -272,14 +272,14 @@ call syntax as per what is require by the Anglican inference engine.
 		detailed consideration along with other examples.
 		Our code first defines a custom distribution called \lsi{strike} for modeling whether one country would
 		attack the other if it did not reason about the other's actions.  
-It then constructs a Anglican function for each country using \defm.  
+It then constructs an Anglican function for each country using \defm.  
 Each country has their own volatility and the ability to reason about whether they think the other country will
 initiate a strike against them. We presume they have access to the exact model of the other country.  A's aim is to match
 the action it thinks B will do -- it would prefer there to be no war, but if there is, it wants to strike
 first.  Its model first samples a draw for B's action by simulating from B's model and then observes this action
 under its own distribution on whether to strike; this is equivalent to sampling both in isolation and constraining
 them to be the same.  However, B can also reason about A and
-A knows it.  It therefore provides the simulation of B's model with a \emph{meta-reasoning depth}.  If this depth
+A knows it.  It, therefore, provides the simulation of B's model with a \emph{meta-reasoning depth}.  If this depth
 is zero, B makes its decision in isolation, simply sampling from \lsi{B-strike}.  If the depth is greater 
 than zero though, it uses the same approach as A, simulating from A's model (with a depreciated meta-reasoning 
 depth) and then observing this 
@@ -294,7 +294,7 @@ of the other.  It is interesting to note that if the volatilities are set to the
 the critical tipping point, above which things escalate towards war with increased depth, is around $0.38$.
 The mutual recursion involved in the model and the fact that variables are both sampled and 
 observed means that it would be difficult to encode it using a graphical model.  It is not even clear how
-one would go about writing down a well defined joint distribution for the model, without having to empirically
+one would go about writing down a well-defined joint distribution for the model, without having to empirically
 calculate a normalization constant.
 \label{fig:probprog:schell}
 		}
@@ -319,7 +319,7 @@ to \defquery using the macro \defm, which is analogous to \defn in Clojure and h
 	exception to this is that it is restricted to have a single input.  As this itself can be a vector of inputs, one
 	can still write arbitrary functions.}
 which can then be called from inside the query without restrictions.  Other deterministic Clojure functions can also
-be called from inside queries, but must be provided with appropriate wrapping to assist the compiler.  Thankfully
+be called from inside queries but must be provided with appropriate wrapping to assist the compiler.  Thankfully
 this is done automatically (except when the function itself is higher order) using the macro
 {\small \lsi{with-primitive-procedures}} that takes as inputs Clojure functions and creates an environment where
 these functions have been converted to their appropriate CPS forms.

@@ -12,10 +12,10 @@ for Bayesian inference because this can still be done when the target distributi
 up to a normalization constant.  
 
 The reason that they are often able to overcome, or at least alleviate,
-the curse of dimensionality, is that rather then trying to independently sample from the target distribution
+the curse of dimensionality, is that rather than trying to independently sample from the target distribution
 at each iteration, they instead make \emph{local} moves from their current position.  As with
 rejection sampling and importance sampling, they use a proposal distribution, but unlike these
-alternatives, the proposal is defined conditionally on the current location, namely they propose
+alternatives, the proposal is defined conditionally on the current location, namely, they propose
 according to $\theta' \sim q(\theta' | \theta)$ where $\theta$ is the current state and $\theta'$ is the new
 sampled state.  The underlying intuition behind this is that in high dimensions the proportion of the
 space with significant probability mass is typically very small.  Therefore, if the target is single modal (or
@@ -85,7 +85,7 @@ conditions, see for example~\cite{neal1993probabilistic,tierney1994markov}.
 A common sufficient (but not necessary) condition used for constructing valid Markov chains
 is to ensure that the chain satisfies the condition of \emph{detailed balance}.  Chains that
 satisfy detailed balance are known as 
-\emph{reversible}.\footnote{An interesting area of current research is in the study
+\emph{reversible}.\footnote{An interesting area of current research is the study
 	of non-reversible MCMC algorithms~\citep{bouchard2015bouncy,bierkens2016zig}.  These can
 	be beneficial because traditional reversible processes are only able to move by drifting over time -- generally
 	at least half of the proposed samples (and generally much more) will be in a direction at odds to
@@ -188,12 +188,12 @@ fit these restrictions, particularly in high dimensions or if we can find an app
 Remembering from Section~\ref{sec:prob:measure} that changing the parameterization of a model changes its probability
 density function in a non-trivial manner, the performance of MCMC methods is often critically dependent on
 their parameterization.  Changing the parameterization will change
-the concept of what parameter values are close to which other parameter values.  In an ideal world we
+the concept of what parameter values are close to which other parameter values.  In an ideal world, we
 would make moves in the raw sample space where all points are equally probable.  
 Typically this is not practical, but it is still usually the
 case that some parameterizations will tend to be more single-modal and more generally have all points of
 interest close together in the parameter space.  Note that there is often an equivalence here between a good proposal
-and a good warping of the space to one where an isotropic proposal will be effective.  One possible way for
+and a good warping of the space to one where an isotropic proposal will be effective.  One possible way of
 achieving a good parameterization is through the use of  
 \emph{auxiliary variables}~\citep{higdon1998auxiliary,andrieu2010particle},
 which can improve mixing by allowing more degrees of freedom in the proposal, decreasing the chance of getting
@@ -210,7 +210,7 @@ methods will both rarely propose samples in the right direction to stay in this 
 and be very slow to move around the level set because the reversibility of the proposals mean that this only 
 happens slowly through drift.  By moving perpendicular to the gradient, HMC makes proposals that are more likely to
 stay within the typical set, while also allowing large moves to be made in a single step.  Together these mean
-that it can explore a particular mode much faster then random walk MH strategies.  See~\cite{betancourt2017conceptual}
+that it can explore a particular mode much faster than random walk MH strategies.  See~\cite{betancourt2017conceptual}
 for an excellent introduction.
 
 \subsubsection{Gibbs Sampling}
@@ -223,7 +223,7 @@ updates one or more of the variables $\theta_d$ at each iteration conditioned on
 Thus it uses proposals of the form $\theta_d' \sim \pi(\theta_d' | \theta \backslash \theta_d)$ with
 $ \theta \backslash \theta_d$ kept constant from one iteration to the next.  There are two reasons
 for wanting to do this.  Firstly changing only one of the variables at a time is a form of local proposal and
-can be a beneficial way to make updates, particularly if random walk proposal are inappropriate.  
+can be a beneficial way to make updates, particularly if a random walk proposal is inappropriate.  
 Secondly, if we have access to $\pi(\theta_d | \theta \backslash \theta_d)$
 exactly, then we will actually accept every sample as noting that $\theta' \backslash \theta_d' = \theta \backslash \theta_d$ we
 have
@@ -238,7 +238,7 @@ have
 = 1
 \end{align*}
 such that the acceptance probability is always $1$.
-In many models it will be possible to sample from $\theta_d' \sim \pi(\theta_d' | \theta \backslash \theta_d)$
+In many models, it will be possible to sample from $\theta_d' \sim \pi(\theta_d' | \theta \backslash \theta_d)$
 exactly (e.g. when everything is Gaussian) and thus carry out Gibbs sampling steps exactly.  We can cycle through each of
 the $\theta_d$, either in a random order or in sequence, and apply the appropriate updates.  The
 effectiveness of this approach will depend on the level of correlation between the different variables.  The more

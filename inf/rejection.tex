@@ -7,7 +7,7 @@ Rejection sampling is one of the simplest Monte Carlo
 inference methods and one of the only ones to produce exact samples from 
 the target.  Before going into the method itself, we first consider an example to
 demonstrate the underlying intuition.  Imagine we want to generate samples 
-distributed uniformly over some arbitrary two dimensional shape.  One simple
+distributed uniformly over some arbitrary two-dimensional shape.  One simple
 way of doing this would be to sample uniformly from a box enclosing the
 shape and then only taking the samples which fall 
 \begin{wrapfigure}{r}{0.38\textwidth}
@@ -42,7 +42,7 @@ dictate the efficiency of our estimation as it represents the \emph{acceptance r
 of our samples.  In other words, we need to generate on average $1/P(\theta \in \text{shape})$
 samples from our proposal for each sample created in the target area.  As we
 will show later in Section~\ref{sec:inf:foundation:curse}, $P(\theta \in \text{shape})$ typically becomes very
-small as $\theta$ becomes high dimensional, so this approach will typically only
+small as $\theta$ becomes high-dimensional, so this approach will typically only
 be effective in low dimensions.
 
 The underlying idea to extend this approach to rejection sampling more generally, is that we can sample from any distribution

@@ -29,7 +29,7 @@ incorporated
 	p(\theta | \mathcal{D}) = \frac{p(\mathcal{D} | \theta)p(\theta)}{\int p(\mathcal{D} | \theta)p(\theta) d\theta} 
 	= \frac{p(\mathcal{D} | \theta)p(\theta)}{p(\mathcal{D})}.
 \end{align}
-Here the denominator, $p(\mathcal{D})$, is a normalization constant know as the \emph{marginal
+Here the denominator, $p(\mathcal{D})$, is a normalization constant known as the \emph{marginal
 	likelihood} and is necessary to ensure $p(\theta | \mathcal{D})$ is a valid probability distribution
 (or probability density for continuous problems).  One can, therefore, think of Bayes' rule in the even
 simpler form of the posterior being proportional to the prior times the likelihood.
@@ -146,7 +146,7 @@ find that the posterior has predominantly collapsed down to a small range of $\t
 
 Having calculated our posterior, we can now make
 predictions using the \emph{posterior predictive distribution} which marginalizes out over
-the parameters.  For the coin flip case we have
+the parameters.  For the coin flip case, we have
 \begin{align}
 \label{eq:bayes:post-pred}
 p( y_{N+1}=H | y_{1:N}) &= \int p(y_{N+1}=H, \theta | y_{1:N}) d\theta
@@ -178,7 +178,7 @@ and each $\epsilon_n \iid \mathcal{N}(0,\sigma^2)$.  This implies a likelihood o
 p(\mathbf{y}|\mathbf{x},\mathbf{w},b,\sigma) = \prod_{n=1}^{N} p(y_n | x_n, \mathbf{w}, b, \sigma) = 
 \prod_{n=1}^{N} \mathcal{N}(y_n;x_n^T\mathbf{w}+b,\sigma^2).
 \end{align}
-For simplicity we will assume that $\sigma$ and $b$ are known fixed parameters,
+For simplicity, we will assume that $\sigma$ and $b$ are known fixed parameters,
 but we will put a prior on $\mathbf{w}$, namely $p(\mathbf{w}) = \mathcal{N}(\mathbf{w};\mathbf{0},C)$
 where $C$ is a fixed covariance matrix, in order to perform inference.
 %% and $s$ a fixed scalar standard deviation.
@@ -207,7 +207,7 @@ p(\mathbf{w}| \mathcal{D}, b,\sigma) d\mathbf{w}
 \mathcal{N}\left(\mathbf{w} ; m, S\right) d\mathbf{w} \nonumber \\
 &= \mathcal{N} \left(\tilde{y} \; ; \;\tilde{x}^Tm+b, \; \tilde{x}^T S^{-1}\tilde{x}+\frac{1}{\sigma^2} \right)
 \end{align}
-which again follows from standard results for Gaussian distributions.  We therefore have
+which again follows from standard results for Gaussian distributions.  We, therefore, have
 an analytic predictive distribution at any possible input point.
 Though this linear regression example might seem overly simple for practical purposes, we
 will see in Section~\ref{sec:opt:GPs} that substantially more advanced models, such as
@@ -221,7 +221,7 @@ clearly only be applicable or appropriate in very particular scenarios.
 %(in practice even these requirements can often be relaxed).  
 Bayesian modeling is at its heart a
 generative approach and its real power will be when we design a rich and expressive \emph{generative model} 
-that reflects our application specific knowledge.  In other words, we can define our model
+that reflects our application-specific knowledge.  In other words, we can define our model
 by carefully constructing a stochastic process that describes how the parameters  and data are generated.  For
 our object recognition example at the start of the section, this would correspond to a graphics generator for
 sampling scenes.

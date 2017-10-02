@@ -5,11 +5,11 @@
 \label{sec:discussion}
 
 The \ipmcmc sampler overcomes degeneracy issues in \pg by allowing the newly sampled particles from \smc nodes to replace the retained particles in \csmc nodes. Our experimental results demonstrate that, for the models considered, this switching in rate is far higher than the rate at which PG generates fully independent samples. Moreover, the results in Figure~\ref{fig:Psweep} suggest that the degree of improvement over an m\pg sampler with the same total number of nodes increases with the total number of nodes in the pool. 
-The mAPG sampler performs an accept reject step that compares the marginal likelihood estimate of a single \csmc sweep to that of a single \smc sweep. In the \ipmcmc sampler the \csmc estimate of the marginal likelihood is compared to a population sample of \smc estimates, resulting in a higher probability that at least one of the \smc nodes will become a \csmc node.
+The mAPG sampler performs an accept-reject step that compares the marginal likelihood estimate of a single \csmc sweep to that of a single \smc sweep. In the \ipmcmc sampler, the \csmc estimate of the marginal likelihood is compared to a population sample of \smc estimates, resulting in a higher probability that at least one of the \smc nodes will become a \csmc node.
 Since the original \pmcmc paper~\citep{andrieu2009pseudo} there have been several papers studying %\fredrik{Should we give some references to theoretical work on PG? for instance, I know of a paper in SJOS which is very good ;)}
 and improving upon the basic \pg
  algorithm~\citep{chopin2015,lindsten2015uniform,whiteley2010efficient,lindsten2013backward,lindstenJS2014},
- many of which also be used to improve the \ipmcmc method ever further.  
+ many of which also be used to improve the \ipmcmc method even further.  
 
 %Noting that the Gibbs update in \eqref{eq:simConditional} requires no interaction between the \csmc nodes, iPMCMC should be amenable to an asynchronous adaptation under the assumption of a random execution time, independent of $\xb'$, in Algorithm~\ref{alg:csmc}.
 

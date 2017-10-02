@@ -192,12 +192,12 @@ same time.  It is easy to see that these weights will quickly diverge, typically
  (see Section~\ref{sec:inf:foundation:curse}), and our effective sample size 
 (see Section~\ref{sec:inf:foundation:ess}) will rapidly diminish.  It is now rather pointless to continue to
 propagate the samples with negligible weight through the system as the chance these will have a significant
-weight by the end is very low.  We therefore desire a principled way of ``killing off'' these
+weight by the end is very low.  We, therefore, desire a principled way of ``killing off'' these
 low weight particles and replacing them with higher weight ones.  As we showed in Section~\ref{sec:inf:foundation:resampling},
 resampling gives us a method for generating unweighted samples from a population of weighted samples.
 Though resampling itself only duplicates existing particles, rather
 than producing new ones, if the duplicate samples are extended independently at the next iteration, this
-produces distinct samples (albeit heavily correlated ones).  In other words if we have two samples
+produces distinct samples (albeit heavily correlated ones).  In other words, if we have two samples
 $x_{1:t}^1$ and $x_{1:t}^2$ such that $w_t^2/w_t^1 \approx 0$ then it is more beneficial for us to generate both
 samples at the next stage using $x_{t+1}^i \sim p(x_{t+1} | x_{1:t}^1, y_{1:t})$ for $i=1,2$, than to use
 $x_{1:t}^2$ to sample $x_{t+1}^2$.  This will not improve our representation of $x_{1:t}$, but it will, in
@@ -263,7 +263,7 @@ importance sampling:
 Many intuitions from importance sampling transfer over to SMC.  For example, we can construct our posterior
 estimate and calculate expectations in the same way, while we can also use the effective sample size as
 a metric of performance (remembering to coalesce identical samples). 
-One of the most importance features that translates is that SMC produces the
+One of the most important features that translates is that SMC produces the
 unbiased estimate for the marginal likelihood $p(y_{1:T})$
 \begin{align}
 \label{eq:part:ML}
@@ -344,7 +344,7 @@ probability mass under the corresponding marginals of the final target
 \end{align}
 In fact, the series of targets given
 for the NMSSM case are actually suboptimal and used because of the fact that
-$p(x_{1:t},y_{1:t})$ can, in general, be calculated exactly.  It is a well known result
+$p(x_{1:t},y_{1:t})$ can, in general, be calculated exactly.  It is a well-known result
 (see, for example, the appendices of~\cite{le2017auto}) that the optimal series
 of proposals (complications with computability and proposals aside) is actually 
 the marginals $\tilde{\pi}_t (x_{1:t})=p(x_{1:t} | y_{1:T})$ for
@@ -356,7 +356,7 @@ in general, if a different series of targets are used,
 e.g. $p(x_{1:t}|y_{1:t})$, then the marginal probability of the already sampled
 variables changes from one iteration to the next, reducing the efficiency of the inference.
 To give an example of this, consider
-the case where $x_{1}$ includes global parameters that effect each emission
+the case where $x_{1}$ includes global parameters that affect each emission
 distribution, for example it could contain a variance for
 likelihood terms.  In our NMSSM case we can never regenerate samples for $x_1$ after
 the first step and so it is clearly better at the first step to target $p(x_1 | y_{1:T})$ than $p(x_1|y_1)$,
@@ -408,7 +408,7 @@ probability that a
 sweep gives a marginal likelihood estimate larger than the true marginal likelihood can be arbitrarily small;
 after all, the limit $N=1$ corresponds to importance sampling.  As such, if we use insufficient particles and just
 repeatedly run SMC sweeps, we may have to wait arbitrarily long before getting any useful samples.  One way 
-to try an combat this, presuming it is not possible to increase $N$, is to group the SMC sweeps into a number
+to try and combat this, presuming it is not possible to increase $N$, is to group the SMC sweeps into a number
 of islands and then combine estimates in the normal way within the islands, but combine the islands in
 an unweighted fashion (see for example~\cite{lakshminarayanan2013top}).  Though often practically useful, this
 is clearly only trading variance for bias and thus is more of a means of mitigating rather than solving the problem.
@@ -426,7 +426,7 @@ schemes that only perform the resampling step if some criterion is met~\citep{li
 only resampling when the effective sample size falls below a certain threshold,
 for which $N/2$ is a common choice~\citep{doucet2009tutorial}.
 When the resampling is omitted, the particles remain weighted, with their weights at the next iteration updated
-using~\eqref{eq:part:sis-weights}, as per SIS, except that the self normalized weights $\bar{w}_t^i$ should be used so that the
+using~\eqref{eq:part:sis-weights}, as per SIS, except that the self-normalized weights $\bar{w}_t^i$ should be used so that the
 marginal likelihood estimate can be carried out in the same manner.
 That this still informally forms a valid SMC algorithm for posterior inference can be seen by thinking of these as being sequential importance
 sampling steps, noting the equivalence to standard importance sampling, and then viewing the process as simply
@@ -438,7 +438,7 @@ However, adaptive resampling does cause some complications from a theoretical pe
 
 The practical performance of SMC can be critically dependent on the choice of proposal and
 so we finish our introduction by considering what constitutes a good proposal, first
-considering the question of what the theoretically optimal proposal is. Unfortunately it is not generally
+considering the question of what the theoretically optimal proposal is. Unfortunately, it is not generally
 possible to establish the optimal proposal for the variance of the final estimate in the finite $N$ case, but we can
 calculate the so-called \emph{one-step optimal proposal} by minimizing the variance of the individual weights (and
 by proxy the marginal likelihood estimate) at the next iteration.  The one-step optimal proposal is given by
@@ -490,5 +490,5 @@ the transition probability at an arbitrary point.
 In the absence of other information, the bootstrap can also be a reasonable choice of proposal in its own right, as
 it is almost always more diffuse than the one step posterior.  Its efficiency will, in general, depend on how relatively
 peaked the emission distribution is and the dimensionality of $x_t$ -- after all, each step in SMC is in
-isolation importance sampling.  One can usually beneficially use the next observation $y_t$ to help guide the
+isolation importance sampling.  One can usually beneficially use the next observation $y_t$ to help guide
 the proposal, but doing this in a general purpose manner can be challenging~\citep{gu2015neural}.

@@ -5,7 +5,7 @@
 \label{sec:experiments}
 
 To demonstrate the %validity and
-empirical performance of iPMCMC we report experiments on two state space models.  
+empirical performance of iPMCMC we report experiments on two state-space models.  
 Although both the models considered are Markovian, we emphasise that iPMCMC goes far beyond this and can be applied to arbitrary graphical models
 and even probabilistic programs as explained in Section~\ref{sec:proginf:str:part:ipmcmc}. 
 %For exposition we will focus our comparison to the trivial distribution, whereby $M$ independent PMCMC samplers are run in parallel, of PG, particle independent Metropolis-Hastings (PIMH) \cite{andrieu2010particle} and the alternate move PG sampler (APG) \cite{holenstein2009particle}. 
@@ -21,7 +21,7 @@ We use Rao-Blackwellization, as described in \ref{sec:part:ipmcmc:allparticles},
 
 \subsubsection{Linear Gaussian State Space Model}
 \label{sec:LGSS}
-We first consider a linear Gaussian state space model (LGSSM) with 3 dimensional latent states $x_{1:T}$, 20 dimensional observations $y_{1:T}$ and dynamics given by %\cn{It seems you use deterministic initial conditions for $x_0$, reformulate the model so you have a prior $\mu(x_1)$ instead? (also follows notation above)}
+We first consider a linear Gaussian state-space model (LGSSM) with 3-dimensional latent states $x_{1:T}$, 20-dimensional observations $y_{1:T}$ and dynamics given by %\cn{It seems you use deterministic initial conditions for $x_0$, reformulate the model so you have a prior $\mu(x_1)$ instead? (also follows notation above)}
 \begin{subequations}
 	\label{eq:LGSS}
 	\vspace{-6pt}
@@ -65,11 +65,11 @@ We set $\mu = [0, 1, 1]^T$, $V = 0.1 \; \mathbf{I}$, $\Omega = \mathbf{I}$ and $
 	%		\label{fig:stdPos}
 	%	\end{subfigure}	
 	\vspace{5pt}
-	\caption{Mean squared error averaged over all dimensions and steps in the state sequence as a function of MCMC iterations (left) and mean squared error after $10^4$ iterations averaged over dimensions as function of position in the state sequence (right) for \eqref{eq:LGSS} with 50 time sequences.  The solid line shows the median error across the 10 tested synthetic datasets, while the shading shows the upper and lower quartiles.  Ground truth was calculated using the Rauch--Tung--Striebel smoother algorithm \cite{rauch1965maximum}. 
+	\caption{Mean squared error averaged over all dimensions and steps in the state sequence as a function of MCMC iterations (left) and mean squared error after $10^4$ iterations averaged over dimensions as a function of position in the state sequence (right) for \eqref{eq:LGSS} with 50 time sequences.  The solid line shows the median error across the 10 tested synthetic datasets, while the shading shows the upper and lower quartiles.  Ground truth was calculated using the Rauch--Tung--Striebel smoother \cite{rauch1965maximum}. 
 		\label{fig:groundTruth}}
 \end{figure*}
 
-Figure \ref{fig:meanConv} shows convergence (in MCMC iterations) in the estimate of the latent variable means to the ground-truth solution for iPMCMC and the benchmark algorithms.  It shows that iPMCMC comfortably outperforms the alternatives from around 200 iterations onwards, with only iPMCMC and mAPG demonstrating behaviour consistent with the Monte Carlo convergence rate, suggesting that mPG and mPIMH are still far from the ergodic regime.  Figure \ref{fig:meanPos} shows the same errors after $10^4$ MCMC iterations as a function of position in state sequence.  It demonstrates that iPMCMC outperformed all the other algorithms for the early stages of the state sequence, for which mPG performed particularly poorly. Toward the end of state sequence, iPMCMC, mPG and mAPG all gave similar performance, whilst that of mPIMH was significantly worse.
+Figure \ref{fig:meanConv} shows convergence (in MCMC iterations) in the estimate of the latent variable means to the ground-truth solution for iPMCMC and the benchmark algorithms.  It shows that iPMCMC comfortably outperforms the alternatives from around 200 iterations onwards, with only iPMCMC and mAPG demonstrating behavior consistent with the Monte Carlo convergence rate, suggesting that mPG and mPIMH are still far from the ergodic regime.  Figure \ref{fig:meanPos} shows the same errors after $10^4$ MCMC iterations as a function of position in state sequence.  It demonstrates that iPMCMC outperformed all the other algorithms for the early stages of the state sequence, for which mPG performed particularly poorly. Toward the end of state sequence, iPMCMC, mPG and mAPG all gave similar performance, whilst that of mPIMH was significantly worse.
 
 \begin{figure*}[t]
 	\centering
@@ -92,7 +92,7 @@ Figure \ref{fig:meanConv} shows convergence (in MCMC iterations) in the estimate
 \subsubsection{Nonlinear State Space Model}
 \label{sec:nlss}
 
-We next consider the one dimensional nonlinear state space model (NLSSM) considered by, among others,
+We next consider the one-dimensional nonlinear state-space model (NLSSM) considered by, among others,
 \citet{gordon1993novel,andrieu2010particle}
 \begin{subequations}
 	\label{eq:NLSS}

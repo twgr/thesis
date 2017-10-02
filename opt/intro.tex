@@ -25,12 +25,12 @@ A large range of problems are covered by~\eqref{eq:opt:funcMax}.  For example,
 there are arbitrary different types $\vartheta$ might correspond to from the set of real
 values to the setup of race car.  There is also a wide range of information that might
 be known about $f$ -- we might have access to the exact function and all its derivatives,
-or it might be that the only way to evaluate it is to conduct an expensive real world 
+or it might be that the only way to evaluate it is to conduct an expensive real-world 
 experiment with stochastic results at a given value of $\theta$.  Naturally this leads 
 to a plethora of different techniques to suit the different problems at hand such
 as dynamic programming~\citep{bellman2013dynamic}, evolutionary 
 algorithms~\citep{back1996evolutionary}, combinatorial optimization 
-methods~\citep{papadimitriou1982combinatorial}, gradient based 
+methods~\citep{papadimitriou1982combinatorial}, gradient-based 
 methods~\citep{boyd2004convex}, and Monte Carlo based methods~\citep{robert2004monte}.
 Such optimization algorithms can be split into two key categories:
 local optimization approaches and global optimization approaches.  
@@ -98,7 +98,7 @@ of a prior on the target parameters.  Specifically it aims to optimize
 = \argmax_{\theta \in \vartheta} \E \left[p(Y,X|\theta) p(\theta) | Y, \theta\right].
 \end{align}
 As with MML and MMAP estimation, risk minimization problems consider the optimization
-of an expectation.  The key difference is in the fact that the are a \textit{minimization} rather
+of an expectation.  The key difference is in the fact that they are a \textit{minimization} rather
 than a \textit{maximization}, namely they look to find
 \begin{align}
 \label{eq:opt:riskmin}
@@ -108,7 +108,7 @@ for some loss function $L$ which is parametrized by $\theta$ and is typically po
 Depending on the context, $Y$ can either be taken as fixed, or the expectation can be over
 both $X$ and $Y$.  The latter corresponds to the classical risk taken in the frequentist view
 of supervised learning.
-At first the change from
+At first, the change from
 maximization to minimization might seem trivial.  However,
 the fact that probabilities are positive only means that the two problems behave very
 differently.  For example, imagine the problem of designing a bridge and let 
@@ -122,7 +122,7 @@ as this expected probability cannot be dominated by the rare adversarial loading
 In essence, expectations over probabilities are ``optimistic'' and by construction
 focus on the more probable cases.
 
-In the rest of this chapter we will consider in more depth a particular approach
+In the rest of this chapter, we will consider in more depth a particular approach
 for carrying out such optimizations known as Bayesian optimization (BO).
 %two approaches that have been used
 %extensively through machine learning to solve optimization problems such as those 

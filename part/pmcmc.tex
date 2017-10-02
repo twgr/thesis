@@ -20,7 +20,7 @@ from one sweep to the next.
 %means of transferring the information of one iteration to the next which we can do by constructing an appropriate MCMC
 %sampler.  We can then combine the advantages of SMC in its exploitation of the structure of the target with
 %the local updating advantages of MCMC methods.  
-Naturally this will come with the drawbacks of MCMC samplers
+Naturally, this will come with the drawbacks of MCMC samplers
 discussed in Section~\ref{sec:inf:foundation:mcmc}, such as the loss of an unbiased marginal likelihood estimate.
 However, the advantages will generally outweigh these drawbacks.  PMCMC methods will also allow us to explicitly
 treat global parameters of our system differently to the latent states in a manner that can substantially improve
@@ -221,7 +221,7 @@ running \csmc sweeps. As described in Algorithm~\ref{alg:csmc},
 a \csmc sweep is similar to a standard, unconditional \smc sweep, except that it starts
 with an existing \emph{conditional trajectory} $x_{1:T}'$, known as a \emph{retained particle} in the \pg
 context, and runs the sweep conditioned on this conditional trajectory being present in the final sample
-set.  One can think of this as running a SMC sweep conditioned on the predefined particle surviving each
+set.  One can think of this as running an SMC sweep conditioned on the predefined particle surviving each
 of the resampling steps.  In other words, the other particles can sample the retained particle as an
 ancestor but not vice versa, with the values and ancestral path of the retained particle prefixed. 
 Note that running Algorithm~\ref{alg:csmc} corresponds to using a fixed
@@ -254,7 +254,7 @@ Unlike \smc sweeps, \csmc sweeps can be linked together by conditioning each swe
 sampled from the previous sweep with probability proportional to the final particle weights $\bar{w}^i_T$.
 Therefore, once initialized, say using a standard \smc sweep, one can iterate between sampling a retained
 particle in the same manner ancestor indices are sampled and running \csmc sweeps conditioned on this
-retained particle.  This is know as iterated \csmc (ICSMC) and, considerations about global parameters 
+retained particle.  This is known as iterated \csmc (ICSMC) and, considerations about global parameters 
 aside (see Section~\ref{sec:part:pmcmc:global}),  constitutes the \pg algorithm.
 Note that the resampling step must always be done for \csmc sweeps (i.e. the techniques introduced in
 Section~\ref{sec:part:smc:prat:ad-re} cannot be used), as, unlike in an \smc sweep, the resampling for
@@ -305,9 +305,9 @@ defined in~\eqref{eq:part:pimh-est} leads to a consistent estimator.
 \subsection{Path Degeneracy}
 \label{sec:part:pmcmc:path-deg}
 
-A drawback of particle based methods, and in particular the \pg algorithm, is that they can be adversely 
+A drawback of particle-based methods, and in particular the \pg algorithm, is that they can be adversely 
 affected by \emph{path degeneracy} in the (C)SMC sweep.  Path degeneracy is the tendency of the number
-of unique samples to diminish as one follows the ancestry backwards through the sweep.  In other words, because
+of unique samples to diminish as one follows the ancestry backward through the sweep.  In other words, because
 of the resampling, there will typically be fewer (and never more) unique instances of $x_{t-1}$ than of $x_t$
 in the final particle set $\{x_{1:T}^i,\nw_{T}^i\}_{i=1}^T$ and therefore there are often few distinct samples
 for the earlier steps by the end of the sweep.  It is not uncommon for the ancestral paths to collapse back to a single sample for
@@ -345,9 +345,9 @@ problems in the form of the interacting PMCMC algorithm~\citep{rainforth2016inte
 An important feature of PMCMC methods that we have thus far omitted is that they allow for
 distinct treatment of global parameters.  Imagine we are interested in sampling from $p(\theta,x_{1:T} | y_{1:T})$
 where $\theta$ are some global parameters that are of particular importance as they directly
-affect all the other variables, e.g. because they are effect each transition and / or emission distribution.
+affect all the other variables, e.g. because they are effect each transition and or emission distribution.
 As we explained in Section~\ref{sec:part:pmcmc:path-deg}, SMC / PMCMC methods can do relatively poorly on sampling
-the earlier parameters, particularly if these have long range dependencies. One may often therefore wish 
+the earlier parameters, particularly if these have long-range dependencies. One may often therefore wish 
 to use a different sampling scheme
 for the global parameters, which is possible in PMCMC methods using either Gibbs sampling or Metropolis-within-Gibbs
 sampling to update $\theta$, rather than including them in the SMC sweep.
@@ -369,7 +369,7 @@ between running \csmc sweeps, sampling the index of the retained particle, and u
 the retained particle (note the difference to PMMH where $\theta$ is updated independently of $\xb'[r]$).
 Here one either relies on being able to sample from $\theta \sim p(\theta | x_{1:T}=\xb'[r], y_{1:T})$, which is 
 occasionally possible, or uses a MH step to update $\theta$ targeting $p(\theta | x_{1:T}=\xb'[r], y_{1:T})$ as
-a Metropolis-with-Gibbs update.  In the latter case it is typically preferable to carry out multiple update steps
+a Metropolis-with-Gibbs update.  In the latter case ,it is typically preferable to carry out multiple update steps
 on the parameters between each \csmc sweep to ensure fast mixing, noting that the latter is generally at least a 
 factor of $N$ more times expensive.
 
@@ -378,7 +378,7 @@ factor of $N$ more times expensive.
 
 At each \mcmc iteration $r$, we generate $N$ full particle trajectories. 
 Using only one of these as in \eqref{eq:part:pimh-est} might seem a bit wasteful. 
-We can however make use of all particles to estimate expectations of interest for all
+We can, however, make use of all particles to estimate expectations of interest for all
 of the PMCMC methods introduced so far by analytically averaging over the possible
 values of $b$ that could be sampled at each iteration. 
 We can do this noting that $\E\left[\frac{1}{R} \sum_{r=1}^{R} f(\xb'[r]) \right]

@@ -11,7 +11,7 @@ first appear and will require specialist syntax for specifying models.  To this 
 we introduce a new query macro \defopt.  The syntax of \defopt is identical to \defquery except 
 that it has an additional input identifying the variables to be optimized.  As we will
 explain later, \defopt invokes a series of code transformations to produce a number
-of different Anglican queries, each of which is compiled to a CPS style Clojure function using
+of different Anglican queries, each of which is compiled to a CPS-style Clojure function using
 \query and that is then used by the BOPP back end.
 
 A possible na\"{i}ve strategy for identifying the target variables
@@ -110,7 +110,7 @@ For MML estimation, the $\prod_{\ell=1}^{L} h_{\ell,c_{\ell}} (\phi_{\ell} | \xi
 term is removed from the target formulation, thereby removing the terms from the generative
 model on $\theta$, analogously to removing the prior in conventional frameworks.\footnote{Because the 
 	$y_k$ could still depend on $\theta$, this definition does not necessarily always correspond to 
-	the conventional notion of a MML solution.
+	the conventional notion of an MML solution.
 	However, this is a necessary design decision and it does not place any restrictions on the 
 	problems that can be encoded as one can always manually remove the relevant 
 	\observe statements if desired.}

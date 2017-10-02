@@ -36,7 +36,7 @@ $N_0, N_1$, and $N_2$.
 		to a biased solution, such that the error remains bounded as $T$ increases.  Shown in blue is the convergence
 		when setting $N_0=N_1=N_2$, which we see converges at the expected $O(T^{-1/3})$ rate.  The black dashed lines
 		provide a reference for this expected convergence of this estimator.  Shown in green is the convergence when
-		setting $N_0=N_1^2=N_2^2$ which we seen again gives the theoretical convergence rate, this time $O(T^{-1/2})$
+		setting $N_0=N_1^2=N_2^2$ which we see again gives the theoretical convergence rate, this time $O(T^{-1/2})$
 		with the dashed green lines providing reference.\label{fig:multi-nest}}
 \end{figure}	
 
@@ -75,7 +75,7 @@ setup suggested by our theoretical results is $\alpha_1=\alpha_2=0.5$ giving $N_
 $N_2=32$.
 This demonstrates that even for relatively large values of $T$, the finite budget optimal allocation can vary significantly
 from the asymptotically optimal solution.  We also see that the relative optimally can change quite significantly with
-changes to the target problem.  For example, the second modification meant it was more preferable to run less iterations of
+changes to the target problem.  For example, the second modification meant it was more preferable to run fewer iterations of
 the outer estimator, perhaps because it reduced the relative importance of $y^{(0)}$ compared to the other variables
 in $f_1$ and $f_2$.  However, further work is required to
 establish concrete empirical guidelines and investigate whether methods that adaptively allocate the number of

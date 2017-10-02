@@ -6,7 +6,7 @@
 Given our results, it is now natural to ask: what are the implications for nesting probabilistic programming queries?
 In particular, when is doing
 this valid and are there any precautions we can take to avoid problems?  Before
-we get to these question though, we first need to explicitly define what we
+we get to these questions though, we first need to explicitly define what we
 mean by a nested query.  To this end, we distinguish between nested calling
 structures (such as the example given in Figure~\ref{fig:probprog:schell}) and
 queries that do not represent a single estimation, which we will refer
@@ -25,7 +25,7 @@ while the original version of this problem~\cite[Figure 6]{stuhlmuller2014reason
 is actually an (equivalent!) example of a true nested query.  It turns out that this
 constitutes one of our special cases that can be reformulated to a single estimate (namely
 no random variables are passed \emph{to} the nested query).
-In the rest of this section we will delineate possible ways one might want
+In the rest of this section, we will delineate possible ways one might want
 to nested probabilistic program queries and
 assert their respective correctness (or lack thereof) and required conditions.
 Namely, we will consider \emph{sampling} from the conditional distribution
@@ -41,11 +41,11 @@ distribution of one query inside another query.  Due to the ``sample then check'
 Church, all of the examples given in~\cite{stuhlmuller2014reasoning} are by proxy this
 type of query nesting,\footnote{Even though the nested calls are made inside the conditioning
 	predicate for these examples, the semantics of the language is to sample these
-	and then check if the predicate holds as a hard constraint.  This is equivalently to doing a nested
+	and then check if the predicate holds as a hard constraint.  This is equivalent to doing a nested
 	sampling in the program and then evaluating a deterministic predicate using our PPL notation.}
 as is any usage of the \conditional predicate in Anglican.\footnote{This is because 
 	\lsi{conditional} is only currently supported for use
-with \lsi{sample} statements and inference algorithms that do not required the density to be evaluated.}
+with \lsi{sample} statements and inference algorithms that do not require the density to be evaluated.}
 Such problems fall under a more general framework of \emph{nested inference}~\cite{mantadelis2011nesting} or equivalently inference for so-called
 \emph{doubly intractable} distributions~\citep{murray2006mcmc} (or multiply intractable
 	distributions for repeated nesting~\citep{stuhlmuller2014reasoning}).
@@ -98,7 +98,7 @@ distribution exactly.  By normalizing $p(z|y)p(D|y,z)$ within the outer query,
  \conditional has changed the distribution defined by the program.  Another interesting way of looking at this
  is that wrapping \clj{inner} in \conditional has ``protected'' $y$ from the conditioning 
  in \clj{inner} -- noting
- that $\gamma_1 (z,y,D) \propto p(y|D)p(z|y,D)$ -- such that the \observe statement only effects the probability
+ that $\gamma_1 (z,y,D) \propto p(y|D)p(z|y,D)$ -- such that the \observe statement only affects the probability
  of $z$ given $y$ and not the probability of $y$.
  
  Unfortunately the inverse function $f(x) = 1/x$ constitutes
@@ -119,7 +119,7 @@ and practical questions.  For example, because the acceptance rate of an inner q
 value of the input variable, it would presumably not be valid to generate all the variables at once
 and then only accept the sample if every condition is satisfied.
 Church instead takes an approach whereby no sample ever returns until it passes its local acceptance criterion.
-Although doing this for soft conditioning in a automated way might be insurmountably problematic (because of the
+Although doing this for soft conditioning in an automated way might be insurmountably problematic (because of the
 need to choose a valid $C$ in~\eqref{eq:inf:rej-acc-criteria}), it does open up the intriguing prospect
 of providing a standard Monte Carlo convergence rate for a set of inherently nested problems.  This is because although the performance clearly
 gets exponentially worse with increased nesting (as the probability of a successful return is the
@@ -179,9 +179,9 @@ with the product of this marginal likelihood estimate and the internal self-norm
 of the returned sample.  
 If this conditioned is maintained, we can demonstrate the validity of the approach by noting that
 the normalization constant of the nested query is not parameter dependent, i.e. $p(D|y)=p(D)$ 
-using the notation from our earlier example.  It can therefore 
+using the notation from our earlier example.  It can, therefore, 
 be factored into that of the outer query as the nested query now defines the same distribution 
-as if conditional query were replaced with a \defm.  We can therefore actually view inference 
+as if the conditional query were replaced with a \defm.  We can therefore actually view inference 
 on such problems as taking a pseudo-marginal approach, provided that all samples returned from
 conditional are properly weighted~\citep{naessethLS2015nested} as previously described.
 The correctness of this approach then clearly follows from a combination of
@@ -220,7 +220,7 @@ or a specialist consideration by the language back-end (as done by \cite{stuhlmu
 with na\"{i}ve implementations leading to NMC convergence rates.  It emphasizes that
 nested problems with continuous variables are a fundamentally different problem
 class to those with only discrete bounded variables (or only continuous variables at the bottom layer)
-and we must therefore be wary of presuming that results from the discrete case carry over.
+and we must, therefore, be wary of presuming that results from the discrete case carry over.
 Nonetheless, in the same way that it is often necessary to use Monte Carlo rather than enumeration
 for inference in discrete problems because there are too many possible outcomes to enumerate, 
 it will still often be necessary from a practical perspective
@@ -324,11 +324,11 @@ by~\citep{gutmann2016bayesian}.
 		 NMC estimator (consistent as $N,M\rightarrow\infty$) for any static
 		 Bayesian experimental design problem.
 		 Here \lsi{observe*} is a function for returning the log likelihood (it does not
-		 effect the trace probability), \lsi{log-marginal} produces a marginal likelihood estimated
+		 affect the trace probability), \lsi{log-marginal} produces a marginal likelihood estimated
 		 from a collection of weighted samples,
 		 and \lsi{->>} successively applies a series of functions calls,
 		 using the result of one as the last input the next.  When \lsi{outer-E} is invoked,
-		 this runs importance sampling on \lsi{outer-q}, which, in additional to carrying out
+		 this runs importance sampling on \lsi{outer-q}, which, in addition to carrying out
 		 its own computation, calls \lsi{inner-E}.  This in turn invokes another inference over
 		 \lsi{inner-q}, such that a \mc estimate using \lsi{M} samples is constructed for
 		 each sample of \lsi{outer-q}.  Thus \lsi{log-marg} is \mc estimate itself.

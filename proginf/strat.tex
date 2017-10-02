@@ -124,7 +124,7 @@ where all terms in $\gamma(x_{1:n_x}',\lambda)$ (i.e. both \sample and \observe)
 to be evaluated for $j\ge m$, as will $\gamma(x_{1:n_x},\lambda)$ if these are not already known. 
 
 If, on the other hand, our trace becomes invalid
-at any point (noting that we can evaluate the validity of sub traces as we rerun them), we can resort to
+at any point (noting that we can evaluate the validity of sub-traces as we rerun them), we can resort to
 resampling the trace anew from the required point onwards.  Note that we can do this validity evaluation
 and regeneration during the same single forward pass through trace and that whether we do regeneration
 is deterministic for given $\{x_m,x_m'\}$ pair (and thus does not affect the MH acceptance ratio by symmetry).
@@ -202,7 +202,7 @@ that adaptively updates proposal probabilities for which term in the trace to up
 \vspace{-5pt}
 Going from importance sampling to SMC in our framework is remarkably simple
 from an implementation perspective~\citep{wood2014new,paige2014compilation}.  The behavior of the \sample and \clj{result} 
-checkpoints is kept as per the default.  
+checkpoints are kept as per the default.  
 The \observe checkpoints are redefined
 to carry out the same operations, but return a record rather
 than a thunk, returning control to the \anginfer function.  This means that 
@@ -264,7 +264,7 @@ Provided one does not try to support the special treatment of global variables t
 Gibbs allows (i.e. restricting to the iterated CSMC case), extending SMC to particle Gibbs
 is relatively straightforward in our framework.  From a theoretical perspective, the algorithm
 extends from the SMC case in the same way as outside of the probabilistic programming framework.
-From a practical perspective there are two distinct challenges. Firstly, resampling for CSMC
+From a practical perspective, there are two distinct challenges. Firstly, resampling for CSMC
 sweeps does not maintain the target distribution in the same way as SMC~\citep{holenstein2009particle} and so one has
 to be careful that there is no possibility for gratuitous resampling or missing a required resampling step (e.g. 
 we cannot use the adaptive resampling discussed in Section~\ref{sec:part:smc:prat:ad-re}).
@@ -279,13 +279,13 @@ inference methods do not use a stack, this is done by storing the raw $x_{1:n_x}
 particle is thus re-run in a deterministic fashion from a stored $x_{1:n_x}$, regenerating
 all the variables in the program and the continuation.  This is achieved by
 editing the \sample checkpoint so that it deterministically retrieves the $x_j$ for the 
-retained particle, but samples normally for other particles.  For all particles it is also stores the current
+retained particle, but samples normally for other particles.  For all particles it also stores the current
 $x_j$ in case this particle becomes the retained particle at the next sweep.
 Provided one is running a reasonably large number of particles the extra computational cost for
 re-running the retained particle is negligible, but the need to store all the $\{\hxnx^n\}_{n=1}^{N}$
 can noticeably increase the memory requirements.  Other than these minor complications, the
 extension from SMC to particles Gibbs in the probabilistic programming setting is identical to
-that for conventional settings as disucssed in Section~\ref{sec:part:pmcmc:pgibbs}.
+that for conventional settings as discussed in Section~\ref{sec:part:pmcmc:pgibbs}.
 
 \subsubsection{Interacting PMCMC}
 \label{sec:proginf:str:part:ipmcmc}
@@ -335,14 +335,14 @@ Some black-box variational methods~\citep{ranganath_aistats_2014}
 The question of which inference algorithm one should use is a critical, but somewhat subjective and
 problem dependent question.  We now provide some (inevitably biased) practical recommendations for which
 inference algorithms to use in Anglican in its current form.  These
-should be taken as a rough starting point rather than clear cut truth.
+should be taken as a rough starting point rather than clear-cut truth.
 
 Firstly, except for very low dimensional problems, importance sampling should
 be avoided as it is almost universally worse than, e.g. SMC.  Similarly, there is very little reason to use PIMH
 instead of SMC or other PMCMC methods, while RMH or ALMH should generally be preferable to vanilla LMH.
 The relative performance of the MCMC
-based and particle based (including PMCMC) methods will depend on the amount of structure that can
-be exploited in the system by the respective approaches.  The particle based approaches will generally be substantially
+based and particle-based (including PMCMC) methods will depend on the amount of structure that can
+be exploited in the system by the respective approaches.  The particle-based approaches will generally be substantially
 preferable when the \observe statements are interlaced with the \sample statements so that the intermediate
 information can be exploited.  However, if all the variables need to be sampled before making observations, or if
 all the variables are completely independent of one another given the data, SMC will reduce to importance sampling,
@@ -356,9 +356,9 @@ particles and your memory budget is $N$ particles.  Our recommendation is that i
 to run a single SMC sweep with $M$ particles -- all the more advanced algorithms are mostly setup to avoid
 issues that are easily solved by running more particles when you can.  For larger values of $M$, then you should
 keep the number of particles as high as possible (ideally $N$).  Our recommendation here is to use iPMCMC
-as the go-to algorithm as this will rarely be noticeably worse than the other particle based approaches and sometimes
+as the go-to algorithm as this will rarely be noticeably worse than the other particle-based approaches and sometimes
 substantially better, both in terms of per-sample performance and its support for parallelization.
 Two possible exceptions to this are that PGAS and the particle cascade can sometimes still be better
-when $M\gg N$, with the later also supporting effective parallelization of computation.  
+when $M\gg N$, with the latter also supporting effective parallelization of computation.  
 For example, PGAS can be very effective in models where there are extreme restrictions on
 the number of particles that can be run, e.g. due to calling an expensive external simulator.

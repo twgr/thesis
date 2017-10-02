@@ -6,7 +6,7 @@
 Taking stock, what has our compilation
 given access to and what do we not have access to?  The key upshots of our compilation are
 that we have access to a continuation representing the rest of the program at any point
-duing the execution and 
+during the execution and 
 the interactions between the inference back-end and the query code happens only through
 the \sample and \observe statements and the final returned \angstate of each execution.
 Consequently, we have means of running the program
@@ -48,11 +48,11 @@ does not do is alter the deterministic elements of the program (which we can thi
 deterministic functions from one checkpoint to the next)
 or do further analysis on the program source code itself.  
 
-There are four functions required to define an Anglican inference algorithm more generally: a top level 
+There are four functions required to define an Anglican inference algorithm more generally: a top-level 
 \anginfer function and three \checkpoint implementations
 for types \smalltt{trap.sample}, \smalltt{trap.observe}, and \smalltt{trap.return} .  The \anginfer
 implementation must always be written anew, but the \checkpoint implementations can be inherited from
-another inference algorithm of default behavior.  Other than some top level book keeping, the user
+another inference algorithm of default behavior.  Other than some top-level book keeping, the user
 inference command \doquery directly calls the \anginfer function of the specified inference algorithm, providing
 as input the CPS-transformed query, the fixed query inputs, and inference algorithm specific options.
 The \anginfer function is required to then return a lazy infinite sequence of samples, each in the form of

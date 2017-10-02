@@ -28,7 +28,7 @@ Metropolis-Hastings, Gibbs sampling, message passing, and variational inference 
 The extensive use of these core inference approaches throughout Bayesian statistics and machine
 learning means that it makes clear sense to write packages for automating them and which
 make it easy for the user to define appropriate graphical models for which the inference can be automated.
-This both improves efficiency of constructing models and reduces barriers to entry by reducing the
+This both improves the efficiency of constructing models and reduces barriers to entry by reducing the
 required expertise for users.  This inference-first philosophy is taken by a number of successful PPSs
 and inference toolboxes (the distinguishing line between which can be a little blurry), a small number of which we now 
 briefly outline.
@@ -42,7 +42,7 @@ BUGS (Bayesian inference Using Gibbs Sampling) \citep{spiegelhalter1996bugs} and
 Infer.Net \citep{minka_software_2010} is modeling language for defining, and automating approximate inference in
 	both DAGs and Markov random fields, using predominantly message-passing algorithms. Distributions
 	are generally, though not exclusively, restricted to be exponential families.  Branching (i.e. \texttt{if}) 
-	is allowed, but requires enumeration of all possible paths at run time.
+	is allowed but requires enumeration of all possible paths at run time.
 
 LibBi \citep{murray2013bayesian} is a package for doing Bayesian inference for state-space models,
 	using particle-based inference methods (see Chapter~\ref{chp:part}).  It has a strong focus on scalable
@@ -58,7 +58,7 @@ Stan \citep{carpenter2015stan} is a PPS with interfaces to many difference langu
 	derivatives means that there is limited support for discrete variables or branching.
 
 These systems do not allow users to write models that would be difficult (at least for
-an expert) to code without a PPS -- in general they can all be thought of as defining a graphical model
+an expert) to code without a PPS -- in general, they can all be thought of as defining a graphical model
 or sometimes factor graph -- but they offer substantial utility through ease of model exposition and
 automating inference.
 
@@ -69,7 +69,7 @@ As useful as these inference-driven systems are, they do not fit very well with 
 inverting simulators we introduced in Section~\ref{sec:probprog:inv}.  They are still closely tied
 to graphical models and are more toolboxes for streamlining the Bayesian modeling process than
 a means of writing models that would be problematic to define by conventional means.  Achieving
-our long term ambitious aim of making general purpose systems for conducting inference of
+our long-term ambitious aim of making general purpose systems for conducting inference of
 arbitrary simulators will require us to take a somewhat different approach that instead starts
 with a general-purpose language and then attempts to design inference algorithms capable of
 working on arbitrary models and code.  It will be necessary for such systems to
@@ -85,7 +85,7 @@ those that have a non-zero probability of never terminating.  In practice catchi
 be hard or even impossible and so many systems actually adopt a philosophy of applying no restrictions,
 such that it is perfectly possible to define invalid models.  General purpose PPSs actually bring up new
 theoretical questions about what constitutes a valid probability model~\citep{heunen2017convenient} and
-the set of valid definable models is a strict super-set of the those definable by graphical models 
+the set of valid definable models is a strict superset of those definable by graphical models 
 for many systems~\citep{goodman2013principles}.
 
 In the rest of this thesis, we will predominantly focus on these \emph{universal} PPLs~\citep{goodman_uai_2008,staton2016semantics}, 
@@ -98,7 +98,7 @@ prominent higher order PPLs.
 
 Church is a PPL based on Scheme \citep{goodman_uai_2008}.  
 The original seminal paper and accompanying system 
-	forms a foundation on which many of the prominent existing systems are built, through its
+	form a foundation on which many of the prominent existing systems are built, through its
 	demonstration that higher-order probabilistic programs define valid probability models, even in
 	the presence of infinite recursion.  However, Church predominantly only allows hard
 		conditioning,\footnote{Some very limited support for soft-conditioning is provided in current
@@ -110,7 +110,7 @@ The original seminal paper and accompanying system
 	model to be exploited (see Chapters~\ref{chp:part} and \ref{chp:proginf}).  
 	Later systems therefore mostly allow soft conditioning statements to be interleaved
 	through the generative progress (in an analogous manner to likelihood terms), increasing the range
-	of (solvable) models than can be encoded and the potential efficiency of inference algorithms.
+	of (solvable) models that can be encoded and the potential efficiency of inference algorithms.
 	Inference in Church (and its direct derivatives) is typically carried out using either rejection sampling
 	or MCMC.  Church places a particularly strong emphasis on the ability to carry out \emph{nested inference},
 	something we will look into in depth in Chapter~\ref{chp:nest}.
@@ -123,7 +123,7 @@ VentureScript PPL~\citep{mansinghka2014venture}.
 
 WebPPL \citep{goodman_book_2014} is a PPL built using a purely functional subset of Javascript,
 conveniently allowing for embedding in web pages.
-In combines the ability to write a generative process using sampling statements and to add in likelihood
+It combines the ability to write a generative process using sampling statements and to add in likelihood
 terms through a {\small \texttt{factor}} primitive that is analogous to the \observe primitive that we will introduce
 in Section~\ref{sec:probprog:models:first}.  At its back end, WebPPL provides a number of different inference
 algorithms, such as SMC and MCMC methods.
