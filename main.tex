@@ -25,6 +25,7 @@
 % Leave this line alone; it gets things started for the real document.
 \setlength{\baselineskip}{\textbaselineskip}
 
+%\renewcommand{\contentsname}{\hfill Contents \hfill \hfillline}
 
 %%%%% CHOOSE YOUR SECTION NUMBERING DEPTH HERE
 % You have two choices.  First, how far down are sections numbered?  (Below that, they're named but
@@ -51,15 +52,17 @@
 	%for some special reason\\
 	%\end{dedication}
 	
-	%%%%% ACKNOWLEDGEMENTS -- Nothing to do here except comment out if you don't want it.
-	\begin{acknowledgements}
-		\input{misc/acknowledgements}
-	\end{acknowledgements}
 	
 	%%%%% ABSTRACT -- Nothing to do here except comment out if you don't want it.
 	\begin{abstract}
 		\input{misc/abstract}
 	\end{abstract}
+	
+	%%%%% ACKNOWLEDGEMENTS -- Nothing to do here except comment out if you don't want it.
+	\begin{acknowledgements}
+		\input{misc/acknowledgements}
+	\end{acknowledgements}
+	
 	
 	%%%%% MINI TABLES
 	% This lays the groundwork for per-chapter, mini tables of contents.  Comment the following line

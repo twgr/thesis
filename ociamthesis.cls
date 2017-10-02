@@ -261,10 +261,11 @@
 % on its own page.
 
 \newenvironment{acknowledgements}%
-{  \renewcommand{\chapterheadstartvskip}{\vspace*{-30pt}} \begin{alwayssingle}\chapter*{Acknowledgements}
-    \thispagestyle{empty}
-	\pagestyle{empty}
-	\setlength{\baselineskip}{\frontmatterbaselineskip}
+{  \renewcommand{\chapterheadstartvskip}{\vspace*{0pt}} 
+	\begin{alwayssingle}\chapter*{\centering Acknowledgements \\ \hrulefill}
+    %\thispagestyle{empty}
+	%\pagestyle{empty}
+	\setlength{\baselineskip}{\textbaselineskip}
 }
 {\end{alwayssingle}}
 
@@ -276,11 +277,11 @@
 %i.e. tabbed in at both sides, and on its own page.
 
 \renewenvironment{abstract}%
-{  \renewcommand{\chapterheadstartvskip}{\vspace*{-30pt}}
-	 \begin{alwayssingle}\chapter*{Abstract}
-    \thispagestyle{empty}
-    \pagestyle{empty}
-   \setlength{\baselineskip}{\frontmatterbaselineskip}}
+{  \renewcommand{\chapterheadstartvskip}{\vspace*{0pt}}
+	 \begin{alwayssingle}\chapter*{\centering Abstract \\ \hrulefill}
+    %\thispagestyle{empty}
+    %\pagestyle{empty}
+   \setlength{\baselineskip}{\textbaselineskip}}
 {\end{alwayssingle}}
 
 %The abstractseparate environment is for running of a page with the abstract
@@ -317,7 +318,7 @@
 %ROMANPAGES
 %
 % The romanpages environment set the page numbering to lowercase roman one
-% for the contents and figures lists. It also resets
+% for the  and figures lists. It also resets
 % page-numbering for the remainder of the dissertation (arabic, starting at 1).
 %
 % Edited by JEM
