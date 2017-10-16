@@ -216,11 +216,13 @@ there are no higher-order terms that are only dominated asymptotically.
 	\end{align}
 	In the case of a single nesting we can further characterize $O(\epsilon)$ to give
 	\begin{align}
-	\E \left[\left(I_0 - \gamma_0\right)^2\right]  &\le \frac{\varsigma^2_0}{N_0}+\frac{4 K_{0}^2 \varsigma_1^2}{N_0 N_{1}}
+	\E \left[\left(I_0 - \gamma_0\right)^2\right] &\le \frac{\varsigma^2_0}{N_0}+\frac{4 K_{0}^2 \varsigma_1^2}{N_0 N_{1}}
 	+\frac{2 K_{0}\varsigma_{0} \varsigma_1}{N_{0} \sqrt{N_1}}+\frac{K_0 ^2 \varsigma_1^2}{N_1} \\
-	\E \left[\left(I_0 - \gamma_0\right)^2\right]  &\le \frac{\varsigma^2_0}{N_0}+\frac{4 K_{0}^2 \varsigma_1^2}{N_0 N_{1}}
-	+\frac{2 K_{0}\varsigma_{0} \varsigma_1}{N_{0} \sqrt{N_1}}+\frac{C_0 ^2 \varsigma_1^4}{4 N_1^2}
-	+ O\left(\frac{1}{N_1^{3}}\right).
+	\E \left[\left(I_0 - \gamma_0\right)^2\right]  &\le \frac{\varsigma^2_0}{N_0}+\frac{C_0 ^2 \varsigma_1^4}{4 N_1^2}\left(1+\frac{1}{N_0}\right)
+	+\frac{K_{0}^2 \varsigma_1^2}{N_0 N_{1}}
+	+\frac{2 K_{0}\varsigma_1}{N_{0} \sqrt{N_1}}\sqrt{\varsigma_0^2+\frac{C_0 ^2 \varsigma_1^4}{4 N_1^2}}
+	+ O\left(\frac{1}{N_1^3}\right)
+	\label{eq:cont-single}
 	\end{align}
 	for when the continuous differentiability assumption does not hold and 
 	holds respectively.
@@ -235,6 +237,6 @@ all the $f_k$ are also continuously differentiable.
 As estimation requires drawing $T = \prod_{k=0}^{D} N_k$ samples, 
 the convergence rate will rapidly diminish with repeated nesting.  More precisely then the optimal convergence rates,
 as shown~\cite{rainforth2017pitfalls}, are
-$O(T^{\frac{-1}{D}})$ and $O(T^{\frac{-2}{D+1}})$ respectively for the two cases (note the single nesting case 
-is $D=2$), both of which
+$O(T^{\frac{-1}{D+1}})$ and $O(T^{\frac{-2}{D+2}})$ respectively for the two cases (note the single nesting case 
+is $D=1$), both of which
 imply that exponentially more samples are required to achieve a given error as $D$ is increased.
