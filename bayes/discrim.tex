@@ -86,14 +86,14 @@ predictor, generative methods look to explain the observed data using a \emph{pr
 Whereas discriminative approaches aim only to make predictions, generative approaches model
 how the data is actually generated: they model the joint probability $p(X,Y)$ of the inputs 
 $X$ and outputs $Y$.  By comparison, we can think of discriminative approaches as
-only modeling the outputs given the inputs $p(Y|X)$.  
+only modeling the outputs given the inputs $Y|X$.  
 
 A key upshot of this difference
 is that generative approaches generally make stronger modeling assumptions about the problem.  Though
 this can be problematic when the model assumptions are wrong and is often unnecessary in
 the limit of large data, it is essential for combining prior information with data
-and therefore for constructing systems that exploit application-specific human expertise.
-In the words of the great George Box, ``\textit{all models are wrong, but some are useful}''
+and therefore for constructing systems that exploit application-specific expertise.
+In the eternal words of George Box, ``\textit{all models are wrong, but some are useful}''
 \citep{box1979robustness,box2005statistics}.  In a way, this is a self-fulfilling statement: a model for
 any real phenomena
 is by definition an approximation and so is never exactly correct, no matter how powerful.  However,
@@ -149,7 +149,7 @@ This freedom is both a blessing and a curse: it allows us to impart our own know
 the model, but we may be forced to make assumptions without proper justification in the interest
 of tractability, for convenience, in error, or simply because it is challenging to specify a sufficiently
 general purpose model that can cover all possible cases.
-Further, even once the forms of $p(x^i |y)$ and $p(y)$ have been defined, there are still decisions to be
+Further, even after the forms of $p(x^i |y)$ and $p(y)$ have been defined, there are still decisions to be
 made: do we take a Bayesian or frequentist approach for making predictions? What is the best way
 to calculate the information required to make predictions?  We will go into these questions in
 more depth in Section~\ref{sec:bayes:religions}.

@@ -4,7 +4,7 @@
 \label{sec:bayes:paradigm:graph}
 
 Generative models will typically have many variables and a complex \emph{dependency structure}.
-In other words, many of variables will be conditionally independent of one another given values for
+In other words, many variables will be conditionally independent of one another given values for
 other variables.  Graphical models are a ubiquitously used method for representing and reasoning
 about generative models, with a particular focus on the dependency structure.  At a high-level, they
 capture how the joint probability distribution can be broken down into a product of different factors, 
@@ -36,7 +36,7 @@ graphical models (DAGs), i.e. directed graphical models containing no cycles or 
 and arrive back in the starting position.  DAGs, also known as Bayesian networks, are particularly
 useful in the context of Bayesian modeling because they can be used to express \emph{casual relationships}.
 As such, they can be used as a piecewise explanation for how the joint distribution is generated.
-This form a natural means to describe and design models as
+This forms a natural means to describe and design models as
 we can carefully order the breakdown to factorize the distribution into only terms we know.  For example,
 in the linear regression model, we did not know (at least when the model was first defined) 
 $p(\mathcal{D})$ but we did know $p(\mathbf{w})$ and $p(\mathcal{D} | \mathbf{w})$.  Therefore even
@@ -56,9 +56,10 @@ To demonstrate this factorization more explicitly and give a concrete example of
 %By the product rule, we can break this down into a number of different
 %factorizations, but some will typically be more useful than others.  
 imagine a medical diagnostic problem where we wish to predict if a patient has lung cancer.
-et $a$ denote lifestyle and genetic factors of the patient such as whether they smoke
+Let $a$ denote lifestyle and genetic factors of the patient such as whether they smoke
 or have (potentially unknown) preexisting conditions. 
-These will generally either be known or can reasonably estimated by other means, e.g. using tests or
+These will generally either be known or can reasonably be estimated by other means, e.g. using 
+tests or
 by considering prevalence within the population, allowing definition of a prior marginal on $a$, $p(a)$.
 Given these factors, we can develop a model for the probability that a patient will develop
 lung cancer, which we can denote $p(b|a)$ where $b=1$ indicates cancer is the present.  Given the lifestyle and
@@ -138,7 +139,7 @@ refer the reader to~\cite[Section 8.2]{bishop2006pattern}.
 	\end{subfigure}
 	\caption{Examples of DAGs blocked between $a$ and $b$.  \textbf{(a)} is blocked
 		by the second rule of d-separation, while
-		\textbf{(b)} is blocked by the first rule of d-separation.  Consequently, for \textbf{(a)} 
+		\textbf{(b)} is blocked by the first.  Consequently, for \textbf{(a)} 
 		and \textbf{(b)} then $a$ and $b$ are conditionally independent given $c$ and thus
 		$p(b|a,c)=p(b|c)$ and $p(a|b,c)=p(a|c)$.
 		\textbf{(c)} is an instead example of where $a$ and $b$ are \emph{marginally} independent.  Here
@@ -196,7 +197,7 @@ we gain little from working with the DAG compared to just the joint probability 
 A more advanced example where there are substantial independence relationships which can
 be exploited is shown in Figure~\ref{fig:bayes:hmm}.
   This model is known as a hidden Markov 
-model\footnote{The use of the tern HMM in the literature (and later in this paper) often also implies that
+model\footnote{The use of the term HMM in the literature (and later in this paper) often also implies that
 	the latent states are discrete variables, with the equivalent continuous model referred to as a
 	(Markovian) state space model.} (HMM)
 and has $T$ latent variables $x_{1:T}$ and $T$ observations $y_{1:T}$.  The joint distribution is as follows

@@ -11,9 +11,9 @@ a visual scene.  Here it is relatively straightforward to construct a model for 
 constructing a sampler for which objects appear in the scene and their respective positions.  Such
 graphics generators are used for computer games all the time.  Here our parameters are the objects and
 the data is the image.  Bayesian inference can now be thought of as the process of \emph{inverting} our generator:
-given objects, we can already know how to images, but what we want to do is identify objects from images.  We will return
+given objects, we can already know how to generate images, but what we want to do is identify objects from images.  We will return
 to these ideas in Chapter~\ref{chp:probprog} where we show how, using probabilistic programming,
-one can think of all stochastic simulators as defining Bayesian models and as the process of inference as
+one can think of all stochastic simulators as defining Bayesian models and the process of inference as
 inverting these simulators.
 
 To be more precise, imagine we are trying to reason about some variables
@@ -68,14 +68,14 @@ of the universe  -- after all, it is, at least for practical purposes, fundament
 %This sequential updating, at the very least, shares parallels with the process of Bayesian modeling
 %and could be argued to be a fundamentally Bayesian process in its own right.
 
-To give a more concrete example of Bayesian modeling consider estimating
+To give a more concrete example of Bayesian modeling, consider estimating
 the probability of getting a heads from a weighted coin.  Let's call this weighting $\theta \in [0,1]$ such
 that the probability of getting a heads  ($H$)  when flipping the coin is $p(y=H | \theta)=\theta$
 where $y$ is the outcome of the flip.  This will be our likelihood function, corresponding to a
 \emph{Bernoulli} distribution, noting that the probability
 of getting a tails ($T$) is $p(y = T | \theta) = 1-\theta$.
 Before seeing the coin being flipped we have some prior belief about its weighting.  We
-can, therefore, define a prior $p(\theta)$, for which we take the beta distribution
+can, therefore, define a prior $p(\theta)$, for which we will take the beta distribution
 \begin{align}
 \label{eq:bayes:beta}
 p(\theta) = \textsc{Beta}\left(\theta ; \alpha,\beta\right) = \frac{\Gamma(\alpha+\beta)}{\Gamma (\alpha) \Gamma(\beta)}
@@ -96,7 +96,7 @@ a posterior that is of the same form as the prior distribution.  More generally,
 $\textsc{Beta}(\theta ; \alpha, \beta)$ then the posterior will be $\textsc{Beta}(\theta ; \alpha+1, \beta)$
 if we observe a heads and $\textsc{Beta}(\theta ; \alpha, \beta+1)$ if we observe a tails.
 Figure~\ref{fig:inf:coin_flip:1} shows that our
-posterior incorporates the information from the prior and the observed data.  For example, our observations mean that it becomes more probable that $\theta<0.5$.  The posterior
+posterior incorporates the information from the prior and the observed data.  For example, our observation means that it becomes more probable that $\theta<0.5$.  The posterior
 also reflects the fact that we are still uncertain about the value of $\theta$, it is not simply the
 empirical average of our observations which would give $\theta=0$.
 
