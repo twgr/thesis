@@ -39,25 +39,35 @@ applying Bayesian modeling and arguably machine learning more generally.  Furthe
 Chapter~\ref{chp:prob} provides a short, but hopefully gentle, primer on probability theory and
 thereby lays out the foundations upon which all probabilistic machine learning is based.
 Chapter~\ref{chp:bayes} introduces the Bayesian approach to machine learning upon which most of
-this work is based, providing motivation for the framework, but also a critique exposing some of its weaknesses. 
-Chapter~\ref{chp:bayes} introduces the problem of \emph{Bayesian inference}, required to solve all Bayesian
+this work is based, giving motivation for the framework, but also a critique exposing some of its weaknesses. 
+Chapter~\ref{chp:inf} introduces the problem of \emph{Bayesian inference}, required to solve all Bayesian
 modeling problems, focusing on a \emph{Monte Carlo} approach, providing, in particular, a detailed
 introduction to some of the foundational methods.
+
 Chapter~\ref{chp:probprog} provides an introduction to
 probabilistic programming from the perspective of writing models.  Though its earlier
-sections are still predominantly pedagogical (albeit for what is still a relatively niche field),
-much of the core notation for the rest of the thesis is provided in its latter sections, some of
+sections are still predominantly pedagogical,
+much of the core notation for the rest of the thesis is laid out in its latter sections, some of
 which is somewhat distinct to that conventionally used in the literature.
 Chapter~\ref{chp:part} considers a more advanced class of Bayesian inference methods,
 namely sequential Monte Carlo~\citep{doucet2009tutorial} and particle Markov chain Monte
 Carlo methods~\citep{andrieu2010particle},
 building up to our recent contribution to the literature~\citep{rainforth2016interacting}.
-Chapter~\ref{chp:probprog} though not explicitly new research, being in particular an ode
+Chapter~\ref{chp:proginf} though not explicitly new research, being in particular an ode
 to the work of~\cite{tolpin2016design}, still constitutes
 relatively advanced and cutting-edge material in the form of the intricate workings
 of a probabilistic programming system back-end.   Chapter~\ref{chp:opt} is a return
 to slightly more pedagogical material in the form of an introduction to Bayesian optimization.
+
 Chapters~\ref{chp:bopp},~\ref{chp:nest}, and~\ref{chp:design} all outline new
 contributions to the literature both as presented in recent publications of
-ours~\citep{rainforth2016bayesian,rainforth2017pitfalls,vincent2017darc} and newly introduced
-material for this thesis.
+ours~\citep{rainforth2016bayesian,rainforth2017pitfalls,rainforth2017nestpp,
+	vincent2017darc} and newly introduced
+material for this thesis.  Chapter~\ref{chp:bopp} introduces a mixed 
+inference-optimization framework for PPSs using a mixture of Bayesian optimization,
+code transformations, and existing inference engines.  Chapter~\ref{chp:nest}
+considers the statistical implications of nesting Monte Carlo estimators and the
+application of these results to the nesting of probabilistic
+programs.  Chapter~\ref{chp:design} outlines a method for automating adaptive experiments
+for a certain class of psychological trials and takes steps towards designing a general
+purpose PPS for experimental design.

@@ -102,7 +102,7 @@ doing this will involve making a number of noticeable advancements in  distinct 
 as particle Markov chain Monte Carlo methods~\citep{andrieu2010particle},
 Bayesian optimization~\citep{movckus1975bayesian}, and \mc
 fundamentals~\citep{metropolis1949monte}.  Along with the direct merit of
-these advancements, our general aims from a probability programming perspective can be
+these advancements, our general aims from a probabilistic programming perspective can be
 broken down into two themes: improving the underlying inference engines of PPSs and increasing the
 range of problems they can tackle.
 
@@ -136,8 +136,9 @@ of problems from experimental design~\citep{chaloner1995bayesian} to
 theory-of-mind~\citep{stuhlmuller2014reasoning}.  PPSs provide a highly convenient means
 of encoding such problems, but previous results confirming the statistical validity of doing
 so remain substantially lacking.  We provide many of the required foundational theoretical results and
-demonstrate their importance by providing guidelines and precautions for carrying out such nesting,
-both in the specific probabilistic programming context and more generally, highlighting potential
+demonstrate their importance by giving guidelines and precautions for carrying out such nesting,
+both in the specific probabilistic programming context~\citep{rainforth2017nestpp}
+and more generally~\citep{rainforth2017pitfalls}, highlighting potential
 shortcomings in how this is dealt with by existing systems.  We also use our findings to start
 taking steps towards potentially building a general purpose system for automated adaptive
 design, realizing this potential in the restricted setting of psychological trials
