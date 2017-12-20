@@ -12,7 +12,7 @@ will hopefully find it to be a gentle introduction to the key concepts that will
 be understood to follow the rest of the thesis.  Notation has been chosen with accessibility 
 as the primary aim and we will avoid
 the use measure theory where possible.  Nonetheless, a measure theoretic
-approach to probability is essential for a more rigorous understanding and refer
+approach to probability is essential for a more rigorous understanding and we refer
 the interested reader to~\cite{durrett2010probability}.
 
 \section{Random Variables, Outcomes, and Events}
@@ -58,7 +58,7 @@ random variables and outcomes, except for when the distinction is explicitly nec
 
 Somewhat surprisingly, there are two competing (and sometimes incompatible)
 interpretations of probability.  The frequentist interpretation of
-probability is the average proportion of the time an event will occur if a trial is 
+probability is that it is the average proportion of the time an event will occur if a trial is 
 repeated infinitely many times.  The Bayesian interpretation of probability is that it is the subjective
 belief that an event will occur in the process of incomplete information.  Both viewpoints have
 strengths and weaknesses and we will avoid being drawn into one of the biggest debates in
@@ -80,7 +80,7 @@ known as conditioning on that event.  For example, one can condition the probabi
 Events are \emph{independent} if the occurrence of one event does not affect the probability of 
 the occurrence of the other event.  Similarly, random variables are independent if the outcome of
 one random variable does not affect the distribution of the other.  Independence of random variables
-indicates the probability of that variable is the same as the conditional probability given the other
+indicates the probability of each variable is the same as the conditional probability given the other
 variable, i.e. if $X$ and $Y$ are independent, $P(X=x)=P(X=x|Y=y)$ for all possible $y$.  Note that 
 independence does not necessarily carry over when adding or removing a conditioning:
 if $X$ and $Y$ are independent, this does not necessarily mean that $P(X=x|A) = P(X=x|A,Y=y)$
@@ -109,7 +109,7 @@ An immediate consequence of the product rule is Bayes' rule,
 \begin{align}
 P(A|B) = \frac{P(B|A)P(A)}{P(B)},
 \end{align}
-which we return at length in Section~\ref{sec:bayes:paradigm}.
+which we will to return at length in Section~\ref{sec:bayes:paradigm}.
 Another is that for independent random variables, the joint distribution is the product of the
 individual probabilities: $P(A,B)=P(A)P(B)$.
 
@@ -168,10 +168,10 @@ an infinite number of possible outcomes and even though each individual outcome 
 zero probability, the combination of \emph{uncountably infinitely} many such outcomes need
 not also have zero probability.  To more usefully characterize probability in such cases, we can
 define a \emph{probability density function} which reflects the relative probability of areas of
-the space of outcomes.  We can define this by considering the probability
+the space of outcomes.  We can informally define this by considering the probability
 of being some small area of the space of size $\delta x$.  Presuming that the probability density
 $p_{X}(x)$ is roughly constant within our small area, we can say that 
-$p_{X}(x)\delta x \approx P(x\le X <x+\delta x)$ and thus 
+$p_{X}(x)\delta x \approx P(x\le X <x+\delta x)$, thus giving the informal definition
 $p_{X}(x) = \lim\limits_{\delta\rightarrow0} \frac{P(x\le X <x+\delta x)}{\delta x}$.  More 
 precisely we can define the probability density as satisfying
 \begin{align}
@@ -352,7 +352,8 @@ expectation for which we use the slightly loose notation
 \end{align}
 where we have implicitly defined the random variables $Y \sim p(y)$ and $X \sim p(x | Y=y)$,
 we are calculating $\E \left[f(X,Y,z) | Y=y\right]$,
-and this resulting expectation is a function of (deterministic variable) $z$.  One can informally think about this
+and this resulting expectation is a function of $z$ (which is treated as deterministic variable).  
+One can informally think about this
 as being the expectation of $f(x,y,z)$ with respect to $p(x|y)dx$:
 our expectation is only over the randomness associated with drawing from $p(x|y)$.  
 %Thus,
