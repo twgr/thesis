@@ -192,7 +192,7 @@ respectively.
 For our simplified setup, we distinguish between two types of inputs to our queries: external 
 parameters $\phi$ and data $y_{1:S}$.
 The external parameters are defined as the inputs that are 
-not ``observed'' at any point but can effect the conditioning through $\Xi_t$ and $\Lambda_s$.
+not ``observed'' at any point but can affect the conditioning through $\Xi_t$ and $\Lambda_s$.
 We presume that the data terms, defined as the inputs we observe, 
 appear in neither $\Xi_t$ or $\Lambda_s$.
 We now define both \sample and \observe from the probability model perspective
@@ -201,11 +201,11 @@ as adding a factor to the joint distribution which is therefore given by
 \label{eq:probprog:simple-joint}
 p(x_{1:T},y_{1:S} | \phi) = \prod_{t=1}^{T} f_t(x_t | \Xi_t) \prod_{s=1}^{S} g_s(y_s|\Lambda_s).
 \end{align}
-The two vary in whether they define a new random variable (\sample) or effect the probability of the
+The two vary in whether they define a new random variable (\sample) or affect the probability of the
 execution given particular instances of the other random variables (\observe).
 Our presumptions for this simplified setup that no $y_{s}$ terms are present in the $\Xi_t$ or $\Lambda_s$
 and that we do not condition on internally sampled variables, means that the product of the \sample terms
-correspond exactly to our prior $\prod_{t=1}^{T} g_t(x_t | \Xi_t) =: p(x_{1:T} | \phi)$ and that the
+correspond exactly to our prior $\prod_{t=1}^{T} f_t(x_t | \Xi_t) =: p(x_{1:T} | \phi)$ and that the
 product of the \observe terms corresponds exactly to our likelihood
 $\prod_{s=1}^{S} g_s(y_s|\Lambda_s) =: p(y_{1:S} | x_{1:T}, \phi)$.  Consequently, for our simplified setup,
 each query defines a finite DAG (see Section~\ref{sec:bayes:paradigm:graph})
@@ -236,7 +236,7 @@ we can express any expectation calculated by our query as an expectation over $p
 which is fully defined by the joint~\eqref{eq:probprog:simple-joint}.  Another is that, provided we are not worried
 about carrying out optimization, we do not need to explicitly worry about the implicit measures defined
 by the definition of our query, other than any potential effects on the inference scheme and the assumption
-that suitable measures exist~\cite{staton2016semantics}.  In particular,
+that suitable measures exist~\citep{staton2016semantics}.  In particular,
 if our aim is to generate samples from $p(\Omega | y_{1:S}, \phi)$ then
 we can simply generate samples from $p(x_{1:T} | y_{1:S}, \phi)$ and deterministically convert each
 sample to the space of $\Omega$.  In other words, our inference engine does not need to worry about
@@ -279,7 +279,7 @@ setup, along with the assumption that functions are pure other than the effect o
 An important point to note though for why such a language is universal, is that arbitrary distributions
 with countable parameters can be defined through a series of uniform $[0,1]$ draws followed
 by an arbitrary deterministic mapping -- after all, this is effectively how all probability distributions are
-defined from a measure theoretic point of view.\footnote{Interesting, this viewpoint breaks down for
+defined from a measure theoretic point of view.\footnote{Interestingly, this viewpoint breaks down for
 	distributions over functions for which measure theory itself somewhat breaks down~\cite{heunen2017convenient}.
 	As such, universal PPSs actually go beyond the standard measure-theoretic view of probability.}
 
@@ -287,13 +287,13 @@ Despite their ostensibly modest nature,
 these generalization will have a substantial effect on the intuitions relating our universal
 PPL to the Bayesian framework, the range of models we can define, and the difficulty of performing
 general purpose inference.  For example, as $y_s$ terms can appear in the $\Xi_t$ terms,
-it can be the case that $p(x_{1:T} | \phi) \neq \prod_{t=1}^{T} p(x_t | \Xi_t)$, such that the latter no
+it can be the case that $p(x_{1:T} | \phi) \neq \prod_{t=1}^{T} f(x_t | \Xi_t)$, such that the latter no
 longer explicitly corresponds to a conventional definition of a prior.  Some variables may change type (e.g.
 between continuous and discrete) or even not exist depending on the value of other variables.  The number
 of variables may change from one execution to the next and it could even be the case that the number
 of latent variables is unbounded provided that any possible execution has a 
 finite number of variables is with probability $1$, such
-as is the case for certain Bayesian non-parametric models such as the Dirichlet process~\citep{ferguson1973bayesian,teh2011dirichlet}.
+as is the case for certain Bayesian non-parametric models such as the Dirichlet process~\citep{ferguson1973bayesian,teh2011dirichlet,bloemreddy2017rpm}.
 Note that the number \sample and \observe statements lexically defined within our query must,
 for obvious reasons, be finite, but recursion or looping may mean that they are evaluated an infinite
 number of times.  It is also possible for a variable within a query to itself encode an
@@ -341,7 +341,7 @@ of the output of the \sample statements, as $\{x_{1:j},\lambda\}$ deterministica
 further \sample statements encountered.  Consequently, in the same way
 we only needed to worry about $x_{1:n_x}$ to reason about the distribution over the program outputs for
 our simplified case, we can reason about the distribution on all variables in program (for a given $\lambda$) 
-through considering $x_{1:n_x}$ in our general case .  We can thus think of our trace as being defined by $\xnx$.
+through considering $x_{1:n_x}$ in our general case.  We can thus think of our trace as being defined by $\xnx$.
 
 We continue by defining $f_{1},\dots,f_{n_s}$ and $g_{1},\dots,g_{n_o}$ respectively as the densities (with respect to
 an implicitly defined reference measure) associated with the $n_s$ \sample 
@@ -402,13 +402,13 @@ defined, normalized, conditional distribution, or ``posterior'', on the produced
 Note that this definition is
 explicitly on outcomes of the trace and so, in general, $p(\mT = x_{1:j} | \lambda) \neq
 \int p(\mT = x_{1:n_x} | \lambda) dx_{j+1:n_x}$.  In fact, because $x_{1:j}$ deterministically 
-dictates where $x_{j+1}$ exists, it is not possible to have $\mathcal{B}(x_{1:n_x},\lambda)=\mathcal{B}(x_{1:j},\lambda)=1$,
-i.e. we cannot have that both $x_{1:j}$ and $\{x_{1:j},x_{j+1:n_x}\}$ are complete traces.
+dictates whether $x_{j+1}$ exists, it is not possible to have $\mathcal{B}(x_{1:n_x},\lambda)=\mathcal{B}(x_{1:j},\lambda)=1$,
+i.e.~we cannot have that both $x_{1:j}$ and $\{x_{1:j},x_{j+1:n_x}\}$ are complete traces.
 Consequently, it is always necessary that at least one of
 $p(\mT = x_{1:j} | \lambda)$ and $p(\mT = x_{1:n_x} | \lambda)$ are equal to zero.  Note though
 that we can still define a program that places non-zero weight on, for example,
-both the outputs $[2.3,3.5]$ and $[2.3,3.5,1.2]$, remembering that $\xnx$ relates to the raw
-outputs of the \sample statements.
+both the \emph{outputs} $[2.3,3.5]$ and $[2.3,3.5,1.2]$, remembering that $\xnx$ relates to the 
+\emph{raw draws} from the \sample statements.
 
 \begin{figure}[p]
 	\centering
@@ -484,7 +484,7 @@ so our running score is $1\times0.2\times1=0.2$.
 Reassigning $u$ and $p$ we see that  $p=0.014\le \exp(-4)$ is now true and so we take
 the opposite branch to before with our if statement, thus breaking the while loop.  To
 finish the program we pass through $g_1(y_2 | \psi_2) = \textsc{Bernoulli}(k>3;0.99) = 0.01$
-giving the final unnormalized density of $\gamma(x_{1:n_x}=[0.2,0.07],\lambda=4)=0.002$ and an output of $k=1$.
+giving the final unnormalized density of $\gamma(x_{1:n_x}=[0.2,0.07],\lambda=4)=0.01\times0.2 = 0.002$ and an output of $k=1$.
 We finish by checking that our trace was valid, which we can easily see is the case because
 no terms were undefined and we generated the correct number of sample outputs (i.e. $n_x=2$ as
 required).
