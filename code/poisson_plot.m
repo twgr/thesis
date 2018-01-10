@@ -14,7 +14,7 @@ interpreter = 'latex';
 
 figure('units','normalized','outerposition',[0 0 1 1]);
 bar(k,P,0.5)
-ylabel('$P(k)$','Interpreter',interpreter);
+ylabel('$P(k|\lambda=4)$','Interpreter',interpreter);
 xlabel('$k$','Interpreter',interpreter);
 ylim([0,0.45]);
 xlim([-0.5,np-0.5]);
