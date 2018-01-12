@@ -7,7 +7,11 @@ Bayesian optimization (BO) is a
 global optimization scheme that requires only that the target
 function can be evaluated (noisily) at any given
  point~\citep{movckus1975bayesian,jones1998efficient,osborne2009gaussian,brochu2010tutorial,shahriari2016taking}.  
- It does not require derivatives,
+ It does not require derivatives,\footnote{Nonetheless, derivative measurements, if available, can still often
+ 	be exploited to improve the BO procedure.  For example, when using a GP surrogate, we can exploit
+ 	the linearity of differentiation to update our surrogate with evaluations of the function derivative in an analogous
+ 	manner as updating with function evaluations. See, for example, \cite[Section 4.7]{osborne2010bayesian}
+ 	for more details.}
 naturally incorporates noisy evaluations, and is typically highly efficient 
 in the number of function evaluations.  It is therefore suited to
 problems where the target function corresponds to the output of a simulator,

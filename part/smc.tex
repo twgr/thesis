@@ -73,9 +73,11 @@ If the model is in fact Markovian with Gaussian or discrete transition distribut
 emission distributions, then the posterior can be calculated analytically using the \emph{Rauch-Tung-Striebel}
 smoother~\citep{rauch1965maximum} and \emph{forward-backward} algorithm~\citep{rabiner1986introduction} respectively.
 The former corresponds to the class of Kalman filter~\citep{kalman1960new} and Kalman smoother~\citep{rauch1965maximum}
-algorithms.  These are often used for Bayesian modeling of dynamics and
-are a good example of where approximations are often made in Bayesian approaches in the interest of
-tractability.  SMC will allow us to perform inference in similar models, amongst many others, without requiring
+algorithms.  
+%These are often used for Bayesian modeling of dynamics and
+%are a good example of where approximations are often made in Bayesian approaches in the interest of
+%tractability.  
+SMC will allow us to perform inference in similar models, amongst many others, without requiring
 such assumptions to be made.  Naturally, this will come at the cost of not having access to a closed-form solution.
 
 \subsection{Sequential Importance Sampling}

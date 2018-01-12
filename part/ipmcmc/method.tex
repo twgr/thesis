@@ -321,8 +321,8 @@ As we discussed for the PIMH and \pg cases in Section~\ref{sec:part:pmcmc:all},
 it can be wasteful to throw away most of our generated samples.  Thankfully we
 can again carry out a Rao-Blackwellization for \ipmcmc to 
 make use of all particles when estimating expectations of interest.  To do this
-we will at each Gibbs update $j$, averaging over the possible new values for the 
-conditional node index $c_j$ and corresponding particle index $b_j$. We can do this by replacing $\frac{1}{P}\sum_{j=1}^P f(\xb_j'[r])$ 
+we average over the possible new values for the 
+conditional node index $c_j$ and corresponding particle index $b_j$ at each Gibbs update $j$. We can do this by replacing $\frac{1}{P}\sum_{j=1}^P f(\xb_j'[r])$ 
 in \eqref{eq:mcestimate} by
 \begin{align*}
 \frac{1}{P}\sum_{j=1}^P \E\left[f(\xb_j'[r]) \middle| \xi_{1:M}, c_{1:P\backslash j} \right] 

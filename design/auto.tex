@@ -1,4 +1,4 @@
-% !TEX root =  main.tex
+% !TEX root =  ../main.tex
 
 \section{Automating Sequential Design Problems}
 \label{sec:design:seq}
@@ -96,7 +96,7 @@ duty estimation algorithm that may not be suitable for problems that are relativ
 but for which speed is paramount.  Many of the possible applications of our approach, such
 as the DARC toolbox, require rerunning in real-time with human participants, for which BOPP would
 thus be inappropriate.\footnote{Nonetheless, if the surrogate in BOPP
-	was replaced with a more lightweight regressor, e.g. a random forest~\cite{hutter2011sequential},
+	was replaced with a more lightweight regressor, e.g. a random forest~\citep{hutter2011sequential},
 	then the resulting algorithm could prove a viable alternative even under strict time pressure.}
 We instead construct a new approach
 that exploits the fact that~\eqref{eq:u_bar_MC} need not generate distinct $\theta_n$ to evaluate

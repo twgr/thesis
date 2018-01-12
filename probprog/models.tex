@@ -587,3 +587,16 @@ The rationale for factoring by the exponentiation of the observed value rather t
 is firstly to ensure that the factor is positive and secondly because it will be beneficial for
 our system to work with log probabilities at its back-end to avoid numerical underflow issues.  Similarly,
 we will in practice specify distribution objects using their log densities.
+
+\subsection{Representing Undirected Graphical Models}
+\label{sec:probprog:models:undirected}
+
+One important feature of our general setup that is not held by our simplified setup
+is an ability to represent undirected graphical models.  This distinction stems from the
+ability to include multiple probability
+factors for the same variable.  The easiest way to think
+about representing an undirected model in our system is by writing an importance sampler.  For example, if
+we have an undirected graphical model on the variables $a$, $b$, and $c$ with factors $f_1(a,b)$ and $f_2(b,c)$
+then we could first propose values $\{a,b,c\}\leftarrow $\sample$(q(a,b,c))$, observe our factors \observe$(\log f_1(a,b))$
+and \observe$(\log f_2(b,c))$, and finally ``undo'' the effect on the trace probability of our initial sampling using
+\observe$(-\log(q(a,b,c)))$.
