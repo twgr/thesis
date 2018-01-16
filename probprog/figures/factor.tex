@@ -1,0 +1,22 @@
+% !TEX root = ../../main.tex
+
+\begin{tikzpicture}
+
+\node[latent]                               (a) {$a$};
+\factor[right=0.4cm of a, yshift=0.8cm]          {f-1}       {left:$f_1$} {} {} ; %
+\node[latent,right=0.4cm of f-1, yshift=0.8cm]                    (b) {$b$};
+\factor[right=0.4cm of b, yshift=-0.8cm]          {f-2}       {right:$f_2$} {} {} ; %
+\node[latent,right=0.4cm of f-2, yshift=-0.8cm]                    (c) {$c$};
+\factor[right=1.25cm of a]          {f-3}       {above:$f_3$} {} {} ; %
+
+
+%\edge[-] {a} {f1} ; %
+%\edge[-] {f1} {b} ; %
+%\edge[-] {b} {f2} ; %
+%\edge[-] {f2} {c} ; %
+
+\factoredge[-] {a} {f-1} {b} ; %
+\factoredge[-] {b} {f-2} {c} ; %
+\factoredge[-] {a} {f-3} {c} ; %
+
+\end{tikzpicture}

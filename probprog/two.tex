@@ -54,8 +54,13 @@ PyMC3 \citep{salvatier2016probabilistic} is a python framework for carrying out 
 Stan \citep{carpenter2015stan} is a PPS with interfaces to many difference languages and a
 	focus on performing Hamiltonian Monte Carlo inference~\citep{duane1987hybrid,hoffman2014no}, though
 	other inference methods such as variational inference are also provided~\citep{kucukelbir2015automatic}.
-	As with PyMC3, automatic differentiation is used to calculate required gradients.  The need to take
+	As with PyMC3, automatic differentiation~\citep{baydin2015automatic} is used to calculate the required gradients.  The need to take
 	derivatives means that there is limited support for discrete variables or branching.
+	
+Edward~\citep{tran2016edward} is a PPS based around Tensorflow~\citep{abadi2016tensorflow} that
+	supports directed graphical models, neural networks, and combinations of both.  It supports both
+	Monte Carlo and variational inference methods (again using automatic differentiation) and has a strong emphasis
+	on model criticism.
 
 These systems do not allow users to write models that would be difficult (at least for
 an expert) to code without a PPS -- in general, they can all be thought of as defining a graphical model
@@ -127,6 +132,11 @@ It combines the ability to write a generative process using sampling statements 
 terms through a {\small \texttt{factor}} primitive that is analogous to the \observe primitive that we will introduce
 in Section~\ref{sec:probprog:models:first}.  At its back end, WebPPL provides a number of different inference
 algorithms, such as SMC and MCMC methods.
+
+Pyro~\citep{pyro-software} and ProbTorch~\citep{siddharth2017learning} are two early-stage PPLs based on 
+PyTorch~\cite{paszke2017automatic} that share 
+many design characteristics.  Similarly to Edward, they allow modeling of neural networks, but differ
+in that they construct gradients dynamically, allowing things such as stochastic control and recursion.
 
 The price for the expressivity of these general purpose systems is a substantial extra 
 burden on the inference engine, as we will

@@ -582,21 +582,73 @@ score functions, calling them {\small \texttt{score}} and {\small \texttt{factor
 We can also allow such functionality in our setup by defining a
 special distribution class, \boppfactor, which can only be used with \observe, takes no parameters, and 
 adds a factor to the trace probability equal to the exponentiation of the observed value.  Thus, for example, we could use
-\observe (\boppfactor$(),\log(g(\psi)))$ to factor the trace probability by the output of the function $g(\psi)$.
+\observe (\boppfactor$,\log(g(\psi)))$ to factor the trace probability by the output of the function $g(\psi)$.
 The rationale for factoring by the exponentiation of the observed value rather than the observed value itself
 is firstly to ensure that the factor is positive and secondly because it will be beneficial for
 our system to work with log probabilities at its back-end to avoid numerical underflow issues.  Similarly,
 we will in practice specify distribution objects using their log densities.
 
-\subsection{Representing Undirected Graphical Models}
+\subsection{Representing Undirected Models}
 \label{sec:probprog:models:undirected}
 
 One important feature of our general setup that is not held by our simplified setup
-is an ability to represent undirected graphical models.  This distinction stems from the
-ability to include multiple probability
-factors for the same variable.  The easiest way to think
-about representing an undirected model in our system is by writing an importance sampler.  For example, if
-we have an undirected graphical model on the variables $a$, $b$, and $c$ with factors $f_1(a,b)$ and $f_2(b,c)$
-then we could first propose values $\{a,b,c\}\leftarrow $\sample$(q(a,b,c))$, observe our factors \observe$(\log f_1(a,b))$
-and \observe$(\log f_2(b,c))$, and finally ``undo'' the effect on the trace probability of our initial sampling using
-\observe$(-\log(q(a,b,c)))$.
+is an ability to represent undirected models.  This distinction stems from the
+ability to include multiple probability factors for the same variable.  Perhaps the easiest way to think
+about representing an undirected model in our system is by writing an importance sampler, an example of which
+is shown in Figure~\ref{fig:probprog:undir}.   Because the set of \sample statements in a program must
+form a directive generative model, we here use a proposal that generates all the required variables before
+using \observe statements to correct the trace density to that which is desired.
+
+\begin{figure}[t]
+	\centering 
+%			\begin{minipage}[b]{0.28\textwidth}
+%				\centering	~~
+%				\resizebox{0.9\textwidth}{!}{
+%					\input{probprog/figures/undir.tex}}		
+%				\subcaption{Undirected graph\label{fig:probprog:undir-graph}
+%				}
+%			\end{minipage}
+						\begin{minipage}[b]{0.49\textwidth}
+							\centering	~~
+							\resizebox{0.9\textwidth}{!}{
+								\input{probprog/figures/factor.tex}}		
+							\subcaption{Factor graph\label{fig:probprog:undir-factor}
+							}
+						\end{minipage}
+						~
+		\begin{minipage}[b]{0.49\textwidth}
+			\centering
+			~~~~~
+			\begin{algorithmic}[1]
+				\renewcommand{\algorithmicrequire}{\textbf{Inputs:}}
+				\renewcommand{\algorithmicensure}{\textbf{Outputs:}}			 
+				\Require Proposal parameters $\mu,\Sigma$
+				\State $q\leftarrow$ \lstinline$mvn$ $(\mu,\Sigma)$
+				\State $[a,b,c] \leftarrow$ \sample ($q$)
+				\State \observe(\boppfactor, $-\log(q(a,b,c))$)
+				\State \observe(\boppfactor, $\log(f_1(a,b))$)
+				\State \observe(\boppfactor, $\log(f_2(b,c))$)
+				\State \observe(\boppfactor, $\log(f_3(a,c))$)
+				\State \Return $[a,b,c]$
+			\end{algorithmic}
+			\subcaption{Query code\label{fig:probprog:undir-code}}
+		\end{minipage}
+	\caption{Example of modeling an undirected model using our general purpose setup.  Here
+		we have an undirected factor graph model (see e.g.~\cite{bishop2006pattern}) which we
+		can encode in our general purpose setup by writing down an importance sampler which
+		first samples the variables from some proposal $q$, before correcting the unwanted effect
+		this has on the probability trace by adding in a factor equal to the reciprocal of the density.
+		Provided that $q$ is a valid proposal (see Section~\ref{sec:inf:foundation:importance}), the
+		query defines the same distribution as the factor graph.
+		\label{fig:probprog:undir}
+		\vspace{5pt}}
+\end{figure}
+
+Although this approach allows one to encode undirected models, it can sometimes be an somewhat
+cumbersome approach.  For example, it forces the user to choose an appropriate proposal
+which somewhat goes against the philosophy of automating inference.  Furthermore, though one is not restricted 
+to using importance sampling for the inference, performance
+may still suffer compared to methods specifically designed for working on
+factor graphs.  Therefore, using PPLs such as Infer.Net~\citep{minka_software_2010} and Factorie~\citep{mccallum_nips_2009}
+that are explicitly built around effective support for factor graphs will often tend to be preferable for
+models that are well represented by conventional factor graphs.
