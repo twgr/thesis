@@ -157,7 +157,7 @@ number of possible outcomes.\footnote{Technically speaking, discrete random vari
 	However, this countable infinity is much smaller than the \emph{uncountably infinite} number
 	of possible outcomes for continuous random variables.}
 Things get somewhat more complicated if our variables are continuous.  Consider for example
-the probability that a runner takes exactly $\pi$ (i.e. $3.14\dots$) hours to run a marathon $P(X=\pi)$.  
+the probability that a runner takes exactly $\pi$ (i.e. $3.14159265\dots$) hours to run a marathon $P(X=\pi)$.  
 Clearly, the probability
 of this particular event is zero, $P(X=\pi)=0$, as is the probability of the runner taking any other exact time
 to complete the race: we have an infinite number of possible outcomes, each with zero probability
@@ -185,10 +185,9 @@ that $X$ is less than equal to the outcome $x$
 \label{eq:prob:cumulative}
 P(X\le x) = \int_{-\infty}^{x} p_{X}(u) du,
 \end{align}
-where $u$ is a dummy variable.
-Most of the key rules of probability theory, such as the sum rule, the product rule, and Bayes
-rule, apply equally well to continuous and discrete random variables.  All that is required
-is that we replace the summations with integrals over the appropriate variable. 
+where $u$ is a dummy variable.  The fundamental laws of probability discussed in the last
+section apply equally well to probability densities, replacing summations with integrals
+as and when required.
 
 In the rest of the thesis will drop the notation $p_{X}(x)$, using simply $p(x)$ instead.
 The main rationale for this is that we will regularly use probability density functions that we do

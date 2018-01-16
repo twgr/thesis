@@ -53,10 +53,10 @@ that we actually receive and $\theta$ being some underlying truth or oracle from
 that there is
 no need for $\theta$ to be some explicit finite parameterization.  Any machine learning approach will take the data as input and
 return some artifact or decision, for example, predictions for previously unseen inputs.  
-Let's call this process the decision rule $\delta$, which we presume, for the sake of argument, to be 
-deterministic for a giving dataset, producing decisions $\delta(X)$.\footnote{If we allow our predictions to be probability
+Let's call this process the decision rule $d$, which we presume, for the sake of argument, to be 
+deterministic for a giving dataset, producing decisions $d(X)$.\footnote{If we allow our predictions to be probability
 distributions this assumption is effectively equivalent to assuming we can solve any analysis required by our approach exactly.}
-Presuming that our analysis is not frivolous, there will be some loss function $L(\delta(X),\theta)$ associated with the action we take
+Presuming that our analysis is not frivolous, there will be some loss function $L(d(X),\theta)$ associated with the action we take
 and the true parameter $\theta$, even if this loss function is subjective or unknown.  At a high level, our aim is always to
 minimize this loss, but what we mean by minimizing the loss changes between the Bayesian and frequentist settings.  
 
@@ -65,7 +65,7 @@ frequentist setting, $X$ is a random variable but $\theta$ is not.  Therefore, o
 that could have been generated, giving the frequentist risk~\citep{vapnik1998statistical}
 \begin{align}
 \label{eq:bayes:freq-risk}
-R(\theta,\delta)  = \E\left[L(\delta(X),\theta) | \theta \right]
+R(\theta,d)  = \E\left[L(d(X),\theta) | \theta \right]
 \end{align}
 which is thus a function of theta and our decision rule.
 The frequentist focus is therefore on \emph{repeatability}, i.e.
@@ -78,31 +78,31 @@ the parameters and using all the information at hand.  Therefore one takes an ex
 to make predictions conditioned on the value of $X$, giving the \emph{posterior expected loss}~\citep{robert2007bayesian}
 \begin{align}
 \label{eq:bayes:bayes-est}
-\varrho(\pi,\delta(X) | X) = \E_{\pi(\theta | X)} [L(\delta(X),\theta) | X],
+\varrho(\pi,d(X) | X) = \E_{\pi(\theta | X)} [L(d(X),\theta) | X],
 \end{align}
-where $\pi(\theta | X)$ is our posterior distribution on $\theta$.  Although $\varrho(\pi,\delta(X) | X)$ 
+where $\pi(\theta | X)$ is our posterior distribution on $\theta$.  Although $\varrho(\pi,d(X) | X)$ 
 is a function of the data, the Bayesian
 approach takes the data as given (after all we have a particular dataset) and so for a given prior and decision rule, the posterior
 expected loss is a fixed value and, unlike in the frequentist case, further assumptions are not required to
-calculate the optimal decision rule $\delta$.  To see this, we can consider calculating the 
+calculate the optimal decision rule $d$.  To see this, we can consider calculating the 
 \emph{Bayes risk}~\citep{robert2007bayesian}, 
 also known as the \emph{integrated risk}, which averages over both data and parameters
 \begin{align}
 	\label{eq:bayes:bayes-risk}
-r(\pi,\delta) = \E \left[\E_{\pi(\theta | X)} [L(\delta(X),\theta) | X]\right] = 
-\E_{\pi(\theta | X)} \left[\E\left[L(\delta(X),\theta) | \theta \right] \right].
+r(\pi,d) = \E \left[\E_{\pi(\theta | X)} [L(d(X),\theta) | X]\right] = 
+\E_{\pi(\theta | X)} \left[\E\left[L(d(X),\theta) | \theta \right] \right].
 \end{align}
 Here we have noted that we could have equivalently taken the expectation of the frequentist
 risk over the posterior, such that, despite the name, the Bayes risk is neither wholly Bayesian
 nor frequentist.  It is now straightforward to show (see e.g.~\citep{robert2007bayesian}) that the
-decision function which minimizes $r(\pi,\delta)$ is obtained by, for each possible dataset $X\in\mX$,
-choosing the decision that minimizes the posterior expected loss, i.e. $\delta(X) = \argmin_{\delta(X)} \varrho(\pi,\delta(X) | X)$.
+decision function which minimizes $r(\pi,d)$ is obtained by, for each possible dataset $X\in\mX$,
+choosing the decision that minimizes the posterior expected loss, i.e. $d(X) = \argmin_{d(X)} \varrho(\pi,d(X) | X)$.
 By comparison, because the frequentist risk is still a function of the parameters,
  further work is required to define the optimal decision rule, e.g. by taking a \emph{minimax}
 approach~\citep{vapnik1998statistical}.
 We now see that the Bayesian approach can be relatively optimistic, as it is constrained to choose
 decisions that optimize the expected loss,
-whereas the frequentist approach allows, for example, $\delta$ to be chosen in a manner that
+whereas the frequentist approach allows, for example, $d$ to be chosen in a manner that
 optimizes for the worst case $\theta$.
 
 We now introduce some shortfalls that originate from taking each approach.  We emphasize that we are only

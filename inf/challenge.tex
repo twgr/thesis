@@ -47,7 +47,7 @@ for each $\theta$.  Now presume that for some reason we are only able to evaluat
 $\theta=1$ and $\theta=2$, giving $p(\mathcal{D}|\theta=1)=1$ and $p(\mathcal{D}|\theta=2)=10$ respectively.  Depending on the marginal
 likelihood $p(\mathcal{D})$, the posterior probability of $P(\theta=2 | \mathcal{D})$ will vary wildly.  For example,
 $p(\mathcal{D})=4$ gives $P(\theta=2 | \mathcal{D}) = 5/6$, while $p(\mathcal{D})=1000$ gives $P(\theta=2 | \mathcal{D}) = 1/100$.  Though this
-example may seem far-fetched, this is the scenario almost always seen in practice for realistic
+example may seem far-fetched, this lack of knowledge of the marginal likelihood is almost always seen in practice for realistic
 models, at least those with non-trivial solutions.   Typically it is not
 possible to enumerate all the possible values of $\theta$ in a reasonable time and we are left 
 wondering -- how much probability mass is left that we have not seen?  The problem is even worse 
