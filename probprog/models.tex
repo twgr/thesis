@@ -434,13 +434,13 @@ both the \emph{outputs} $[2.3,3.5]$ and $[2.3,3.5,1.2]$, remembering that $\xnx$
 			\Require Event rate $\lambda$ 
 			\State $L\leftarrow\exp(-\lambda)$, ~$k\leftarrow0$, ~$p\leftarrow1$
 			\While{$p>L$}
-			\State $u\leftarrow$\sample$(\textsc{Uniform}(0,1))$
+			\State $u\leftarrow$\sample(\lstinline$uniform$ (0,1))
 			\State $p\leftarrow pu$
 			\IIf{$p\le L$}; \textbf{break while}; \EndIIf
-			\State \observe(\textsc{Bernoulli}(0.2), 1)
+			\State \observe(\lstinline$bernoulli$ (0.2), 1)
 			\State $k\leftarrow k+1$
 			\EndWhile
-			\State \observe(\textsc{Bernoulli}(0.99),~$\mathbb{I}(k\text{>}3)$)
+			\State \observe(\lstinline$bernoulli$ (0.99),~$\mathbb{I}(k\text{>}3)$)
 			\State \Return $k$
 		\end{algorithmic}
 		\subcaption{Query code for warped Poisson sampler\label{fig:probprog:poi-code}}

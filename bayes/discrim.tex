@@ -146,7 +146,7 @@ likelihood approach by calculating
 \end{align}
 and then using these parameters to make predictions $\tilde{y}$ at a given input $\tilde{x}$ at test time as follows
 \begin{align}
-p_{\psi^*,\phi^*}(\tilde{y} | x_{1:N}) \propto p_{\psi^*}(\tilde{y})\prod_{n=1}^{N} p_{\phi^*}(\tilde{x} | \tilde{y}).
+p_{\psi^*,\phi^*}(\tilde{y} | \tilde{x}) \propto p_{\psi^*}(\tilde{y}) p_{\phi^*}(\tilde{x} | \tilde{y}).
 \end{align}
 
 The freedom to choose the form for $p_{\psi}(x | y)$ and $p_{\phi}(y)$

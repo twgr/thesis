@@ -84,19 +84,19 @@ where $\pi(\theta | X)$ is our posterior distribution on $\theta$.  Although $\v
 is a function of the data, the Bayesian
 approach takes the data as given (after all we have a particular dataset) and so for a given prior and decision rule, the posterior
 expected loss is a fixed value and, unlike in the frequentist case, further assumptions are not required to
-calculate the optimal decision rule $d$.  To see this, we can consider calculating the 
+calculate the optimal decision rule $d^*$.  To see this, we can consider calculating the 
 \emph{Bayes risk}~\citep{robert2007bayesian}, 
 also known as the \emph{integrated risk}, which averages over both data and parameters
 \begin{align}
 	\label{eq:bayes:bayes-risk}
-r(\pi,d) = \E \left[\E_{\pi(\theta | X)} [L(d(X),\theta) | X]\right] = 
-\E_{\pi(\theta | X)} \left[\E\left[L(d(X),\theta) | \theta \right] \right].
+r(\pi,d) = \E \left[\varrho(\pi,d(X) | X)\right] = 
+\E_{\pi(\theta | X)} \left[R(\theta,d)\right].
 \end{align}
 Here we have noted that we could have equivalently taken the expectation of the frequentist
 risk over the posterior, such that, despite the name, the Bayes risk is neither wholly Bayesian
 nor frequentist.  It is now straightforward to show (see e.g.~\citep{robert2007bayesian}) that the
 decision function which minimizes $r(\pi,d)$ is obtained by, for each possible dataset $X\in\mX$,
-choosing the decision that minimizes the posterior expected loss, i.e. $d(X) = \argmin_{d(X)} \varrho(\pi,d(X) | X)$.
+choosing the decision that minimizes the posterior expected loss, i.e. $d^*(X) = \argmin_{d(X)} \varrho(\pi,d(X) | X)$.
 By comparison, because the frequentist risk is still a function of the parameters,
  further work is required to define the optimal decision rule, e.g. by taking a \emph{minimax}
 approach~\citep{vapnik1998statistical}.
