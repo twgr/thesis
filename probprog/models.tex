@@ -492,8 +492,9 @@ required).
 An important point of note is that, in general, $\gamma(x_{1:n_x}, \lambda)$ is not a normalized joint distribution.  This is firstly,
 and most obviously, because $\lambda$ might contain terms, referred to as $\phi$ before, that are not
 observed and so have no implied density.  Secondly, and more critically, even if $\phi = \emptyset$,
-$\gamma(x_{1:n_x}, \lambda)$ is not necessarily correctly normalized, because of the ability to observe sampled variables and
-condition the \sample statements on the observations.  As a simple example, our model
+$\gamma(x_{1:n_x}, \lambda)$ is not necessarily correctly normalized, because of the ability to observe sampled variables 
+and condition the \sample statements on the observations. 
+As a simple example, our model
 might consist of a $x_1 \leftarrow$\sample(\normal(0,1)) term followed by an \observe(\normal$(-1,2,x_1)$)
 term.  This does not directly define any properly normalized joint distribution on any particular variables
 (noting that $\mathcal{N}(x_1;0,1) \mathcal{N}(x_1;0,2)$ is an unnormalized distribution with only the variable
@@ -504,7 +505,7 @@ modeling framework and raises a number of interesting theoretical questions.  Ho
 practical perspective, we can note that provided the implicitly defined normalization constant is finite,
 the query also implicitly defines a correctly normalized conditional distribution (noting that
 $\gamma(x_{1:n_x}, \lambda) \ge0$).
-This is analogous to knowing the joint but not the posterior in Bayesian inference, though it is exactly
+This is analogous to knowing the joint but not the posterior in Bayesian inference, though it is not exactly
 equivalent because the normalization constant is no longer the marginal likelihood.
 
 For a simple example of why it is important to be able to define models up to an unnormalized joint
@@ -591,12 +592,14 @@ we will in practice specify distribution objects using their log densities.
 \subsection{Representing Undirected Models}
 \label{sec:probprog:models:undirected}
 
-One important feature of our general setup that is not held by our simplified setup
-is an ability to represent undirected models.  This distinction stems from the
-ability to include multiple probability factors for the same variable.  Perhaps the easiest way to think
-about representing an undirected model in our system is by writing an importance sampler, an example of which
+One important distinction of our general setup 
+is an ability to represent undirected and cyclic models.  This stems from the
+ability to include multiple probability factors for the same variable.  For example, any arbitrary cycle in a graph
+can be represented by adding an observation of an already sampled variable.  To instead encode an
+undirected model, it is perhaps easiest to think in terms of writing an importance sampler 
+(see Section~\ref{sec:inf:foundation:importance}), an example of which
 is shown in Figure~\ref{fig:probprog:undir}.   Because the set of \sample statements in a program must
-form a directive generative model, we here use a proposal that generates all the required variables before
+form a directed and acyclic model, we here use a proposal that generates all the required variables before
 using \observe statements to correct the trace density to that which is desired.
 
 \begin{figure}[t]
@@ -633,22 +636,22 @@ using \observe statements to correct the trace density to that which is desired.
 			\end{algorithmic}
 			\subcaption{Query code\label{fig:probprog:undir-code}}
 		\end{minipage}
-	\caption{Example of modeling an undirected model using our general purpose setup.  Here
+	\caption{Example of encoding an undirected model.  Here
 		we have an undirected factor graph model (see e.g.~\cite{bishop2006pattern}) which we
-		can encode in our general purpose setup by writing down an importance sampler which
+		can encode by writing down an importance sampler which
 		first samples the variables from some proposal $q$, before correcting the unwanted effect
 		this has on the probability trace by adding in a factor equal to the reciprocal of the density.
 		Provided that $q$ is a valid proposal (see Section~\ref{sec:inf:foundation:importance}), the
 		query defines the same distribution as the factor graph.
 		\label{fig:probprog:undir}
-		\vspace{5pt}}
+		\vspace{-5pt}}
 \end{figure}
 
-Although this approach allows one to encode undirected models, it can sometimes be an somewhat
-cumbersome approach.  For example, it forces the user to choose an appropriate proposal
+Although it does not theoretically restrict the models which can be encoded, this can sometimes be an somewhat
+cumbersome approach for encoding undirected models.  For example, it forces the user to choose an appropriate proposal
 which somewhat goes against the philosophy of automating inference.  Furthermore, though one is not restricted 
 to using importance sampling for the inference, performance
 may still suffer compared to methods specifically designed for working on
 factor graphs.  Therefore, using PPLs such as Infer.Net~\citep{minka_software_2010} and Factorie~\citep{mccallum_nips_2009}
-that are explicitly built around effective support for factor graphs will often tend to be preferable for
-models that are well represented by conventional factor graphs.
+will often tend to be preferable for models that are well represented by conventional factor graphs
+as they explicitly built around providing effective support for them.
