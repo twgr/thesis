@@ -184,7 +184,7 @@ even though $Z_N$ is an unbiased estimator of $Z$, $1/Z_N$ is not an unbiased
 estimator of $1/Z$. The latter follows directly from Jensen's inequality
 noting that inversion is a convex function for strictly positive inputs,
 \begin{align}
-\E \left[\frac{1}{\sum_{n=1}^{N} w_n}\right] \ge \frac{1}{\E \left[\sum_{n=1}^{N} w_n\right]} = \frac{1}{Z},
+\E \left[\frac{1}{\frac{1}{N}\sum_{n=1}^{N} w_n}\right] \ge \frac{1}{\E \left[\frac{1}{N}\sum_{n=1}^{N} w_n\right]} = \frac{1}{Z},
 \end{align}
 where equality holds if and only if $Z_N$ is a zero variance estimator for $Z$ (which
 typically happens only in the limit $N\rightarrow\infty$).  However, it can be shown that the
