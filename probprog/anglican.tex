@@ -227,9 +227,9 @@ call syntax as per what is required by the Anglican inference engine.
 %required by the inference engine to perform inference and has the corresponding required call structure
 %for the input required by the engine.
 
-\begin{figure}[p]
+\begin{figure}[t]
 		\centering	
-		\vspace{-20pt}		
+	%	\vspace{-20pt}		
 \rule{\linewidth}{0.4pt}
 \vspace{-28pt}		
 		\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,multicols=2,frame=none]
@@ -324,7 +324,7 @@ this is done automatically (except when the function itself is higher order) usi
 {\small \lsi{with-primitive-procedures}} that takes as inputs Clojure functions and creates an environment where
 these functions have been converted to their appropriate CPS forms.
 
-We finish our introduction by noting the ability of Anglican to \emph{nest} queries within one another.  This
+An important feature of Anglican for our purposes is its ability to \emph{nest} queries within one another.  This
 is somewhat experimental and comes with a number of health warnings because, as we will explain in Chapter~\ref{chp:nest},
 it allows users to write so-called \emph{nested estimation} problems that fall beyond the scope of the standard
 proofs of convergence for stand Monte Carlo estimation schemes. Nonetheless, there are problems that cannot
@@ -335,3 +335,71 @@ using a \doquery within a custom distribution defined by \defdist, or using the 
 takes a query and returns a distribution object constructor corresponding to that query, 
 for which the inputs to the query become the parameters.
 We will return to consider the statistical implications of this at length in Section~\ref{sec:nest:imp}.
+
+\subsection{Formal Interpretation of observe}
+\label{sec:probprog:anglican:observe}
+
+We finish our introduction to Anglican by discussing a more formal
+interpretation of the \observe special form than that taken
+in the existing documentation.  In short, \observe statements are 
+formally factors applied to the unnormalized 
+trace density (akin to the use of
+ ``score'' functions in
+\citep{staton2016semantics}), rather than likelihood terms.  This is because
+distribution objects do not have explicit associated measures, with the  trace density
+reference measure implicitly defined only through
+the \sample statements.  Consequently, \observe internally evaluates
+the density of the observation and directly factors the trace density with the
+resulting numeric value, without any consideration of whether this numeric value
+corresponds to a probability or a probability density (i.e. whether the 
+reference measure for the distribution object was counting or Lebesgue).
+The impact of this perhaps best understood
+through the following example
+\vspace{-15pt}
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,multicols=2,frame=none]
+(defquery q1 [y]
+ (let [x (sample (normal 0 1))]
+  (if (< x 0) 
+   (observe (normal 0 1) y)
+   (observe (poisson 1) y))
+  x))
+	
+(defquery q2 [y]
+ (let [x (sample (normal 0 1))
+       z (if (< x 0)
+           (sample (normal 0 1))
+           (sample (poisson 1)))]
+  (observe (flip 1) (= y z))
+  x))
+\end{lstlisting}\vspace{-15pt}
+One would intuitively expect these queries to induce the same distribution on outputs: 
+instead of directly observing \clj{y}, \clj{q2} is sampling a new variable \clj{z} (with
+ostensibly the same distribution as the conditioning on \clj{y} in \clj{q1})
+and then conditioning on the event \clj{y}$=$\clj{z} occurring with probability $1$. 
+We can
+see that if, for example, $y=2$, then \clj{q2} will only output positive values for
+\clj{x}, as is it infinitely more probable to generate
+$y$ as exactly $2$ if we take the second branch than the first.  
+However, Anglican actually interprets
+\clj{q1} very differently to this: it effectively 
+treats the \observe in each branch as being defined with respect to the same
+measure,
+weighting the density for traces which take the first branch by $\frac{1}{\sqrt{2\pi}}\exp\left(-y^2/2\right)$ and traces which take the second
+branch by $e^{-1}/y!$.  Consequently, \clj{q1} will still generate negative values of
+\clj{x}.
+
+Though there is nothing mathematically wrong with this approach and it does
+not restrict the class of models which can be encoded, we argue that it is misleading
+and should be changed.   The natural way to do this would be to associate
+reference measures with distribution objects, such that it would become possible 
+to assert that some traces are dominated by others because of differences in
+the reference measures of the invoked \observe statements, e.g. traces taking
+the former branch are dominated by those taking the latter in \clj{q1}.
+If a trace is dominated, its density is simply set to zero.
+Though establishing dominated traces could
+potentially be achieved using static code analysis (at least for a restricted class of
+programs), a much simpler approach would be
+to establish domination at runtime by associating output samples with reference
+measures and pruning samples (e.g. by setting the sample weight to zero)
+as and when it becomes apparent that they are dominated.  We leave the specific
+implementation of such an approach to future work.
