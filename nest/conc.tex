@@ -3,9 +3,7 @@
 \section{Implications For Nesting Probabilistic Programs}
 \label{sec:nest:imp}
 
-Given our results, it is now natural to ask: what are the implications for nesting probabilistic programming queries?\footnote{A more
-	up-to-date version of the work in this section
-	is provided in~\citep{rainforth2017nestpp}.}
+Given our results, it is now natural to ask: what are the implications for nesting probabilistic programming queries?
 In particular, when is doing
 this valid and are there any precautions we can take to avoid problems?  Before
 we get to these questions though, we first need to explicitly define what we
@@ -25,31 +23,40 @@ For example, the Schelling coordination example we gave in Figure~\ref{fig:probp
 is clearly an example of a nested calling structure as it is explicitly a single query,
 while the original version of this problem~\cite[Figure 6]{stuhlmuller2014reasoning}
 is actually an (equivalent!) example of a true nested query.  It turns out that this
-constitutes one of our special cases that can be reformulated to a single estimate (namely
+constitutes a special case that can be reformulated to a non-nested estimate (namely
 no random variables are passed \emph{to} the nested query).
 In the rest of this section, we will delineate possible ways one might want
 to nested probabilistic program queries and
 assert their respective correctness (or lack thereof) and required conditions.
-Namely, we will consider \emph{sampling} from the conditional distribution
-of another query, \emph{observing} another query, and using \emph{estimates as variables}
-in another query.  We will further identify some special cases which can be rearranged to single estimators or
-provide Monte Carlo convergence rates even when expressed as nested queries.
+Namely, we will consider
+sampling from the conditional
+distribution of another query (which we refer to as \emph{nested
+inference}), factoring the trace probability of one query
+with the partition function estimate of another (which we
+refer to as \emph{nested conditioning}), and using expectation estimates
+calculated using one query as \emph{first class variables}
+in another.
 
-\subsection{Nested Sampling}
+We note that a more	up-to-date, and substantially more comprehensive, version of the work in this section
+	is provided in~\citep{rainforth2017nestpp}, which should thus be referred to for
+further reading.
+
+\subsection{Nested Inference}
 \label{sec:nest:imp:sampling}
 
 One of the clearest ways one might want to nest queries is by sampling from the conditional
 distribution of one query inside another query.  Due to the ``sample then check'' setup of
 Church, all of the examples given in~\cite{stuhlmuller2014reasoning} are by proxy this
-type of query nesting,\footnote{Even though the nested calls are made inside the conditioning
-	predicate for these examples, the semantics of the language is to sample these
-	and then check if the predicate holds as a hard constraint.  This is equivalent to doing a nested
-	sampling in the program and then evaluating a deterministic predicate using our PPL notation.}
-as is any usage of the \conditional predicate in Anglican.\footnote{This is because 
-	\lsi{conditional} is only currently supported for use
-with \lsi{sample} statements and inference algorithms that do not require the density to be evaluated.}
-Such problems fall under a more general framework of \emph{nested inference}~\cite{mantadelis2011nesting} or equivalently inference for so-called
-\emph{doubly intractable} distributions~\citep{murray2006mcmc} (or multiply intractable
+type of query nesting,
+%\footnote{Even though the nested calls are made inside the conditioning
+%	predicate for these examples, the semantics of the language is to sample these
+%	and then check if the predicate holds as a hard constraint.  This is equivalent to doing a nested
+%	sampling in the program and then evaluating a deterministic predicate using our PPL notation.}
+as is using the \conditional predicate inside Anglican queries.\footnote{It should be noted that \lsi{conditional} 
+	is still very much a developmental feature of Anglican and though it was used for nesting in this
+	way in~\citep{le2016nested}, this is not officially recommended usage.}
+Such problems fall under a more general framework of inference for so-called
+\emph{doubly intractable} distributions~\citep{murray2006mcmc,mantadelis2011nesting} (or multiply intractable
 	distributions for repeated nesting~\citep{stuhlmuller2014reasoning}).
 	 The key feature of these problems is that they include
 terms with unknown, \emph{parameter dependent}, normalization constants.  For nested probabilistic programming
@@ -89,7 +96,7 @@ traces for the first model is straightforwardly given by
 \gamma_1(z,y,D) = p(y)p(z|y)p(D|y,z) = \textsc{Beta}(y;2,3) \textsc{Gamma}(z;y,1) \mathcal{N}(D;z,y^2),
 \]
 for which we can clearly use conventional Monte Carlo inference schemes.  The second model
-is only subtly, but critically different in that $p(z|y)p(D|y,z)$ is conditionally normalized 
+is subtly, but critically, different in that $p(z|y)p(D|y,z)$ is conditionally normalized 
 before being used in the outer query
 \[
 \gamma_2(z,y,D) = p(y)p(z|y,D) = p(y)\frac{p(z|y)p(D|y,z)}{\int p(z|y)p(D|y,z)dz} = p(y)\frac{p(z|y)p(D|y,z)}{p(D|y)} \neq \gamma_1(z,y,D).
@@ -102,8 +109,12 @@ distribution exactly.  By normalizing $p(z|y)p(D|y,z)$ within the outer query,
  in \clj{inner} -- noting
  that $\gamma_1 (z,y,D) \propto p(y|D)p(z|y,D)$ -- such that the \observe statement only affects the probability
  of $z$ given $y$ and not the probability of $y$.
+Note that if we had observed the \emph{output} of the inner query, rather than sampling
+ from it, this would still constitute a nested inference problem.  The key to the nesting
+ is the conditional normalization applied by \conditional, not the exact usage of the generated 
+ distribution object \clj{dist}.
  
- Unfortunately the inverse function $f(x) = 1/x$ constitutes
+ Unfortunately, the inverse function $f(x) = 1/x$ constitutes
 a nonlinear mapping and so expectations with respect to nested queries defined in this way using
 \conditional will generally require nested estimation schemes unless we can find a means of
 sampling from $p(z|y,D)$ exactly with finite computational budget.
@@ -169,118 +180,172 @@ Section~\ref{sec:inf:foundation:importance:self-norm}, expectations with respect
 biased, which we can think of in the NMC context as occurring because the inversion of the unbiased marginal likelihood estimate
 induces a bias.  In addition to the possibility that we might be able to get around this
 problem using exact sampling as discussed in the last paragraph, it might also be possible to
-use debiasing techniques to remove the particular bias that is generated, see e.g.~\cite{glynn2014exact,jacob2017smoothing}.
+use debiasing techniques to mitigate the particular bias that is generated, see e.g.~\cite{glynn2014exact,jacob2017smoothing}.
 
-One special case where consistency can be maintained, even without rearrangement,
- is if the inner query takes no 
-random variables as inputs, as is the case for
+One special case where consistency can be maintained without requiring infinite computation for each nested call
+is when the variables passed to the inner query can only take on, say $C$, finite
+possible values. Of particular note, is the case when only deterministic variables are passed to the inner
+query, corresponding to $C=1$, as is the case for
 the Schelling coordinate example in~\cite[Figure 6]{stuhlmuller2014reasoning}.  
-A condition for this is that we use a method that provides an unbiased estimate of 
-the marginal likelihood (e.g. importance sampling or SMC) and weight the trace appropriately
-with the product of this marginal likelihood estimate and the internal self-normalized weight
-of the returned sample.  
-If this conditioned is maintained, we can demonstrate the validity of the approach by noting that
-the normalization constant of the nested query is not parameter dependent, i.e. $p(D|y)=p(D)$ 
-using the notation from our earlier example.  It can, therefore, 
-be factored into that of the outer query as the nested query now defines the same distribution 
-as if the conditional query were replaced with a \defm.  We can therefore actually view inference 
-on such problems as taking a pseudo-marginal approach, provided that all samples returned from
-conditional are properly weighted~\citep{naessethLS2015nested} as previously described.
-The correctness of this approach then clearly follows from a combination of
-Theorems~\ref{the:finite-res} and \ref{the:prod}.
-However, Anglican's current use of \conditional does not
-satisfy our requirement as it only returns unweighted samples.\footnote{Unfortunately, this
-	means that, though still practically potentially useful, Anglican's current usage of {\footnotesize \lsi{conditional}}
-	for nesting never provides consistent estimates unless the inner query contains no conditioning, 
-	in which
-	case its behavior is equivalent to \lsi{defm} anyway.  It should be noted, though, that no claims 
-	to the contrary have ever been made, with \lsi{conditional} still very much a developmental feature
-	of the language.}
-Therefore, for Anglican to provide consistent estimates in such situations, we would need to
-change the probabilistic semantics of \conditional, such that it
-both produces a sample and simultaneously weights the trace using the unnormalized weight of the returned particle in the inner query.  In other words, it would need to operate in a similar fashion
-to the following simplified code
-\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,frame=none]
-(defn conditional-sample [inner-query inputs inf-alg M inf-opts]
- (let [samp (nth M (doquery inf-alg inner-query inputs inf-opts))]
-  (observe (factor) (get-log-weight samp))
-  (:result samp)))
-\end{lstlisting}
-\vspace{-10pt}
-where we first run inference with budget \clj{M} to produce a sample, then weight the program trace
-using the (unnormalized) sample weight, and finally return the value of the sample.
-Remember though that this only addresses the special case where \clj{input} is not a random variable
-and \clj{inf-alg} is an inference algorithm producing properly weighted samples.
-
-Another special case is problems where the variables passed to the inner query can only take on, say $C$, finite
-possible values. As
-explained in Section~\ref{sec:linear_case}, such problems can always be rearranged to
+As per Section~\ref{sec:discrete}, we can rearrange such problems to
 $C$ separate estimators such that the standard Monte Carlo error rate can be achieved.
-For repeated nesting, this rearrangement can be recursively applied until one achieves
-a complete set of non-nested estimators.  This special case is one which requires rearrangement
-or a specialist consideration by the language back-end (as done by \cite{stuhlmuller2012dynamic,stuhlmuller2014reasoning,cornish2017efficient}),
-with na\"{i}ve implementations leading to NMC convergence rates.  It emphasizes that
-nested problems with continuous variables are a fundamentally different problem
-class to those with only discrete bounded variables (or only continuous variables at the bottom layer)
-and we must, therefore, be wary of presuming that results from the discrete case carry over.
-Nonetheless, in the same way that it is often necessary to use Monte Carlo rather than enumeration
-for inference in discrete problems because there are too many possible outcomes to enumerate, 
-it will still often be necessary from a practical perspective
-to use NMC for discrete problems. Ideally one should then do this in a manner that identifies and exploits the fact that
-the inner estimator is often called multiple times with the same inputs such that the samples
-from these calling can be combined (e.g. as done by~\cite{stuhlmuller2012dynamic}).
+This is perhaps easiest to see by noting that for such problems, $\int \pi_i(y,z)dz$ can
+only take on $C$ distinct values, leading to a separate, non nested, inference problem through enumeration.
+For repeated nesting, the rearrangement can be recursively applied until one achieves
+a complete set of non-nested estimators.  To avoid inferior NMC convergence rates, this special case requires 
+explicit rearrangement
+or a specialist consideration by the language back-end (as done by e.g. \cite{stuhlmuller2012dynamic,stuhlmuller2014reasoning,cornish2017efficient}).  For example, one can
+dynamically catch the inner query being called with the same inputs, e.g. using memoization, and then exploit the fact that all
+such cases target the same inference problem.  Care is required in these approaches to ensure the correct
+combination with outer query, e.g. returning properly weighted samples and ensuring the budget of the
+inner queries remains fixed.
 
-\subsection{Nested Observation}
+%One special case where consistency can be maintained, even without rearrangement,
+% is if the inner query takes no 
+%random variables as inputs, as is the case for
+%the Schelling coordinate example in~\cite[Figure 6]{stuhlmuller2014reasoning}.  
+%A condition for this is that we use a method that provides an unbiased estimate of 
+%the marginal likelihood (e.g. importance sampling or SMC) and weight the trace appropriately
+%with the product of this marginal likelihood estimate and the internal self-normalized weight
+%of the returned sample.  
+%If this condition is maintained, we can demonstrate the validity of the approach by noting that
+%the normalization constant of the nested query is not parameter dependent, i.e. $p(D|y)=p(D)$ 
+%using the notation from our earlier example.  It can, therefore, 
+%be factored into that of the outer query as the nested query now defines the same distribution 
+%as if the conditional query were replaced with a \defm.  We can therefore actually view inference 
+%on such problems as taking a pseudo-marginal approach, provided that all samples returned from
+%conditional are properly weighted~\citep{naessethLS2015nested} as previously described.
+%The correctness of this approach then clearly follows from a combination of
+%Theorems~\ref{the:finite-res} and \ref{the:prod}.
+%However, Anglican's current use of \conditional does not
+%satisfy our requirement as it only returns unweighted samples.\footnote{Unfortunately, this
+%	means that, though still practically potentially useful, Anglican's current usage of {\footnotesize \lsi{conditional}}
+%	for nesting never provides consistent estimates unless the inner query contains no conditioning, 
+%	in which
+%	case its behavior is equivalent to \lsi{defm} anyway.  It should be noted, though, that no claims 
+%	to the contrary have ever been made, with \lsi{conditional} still very much a developmental feature
+%	of the language.}
+%Therefore, for Anglican to provide consistent estimates in such situations, we would need to
+%change the probabilistic semantics of \conditional, such that it
+%both produces a sample and simultaneously weights the trace using the unnormalized weight of the returned particle in the inner query.  In other words, it would need to operate in a similar fashion
+%to the following simplified code
+%\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,frame=none]
+%(defn conditional-sample [inner-query inputs inf-alg M inf-opts]
+% (let [samp (nth M (doquery inf-alg inner-query inputs inf-opts))]
+%  (observe (factor) (get-log-weight samp))
+%  (:result samp)))
+%\end{lstlisting}
+%\vspace{-10pt}
+%where we first run inference with budget \clj{M} to produce a sample, then weight the program trace
+%using the (unnormalized) sample weight, and finally return the value of the sample.
+%Remember though that this only addresses the special case where \clj{input} is not a random variable
+%and \clj{inf-alg} is an inference algorithm producing properly weighted samples.
+%
+%Another special case is problems where the variables passed to the inner query can only take on, say $C$, finite
+%possible values. As
+%explained in Section~\ref{sec:linear_case}, such problems can always be rearranged to
+%$C$ separate estimators such that the standard Monte Carlo error rate can be achieved.
+%For repeated nesting, this rearrangement can be recursively applied until one achieves
+%a complete set of non-nested estimators.  This special case is one which requires rearrangement
+%or a specialist consideration by the language back-end (as done by \cite{stuhlmuller2012dynamic,stuhlmuller2014reasoning,cornish2017efficient}),
+%with na\"{i}ve implementations leading to NMC convergence rates.  It emphasizes that
+%nested problems with continuous variables are a fundamentally different problem
+%class to those with only discrete bounded variables (or only continuous variables at the bottom layer)
+%and we must, therefore, be wary of presuming that results from the discrete case carry over.
+%Nonetheless, in the same way that it is often necessary to use Monte Carlo rather than enumeration
+%for inference in discrete problems because there are too many possible outcomes to enumerate, 
+%it will still often be necessary from a practical perspective
+%to use NMC for discrete problems. Ideally one should then do this in a manner that identifies and exploits the fact that
+%the inner estimator is often called multiple times with the same inputs such that the samples
+%from these calling can be combined (e.g. as done by~\cite{stuhlmuller2012dynamic}).
+
+\subsection{Nested Conditioning}
 \label{sec:nest:imp:obs}
 
-An alternative way one might wish to nest queries is through nested observation, whereby we
-observe the output of another query rather than sampling from it.  For hard-constraints such
-as used in Church, this is equivalent to query nesting through sampling.  However, for soft
-constraints it can be substantially different.  The distinction is the same as that between
-\sample and \observe~-- we are observing an outcome of a program, rather than sampling
-from it.  As \observe returns no outputs, the mathematical interpretation of observing 
-the output of another query is that we are weighting the outer program trace by the
-partition function estimate of the inner query.  Presuming that our partition function estimates
-are unbiased (which they will be if we use, say, SMC for the inner estimator), then
-this corresponds to a particular instance of the products of expectations special case
-covered by Theorem~\ref{the:prod}.  It, therefore, immediately follows that if
-the outer estimator uses importance sampling, then such an approach is consistent.  More
-generally, this case corresponds to a pseudo-marginal approach where the samples
-from the inner estimator are never returned.  We can, therefore, use existing results
-to demonstrate the consistency of the approach for other choices of outer estimator.
-For example, consistency when using SMC in the outer estimator follows directly
-from a combination of Theorem~\ref{the:prod} and the results of~\cite{naessethLS2015nested}.
-It should also be possible to construct consistent approaches using MCMC samplers
-at the top level as per~\cite{andrieu2009pseudo}, but this would require more
-careful consideration.
+An alternative way one might wish to nest queries is to 
+use the partition function estimate of one query to factor the trace probability of another.
+We refer to this as \emph{nested conditioning}.  
+In its simplest form, we can think about conditioning on the values input
+to the inner query.  In Anglican we can carry this out by
+using the following custom distribution object constructor
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,frame=none]
+(defdist nest [inner inputs inf-alg M] []
+ (sample [this] nil)
+ (observe [this _] 
+  (log-marginal (take M 
+   (doquery inf-alg inner inputs)))))    
+\end{lstlisting}
+\vspace{-4pt}
+When the resulting distribution object is observed, this will now generate, and factor the
+trace probability by,
+a partition function estimate for \clj{inner} with inputs \clj{inputs}, constructed using \clj{M} 
+samples of the inference algorithm \clj{inf-alg}.  For example, if we were to use the query 
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize,frame=none]
+(defquery outer [D]
+ (let [y (sample (beta 2 3))]
+  (observe (nest inner [y D] :smc 100) nil) 
+  y))
+\end{lstlisting}
+\vspace{-4pt}
+with \clj{inner} from the nested inference example, then this would form a
+pseudo marginal sampler~\citep{andrieu2009pseudo} for the unnormalized target distribution
+\begin{align*}
+	\pi_c(y,D)=&\textsc{Beta}(y;2,3) \int  \, \Gamma(z;y,1) \, \mathcal{N}(D;y,z^2) dz.
+\end{align*}
+Unlike the nested inference case, nested conditioning turns out to be valid even if our
+budget is held fixed, provided that the partition function estimate is unbiased,
+as is satisfied by, for example, importance sampling and SMC.  In fact, it is important to hold the budget fixed to achieve 
+a MC convergence rate.
 
-In addition to the statistical complications just discussed,
-there are some significant semantic complications associated with observing
-another query: there are actually two ways we might want to ``observe'' a nested query.
-The first is simply to run the nested query unmodified and factor the trace probability
-by the marginal likelihood estimate.  This is a perfectly reasonable thing to want to do,
-allowing us to, for example, construct a PMMH sampler (see
-Section~\ref{sec:part:pmcmc:global}).  In fact, this was exactly what we did alongside
-some manual code transformations to
-construct the PMMH benchmarks for BOPP in Section~\ref{sec:bopp:exp}.  However,
-this is not really observing the output of the inner query: it is instead a means of
-replacing an analytic likelihood term with an unbiased estimate.  The other way we might thus
-want to observe a query is to estimate the likelihood of it producing a particular output.
-Unfortunately, in general, this will be infeasible (at least without code analysis) 
-because the density of the output variables is affected by deterministic computations in the query
-(see discussion of program outputs in Section~\ref{sec:probprog:models:first}).  
-This is identical to the
-problem we encountered for BOPP, where we could not optimize with respect to arbitrary
-variables in the program because of not being able to calculate their density.
-This now presents an interesting possibility -- we could use exactly the same
-marginal transformation as in BOPP, but then use this to estimate the partition
-function with certain variables ``clamped''.  We can actually think of BOPP as being
-a nested estimation scheme where the outer estimator is an optimizer.  Therefore, we
-could use the same framework as BOPP but replace the BO optimizer
-with an estimation scheme, i.e. the outer query.  In fact, if desired, we could even 
-maintain the same usage of the GP surrogate in BOPP to, for example, carry out estimation
-using Bayesian quadrature~\citep{osborne2012active} or the scheme laid out
-by~\citep{gutmann2016bayesian}.
+
+%An alternative way one might wish to nest queries is through nested observation, whereby we
+%observe the output of another query rather than sampling from it.  For hard-constraints such
+%as used in Church, this is equivalent to query nesting through sampling.  However, for soft
+%constraints it can be substantially different.  The distinction is the same as that between
+%\sample and \observe~-- we are observing an outcome of a program, rather than sampling
+%from it.  As \observe returns no outputs, the mathematical interpretation of observing 
+%the output of another query is that we are weighting the outer program trace by the
+%partition function estimate of the inner query.  Presuming that our partition function estimates
+%are unbiased (which they will be if we use, say, SMC for the inner estimator), then
+%this corresponds to a particular instance of the products of expectations special case
+%covered by Theorem~\ref{the:prod}.  It, therefore, immediately follows that if
+%the outer estimator uses importance sampling, then such an approach is consistent.  More
+%generally, this case corresponds to a pseudo-marginal approach where the samples
+%from the inner estimator are never returned.  We can, therefore, use existing results
+%to demonstrate the consistency of the approach for other choices of outer estimator.
+%For example, consistency when using SMC in the outer estimator follows directly
+%from a combination of Theorem~\ref{the:prod} and the results of~\cite{naessethLS2015nested}.
+%It should also be possible to construct consistent approaches using MCMC samplers
+%at the top level as per~\cite{andrieu2009pseudo}, but this would require more
+%careful consideration.
+
+%In addition to the statistical complications just discussed,
+%there are some significant semantic complications associated with observing
+%another query: there are actually two ways we might want to ``observe'' a nested query.
+%The first is simply to run the nested query unmodified and factor the trace probability
+%by the marginal likelihood estimate.  This is a perfectly reasonable thing to want to do,
+%allowing us to, for example, construct a PMMH sampler (see
+%Section~\ref{sec:part:pmcmc:global}).  In fact, this was exactly what we did alongside
+%some manual code transformations to
+%construct the PMMH benchmarks for BOPP in Section~\ref{sec:bopp:exp}.  However,
+%this is not really observing the output of the inner query: it is instead a means of
+%replacing an analytic likelihood term with an unbiased estimate.  The other way we might thus
+%want to observe a query is to estimate the likelihood of it producing a particular output.
+%Unfortunately, in general, this will be infeasible (at least without code analysis) 
+%because the density of the output variables is affected by deterministic computations in the query
+%(see discussion of program outputs in Section~\ref{sec:probprog:models:first}).  
+%This is identical to the
+%problem we encountered for BOPP, where we could not optimize with respect to arbitrary
+%variables in the program because of not being able to calculate their density.
+%This now presents an interesting possibility -- we could use exactly the same
+%marginal transformation as in BOPP, but then use this to estimate the partition
+%function with certain variables ``clamped''.  We can actually think of BOPP as being
+%a nested estimation scheme where the outer estimator is an optimizer.  Therefore, we
+%could use the same framework as BOPP but replace the BO optimizer
+%with an estimation scheme, i.e. the outer query.  In fact, if desired, we could even 
+%maintain the same usage of the GP surrogate in BOPP to, for example, carry out estimation
+%using Bayesian quadrature~\citep{osborne2012active} or the scheme laid out
+%by~\citep{gutmann2016bayesian}.
 
 \begin{figure}[t]
 			\centering	

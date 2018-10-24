@@ -14,8 +14,9 @@ Bayesian experimental design requires
 the calculation of an entropy of a marginal distribution (see Chapter~\ref{chp:design}), and therefore includes the
 expectation of the logarithm of an expectation.  By extension, any Kullback-Leibler
 divergence where one of the terms is a marginal distribution also involves a nested expectation.  Hence, our results have important implications for relaxing mean field assumptions in variational
-inference \citep{hoffman2015stochastic,naesseth2017variational,maddison2017filtering} and deep generative models
-\citep{burda2015importance,maaloe2016auxiliary,le2017auto}.
+inference and deep generative models
+\citep{burda2015importance,hoffman2015stochastic,maaloe2016auxiliary,naesseth2017variational,maddison2017filtering,
+	le2017auto,rainforth2018tighter}.
 %Here the nonlinearity provided by the logarithm prevents a simple reformulation to a
 %single expectation in the general case, and thus presents conventional \mc estimation.
 Another common nested estimation scenario is calculating expectations with respect to so-called
