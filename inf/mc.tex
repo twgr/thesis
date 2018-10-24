@@ -122,7 +122,7 @@ As such, \mc is often an inferior way of estimating integrals for smooth functio
 in low dimensions.  However, these deterministic numerical integration schemes
 require smoothness assumptions on $f$ and, more critically, their convergence rates diminish rapidly (typically
 exponentially quickly) with the dimensionality.   
-By comparison, the dimensionality only effects the \mc convergence rate through changes in the 
+By comparison, the dimensionality only affects the \mc convergence rate through changes in the 
 constant factor $\sigma_{\theta}$
 and though this will typically increase with the dimensionality, this 
 scaling will usually be substantially more graceful than deterministic numerical methods.
@@ -134,7 +134,7 @@ scaling will usually be substantially more graceful than deterministic numerical
 \subsection{Convergence of Random Variables}
 \label{sec:inf:mc:conv}
 
-To introduce the concept the LLN more precisely, we now consider some more formal notations
+To introduce the concept of the LLN more precisely, we now consider some more formal notations
 of convergence of random variables.  There will be times (e.g. Chapter~\ref{chp:nest})
 when mathematical rigor will require us to distinguish between alternative notations of convergence.
 However, those less interested in theoretical details may wish to
@@ -159,7 +159,7 @@ where $\left|\cdot\right|$ denotes the absolute value.  For example, we can writ
 mean squared error used in~\eqref{eq:inf:LLN-informal} as the squared $L^2$-norm:
 $\E \left[(I_N-I)^2\right] = \norm{I_N-I}_2^2$.  We further define the notion of $L^p$-space
 as being the space of random variables for which $\norm{X}_p < \infty$.  We can now
-formally define $L^p$-convergence as follow.
+formally define $L^p$-convergence as follows.
 \begin{definition}[$L^p$-convergence]
 A sequence of random variables $X_N$ converges in its $L^p$-norm to 
 $X$ (where $p\ge1$) if $X\in L^p$, each $X_N \in L^p$, and
@@ -171,7 +171,7 @@ $X$ (where $p\ge1$) if $X\in L^p$, each $X_N \in L^p$, and
 rather than this simply being a statement of asymptotic unbiasedness, $L^p$-convergence says that the expected
 \emph{magnitude} of the error tends to zero as $N\rightarrow\infty$.
 Different values of $p$ correspond to different metrics for the error, with larger values of
-$p$ constituting stronger converge guarantees, such that $L^{p_2}$-convergence implies
+$p$ constituting stronger convergence guarantees, such that $L^{p_2}$-convergence implies
 $L^{p_1}$-convergence whenever $p_2>p_1$.  Similarly, if a random variable satisfies
 $X \in L^{p_2}$, then it follows that $X \in L^{p_1}$.
 
@@ -291,7 +291,7 @@ having a particular distribution.  For example, a variable might converge in dis
 having a unit normal distribution, whereas a different variable might converge in probability
 to zero. More formally, we can define convergence in distribution as follows.
 \begin{definition}[Convergence in distribution]
-	A sequence of random variables $X_N$ converges in distribution $X$  if
+	A sequence of random variables $X_N$ converges in distribution to $X$  if
 	\begin{align}
 		\lim\limits_{N\rightarrow\infty} P(X_N \le x) = P(X \le x)
 	\end{align}

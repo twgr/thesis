@@ -3,7 +3,7 @@
 \section{Bayesian Models as Program Code}
 \label{sec:probprog:models}
 
-In Section~\ref{sec:probprog:inv} we showed how one can think of PPS as inverting simulators, 
+In Section~\ref{sec:probprog:inv} we showed how one can think of PPSs as inverting simulators, 
 predicting internal variables given the outputs.  In this section, we will take a 
 different perspective and
 show how we can translate Bayesian modeling into the framework of program code.   
@@ -25,14 +25,14 @@ models rather than procedures.  We refer to these models as \emph{queries}~\cite
 which are analogous to functions in a ordinary language.
 In a standard programming language, functions take in inputs
 and then run through a series of commands in order until termination is reached.\footnote{In functional
-	programming languages operations are not necessary carried out in the order they are defined,
-	but it still holds that the function takes inputs carries out a series of actions until the desired output
+	programming languages operations are not necessarily carried out in the order they are defined,
+	but it still holds that the function takes inputs and then carries out a series of actions until the desired output
 	is calculated.}  Likewise, random sampling statements like {\small \texttt{rand}, \texttt{randn}}
 etc, make a single independent draw from the same distribution each time they appear in the execution trace.
 Neither is the case for a probabilistic program query.  Instead a  query defines a model
 which is compiled to a form that can be interpreted by an inference engine which then
 outputs some characterization of the posterior such as a series of samples.  Perhaps the easiest way to think
-about how a probabilistic program language works (though not necessarily what happens for all systems) is that
+about how a probabilistic programming language works (though not necessarily what happens for all systems) is that
 the query is, or sometimes parts of the query are, run many times and the exact behavior
 of this running is control by the inference engine.  
 %For example, the inference engine 
@@ -55,8 +55,8 @@ two special constructs, \sample and \observe, between which the distribution of 
 query is defined. 
 Informally, \sample will be used to specify terms in the prior and \observe terms in the
 likelihood.  More precisely, \sample will be used to make random draws $x_t \sim f_t(x_t | \Xi_t)$,
-where $\Xi_t$ is a subset of the variables in scope at the point of sampling, and \observe will use to condition on
-data $g_s(y_s|\Lambda_s)$ with $\Lambda_s$ defined in the same way as $\Xi_t$.  
+where $\Xi_t$ is a subset of the variables in scope at the point of sampling, and \observe will be used to condition on data $y_s$, factoring
+the program density by $g_s(y_s|\Lambda_s)$, with $\Lambda_s$ defined in the same way as $\Xi_t$.  
 For our inference, it will be necessary to control the sampling and so we define
 the syntax of \sample to take a \emph{distribution object} as its only input and for \observe
 to take a distribution object and an observation as input.  We further define each distribution
@@ -270,7 +270,7 @@ Perhaps surprisingly, we do not need to do anything to our language to extend it
 PPL other than to relax a number of the restrictions made for our simplified case.  Namely,
 we will allow branching, higher order functions, (potentially infinite) recursion, stochastic memoization~\citep{goodman2008church},
 conditioning on internally sampled
-variables, and the use of the ``data'' inputs $y_{1:T}$ in the definition of our generate model (instead of
+variables, and the use of the ``data'' inputs $y_{1:T}$ in the definition of our generative model (instead of
 just allowing them to be observed).  One assumption we will make, here and throughout the rest of this thesis,
 is that our program terminates with probability $1$,
 asserting that any program that does not satisfy this assumption does not define a valid model.  
@@ -459,7 +459,7 @@ both the \emph{outputs} $[2.3,3.5]$ and $[2.3,3.5,1.2]$, remembering that $\xnx$
 		As shown in \textbf{(c)} though, these \observe statements warp the distribution to
 		give a lighter tail while discouraging $k\le3$.   Here both $n_x \in \mathbb{N}^+$ and
 		$n_y \in \mathbb{N}^+$ depend on the trace and are unbounded.  Which
-		\observe we see first is also probabilistic, while it some traces will be invalid, e.g. $x_{1:n_x}=[1,0.5]$
+		\observe we see first is also probabilistic, while some traces will be invalid, e.g. $x_{1:n_x}=[1,0.5]$
 		as $x_1=1$ indicates there will be only a single \sample encountered.  Nonetheless, we can
 		calculate the probability of a trace by following its path to completion while
 		accumulating \sample and \observe factors.
@@ -557,7 +557,7 @@ all terms in the integral are deterministically calculable for the query given $
 For our query to represent a well-defined conditional distribution, it is necessary to have
 $0<Z(\lambda)<\infty$.  Although $Z(\lambda)$ does not correspond exactly to a marginal likelihood,
 we can still think of it in terms of representing a \emph{model evidence} in the same way, it just might
-not be correctly normalized density in the same way a marginal likelihood is.
+not be a correctly normalized density in the same way a marginal likelihood is.
 
 We now see that we can draw a direct analogy to the Bayesian framework whereby the product of the
 \sample terms is analogous to the prior, the product of the \observe terms is analogous to the
@@ -647,7 +647,7 @@ using \observe statements to correct the trace density to that which is desired.
 		\vspace{-5pt}}
 \end{figure}
 
-Although it does not theoretically restrict the models which can be encoded, this can sometimes be an somewhat
+Although it does not theoretically restrict the models which can be encoded, this can be a
 cumbersome approach for encoding undirected models.  For example, it forces the user to choose an appropriate proposal
 which somewhat goes against the philosophy of automating inference.  Furthermore, though one is not restricted 
 to using importance sampling for the inference, performance

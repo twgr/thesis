@@ -126,8 +126,8 @@ will drop exponentially quickly with $D$ and that our inference will break down 
 the dimensionality is too high.
 
 It is now natural to ask whether we can overcome the curse of dimensionality.  Thankfully, the
-answer in many scenarios is that we can.  In many high-dimensional scenarios then our target
-distribution will typically only have significant mass in a small proportion of the total area, often
+answer in many scenarios is that we can.  In many high-dimensional scenarios, the target
+distribution will only have significant mass in a small proportion of the total area, often
 concentrated around a lower dimensional manifold of the larger space.  This means that if
 we use inference methods that in some way exploit the structure of the target distribution and only
 search the small subset of the space with significant mass, then effective inference can still be
@@ -142,5 +142,5 @@ resources (see Chapter~\ref{chp:part}).  Variational and message passing methods
 or approximations about the structure of the model to break the inference problem down
 into a number of small problems that can then be combined into an overall estimate.
 Arguably the key to all advanced inference methods is how well they can exploit structure
-in higher dimensions, while the relative performance of difference methods tends to come down
+in higher dimensions, while the relative performance of different methods tends to come down
 to how suited the target is to their particular form of structure exploitation.

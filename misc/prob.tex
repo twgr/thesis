@@ -41,7 +41,7 @@ the chance of an event occurring.  For example, if we denote the output
 of our dice roll as $X$, then we can say that $P(X=4) = 1/6$ or that $P(X\le3) = 0.5$.  Here
 $X=4$ and $X\le3$ are events for the random variable $X$ with probabilities of $1/6$ and $0.5$
 respectively.   A probability of $0$ indicates that an event has no chance of happening, 
-for example the probability that we role an $8$, while
+for example the probability that we roll an $8$, while
 a probability of $1$ indicates it is certain to happen, for example, the probability 
 that we roll a positive number.  All probabilities must thus lie between $0$ and $1$ 
 (inclusively).  
@@ -288,7 +288,7 @@ The key point we wish to instead make is that, regardless of variable type, we c
 (implicitly) always define a probability density function.\footnote{Well, almost always.  But we
 	are not going to open that can of worms, see e.g.~\cite{durrett2010probability}.}  
 The generalization also allows us
-to put probability distributions of variables that are neither discrete nor continuous type.
+to put probability distributions on variables that are neither discrete nor continuous type.
 For example, we might want to put a distribution over the space of strings.  
 Because of this generalization, we will talk mostly in terms of probability densities throughout
 this thesis, even though variables may often be discrete (for which the density will 
@@ -297,7 +297,7 @@ represent a probability).
 We finish the section by considering the relationship between random variables which
 are deterministic functions of one another.  This important case is known as a
 \emph{change of variables}.  Imagine
-that a random variable $Y=g(X)$ is a deterministic function of another random variable $X$.
+that a random variable $Y=g(X)$ is a deterministic and invertible function of another random variable $X$.
 Given a probability density function for $X$, we can define a probability density function
 on $Y$ using
 \begin{align}
@@ -313,7 +313,7 @@ p(y) = \left|\frac{dg^{-1}(y))}{dy}\right|p(g^{-1}(y)).
 \end{align}
 For the multidimensional case, the derivative is replaced by the determinant of the
 Jacobian for the inverse mapping.  Note that by~\eqref{eq:prob:density}, changing
-variables does not change the value of actual probabilities or exceptions (see
+variables does not change the value of actual probabilities or expectations (see
  Section~\ref{sec:prob:expt}).  However,~\eqref{eq:prob:change}
 still has the important consequence that the optimum of a probability distribution
 depends on the parameterization.  For example, parameterizing the same model with
@@ -351,7 +351,7 @@ expectation for which we use the slightly loose notation
 \end{align}
 where we have implicitly defined the random variables $Y \sim p(y)$ and $X \sim p(x | Y=y)$,
 we are calculating $\E \left[f(X,Y,z) | Y=y\right]$,
-and this resulting expectation is a function of $z$ (which is treated as deterministic variable).  
+and this resulting expectation is a function of $z$ (which is treated as a deterministic variable).  
 One can informally think about this
 as being the expectation of $f(x,y,z)$ with respect to $p(x|y)dx$:
 our expectation is only over the randomness associated with drawing from $p(x|y)$.  

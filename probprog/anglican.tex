@@ -49,7 +49,7 @@ and then evaluate $a+b$, thus returning $5$.  Note that $a$ and $b$ remain undef
 
 Clojure allows various types of compound literals such as vectors, lists, hash maps, and sets.
 In general, elements in these compound literals are not restricted in
-their type so it valid to write for example {\small \lsi{[1 (fn [x] (inc x)) "2"]}} to construct a vector 
+their type so it is valid to write for example {\small \lsi{[1 (fn [x] (inc x)) "2"]}} to construct a vector 
 whose component terms are different types.
 
 Clojure does not generally use
@@ -327,7 +327,7 @@ these functions have been converted to their appropriate CPS forms.
 An important feature of Anglican for our purposes is its ability to \emph{nest} queries within one another.  This
 is somewhat experimental and comes with a number of health warnings because, as we will explain in Chapter~\ref{chp:nest},
 it allows users to write so-called \emph{nested estimation} problems that fall beyond the scope of the standard
-proofs of convergence for stand Monte Carlo estimation schemes. Nonetheless, there are problems that cannot
+proofs of convergence for standard Monte Carlo estimation schemes. Nonetheless, there are problems that cannot
 be encoded without this ability, as we will discuss in Section~\ref{sec:nest:imp}.
 Though \doquery is not allowed directly within a \defquery block, one can still nest queries by 
 either using a \doquery in a Clojure function that is then passed to another query using {\small \lsi{with-primitive-procedures}},

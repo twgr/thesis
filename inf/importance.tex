@@ -58,7 +58,7 @@ as follows
 \begin{align}
 \E \left[\frac{1}{N} \sum_{n=1}^{N} \frac{\pi(\hth_n)}{q(\hth_n)} f(\hat{\theta}_n)\right] &=
 \frac{1}{N} \sum_{n=1}^{N} \E _{q(\theta_n)}\left[\frac{\pi(\hth_n)}{q(\hth_n)} f(\hat{\theta}_n)\right] \nonumber \\
-&=\E _{q(\theta_1)}\left[\frac{\pi(\hth_1)}{q(\hth_1)} f(\hat{\theta}_n)\right] =
+&=\E _{q(\theta_1)}\left[\frac{\pi(\hth_1)}{q(\hth_1)} f(\hat{\theta}_1)\right] =
 \E _{\pi(\theta)}\left[f(\theta)\right]
 \end{align}
 where we have effectively stepped backward through~\eqref{eq:inf:importance}.\footnote{Note that
@@ -119,7 +119,7 @@ Aside from the clear practical issues, if this requirement does not hold, then
 it can easily be the case that $\sigma_{\theta}=\infty$ and thus that the estimator
 has infinite variance.  Consider, for example, the case where 
 $\pi(\theta) = \mathcal{N}(\theta ; 0,1)$, $f(\theta)=\theta$, and
-$q(\theta) = \mathcal{N}(\theta ; 0,s^2)$ (Example 9.1 from~\cite[example 9.1]{owen2013mc}).
+$q(\theta) = \mathcal{N}(\theta ; 0,s^2)$ (Example 9.1 from~\cite{owen2013mc}).
 Noting that the mean, $I$, is zero by symmetry and defining $\nu = \frac{1}{2s^2}-1$, we have that
 %, $\mathrm{erf}$ is the error function for which $\mathrm{erf}(\infty)=-\mathrm{erf}(-\infty)=1$)
 \begin{align}
@@ -354,7 +354,7 @@ in Chapter~\ref{chp:part}.
 %this leads to the sequential importance resampling algorithm which is the backbone of 
 %sequential \mc methods.
 
-Mathematically, we can express resampling as producing a set unweighted resampled
+Mathematically, we can express resampling as producing a set of unweighted resampled
 samples $\left\{\tilde{\theta}_n\right\}_{n=1}^N$ using
 \begin{align}
 \label{eq:inf:resampling}

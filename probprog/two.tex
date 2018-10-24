@@ -11,7 +11,7 @@ arbitrary probabilistic code to be written.
 %, even that which might not correspond to a valid model.  
 Often there is a trade-off between efficiency and expressivity: the more restricted
 one makes the language, the more those restrictions can be exploited to improve the efficiency
-of the inference.  This leads itself two distinct philosophies when developing a system. 
+of the inference.  This lends itself to two distinct philosophies when developing a system. 
 Firstly one can start with a particular inference algorithm and then design a system around making it as
 easy as possible to write models for which that inference algorithm is suitable.  Secondly one can start
 with  a general purpose language that allows as many models as possible to be written and then try to construct
@@ -134,7 +134,7 @@ in Section~\ref{sec:probprog:models:first}.  At its back end, WebPPL provides a 
 algorithms, such as SMC and MCMC methods.
 
 Pyro~\citep{pyro-software} and ProbTorch~\citep{siddharth2017learning} are two early-stage PPLs based on 
-PyTorch~\cite{paszke2017automatic} that share 
+PyTorch~\citep{paszke2017automatic} that share 
 many design characteristics.  Similarly to Edward, they allow modeling of neural networks, but differ
 in that they construct gradients dynamically, allowing things such as stochastic control and recursion.
 

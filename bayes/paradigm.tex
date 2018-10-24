@@ -56,8 +56,9 @@ drastic changes to our underlying belief,\footnote{This is not always quite true
 view will change.
 Furthermore, once we have developed
 a strong prior belief about something, we can take substantial convincing to change our mind, even
-if that prior belief is high illogical.  Perhaps this why humans seem to have a tendency to develop
-deep-rooted prejudices.
+if that prior belief is highly illogical.  
+%Perhaps this is why humans seem to have a tendency to develop
+%deep-rooted prejudices.
 
 There is similarly something distinctively Bayesian to the scientific process itself.  In science, we construct models
 to explain observed phenomena and then run experiments to validate how well our model matches
@@ -168,7 +169,7 @@ and $\beta$.
 
 More generally the posterior predictive distribution will depend on a queried input point.
 To demonstrate this, consider the example of a Bayesian linear regression from inputs $x\in\real^D$
-to outputs $y\in\real^D$.  Assume that we have $N$ observations $\mathcal{D} = \{x_n,y_n\}_{n=1}^N$
+to outputs $y\in\real$.  Assume that we have $N$ observations $\mathcal{D} = \{x_n,y_n\}_{n=1}^N$
 and let $\mathbf{x}=[x_1,\dots,x_N]^T$ and $\mathbf{y}=[y_1,\dots,y_N]^T$ respectively be 
 a $N\times D$ matrix and a column vector whose rows correspond to the different data points.
 Our regression is of the form $y_n= x_n^T\mathbf{w}+b+\epsilon_n$ where $\mathbf{w}\in\real^D$, $b\in\real$
@@ -228,16 +229,16 @@ sampling scenes.
 More generally, the model corresponds to the joint distribution on parameters and data $p(\theta,\mathcal{D})$.
 We can then think of observing real data as refining our model through \emph{conditioning}, providing an updated distribution
 on the parameters $p(\theta|\mathcal{D})$ and subsequent predictions that incorporate the information from the data.  The more
-flexible we make our generative model, the more we can make it represent the our data.  The less flexible
+flexible we make our generative model, the more we can make it represent the data.  The less flexible
 we make the generative model, the more weighting is given to our prior assumptions.
 
-We finish by making a technical point of note about the behavior of Bayesian methods of the limit of large
+We finish by making a technical point of note about the behavior of Bayesian methods in the limit of large
 data.  Assume that our likelihood model $p(\mathcal{D}|\theta)$ is correct such that the data $\mathcal{D} = y_{1:N}$
 is generated according to 
 $p(y_{1:N} | \theta^*)$ where $\theta^*$ are the (finite) set of ground truth parameters 
 and the prior $p(\theta)$ satisfies $p(\theta^*)>0$.  Informally speaking, the Bernstein-Von Mises theorem now states
 that in the limit of large $N$, the posterior distribution $p(\theta | y_{1:N})$ converges to a normal distribution 
-we mean $\theta^*$ and variance of order $O(1/N)$ 
+with mean $\theta^*$ and variance of order $O(1/N)$ 
 (i.e. it decreases at a rate $1/N$)~\citep{doob1949application,freedman1963asymptotic}.  This is a hugely important
 result in Bayesian statistics as it demonstrates that, when our model assumptions are correct, we converge to the true parameters 
 and the posterior becomes independent of the prior when we are provided with sufficient data.  It further transpires that when no such $\theta^*$ exists (i.e. our model is misspecified), the convergence
